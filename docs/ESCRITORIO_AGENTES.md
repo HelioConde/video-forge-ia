@@ -7,9 +7,10 @@ Visualizar os agentes do VideoForge AI como trabalhadores em um escritório, com
 ## Arquitetura
 
 - **`agentes/equipe.json`**: cadastro central de oito agentes, etapas, dependências e habilitação (atualmente todos desabilitados).
-- **`site/index.html`**: composição da página responsiva.
-- **`site/styles.css`**: cenário e personagens originais feitos com CSS.
-- **`site/app.js`**: seleção de agentes/canais, indicadores e leitura do snapshot.
+- **`site/index.html`**: estrutura da página em viewport inteiro, controles sobrepostos e painel lateral.
+- **`site/office-renderer.js`**: motor Canvas 2D original com sala, móveis, sprites, seleção, zoom e arraste; sem imagens de terceiros.
+- **`site/styles.css`**: layout full-viewport com HUD e painel flutuantes, responsivo para mobile.
+- **`site/app.js`**: coordenação de UI, zoom/fullscreen, lista de agentes/canais e leitura do snapshot.
 - **`site/data/status.json`**: dados mínimos, publicáveis. O arquivo incluído no Git é apenas um snapshot inicial com agentes não conectados.
 - **`scripts/build_dashboard_data.py`**: prepara snapshot a partir de `canal/*/canal.json`, exportando somente campos não sensíveis.
 - **`.github/workflows/pages.yml`**: testa e publica automaticamente mudanças relevantes da branch `main`, com opção de acionamento manual.
@@ -57,3 +58,21 @@ Veja [o guia local e a ativação do Pages](../site/README.md).
 - Antes de declarar a publicação concluída, conferir o estado do Actions e a URL de Pages fornecida pelo GitHub; se houver falha, investigar.
 - O site Pages pode ser publicamente acessível mesmo que o repositório seja privado. Manter a saída do exportador saneada.
 - **Publicar o painel não é autorizar upload de vídeos** nem executar IAs reais.
+
+## Interface Canvas 2D em tela inteira — versão 2
+
+O espaço de trabalho ocupa toda a altura disponível da janela (100dvh, descontado apenas o cabeçalho compacto). O canvas adapta-se automaticamente ao tamanho da janela e usa renderização pixelated sem interpolação.
+
+Recursos:
+- Cenário próprio, visto de cima, com piso, divisórias, janelas, plantas, salas de reunião, mesas, monitores e oito sprites personalizados.
+- Seleção de agente clicando ou tocando diretamente no cenário, com inspetor aberto ao lado (no celular: painel inferior).
+- Zoom via roda do mouse ou botões +/-; arrastar para navegar, pinça com dois dedos para ampliar e botão de centralização.
+- Botão para colocar o espaço de trabalho em fullscreen pelo navegador, quando suportado.
+- Lista de agentes e cinco canais disponível em abas.
+- Diferenciação entre sprite decorativo e trabalho real: somente eventos do backend marcam atividade. Status original `nao_conectado` permanece visível em cada agente.
+
+Não copiar sprites, texturas ou assets do Pixel Agents. O escritório foi desenhado por código e usa apenas seus conceitos de usabilidade.
+
+### Testes e publicações
+
+O Actions valida JavaScript, os testes Python e a existência da estrutura de Canvas antes do deploy automático no GitHub Pages. Um deploy bem-sucedido confirma a publicação dos arquivos, **não** comprova atividade dos agentes.

@@ -21,7 +21,9 @@ jobs:
       - name: Executar testes
         run: python -m unittest discover -s tests -v
       - name: Validar JavaScript do painel
-        run: node --check site/app.js
+        run: |
+          node --check site/app.js
+          node --check site/office-renderer.js
       - name: Gerar e validar snapshot público
         run: python scripts/build_dashboard_data.py --output /tmp/videoforge-status.json
       - name: Simular storyboard de 10 segundos (sem publicar)

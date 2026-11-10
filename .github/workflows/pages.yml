@@ -35,7 +35,9 @@ jobs:
       - name: Testes da aplicacao
         run: python -m unittest discover -s tests -v
       - name: Verificar JavaScript
-        run: node --check site/app.js
+        run: |
+          node --check site/app.js
+          node --check site/office-renderer.js
       - name: Gerar snapshot publico sem segredos
         run: python scripts/build_dashboard_data.py --output site/data/status.json
       - name: Configurar Pages

@@ -1,6 +1,6 @@
 # VideoForge AI — Escritório de Agentes
 
-Site estático original em `site/`, inspirado no conceito de escritórios pixel-art de agentes, como Pixel Agents e Pixel Office. O código e os gráficos são próprios, sem copiar ativos visuais de terceiros.
+Site estático original em `site/`, com **Canvas 2D em tela inteira**, inspirado no conceito de escritórios pixel-art de agentes, como Pixel Agents para VS Code. O código e os gráficos são próprios, sem copiar ativos visuais de terceiros.
 
 ## Executar localmente
 
@@ -9,7 +9,7 @@ python scripts/build_dashboard_data.py
 python -m http.server 8000 --directory site
 ```
 
-Abra `http://localhost:8000` para visualizar os oito agentes e cinco canais.
+Abra `http://localhost:8000` para visualizar o escritório fullscreen com os oito agentes e os cinco canais. Use mouse/toque para selecionar os personagens, arraste para navegar, use scroll/+/− para zoom e o botão ⛶ para fullscreen.
 
 ## Publicação automática do GitHub Pages
 
@@ -45,3 +45,13 @@ IDs: `diretor`, `roteirista`, `artista`, `animador`, `narrador`, `editor`, `revi
 Esse relatório precisa ser criado por jobs reais e revisado para evitar vazamento de informações, não por simulação de atividade. A execução manual atual **não** incorpora nenhum arquivo de eventos.
 
 **Segurança:** o site GitHub Pages pode ficar público mesmo com código em repositório privado. Nomes públicos dos canais e as funções da equipe podem ser vistos por visitantes. A publicação automática assume que a exposição de nomes públicos de canais e funções da equipe foi autorizada; nunca adicionar dados privados ao exportador.
+
+## Estrutura do frontend
+
+- `index.html`: barra compacta e Canvas ocupando todo o espaço restante, com controles sobrepostos.
+- `styles.css`: adapta o HUD, botões e painel flutuante a desktop e celular.
+- `office-renderer.js`: renderizador Canvas 2D original, com cenário, oito personagens, móveis e mapa navegável.
+- `app.js`: busca o snapshot público, atualiza indicadores, gerencia seleção e inspector.
+- `data/status.json`: estado mínimo exportado do backend.
+
+Toda a arte é programática e própria. Não importa bibliotecas nem assets do Pixel Agents. Animações de interface não significam execução de trabalho.

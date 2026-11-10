@@ -42,3 +42,7 @@ O escritório em `site/` deve ser organizado e consumir apenas snapshots públic
 ## Política obrigatória de deploy do escritório
 
 Em toda alteração relacionada a `site/`, `agentes/`, `canal/`, `scripts/build_dashboard_data.py` ou testes pertinentes, garantir que o workflow `.github/workflows/pages.yml` valide e publique o Pages automaticamente a partir da branch `main`. Verificar o status do workflow e a URL de deployment antes de comunicar sucesso; se falhar, diagnosticar e corrigir, sem encobrir erros. Não habilitar execução paga de IA ou publicação de vídeos no YouTube por causa do deploy do painel.
+
+## Interface de escritório fullscreen
+
+Em tarefas visuais, preservar o Canvas 2D principal em `site/office-renderer.js`, com desenho pixel-art original e viewport responsivo; manter entrada HTML em `site/index.html`, estilos em `site/styles.css` e integração de dados em `site/app.js`. Manter controles operáveis por mouse/toque e evitar cartões que roubem a maior parte da tela. Não copiar assets proprietários do Pixel Agents; desenhos próprios são obrigatórios. Não inferir trabalho real de animações decorativas. Rodar `node --check` nos dois scripts antes do deploy.
