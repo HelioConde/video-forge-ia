@@ -1,0 +1,50 @@
+{
+  "schema": "videoforge/pixellab-office-assets/v1",
+  "files": {
+    "scenes/main-office.png": {
+      "width": 256,
+      "height": 256,
+      "sha256": "b3d73fa1a186a74a0efa6bd4e3fae2e76a2abc814469b50881e75243eb24e5c1"
+    },
+    "scenes/creative-room.png": {
+      "width": 256,
+      "height": 256,
+      "sha256": "c740d2dd0fa9e648ff5e2cc1eea71743383b3103e52f010275f1883b0c9be79b"
+    },
+    "scenes/media-lab.png": {
+      "width": 256,
+      "height": 256,
+      "sha256": "34cfc3f4f1bc633619fa9a38dfb7a47d8911eab54ce0ae9d3c5ab57b13d4aa53"
+    },
+    "objects/desk-pc.png": {
+      "width": 96,
+      "height": 96,
+      "sha256": "e193f66dbb97e40a68161dd6c8de52e92125c7eefd11fe8061bc423f4faf03fb"
+    },
+    "objects/office-chair.png": {
+      "width": 64,
+      "height": 64,
+      "sha256": "d6ef1e58c47590932198d8b1961ae52e022da62d322c8724a950f3cc5f1e01ab"
+    },
+    "objects/plant.png": {
+      "width": 64,
+      "height": 64,
+      "sha256": "dc88e74cb88237bec2f50d56f2a306bbba1c1cc78dd671bbf591658a5f332a5f"
+    },
+    "objects/bookshelf.png": {
+      "width": 96,
+      "height": 96,
+      "sha256": "aadf97dcf2ee7129c8a1a48c44117413678bff16559a21d461687ddb9950f6a0"
+    },
+    "objects/audio-mixer.png": {
+      "width": 96,
+      "height": 96,
+      "sha256": "d5cbfa0f9dab93229b1cff002026ca5706b1d10690372c824d3e965fa826979c"
+    },
+    "objects/studio-screen.png": {
+      "width": 96,
+      "height": 96,
+      "sha256": "d93a777da4e49797d24e5cb20bb05e541f856ea0405ee4feb1550d89ed5a2689"
+    }
+  }
+}
