@@ -25,3 +25,7 @@ O `dispatcher.py` do estágio atual **não executa IAs, renderiza vídeo ou faz 
 ## Integração com animações do escritório
 
 A hierarquia também define quem conversa com quem, que sala usar e como visualizá-lo. O sistema de eventos do backend será a origem de estados reais; o Canvas poderá representar reuniões/entregas com sprites novos quando existirem, mantendo demonstrativos visuais separados. Novos agentes visuais serão adicionados por expansão de layout, não por duplicar avatars e inventar tarefas.
+
+## Abrir uma demanda no GitHub
+
+No workflow `VideoForge - Receber demanda do gerente` (`.github/workflows/production-request.yml`), o proprietário informa ID, canal, tema e duração. O Actions valida a demanda e gera `demanda.json` e `plano.json` como artefatos, com 18 entregas delegadas e dependências. **Este workflow não chama IA nem publica vídeos**. No futuro, cada especialidade terá um executor que só trabalhará com credenciais próprias e limites de orçamento.

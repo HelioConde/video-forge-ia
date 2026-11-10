@@ -1,0 +1,88 @@
+name: VideoForge - Receber demanda do gerente
+
+# Cria um plano de produção, não executa IA nem faz upload de vídeos.
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: "Identificador único da demanda (ex: otaku-001)"
+        required: true
+        type: string
+      canal:
+        description: "Canal"
+        required: true
+        type: choice
+        options:
+          - otaku-br
+          - otaku-en
+          - gamer
+          - manu-kids
+          - alchemy-lab
+      tema:
+        description: "Briefing / tema do vídeo"
+        required: true
+        type: string
+      duracao_segundos:
+        description: "Duração entre 5 e 7200 segundos"
+        required: true
+        type: number
+        default: 90
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testar motor de delegação
+        run: python -m unittest tests.test_delegation -v
+      - name: Receber briefing e distribuir as 18 tarefas
+        env:
+          VIDEO_ID: ${{ inputs.id }}
+          VIDEO_CHANNEL: ${{ inputs.canal }}
+          VIDEO_TOPIC: ${{ inputs.tema }}
+          VIDEO_DURATION: ${{ inputs.duracao_segundos }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          duration=int(os.environ["VIDEO_DURATION"])
+          demand={
+              "id":os.environ["VIDEO_ID"],
+              "canal":os.environ["VIDEO_CHANNEL"],
+              "tema":os.environ["VIDEO_TOPIC"],
+              "duracao_segundos":duration,
+          }
+          root=Path("output/gerente")
+          root.mkdir(parents=True,exist_ok=True)
+          (root/"demanda.json").write_text(
+              json.dumps(demand,indent=2,ensure_ascii=False)+"\n",encoding="utf-8"
+          )
+          PY
+          python -m videoforge.production.dispatcher --demand output/gerente/demanda.json --output output/gerente/plano.json
+      - name: Relatório da delegação (sem execução ou publicação)
+        env:
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads(Path("output/gerente/plano.json").read_text(encoding="utf-8"))
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as fp:
+              fp.write("## Demanda recebida — planejamento de equipe\n\n")
+              fp.write(f"**Canal:** {d['demand']['canal']} · **Tarefas:** {len(d['tasks'])}\n\n")
+              fp.write("Nenhum agente IA executado, nenhum vídeo publicado.\n")
+          PY
+      - name: Salvar demanda e plano
+        uses: actions/upload-artifact@v4
+        with:
+          name: demand-plan-${{ github.run_id }}
+          path: output/gerente/
+          retention-days: 7
+          if-no-files-found: error
