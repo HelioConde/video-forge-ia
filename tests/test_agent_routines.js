@@ -2,6 +2,7 @@
 "use strict";
 const assert=require("node:assert/strict");
 global.window={};
+require("../site/agent-interactions.js");
 require("../site/agent-routines.js");
 const mod=window.VideoForgeRoutines;
 assert.equal(mod.heading(20,0),"east");
@@ -20,12 +21,14 @@ const p1=sim.poseFor("diretor",2000);
 assert.equal(p1.motion,"walk");
 assert(p1.y>254,"caminha em direção ao corredor");
 const p2=sim.poseFor("diretor",12000);
-assert.equal(p2.motion,"idle");
+assert.notEqual(p2.motion,"walk");
+assert.equal(typeof p2.actionLabel,"string");
+assert(p2.demo,"rotina é demonstração, não estado real");
 assert.equal(Math.round(p2.x),704);
 assert.equal(Math.round(p2.y),614);
 assert.equal(sim.travel("diretor","home",12000),true);
 const p3=sim.poseFor("diretor",23000);
-assert.equal(p3.motion,"idle");
+assert(["sit","sit_down","adjust_chair"].includes(p3.motion));
 assert.equal(Math.round(p3.x),205);
 assert.equal(Math.round(p3.y),254);
 assert.equal(sim.travel("inexistente","coffee",1),false);
@@ -40,7 +43,7 @@ assert.equal(auto.poseFor("diretor",1100),null);
 auto.tick(agents,1500);
 assert.equal(auto.poseFor("diretor",1500).target,"coffee");
 auto.tick(agents,16000);
-assert.equal(auto.poseFor("diretor",16000).motion,"idle");
+assert.notEqual(auto.poseFor("diretor",16000).motion,"walk");
 auto.tick(agents,23000);
 assert.equal(auto.poseFor("diretor",23000).target,"home");
 auto.tick(agents,35000);
@@ -139,3 +142,23 @@ for(let t=1000;t<1800;t+=20){
 assert.deepEqual([...seenFrames].sort((a,b)=>a-b),[0,1,2,3,4,5,6,7]);
 assert.equal(eight.poseFor("diretor",1000).frame,0);
 console.log("WALK_8_FRAMES_OK: todos os oito quadros percorrem um ciclo sem acelerar o agente");
+
+
+const context=mod.create(slots);
+for(const dest of ["coffee","water","games","restroom"]){
+  context.clear();
+  assert.equal(context.travel("editor",dest,1000),true);
+  const seen=new Set();
+  for(let ts=1000;ts<=50000;ts+=150){
+    const pose=context.poseFor("editor",ts);
+    if(!pose.moving&&pose.motion!=="idle")seen.add(pose.motion);
+  }
+  const expected=window.VideoForgeInteractions.motions(dest);
+  assert(expected.every(m=>seen.has(m)),
+    dest+" não executou todas as animações contextuais: "+expected.filter(m=>!seen.has(m)));
+  assert(context.current("editor",50000).includes("simulação")||context.current("editor",50000).includes("No destino"));
+}
+context.clear();
+context.travel("editor","home",1000);
+assert.equal(context.poseFor("editor",20000).motion,"sit");
+console.log("INTERACOES_ROUTINES_OK: café, água, jogos, banheiro e cadeira com sequências reais");

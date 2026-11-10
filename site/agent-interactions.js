@@ -44,7 +44,6 @@
       step("close_restroom_door",600,"Saindo do banheiro (prévia)")
     ],
     home:[
-      step("approach_chair_demo",360,"Chegando à cadeira"),
       step("pull_chair",650,"Puxando cadeira"),
       step("sit_down",650,"Sentando"),
       step("adjust_chair",600,"Ajustando postura"),
@@ -80,7 +79,7 @@
     return null;
   }
   function motions(target){
-    return [...new Set(steps(target).map(s=>s.motion).filter(m=>m!=="sit"&&!m.endsWith("_demo")))];
+    return [...new Set(steps(target).map(s=>s.motion).filter(m=>m!=="sit"))];
   }
   window.VideoForgeInteractions={
     steps,duration,sample,motions,targets:ALL.slice(),composites:COMPOSITES

@@ -89,6 +89,7 @@
     let meeting=null; // demonstração sincronizada de dois agents, sem backend
     const freeTime={enabled:false,nextAt:0,agentId:null,phase:"idle",returnAt:0,index:0};
     const leisurePlaces=["coffee","water","games","restroom"];
+    const choreography=window.VideoForgeInteractions;
     const knownIds=new Set([
       "diretor","roteirista","artista","animador","narrador","editor","revisor","publicador"
     ]);
@@ -116,18 +117,35 @@
       const walkFrame=position.moving?Math.floor(distance/walkStride)%frameCount:0;
       let motion=position.moving?"walk":"idle";
       let direction=position.direction;
+      let actionLabel=null;
+      let frame=walkFrame;
+      if(!position.moving&&choreography&&route.target!=="meeting"){
+        const arrival=route.start+route.distance/SPEED*1000;
+        const step=choreography.sample(route.target,now-arrival);
+        if(step){
+          motion=step.motion;
+          frame=step.frame;
+          actionLabel=step.label+" · simulação visual";
+        }else if(route.target==="home"){
+          motion="sit";
+        }
+      }
       if(!position.moving&&meeting&&(id===meeting.a||id===meeting.b)){
         if(now>=meeting.begin&&now<meeting.end){
           const turn=Math.floor((now-meeting.begin)/3000)%2;
           const talking=(turn===0?meeting.a:meeting.b)===id;
           motion=talking?"talk_explain":"listen_focus";
+          frame=Math.floor((now-meeting.begin)/180)%4;
           direction=id===meeting.a?"east":"west";
+          actionLabel=talking?"Explicando a tarefa (prévia)":"Ouvindo o colega (prévia)";
         }else if(now>=meeting.end){
           motion="wave";
+          frame=Math.floor((now-meeting.end)/180)%4;
+          actionLabel="Despedida (prévia)";
         }
       }
-      return {...position,direction,motion,frame:walkFrame,distance,
-              target:route.target,label:route.label,demo:true};
+      return {...position,direction,motion,frame,distance,
+              target:route.target,label:route.label,actionLabel,demo:true};
     }
     function meet(a,b,now=0){
       if(a===b||!knownIds.has(a)||!knownIds.has(b)||meeting||state.has(a)||state.has(b))return false;
@@ -203,7 +221,8 @@
         const pose=poseFor(id,now);
         if(freeTime.phase==="outbound"&&pose&&!pose.moving){
           freeTime.phase="rest";
-          freeTime.returnAt=now+6500;
+          const dest=state.get(id)?.target;
+          freeTime.returnAt=now+Math.max(6500,(choreography?.duration(dest)||0)+500);
         }else if(freeTime.phase==="rest"&&now>=freeTime.returnAt){
           travel(id,"home",now);
           freeTime.phase="returning";
@@ -254,7 +273,7 @@
       if(meeting&&(id===meeting.a||id===meeting.b))
         return pose.moving?"Indo à sala criativa (prévia)":"Conversa e escuta alternadas (prévia)";
       return pose.moving?"Caminhando para: "+pose.label:
-             "No destino: "+pose.label+" · ação específica ainda não animada";
+             pose.actionLabel||("No destino: "+pose.label+" · demonstração visual");
     }
     return {travel,meet,poseFor,hasMoving,clear,cancel,current,tick,setFreeTimeDemo,
             freeTimeEnabled:()=>freeTime.enabled,
