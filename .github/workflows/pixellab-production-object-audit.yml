@@ -1,0 +1,32 @@
+name: PixelLab - Auditar animacoes de objetos da produtora
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-production-object-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testes offline de objetos
+        run: python -m unittest discover -s tests -p "test_pixellab_production_object*.py" -v
+      - name: Consultar biblioteca de móveis por GET
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+        run: python -m videoforge.pixellab.production_object_audit
+      - name: Relatório público sem identificadores
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: producer-objects-audit-${{ github.run_id }}
+          path: output/pixellab-production/object-audit.json
+          retention-days: 7
+          if-no-files-found: warn
