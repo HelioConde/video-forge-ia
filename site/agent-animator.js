@@ -77,6 +77,8 @@
   // Atlas de novas animações: carregamento sob demanda, preservando os seis básicos.
   let productionManifest=null,productionLoading=null;
   const productionImages=new Map();
+  const productionInFlight=new Map();
+  const productionFailed=new Set();
   async function loadProductionManifest(){
     if(productionLoading)return productionLoading;
     productionLoading=(async()=>{
@@ -118,18 +120,30 @@
     const spec=productionManifest?.motions?.[motion];
     if(!spec)return false;
     if(productionImages.has(motion))return true;
-    try{
-      const image=await new Promise((resolve,reject)=>{
-        const sprite=new Image();
-        sprite.decoding="async";
-        sprite.onload=()=>resolve(sprite);
-        sprite.onerror=()=>reject(Error("Sprite não carregou"));
-        sprite.src=base+"production/"+spec.file;
-      });
-      if(image.naturalWidth!==spec.width||image.naturalHeight!==spec.height)return false;
-      productionImages.set(motion,image);
-      return true;
-    }catch(e){return false;}
+    if(productionFailed.has(motion))return false;
+    if(productionInFlight.has(motion))return productionInFlight.get(motion);
+    const request=(async()=>{
+      try{
+        const image=await new Promise((resolve,reject)=>{
+          const sprite=new Image();
+          sprite.decoding="async";
+          sprite.onload=()=>resolve(sprite);
+          sprite.onerror=()=>reject(Error("Sprite não carregou"));
+          sprite.src=base+"production/"+spec.file;
+        });
+        if(image.naturalWidth!==spec.width||image.naturalHeight!==spec.height)
+          throw Error("Dimensões inválidas");
+        productionImages.set(motion,image);
+        return true;
+      }catch(e){
+        productionFailed.add(motion);
+        return false;
+      }finally{
+        productionInFlight.delete(motion);
+      }
+    })();
+    productionInFlight.set(motion,request);
+    return request;
   }
   function drawProduction(ctx,motion,direction,frame,x,y,size=88){
     const image=productionImages.get(motion);
