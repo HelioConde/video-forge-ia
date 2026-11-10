@@ -121,3 +121,8 @@
 .routine-state{font:700 10px/1.5 ui-monospace,Consolas,monospace;
   margin-top:9px;color:#a9e4c6;min-height:28px}
 @media(max-width:600px){.routine-button{font-size:10px;padding:9px 4px}}
+
+
+/* O modo de tempo livre é opt-in e representa apenas animação de cenário. */
+#btnFreeTime[aria-pressed="true"]{background:#345c4f;border-color:#a4e5ba;color:#e3ffe6}
+#btnFreeTime:disabled{opacity:.45;cursor:not-allowed}

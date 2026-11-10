@@ -73,3 +73,8 @@ As salas atuais do PixelLab são escritório principal, sala criativa e laborat�
 O módulo `site/agent-routines.js` oferece **rotas manuais demonstrativas** para café, bebedouro, área de jogos, entrada do banheiro e retorno à mesa, usando apenas sprites existentes `walk` e `idle` e orientação em oito direções. O painel usa a mesma posição que o Canvas e o minimapa. O roteiro de pausa completa depende de gerar sprites/ambientes/objetos listados acima.
 
 A implementação **não representa trabalho real, nem permite beber, jogar ou usar o banheiro com sprites inexistentes**.
+
+
+### Demonstração automática opt-in adicionada
+
+A barra de ferramentas tem botão ☕, **desligado por padrão**, que ativa intervalos visuais sem tocar no backend ou em créditos do PixelLab. Só agentes livres fazem um passeio sequencial e param em `idle` no destino antes de retornar. Se uma execução real começar ou falhar, a demonstração é cancelada. Continuam faltando os sprites de ações específicas, a sala de jogos e a implementação de pathfinding por colisão. O botão é uma prova de conceito, não um agendador de trabalho.

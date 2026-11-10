@@ -101,3 +101,10 @@ O novo módulo `site/agent-routines.js` permite escolher manualmente um agente n
 **Muito importante:** trata-se de demonstração gráfica acionada pelo usuário, sem alteração do `status` recebido no backend, sem simular trabalho, sem rotina autônoma real. Não existe ainda animação para beber, jogar, cantar sentado, levantar da cadeira, entrar no banheiro ou lavar as mãos: ao chegar, o sprite fica parado e a UI identifica que a ação específica está pendente. Os destinos `JOGOS*` e `WC*` são apenas marcações de áreas futuras, não salas concluídas no PixelLab. O backend prevalece sobre a demonstração se registrar atividade real.
 
 Consulte `docs/PLANO_INTERACOES_ESCRITORIO.md` para a sequência de novos sprites e ambientes.
+
+
+### Modo tempo livre demonstrativo
+
+O botão **☕** ativa ou desativa uma **SIMULAÇÃO VISUAL**, desligada por padrão. Quando o usuário ativa a opção, apenas agentes com status de backend `nao_conectado`, `aguardando` ou `concluido` fazem passeios sequenciais (um por vez) até os pontos provisórios. Eles usam `walk`, descansam em `idle` e voltam à mesa. Novas tarefas reais ou erros cancelam o passeio. Os eventos do backend permanecem como única fonte de verdade, e nada é enviado à API PixelLab.
+
+Essa opção não realiza as ações reais de beber/jogar/cantar e não significa que um agente está trabalhando. `prefers-reduced-motion` continua aplicando frame estático; as ações específicas e objetos seguem pendentes.

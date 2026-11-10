@@ -12,6 +12,20 @@
     if(state.snapshot)renderPanel();
   });
   state.previewMotion=null;
+  const freeTimeButton=$("btnFreeTime");
+  function syncFreeTimeButton(){
+    const on=office.freeTimeDemoEnabled();
+    freeTimeButton.setAttribute("aria-pressed",String(on));
+    freeTimeButton.classList.toggle("active",on);
+    freeTimeButton.title=on?"Desativar simulação visual de tempo livre":"Ativar simulação visual de tempo livre";
+    freeTimeButton.setAttribute("aria-label",freeTimeButton.title);
+  }
+  freeTimeButton.disabled=true;
+  freeTimeButton.addEventListener("click",()=>{
+    office.setFreeTimeDemo(!office.freeTimeDemoEnabled());
+    syncFreeTimeButton();
+    if(state.snapshot)renderPanel();
+  });
   const artBtn=$("btnArtMode");
   function updateArtButton(){
     const active=office.getArtMode()==='pixellab';
@@ -26,12 +40,16 @@
   window.VideoForgeArt.loadSprites().then(ready=>{
     artBtn.disabled=!ready;
     if(ready)office.setArtMode('pixellab');
+    freeTimeButton.disabled=!ready;
+    syncFreeTimeButton();
     updateArtButton();
     if(state.snapshot)renderPanel();
   });
   artBtn.addEventListener('click',()=>{
     office.setArtMode(office.getArtMode()==='pixellab'?'classic':'pixellab');
     updateArtButton();
+    freeTimeButton.disabled=office.getArtMode()!=='pixellab'||!window.VideoForgeAnimator.ready();
+    syncFreeTimeButton();
     if(state.snapshot)renderPanel();
   });
   office.setMiniMap($("officeMiniMap"));
@@ -116,6 +134,7 @@
             state.previewMotion=null;
             office.setPreviewMotion(null);
             if(office.travelSelected(key)){
+              syncFreeTimeButton();
               const text=section.querySelector(".routine-state");
               if(text)text.textContent=office.routineState(a.id);
             }
@@ -124,6 +143,10 @@
         });
         section.append(buttons);
         section.append(make("div","routine-state",office.routineState(a.id)));
+        section.append(make("small","preview-note",
+          office.freeTimeDemoEnabled()?
+            "Tempo livre visual ativo: agentes disponíveis alternam passeios (não é trabalho real).":
+            "Para passeios automáticos demonstrativos, ative ☕ na barra de ferramentas."));
         detail.append(section);
       }
     }else{const c=snap.canais.find(c=>c.id===state.selectedChannel)||snap.canais[0];if(!c)return;

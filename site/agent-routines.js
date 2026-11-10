@@ -50,6 +50,8 @@
   }
   function create(slots) {
     const state=new Map();
+    const freeTime={enabled:false,nextAt:0,agentId:null,phase:"idle",returnAt:0,index:0};
+    const leisurePlaces=["coffee","water","games","restroom"];
     const knownIds=new Set([
       "diretor","roteirista","artista","animador","narrador","editor","revisor","publicador"
     ]);
@@ -82,15 +84,73 @@
       });
       return true;
     }
-    function clear() {state.clear();}
-    function cancel(id) {state.delete(id);}
+    function setFreeTimeDemo(enabled,now=0){
+      freeTime.enabled=Boolean(enabled);
+      freeTime.nextAt=now+1200;
+      if(!freeTime.enabled&&freeTime.agentId)state.delete(freeTime.agentId);
+      freeTime.agentId=null;
+      freeTime.phase="idle";
+      return freeTime.enabled;
+    }
+    function tick(agents,now=0){
+      if(!freeTime.enabled)return;
+      if(freeTime.agentId){
+        const id=freeTime.agentId;
+        const agent=agents.find(a=>a.id===id);
+        if(!agent||["trabalhando","revisao","erro"].includes(agent.status)){
+          state.delete(id);
+          freeTime.agentId=null;
+          freeTime.phase="idle";
+          freeTime.nextAt=now+5000;
+          return;
+        }
+        const pose=poseFor(id,now);
+        if(freeTime.phase==="outbound"&&pose&&!pose.moving){
+          freeTime.phase="rest";
+          freeTime.returnAt=now+6500;
+        }else if(freeTime.phase==="rest"&&now>=freeTime.returnAt){
+          travel(id,"home",now);
+          freeTime.phase="returning";
+        }else if(freeTime.phase==="returning"&&pose&&!pose.moving){
+          state.delete(id);
+          freeTime.agentId=null;
+          freeTime.phase="idle";
+          freeTime.nextAt=now+5500;
+        }
+        return;
+      }
+      if(now<freeTime.nextAt)return;
+      const available=agents.filter(a=>[
+        "nao_conectado","aguardando","concluido"
+      ].includes(a.status)&&knownIds.has(a.id)&&!state.has(a.id));
+      if(!available.length){freeTime.nextAt=now+6500;return;}
+      const candidate=available[freeTime.index%available.length];
+      const destination=leisurePlaces[freeTime.index%leisurePlaces.length];
+      freeTime.index++;
+      if(travel(candidate.id,destination,now)){
+        freeTime.agentId=candidate.id;
+        freeTime.phase="outbound";
+      }
+    }
+    function clear() {
+      state.clear();freeTime.enabled=false;freeTime.agentId=null;
+      freeTime.phase="idle";
+    }
+    function cancel(id) {
+      state.delete(id);
+      if(freeTime.agentId===id) {
+        freeTime.agentId=null;freeTime.phase="idle";
+        freeTime.nextAt+=5000;
+      }
+    }
     function current(id,now=0) {
       const pose=poseFor(id,now);
       if(!pose)return "Na mesa (sem demonstração)";
       return pose.moving?"Caminhando para: "+pose.label:
              "No destino: "+pose.label+" · ação específica ainda não animada";
     }
-    return {travel,poseFor,clear,cancel,current,
+    return {travel,poseFor,clear,cancel,current,tick,setFreeTimeDemo,
+            freeTimeEnabled:()=>freeTime.enabled,
             destinations:Object.keys(DESTINATIONS),
             definitions:DESTINATIONS,
             heading};
