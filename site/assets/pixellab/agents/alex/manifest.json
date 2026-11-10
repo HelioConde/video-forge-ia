@@ -23,10 +23,11 @@
     },
     "walk": {
       "file": "walk.png",
-      "sha256": "8cdc57917f6d8ed024502acf8076a2443449f2221bc7c3c0cec88d0e88918980",
-      "width": 352,
+      "sha256": "c4d781bae1d3995a8b56810cf0292bbdca213c5fe9e0ca3d7712a6e8ca265ecc",
+      "width": 704,
       "height": 704,
-      "sourceAnimation": "walking"
+      "sourceAnimation": "walking",
+      "frames": 8
     },
     "type": {
       "file": "type.png",
