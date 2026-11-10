@@ -78,11 +78,11 @@
       const mobile=this.viewW<=700;
       if(this.wasMobile===null||mobile!==this.wasMobile){
         this.wasMobile=mobile;this.zoom=this.defaultZoom();this.panX=0;this.panY=0;
-        if(mobile)this.centerWorld(438,420);
+        if(mobile)this.centerWorld(scene.getArtMode()==='pixellab'?335:438,420);
       }
       this.render(0);
     }
-    reset(){this.zoom=this.defaultZoom();this.panX=0;this.panY=0;if(this.viewW<=700)this.centerWorld(438,420);this.render(0);}
+    reset(){this.zoom=this.defaultZoom();this.panX=0;this.panY=0;if(this.viewW<=700)this.centerWorld(scene.getArtMode()==='pixellab'?335:438,420);this.render(0);}
     centerWorld(worldX,worldY){
       const v=this.viewport();
       this.panX+=(this.viewW/2-v.x-worldX*v.scale);
