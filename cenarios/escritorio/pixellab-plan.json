@@ -1,0 +1,91 @@
+{
+  "project": "videoforge-pixel-studio",
+  "style": "Original polished 2D pixel art, 16-bit RPG game environment, low top-down angle, 32px environment tiles with clean hard pixel edges, warm walnut wood, slate navy and teal technology accents, soft amber lamps, jade green plants, editorial cozy modern studio; no people, no text, no logos, no watermarks.",
+  "rooms": [
+    {
+      "slug": "main-office",
+      "name": "VideoForge AI - Main Office 2026",
+      "theme": "A bright contemporary pixel-art indie game production office with eight compact desks and PCs arranged around a broad central walkway, honey oak flooring, navy blue wall paneling, warm windows, green plants, softly glowing monitors and cozy warm lights; orderly 16-bit game art, clean readable geometry; no people or signage.",
+      "view": "top-down",
+      "doors": [
+        {
+          "side": "s",
+          "col": 3,
+          "row": 5
+        }
+      ],
+      "tile_size": 32,
+      "pieces": false
+    },
+    {
+      "slug": "creative-room",
+      "name": "VideoForge AI - Creative Room 2026",
+      "theme": "A creative brainstorming meeting room connected to an indie video game production office, oval walnut meeting table, four chairs, pin boards, art sketches, colorful reference swatches and plants, slate blue walls and warm wooden floor; refined cozy 16-bit pixel art environment; no people or lettering.",
+      "view": "top-down",
+      "doors": [
+        {
+          "side": "s",
+          "col": 3,
+          "row": 5
+        }
+      ],
+      "tile_size": 32,
+      "pieces": false,
+      "inherit_style_from": "main-office"
+    },
+    {
+      "slug": "media-lab",
+      "name": "VideoForge AI - Media Lab 2026",
+      "theme": "A modern compact video editing and audio production studio, ultrawide editing screens, audio mixer, waveform displays, small recording microphone booth, acoustic treatment panels, server storage cabinet, warm indirect lighting, walnut wood floor and slate navy walls; tidy detailed 16-bit pixel art; no people or readable lettering.",
+      "view": "top-down",
+      "doors": [
+        {
+          "side": "s",
+          "col": 3,
+          "row": 5
+        }
+      ],
+      "tile_size": 32,
+      "pieces": false,
+      "inherit_style_from": "main-office"
+    }
+  ],
+  "objects": [
+    {
+      "slug": "desk-pc",
+      "name": "VideoForge AI - Editing Desk 2026",
+      "size": 96,
+      "description": "An individual compact walnut office desk with one widescreen computer monitor showing teal abstract graphics, keyboard, small mug and cables, cozy contemporary indie creator workspace furniture, 16-bit pixel art, low top-down three-quarter angle, clean crisp pixel edges, clear transparent background, no people, no lettering."
+    },
+    {
+      "slug": "office-chair",
+      "name": "VideoForge AI - Office Chair 2026",
+      "size": 64,
+      "description": "A single cushioned ergonomic dark slate blue office swivel chair with armrests and black wheel base, low top-down three-quarter pixel art RPG furniture, warm highlights, detailed but clean hard-edged pixels, isolated on a transparent background, no characters."
+    },
+    {
+      "slug": "plant",
+      "name": "VideoForge AI - Potted Plant 2026",
+      "size": 64,
+      "description": "A lively broad-leaf ficus plant with jade green leaves in a warm terracotta pot and subtle shadow, cozy modern pixel art office prop, low top-down three-quarter RPG style, defined pixel blocks, isolated transparent background, no people, no text."
+    },
+    {
+      "slug": "bookshelf",
+      "name": "VideoForge AI - Bookshelf 2026",
+      "size": 96,
+      "description": "A free-standing medium-height walnut wooden bookshelf displaying colorful books, folded art references and a small decorative plant, polished 16-bit pixel art game prop, low top-down three-quarter angle, warm amber highlights, isolated transparent background, no humans, no words."
+    },
+    {
+      "slug": "audio-mixer",
+      "name": "VideoForge AI - Audio Console 2026",
+      "size": 96,
+      "description": "A small professional audio recording mixing console on short desk stand with sliders, round knobs and subtle mint and amber LEDs, modern creative office technology prop, 16-bit pixel art, low top-down three-quarter view, crisp pixels, transparent background, no text."
+    },
+    {
+      "slug": "studio-screen",
+      "name": "VideoForge AI - Editing Display 2026",
+      "size": 96,
+      "description": "A studio video editing workstation with two dark wide monitors showing colorful abstract editing timelines and a compact computer control panel, navy and teal with warm wood details, low top-down three-quarter 16-bit pixel art prop, isolated transparent background, no writing."
+    }
+  ]
+}
