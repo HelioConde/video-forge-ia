@@ -44,7 +44,8 @@ jobs:
               for name,width,height in (("desktop",1440,900),("mobile",390,844)):
                   page=browser.new_page(viewport={"width":width,"height":height},
                                         device_scale_factor=1, is_mobile=(name=="mobile"),
-                                        has_touch=(name=="mobile"))
+                                        has_touch=(name=="mobile"),
+                                        bypass_csp=True)  # Só no navegador de teste; CSP de produção não muda.
                   errors=[]
                   page.on("pageerror",lambda e:errors.append(str(e)))
                   page.goto("http://127.0.0.1:8765/",wait_until="networkidle")
