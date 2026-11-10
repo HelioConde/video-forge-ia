@@ -157,3 +157,12 @@ O workflow `.github/workflows/pixellab-export-alex.yml` exporta os frames sem ge
 ### Atlas extras da produtora e carregamento tardio
 
 A action `pixellab-production-import.yml` transforma a exportação do PixelLab em atlases PNG e manifesto de produção, sem UUIDs. O carregador do Canvas lê o manifesto como recurso opcional e só busca a animação escolhida pelo usuário; nenhuma animação nova é simulada enquanto o arquivo não estiver presente. Os seis atlas originais e o fallback anterior permanecem inalterados. Os movimentos extras são usados apenas como **prévia visual** até os eventos reais dos especialistas serem conectados.
+
+
+## Recepção incremental e versionamento das imagens PixelLab
+
+O workflow de importação `.github/workflows/pixellab-production-import.yml` é acionado após a conclusão dos lotes PixelLab de personagens e objetos (inclusive em caso de falha de geração, para aproveitar sprites completos), ou por `workflow_dispatch`. Ele usa **somente GET** e armazenamento temporário para os ZIPs; nenhuma mídia bruta, UUID, prompt, token, URL assinada ou metadado privado é commitado. A mesma trava de concorrência da recepção serializa as alterações no Git.
+
+`scripts/import_pixellab_production.py` recebe os frames do Alex, confere a identidade do personagem, valida PNGs RGBA de 88×88, monta spritesheets de quatro quadros e preserva movimentos já importados quando a exportação nova está parcial. O manifesto público informa o total de movimentos disponíveis/pendentes.
+
+`scripts/import_pixellab_objects.py` lê a biblioteca de objetos e o ZIP autenticado de spritesheet por meio de `PixelLabClient.download_object_spritesheet`. Somente os PNGs sanificados da cadeira e armário são versionados sob `site/assets/pixellab/objects/production/`. URLs e layouts originais da API não entram no site. Uma imagem de objeto importada não é interpretada como animação conectada até receber mapeamento visual/âncoras. `scripts/verify_pixellab_assets.py` confere assinaturas PNG, tamanhos, hashes e caminhos antes do commit. O trigger `site/**` do Pages realiza o deploy após cada alteração validada.

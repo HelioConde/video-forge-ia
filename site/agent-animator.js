@@ -120,7 +120,10 @@
     const image=productionImages.get(motion);
     const spec=productionManifest?.motions?.[motion];
     if(!image||!spec)return false;
-    const row=spec.directions.indexOf(direction);
+    // Só para prévia: se não houver o ângulo da mesa, mostrar um quadro válido.
+    // O status real do agente nunca é deduzido da animação.
+    const selected=spec.directions.includes(direction)?direction:spec.directions[0];
+    const row=spec.directions.indexOf(selected);
     if(row<0)return false;
     const col=Math.floor(Math.max(0,Number(frame)||0))%4;
     ctx.imageSmoothingEnabled=false;

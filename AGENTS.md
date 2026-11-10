@@ -80,3 +80,8 @@ A fonte de verdade é o export da biblioteca PixelLab, sem POST pago. `scripts/i
 O gerente geral é humano. O arquivo `agentes/equipe.json` define cinco departamentos e especialistas **planejados**, que não passam a executar IA só pelo cadastro. O `videoforge/production/dispatcher.py` constrói 18 subtarefas por vídeo e só considera `done` após artefato verificável. Não transformar `ready`/planejamento em atividade real no Pages. Nenhuma mudança no fluxo autoriza publicar vídeos, rodar modelos pagos ou simular status.
 
 O catálogo `personagens/alex/production-animations.json` lista 137 ações. As de tipo `character` são tratadas por `videoforge/pixellab/production_animations.py`; `sequence` reutiliza movimentos e `object` requer outra API. Fluxos pagos só geram movimentos ausentes, com limite por execução e autorização do gerente. Consultar `docs/EQUIPE_PRODUCAO.md` e `docs/PIXELLAB-PRODUTORA.md`.
+
+
+## Recepção automática de imagens da produtora
+
+O workflow `.github/workflows/pixellab-production-import.yml` é **somente leitura do PixelLab (GET)**: pode receber novas imagens quando os lotes existentes terminarem ou em execução manual, sem cobrar créditos. O importador aceita apenas **movimentos completamente verificáveis**, preservando imagens anteriores em caso de ZIP parcial. Não copiar ZIPs, layouts, UUIDs, URLs de prévia, prompts ou segredos para o repositório. Testar com `tests/test_pixellab_receive.py` e `tests/test_pixellab_objects_receive.py` (Pillow instalado nos jobs). Os PNGs/manifestos importados em `site/assets/pixellab/` passam por `scripts/verify_pixellab_assets.py` antes do commit e acionam Pages. Não afirmar que animações já estão conectadas ao Canvas só porque foram recebidas no Git.

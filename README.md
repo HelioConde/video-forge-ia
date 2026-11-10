@@ -129,3 +129,10 @@ O módulo `site/agent-routines.js` acrescenta passeios demonstrativos manuais pa
 O gerente humano entrega demandas ao diretor, que distribui por líderes de Editorial, Criação, Audiovisual e Qualidade, com **27 especializações planejadas**. O motor `videoforge/production/dispatcher.py` prepara **18 entregas** por vídeo, com dependências, incluindo título, descrição, tags, thumbnail, roteiro, voz, edição, QA e aprovação. Ainda **não executa IAs nem publica**: é a base segura para conectores futuros. O painel do escritório mostra a organização sem apresentar especialistas como online. [Guia da equipe](docs/EQUIPE_PRODUCAO.md).
 
 Para animar conversas, reuniões e as especializações, o catálogo `personagens/alex/production-animations.json` define **137 ações**, das quais 122 são movimentos de personagem e 15 exigem sequências/objetos adicionais. [Controle de geração PixelLab](docs/PIXELLAB-PRODUTORA.md).
+
+
+## Recepção automática de todas as imagens PixelLab
+
+O workflow `.github/workflows/pixellab-production-import.yml` recebe, apenas por GET, os **sprites do Alex e os objetos animados** quando os lotes pagos terminam. Ele também pode ser executado manualmente para sincronizar imagens já existentes no PixelLab. Atlases completos são aceitos mesmo quando outros movimentos ainda estão processando, preservando versões anteriores; cada PNG tem tamanho e SHA-256 validados. O GitHub Pages atualiza automaticamente quando novos arquivos são commitados em `site/assets/pixellab/`. Não são iniciadas gerações, uploads de vídeos ou cobranças por esse recebedor.
+
+Os seis atlas básicos, três cenários e seis objetos já aprovados permanecem intactos. A pasta `agents/alex/production/` recebe novos movimentos e `objects/production/` recebe spritesheets e prévias dos móveis, todos com manifests públicos saneados. Objetos novos ainda precisam de mapeamento de animações ao cenário; a recepção não significa que os objetos já estão animados na interface.

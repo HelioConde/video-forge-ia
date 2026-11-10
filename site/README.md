@@ -116,3 +116,10 @@ O snapshot público contém `organizacao` derivada de `agentes/equipe.json`: cin
 ### Previsualização de animações extras
 
 Os seis spritesheets básicos continuam sendo carregados ao abrir o escritório. O carregador `site/agent-animator.js` também suporta o manifesto `assets/pixellab/agents/alex/production/manifest.json`, quando disponível. Animações adicionais são **carregadas sob demanda**, para não descarregar dezenas de MB no celular. O painel permite escolher e testar uma delas no agente selecionado, sem alterar o status real de trabalho. Enquanto a exportação do PixelLab não concluir, essa seleção fica oculta.
+
+
+## Sincronização incremental de sprites extras
+
+O GitHub recebe sprites extras do Alex e imagens de móveis pela action de importação `pixellab-production-import.yml`. O importador gera atlases `agents/alex/production/*.png` e um manifesto com hash e direções para **todos os movimentos já validados**, mesmo se o lote de geração terminar parcialmente. Os seis movimentos básicos não são alterados. A visualização carrega cada sprite extra sob demanda e escolhe uma direção válida para a prévia, sem indicar trabalho real do backend.
+
+Cadeira e armário são recebidos na pasta `objects/production/` com arquivos PNG e manifesto próprio. Esses assets não substituem automaticamente o sprite de cadeira já usado no cenário; ainda é necessário ligar estados/frames ao Canvas após revisão visual.

@@ -33,3 +33,12 @@ Esse workflow falha se qualquer frame estiver ausente/vazio e **não comita atla
 ## Móveis animados
 
 A auditoria `pixellab-production-object-audit.yml` confirmou cadeira existente sem animações de giro e ausência do armário. A ação pontual `pixellab-production-objects.yml` usa a biblioteca `objects` e executa no máximo **quatro POSTs pagos**: `rotate_chair_left`, `rotate_chair_right`, criação do armário se ainda não existir e `open_cabinet`. Não cria nova cadeira nem repete animações existentes. Usa a trava `pixellab-personagens` para não executar simultaneamente ao lote grande do Alex. Resultado fica no PixelLab; o GitHub recebe somente relatório saneado. Novas imagens de móveis ainda precisam de exportação e aprovação antes de usar no site.
+
+
+## Recebedor automático de todas as imagens — atualização
+
+O importador agora aceita **lotes parciais**: uma animação só entra quando **todos os seus frames/direções definidos no catálogo** estiverem presentes e validados; os movimentos anteriores são preservados se o ZIP da próxima leitura estiver incompleto. Se o workflow longo falhar ou atingir timeout, a importação tenta recuperar somente os movimentos já concluídos por GET. Sem repetir POST, sem geração de custos ou duplicatas. O arquivo `site/assets/pixellab/agents/alex/production/manifest.json` informa a contagem disponível/pendente e contém apenas campos seguros.
+
+A recepção inclui objetos: `site/assets/pixellab/objects/production/manifest.json`, com imagens de spritesheet e prévias da cadeira e do armário, sem sobrescrever objetos aprovados do cenário. A API PixelLab oferece `GET /objects/{id}/spritesheet`, que exige Bearer; o cliente remove a credencial em qualquer redirecionamento para armazenamento. Layouts privados e ZIPs temporários nunca entram no Git. O site continua usando os seis movimentos básicos quando não existem sprites extras.
+
+Para sincronizar manualmente sem custo de geração: **Actions → PixelLab - Receber todas as imagens no GitHub → Run workflow**, escolher `todas`, `alex` ou `objetos`. Quando os workflows `Completar animacoes da produtora` ou `Objetos animados da produtora` terminarem, a sincronização também dispara automaticamente. O workflow revalida os PNGs antes de qualquer commit e o Pages publica somente o que passou na validação.
