@@ -8,7 +8,7 @@ from unittest.mock import patch
 from videoforge.pixellab.batch import MAX_NEW, examine, plan, run
 from videoforge.pixellab.client import PixelLabError
 
-CHAR_ID = "d12d5a47-fc59-4168-8499-ae6142cc16d9"
+CHAR_ID = "123e4567-e89b-12d3-a456-426614174007"
 GROUP_ID = "123e4567-e89b-12d3-a456-426614174000"
 JOB_ID = "223e4567-e89b-12d3-a456-426614174001"
 
