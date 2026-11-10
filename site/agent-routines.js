@@ -11,7 +11,9 @@
   });
   const HEADINGS = ["east","south-east","south","south-west",
                     "west","north-west","north","north-east"];
-  const SPEED = 160; // pixels por segundo; orientação em oito direções.
+  const SPEED = 112; // px/seg; a 30 FPS são aproximadamente 3,7 px por desenho.
+  const WALK_STRIDE = 14; // distância para avançar o frame da passada.
+  const TURN_RADIUS = 18; // curva curta entre mudanças de direção.
 
   function heading(dx,dy) {
     if (Math.abs(dx)+Math.abs(dy) < 0.01) return "south";
@@ -20,6 +22,31 @@
   }
   function cleanPoints(points) {
     return points.filter((p,i)=>i===0||Math.hypot(p.x-points[i-1].x,p.y-points[i-1].y)>1);
+  }
+  function softenCorners(points) {
+    const input=cleanPoints(points),result=[input[0]];
+    if(input.length<3)return input;
+    for(let i=1;i<input.length-1;i++){
+      const a=input[i-1],b=input[i],c=input[i+1];
+      const dx1=b.x-a.x,dy1=b.y-a.y,dx2=c.x-b.x,dy2=c.y-b.y;
+      const len1=Math.hypot(dx1,dy1),len2=Math.hypot(dx2,dy2);
+      if(len1<1||len2<1){result.push(b);continue;}
+      const ix=dx1/len1,iy=dy1/len1,ox=dx2/len2,oy=dy2/len2;
+      if(Math.abs(ix*oy-iy*ox)<0.03){result.push(b);continue;}
+      const radius=Math.min(TURN_RADIUS,len1*.3,len2*.3);
+      if(radius<2){result.push(b);continue;}
+      const p={x:b.x-ix*radius,y:b.y-iy*radius};
+      const q={x:b.x+ox*radius,y:b.y+oy*radius};
+      result.push(p);
+      for(const t of [.25,.5,.75]){
+        const u=1-t;
+        result.push({x:u*u*p.x+2*u*t*b.x+t*t*q.x,
+                     y:u*u*p.y+2*u*t*b.y+t*t*q.y});
+      }
+      result.push(q);
+    }
+    result.push(input.at(-1));
+    return cleanPoints(result);
   }
   function travelRoute(from,to,home=false) {
     // Corredor visual inferior para transitar entre área de trabalho e anexos.
@@ -32,7 +59,7 @@
       {x:to.x,y:corridorY},
       {x:to.x,y:to.y}
     ];
-    return cleanPoints(points);
+    return softenCorners(points);
   }
   function interpolate(points,distance) {
     for(let i=1;i<points.length;i++) {
@@ -46,7 +73,8 @@
       distance-=len;
     }
     const last=points.at(-1);
-    return {x:last.x,y:last.y,direction:"south",moving:false};
+    const prev=points.at(-2)||last;
+    return {x:last.x,y:last.y,direction:heading(last.x-prev.x,last.y-prev.y),moving:false};
   }
   function create(slots) {
     const state=new Map();
@@ -68,8 +96,14 @@
     function poseFor(id, now=0) {
       const route=state.get(id);
       if(!route)return null;
-      const elapsed=Math.max(0,(now-route.start)/1000)*SPEED;
-      const position=interpolate(route.points,elapsed);
+      const distance=Math.min(route.distance,Math.max(0,(now-route.start)/1000)*SPEED);
+      const position=interpolate(route.points,distance);
+      position.moving=distance<route.distance-0.01;
+      if(!position.moving){
+        const last=route.points.at(-1),before=route.points.at(-2)||last;
+        position.direction=heading(last.x-before.x,last.y-before.y);
+      }
+      const walkFrame=position.moving?Math.floor(distance/WALK_STRIDE)%4:0;
       let motion=position.moving?"walk":"idle";
       let direction=position.direction;
       if(!position.moving&&meeting&&(id===meeting.a||id===meeting.b)){
@@ -82,7 +116,7 @@
           motion="wave";
         }
       }
-      return {...position,direction,motion,
+      return {...position,direction,motion,frame:walkFrame,distance,
               target:route.target,label:route.label,demo:true};
     }
     function meet(a,b,now=0){
@@ -101,7 +135,8 @@
       const begin=now+travelMs+300;
       meeting={a,b,begin,end:begin+12000};
       routes.forEach(({id,points})=>{
-        state.set(id,{start:now,target:"meeting",label:"Conversa na sala criativa (prévia)",points});
+        state.set(id,{start:now,target:"meeting",label:"Conversa na sala criativa (prévia)",
+                      points,distance:routeDistance(points)});
       });
       if(freeTime.enabled)setFreeTimeDemo(false,now);
       return true;
@@ -121,6 +156,7 @@
         label:destination==="home"?"Mesa de trabalho":target.label,
         points:travelRoute(start,target,destination==="home")
       });
+      state.get(id).distance=routeDistance(state.get(id).points);
       return true;
     }
     function setFreeTimeDemo(enabled,now=0){
@@ -182,6 +218,10 @@
         freeTime.phase="outbound";
       }
     }
+    function hasMoving(now=0){
+      for(const id of state.keys())if(poseFor(id,now)?.moving)return true;
+      return false;
+    }
     function clear() {
       state.clear();meeting=null;freeTime.enabled=false;freeTime.agentId=null;
       freeTime.phase="idle";
@@ -206,7 +246,7 @@
       return pose.moving?"Caminhando para: "+pose.label:
              "No destino: "+pose.label+" · ação específica ainda não animada";
     }
-    return {travel,meet,poseFor,clear,cancel,current,tick,setFreeTimeDemo,
+    return {travel,meet,poseFor,hasMoving,clear,cancel,current,tick,setFreeTimeDemo,
             freeTimeEnabled:()=>freeTime.enabled,
             destinations:Object.keys(DESTINATIONS),
             definitions:DESTINATIONS,
