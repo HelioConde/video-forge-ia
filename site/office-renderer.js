@@ -116,7 +116,16 @@
     box(c,1098,583,16,13,"#6bdcbf");
     box(c,1033,657,120,19,"#2f3647");box(c,1041,669,105,15,"#c0a77a");
     plant(c,861,693,.8);plant(c,1181,684,.85);
-    // Mesa grande de execução, quatro estações em duas linhas.
+    // Tapetes individuais e placas dos postos: diferencia as áreas de trabalho.
+    SLOTS.forEach(([x,y],i)=>{
+      const rug=i%2===0?"#8d745e":"#8b7058";
+      box(c,x-79,y-52,159,229,"#634e48");
+      box(c,x-75,y-48,151,221,rug);
+      stroke(c,x-75,y-48,151,221,i%2===0?"#bc9972":"#b19072",3);
+      for(let d=0;d<4;d++) box(c,x-65+d*40,y+162,25,2,"#b59a7c");
+      box(c,x-62,y-45,125,20,"#293a4b");
+      txt(c,"POSTO "+String(i+1).padStart(2,"0"),x,y-31,"#dae4d5",11,"center");
+    });
     for (const [x,y] of SLOTS)desk(c,x,y);
     // TV e quadros na parede lateral
     box(c,65,184,70,52,"#203143");box(c,70,189,60,41,"#8aafaa");
@@ -126,6 +135,13 @@
     box(c,72,397,73,28,"#273644");txt(c,"PROD.",108,415,"#a5f2d2",13,"center");
     box(c,861,453,328,28,"#233646");txt(c,"REUNIÕES  /  DIREÇÃO CRIATIVA",1025,472,"#d1d2bd",13,"center");
     txt(c,"ÁUDIO  /  EDIÇÃO",1030,718,"#d1d8c4",13,"center");
+    // Detalhes cenográficos: quadros, relógio, prateleiras, console de áudio e LEDs.
+    box(c,975,174,82,45,"#182a3c");stroke(c,975,174,82,45,"#8ba4a2",3);
+    txt(c,"PLANO",1016,189,"#bde2d4",12,"center");
+    for(let i=0;i<3;i++){box(c,985,196+i*6,8,3,["#9ee2ae","#f0ca8a","#a4cde5"][i]);box(c,998,196+i*6,47-i*7,2,"#7798a3");}
+    for(let i=0;i<6;i++){box(c,1080+i*15,629-(i%4)*6,8,13+(i%4)*6,["#9ebfd0","#7fbda5","#d3ad86"][i%3]);}
+    box(c,1049,625,111,4,"#243c48");
+    for(let i=0;i<4;i++){box(c,102+i*128,172,45,4,"#e5d1a2");box(c,102+i*128,176,45,3,"#675c58");}
     // Moldura do escritório.
     box(c,39,32,1204,13,"#101e2e");box(c,39,775,1204,14,"#101e2e");
     box(c,39,32,14,757,"#101e2e");box(c,1229,32,14,757,"#101e2e");
@@ -176,7 +192,7 @@
     constructor(canvas, onSelect) {
       this.canvas=canvas;this.ctx=canvas.getContext("2d",{alpha:false});
       if(!this.ctx)throw new Error("Canvas 2D indisponível");
-      this.onSelect=onSelect;this.agents=[];this.selected=null;
+      this.onSelect=onSelect;this.agents=[];this.selected=null;this.miniCanvas=null;this.miniCtx=null;
       this.zoom=1;this.panX=0;this.panY=0;this.last=0;this.pointerMap=new Map();this.drag=null;this.pinch=null;
       this.bg=document.createElement("canvas");this.bg.width=W;this.bg.height=H;
       officeBackground(this.bg.getContext("2d"));
@@ -194,19 +210,59 @@
     }
     setAgents(agents){this.agents=agents.slice(0,SLOTS.length)}
     setSelected(id){this.selected=id}
+    setMiniMap(canvas){
+      this.miniCanvas=canvas;this.miniCtx=canvas.getContext("2d");
+      canvas.addEventListener("click",e=>{
+        const rect=canvas.getBoundingClientRect();
+        const x=(e.clientX-rect.left)/rect.width*W;
+        const y=(e.clientY-rect.top)/rect.height*H;
+        this.centerWorld(x,y);
+      });
+    }
+    defaultZoom(){
+      const fit=Math.min(this.viewW/W,this.viewH/H);
+      if(this.viewW>700)return 1;
+      // No celular, a sala preenche a altura. É possível explorar as laterais com arraste e minimapa.
+      return Math.min(4.2,Math.max(1.3,(this.viewH/(H*.96))/fit));
+    }
+    centerWorld(worldX,worldY){
+      const scale=this.viewport().scale;
+      this.panX=(W/2-worldX)*scale;
+      this.panY=(H/2-worldY)*scale;
+      this.limitPan();
+    }
+    focusAgent(id){
+      const i=this.agents.findIndex(a=>a.id===id);
+      if(i<0)return;
+      if(this.viewW<=700)this.centerWorld(SLOTS[i][0],SLOTS[i][1]+58);
+    }
     viewport(){const scale=Math.min(this.viewW/W,this.viewH/H)*this.zoom;return {scale,x:(this.viewW-W*scale)/2+this.panX,y:(this.viewH-H*scale)/2+this.panY};}
     resize(){const rect=this.canvas.parentElement.getBoundingClientRect();this.viewW=Math.max(1,rect.width);this.viewH=Math.max(1,rect.height);
       const dpr=Math.min(window.devicePixelRatio||1,2);this.canvas.width=Math.round(this.viewW*dpr);this.canvas.height=Math.round(this.viewH*dpr);
       this.canvas.style.width=this.viewW+"px";this.canvas.style.height=this.viewH+"px";this.dpr=dpr;
-      if(!this.initialized){this.zoom=window.matchMedia("(max-width: 700px)").matches?1.75:1;this.initialized=true;}
+      const mobile=this.viewW<=700;
+      if(!this.initialized || mobile!==this.wasMobile){
+        this.zoom=this.defaultZoom();this.panX=0;this.panY=0;
+        this.initialized=true;this.wasMobile=mobile;
+        if(mobile)this.centerWorld(445,410);
+      }
     }
-    reset(){this.zoom=window.matchMedia("(max-width: 700px)").matches?1.75:1;this.panX=0;this.panY=0;}
+    reset(){
+      this.zoom=this.defaultZoom();this.panX=0;this.panY=0;
+      if(this.viewW<=700)this.centerWorld(445,410);
+    }
     zoomAt(mult,cx=this.viewW/2,cy=this.viewH/2){const before=this.viewport(),px=(cx-before.x)/before.scale,py=(cy-before.y)/before.scale;
       this.zoom=Math.max(.7,Math.min(4.2,this.zoom*mult));
       const after=this.viewport();this.panX+=(cx-after.x)-px*after.scale;this.panY+=(cy-after.y)-py*after.scale;
       this.limitPan();
     }
-    limitPan(){const {scale}=this.viewport();const spanX=W*scale,spanY=H*scale;this.panX=Math.min(Math.max(this.panX,-spanX*.55),spanX*.55);this.panY=Math.min(Math.max(this.panY,-spanY*.55),spanY*.55);}
+    limitPan(){
+      const {scale}=this.viewport();
+      const maxX=Math.max(30,(W*scale-this.viewW)/2+32);
+      const maxY=Math.max(30,(H*scale-this.viewH)/2+32);
+      this.panX=Math.min(Math.max(this.panX,-maxX),maxX);
+      this.panY=Math.min(Math.max(this.panY,-maxY),maxY);
+    }
     toWorld(x,y){const v=this.viewport();return {x:(x-v.x)/v.scale,y:(y-v.y)/v.scale};}
     agentAt(x,y){const p=this.toWorld(x,y);for(let i=0;i<this.agents.length;i++){const [ax,ay]=SLOTS[i];if(Math.abs(p.x-ax)<72 && p.y>ay-55 && p.y<ay+165)return this.agents[i].id;}return null;}
     pointerDown(e){e.preventDefault();this.canvas.setPointerCapture(e.pointerId);this.pointerMap.set(e.pointerId,{x:e.offsetX,y:e.offsetY});
@@ -226,6 +282,24 @@
       box(c,0,0,this.viewW,this.viewH,"#101827");
       const v=this.viewport();c.save();c.translate(v.x,v.y);c.scale(v.scale,v.scale);c.imageSmoothingEnabled=false;
       c.drawImage(this.bg,0,0);agentSprites(c,this.agents,this.selected,t);c.restore();
+      this.renderMiniMap();
+    }
+    renderMiniMap(){
+      if(!this.miniCanvas || !this.miniCtx)return;
+      const mini=this.miniCanvas,ctx=this.miniCtx;
+      const mw=mini.width,mh=mini.height;
+      ctx.imageSmoothingEnabled=false;
+      ctx.clearRect(0,0,mw,mh);
+      ctx.drawImage(this.bg,0,0,W,H,0,0,mw,mh);
+      this.agents.forEach((a,i)=>{
+        const slot=SLOTS[i];if(!slot)return;
+        ctx.fillStyle=a.id===this.selected?"#f4d488":(["trabalhando","revisao"].includes(a.status)?"#a5f6b7":"#e5f0db");
+        ctx.fillRect(slot[0]/W*mw-2,slot[1]/H*mh-2,5,5);
+      });
+      const v=this.viewport();
+      let x=(-v.x/v.scale)/W*mw,y=(-v.y/v.scale)/H*mh;
+      let w=(this.viewW/v.scale)/W*mw,h=(this.viewH/v.scale)/H*mh;
+      ctx.strokeStyle="#fff3c7";ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
     }
   }
   window.VideoForgeOffice={Office, WORLD_WIDTH:W, WORLD_HEIGHT:H};
