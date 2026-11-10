@@ -108,3 +108,7 @@ Consulte `docs/PLANO_INTERACOES_ESCRITORIO.md` para a sequência de novos sprite
 O botão **☕** ativa ou desativa uma **SIMULAÇÃO VISUAL**, desligada por padrão. Quando o usuário ativa a opção, apenas agentes com status de backend `nao_conectado`, `aguardando` ou `concluido` fazem passeios sequenciais (um por vez) até os pontos provisórios. Eles usam `walk`, descansam em `idle` e voltam à mesa. Novas tarefas reais ou erros cancelam o passeio. Os eventos do backend permanecem como única fonte de verdade, e nada é enviado à API PixelLab.
 
 Essa opção não realiza as ações reais de beber/jogar/cantar e não significa que um agente está trabalhando. `prefers-reduced-motion` continua aplicando frame estático; as ações específicas e objetos seguem pendentes.
+
+## Estrutura de gestão de vídeo (dados planejados)
+
+O snapshot público contém `organizacao` derivada de `agentes/equipe.json`: cinco departamentos, 27 especialistas planejados e identificação do gerente humano. Os oito cargos anteriores continuam como postos visuais; a seleção de um líder exibe a contagem de subordinados lógicos. **Não são 27 IAs online**, e o site continua sem executar o pipeline. Veja `docs/EQUIPE_PRODUCAO.md`.

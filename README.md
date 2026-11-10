@@ -123,3 +123,9 @@ A integração de agentes agora usa as **48 combinações de seis movimentos e o
 ## Navegação visual entre espaços do escritório
 
 O módulo `site/agent-routines.js` acrescenta passeios demonstrativos manuais para os agentes: café, bebedouro, jogos, porta do banheiro e retorno ao posto. Usa a animação real `walk` do Alex e não altera os eventos de trabalho. Novos ambientes e ações sociais precisam ser gerados no PixelLab antes de substituir os marcadores por objetos reais. [Plano de animações e interações](docs/PLANO_INTERACOES_ESCRITORIO.md).
+
+## Produtora com gerente, cinco departamentos e especialistas
+
+O gerente humano entrega demandas ao diretor, que distribui por líderes de Editorial, Criação, Audiovisual e Qualidade, com **27 especializações planejadas**. O motor `videoforge/production/dispatcher.py` prepara **18 entregas** por vídeo, com dependências, incluindo título, descrição, tags, thumbnail, roteiro, voz, edição, QA e aprovação. Ainda **não executa IAs nem publica**: é a base segura para conectores futuros. O painel do escritório mostra a organização sem apresentar especialistas como online. [Guia da equipe](docs/EQUIPE_PRODUCAO.md).
+
+Para animar conversas, reuniões e as especializações, o catálogo `personagens/alex/production-animations.json` define **137 ações**, das quais 122 são movimentos de personagem e 15 exigem sequências/objetos adicionais. [Controle de geração PixelLab](docs/PIXELLAB-PRODUTORA.md).

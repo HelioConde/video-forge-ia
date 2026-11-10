@@ -42,6 +42,26 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
         "tarefa": "Aguardando conexão com a produção real", "canal": None
     } for a in team]
 
+    departments = roster.get("departamentos", [])
+    if not isinstance(departments, list):
+        raise ValueError("Departamentos inválidos.")
+    organization = {
+        "gerente": "Gerente geral (humano)",
+        "modelo": "planejado_sem_ia",
+        "especialistas_planejados": sum(
+            len(dept.get("specialists", [])) for dept in departments
+        ),
+        "departamentos": [
+            {
+                "id": text(dept.get("id"), 40),
+                "nome": text(dept.get("name"), 80),
+                "lider": text(dept.get("lead"), 40),
+                "especialistas_planejados": len(dept.get("specialists", [])),
+            }
+            for dept in departments
+        ],
+    }
+
     if events is not None:
         raw = json.loads(events.read_text(encoding="utf-8"))
         if not isinstance(raw, dict) or not isinstance(raw.get("agents"), list):
@@ -65,7 +85,7 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "fonte": "eventos_backend" if events else "apenas_configuracao",
         "tempo_real": False,
-        "canais": channels, "agentes": agents,
+        "canais": channels, "agentes": agents, "organizacao": organization,
     }
 
 

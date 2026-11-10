@@ -96,6 +96,23 @@
       detail.append(make("div","detail-kicker","AGENTE SELECIONADO"),make("div","detail-title",a.nome),make("div","detail-status","● "+label(a.status)),make("p","detail-text",a.tarefa||"Nenhuma tarefa informada"));
       const channel=snap.canais.find(c=>c.id===a.canal);
       detail.append(make("div","detail-footnote","Canal: "+(channel?channel.nome:"Não atribuído")));
+      const organization=snap.organizacao;
+      if(organization?.modelo==="planejado_sem_ia"){
+        const info=make("div","organization-overview");
+        info.append(make("strong","","ESTRUTURA DA PRODUTORA (PLANEJADA)"));
+        info.append(make("p","",
+          organization.departamentos?.length+" departamentos · "+
+          organization.especialistas_planejados+
+          " especialistas não conectados a executores IA"));
+        const dept=organization.departamentos?.find(d=>d.lider===a.id);
+        if(dept)info.append(make("small","",
+          "Líder de "+dept.nome+": "+dept.especialistas_planejados+" especialistas lógicos"));
+        if(a.id==="diretor"){
+          info.append(make("small","",
+            "Direção recebe demandas do gerente geral humano; o motor atual apenas planeja delegação."));
+        }
+        detail.append(info);
+      }
       if(window.VideoForgeAnimator.ready()){
         const preview=make("button","animation-preview");
         preview.type="button";

@@ -126,3 +126,12 @@
 /* O modo de tempo livre é opt-in e representa apenas animação de cenário. */
 #btnFreeTime[aria-pressed="true"]{background:#345c4f;border-color:#a4e5ba;color:#e3ffe6}
 #btnFreeTime:disabled{opacity:.45;cursor:not-allowed}
+
+/* Organograma planejado, sem simular agentes conectados. */
+.organization-overview{
+  border:1px solid #48636a;border-radius:5px;
+  background:#203947;margin-top:12px;padding:10px 11px;
+}
+.organization-overview strong{font:800 10px/1.5 ui-monospace,Consolas,monospace;color:#b8e9c7}
+.organization-overview p{font:600 11px/1.5 ui-monospace,Consolas,monospace;color:#e8eddd;margin:5px 0}
+.organization-overview small{display:block;font:500 10px/1.45 ui-monospace,Consolas,monospace;color:#adbfbb;margin-top:4px}

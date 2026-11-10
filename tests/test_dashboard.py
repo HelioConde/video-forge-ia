@@ -9,6 +9,9 @@ class DashboardTests(unittest.TestCase):
         snapshot = make_snapshot()
         self.assertEqual(len(snapshot["canais"]), 5)
         self.assertEqual(len(snapshot["agentes"]), 8)
+        self.assertEqual(len(snapshot["organizacao"]["departamentos"]), 5)
+        self.assertEqual(snapshot["organizacao"]["especialistas_planejados"], 27)
+        self.assertEqual(snapshot["organizacao"]["modelo"], "planejado_sem_ia")
         self.assertTrue(all(a["status"] == "nao_conectado" for a in snapshot["agentes"]))
         content = json.dumps(snapshot).lower()
         for sensitive in ("oauth_token", "refresh_token", "client_secret", "youtube_channel_id", "ucctyfe"):

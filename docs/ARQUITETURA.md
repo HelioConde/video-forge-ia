@@ -147,3 +147,9 @@ O workflow `.github/workflows/pixellab-export-alex.yml` exporta os frames sem ge
 ## Locomoção visual e interação com cenários
 
 `site/agent-routines.js` mantém somente rotas de demonstração em memória do navegador. A biblioteca de destinos limita as ações a café, água, jogos, entrada do banheiro e retorno à estação; não altera `status` do backend, não faz solicitações à API PixelLab e não exibe consumo de recursos inexistentes. O Canvas `office-art.js` utiliza a mesma posição/direção calculada para `walk` e `idle`, `office-renderer.js` aplica o mesmo deslocamento a hit-testing e minimapa, e `app.js` oferece comandos explicitamente rotulados como prévia. Não confundir com robôs operacionais ou uma simulação persistente de trabalho.
+
+## Gestão, delegação e novas animações da produtora
+
+`agentes/equipe.json` v2 preserva oito cargos visuais e acrescenta estrutura hierárquica (`manager`, `departamentos`, especialistas lógicos desativados). O exportador `scripts/build_dashboard_data.py` publica apenas contagens e nomes de departamentos como `organizacao`. No painel, as relações são marcadas como planejadas; não inventar execução real.
+
+`videoforge/production/dispatcher.py` cria o DAG de 18 tarefas por demanda; as atividades são apenas `blocked` ou `ready` até haver artefato validado. Não executa IA/pagamento/publicação. `personagens/alex/production-animations.json` contém 137 ações categorizadas em `character`, `sequence` e `object`. O motor `videoforge/pixellab/production_animations.py` só paga por direções de personagem ausentes após verificar GET e autorização, sem guardar IDs privados nos artefatos; novos sprites precisarão de revisão visual antes de entrar no Canvas.

@@ -74,3 +74,9 @@ A fonte de verdade é o export da biblioteca PixelLab, sem POST pago. `scripts/i
 ## Rotas e interações de ambiente
 
 `site/agent-routines.js` contém rotas de **demonstração manual** sem agendar ações automáticas nem alterar status de agentes. Movimentos e tarefas reais sempre vêm do backend. Não fingir que ações ainda sem sprites PixelLab (cantar, beber, jogar, banheiro etc.) já estão animadas. Os marcadores WC e jogos são provisórios e devem ser substituídos por salas reais somente após geração/aprovação dos assets. Testar com `node tests/test_agent_routines.js`, validação geral e capturas responsivas.
+
+## Produtora de vídeos em equipe grande
+
+O gerente geral é humano. O arquivo `agentes/equipe.json` define cinco departamentos e especialistas **planejados**, que não passam a executar IA só pelo cadastro. O `videoforge/production/dispatcher.py` constrói 18 subtarefas por vídeo e só considera `done` após artefato verificável. Não transformar `ready`/planejamento em atividade real no Pages. Nenhuma mudança no fluxo autoriza publicar vídeos, rodar modelos pagos ou simular status.
+
+O catálogo `personagens/alex/production-animations.json` lista 137 ações. As de tipo `character` são tratadas por `videoforge/pixellab/production_animations.py`; `sequence` reutiliza movimentos e `object` requer outra API. Fluxos pagos só geram movimentos ausentes, com limite por execução e autorização do gerente. Consultar `docs/EQUIPE_PRODUCAO.md` e `docs/PIXELLAB-PRODUTORA.md`.
