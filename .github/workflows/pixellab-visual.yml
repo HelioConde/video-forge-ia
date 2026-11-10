@@ -6,6 +6,9 @@ on:
   push:
     branches: [main]
     paths:
+      - "site/*.js"
+      - "site/index.html"
+      - "site/styles.css"
       - ".github/workflows/pixellab-visual.yml"
   workflow_dispatch:
 
@@ -49,7 +52,7 @@ jobs:
                   assert page.locator("#agentsCount").inner_text()=="8"
                   page.screenshot(path=str(root/(name+"-scene.png")),full_page=True)
                   page.locator("#btnAgents").click()
-                  preview=page.locator("button.animation-preview")
+                  preview=page.locator("button.animation-preview").first
                   preview.wait_for(timeout=10000)
                   preview.click()
                   assert "idle" in preview.inner_text().lower()
@@ -64,8 +67,23 @@ jobs:
                   assert page.locator("#btnFreeTime").get_attribute("aria-pressed")=="false"
                   page.wait_for_timeout(500)
                   page.screenshot(path=str(root/(name+"-coffee-route.png")),full_page=True)
+                  # Prévia profissional explícita sem modificar status de backend.
+                  page.locator("#btnRoleDemo").click()
+                  assert page.locator("#btnRoleDemo").get_attribute("aria-pressed")=="true"
+                  page.wait_for_function("window.VideoForgeAnimator.productionLoaded('draw_tablet')",timeout=30000)
+                  assert "SEM EXECUÇÃO" in page.locator("#sceneSource").inner_text()
+                  page.screenshot(path=str(root/(name+"-professions.png")),full_page=True)
+                  page.locator("#btnRoleDemo").click()
+                  assert page.locator("#btnRoleDemo").get_attribute("aria-pressed")=="false"
+                  # Reabrir cena para conferir diálogo entre dois agentes sem passeio anterior.
+                  page.reload(wait_until="networkidle")
+                  page.wait_for_function("window.VideoForgeAnimator.ready() && window.VideoForgeArt.getArtMode()==='pixellab'",timeout=30000)
+                  page.locator("#btnAgents").click()
+                  page.get_by_role("button",name="Conversar com colega").click()
+                  assert "Conversa" in page.locator(".routine-state").inner_text()
+                  page.screenshot(path=str(root/(name+"-conversation.png")),full_page=True)
                   if errors:raise RuntimeError("Erro JavaScript: "+"; ".join(errors))
-                  print(name+": canvas carregado; prévia idle e walk funcionando")
+                  print(name+": sprites, profissões, rotas e conversa de dois agentes funcionando")
                   page.close()
               browser.close()
           PY
