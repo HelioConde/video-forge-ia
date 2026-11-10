@@ -121,9 +121,21 @@ def replace_walk(source: Path, root: Path = ROOT, *,
                     raise ValueError("Frame do estado walk acima do limite.")
                 image = Image.open(io.BytesIO(archive.read(name)))
                 image.load()
-                if image.mode != "RGBA" or image.size != (88, 88) or not image.getbbox():
-                    raise ValueError("Frame inválido na caminhada do estado walk.")
-                atlas.paste(image, (col * 88, row * 88))
+                if (image.mode not in ("RGBA", "RGB", "P", "LA")
+                        or not 16 <= image.width <= 88
+                        or not 16 <= image.height <= 88):
+                    raise ValueError(
+                        "Dimensões/modo incompatíveis no walk: "
+                        + str(image.size) + " / " + image.mode
+                    )
+                image = image.convert("RGBA")
+                if not image.getbbox():
+                    raise ValueError("Frame completamente transparente no estado walk.")
+                # A base e os estados podem ter canvases diferentes (64x64/88x88).
+                # Preservar cada pixel original, centralizando em células 88x88.
+                cell = Image.new("RGBA", (88, 88))
+                cell.paste(image, ((88-image.width)//2, (88-image.height)//2))
+                atlas.paste(cell, (col * 88, row * 88))
 
         buffer = io.BytesIO()
         atlas.save(buffer, "PNG", optimize=True)
