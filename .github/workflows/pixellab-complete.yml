@@ -1,0 +1,70 @@
+name: PixelLab - Concluir animacoes Alex autorizadas
+
+# Uma única execução por commit deste arquivo. Sem cron e sem gatilho após
+# qualquer atualização normal do repositório.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-complete.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+# Esta trava é compartilhada com o primeiro lote.
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  remaining:
+    name: Concluir apenas direcoes faltantes
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testar algoritmo antes de permitir custos adicionais
+        run: python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Exigir sucesso do primeiro lote
+        env:
+          GITHUB_TOKEN_FOR_CHECK: ${{ github.token }}
+          FIRST_RUN: "42825463795"
+        run: |
+          python - <<'PY'
+          import json, os
+          from urllib.request import Request, urlopen
+          url = ("https://api.github.com/repos/HelioConde/video-forte-ia/"
+                 "actions/runs/" + os.environ["FIRST_RUN"])
+          req = Request(url, headers={
+              "Authorization": "Bearer " + os.environ["GITHUB_TOKEN_FOR_CHECK"],
+              "Accept": "application/vnd.github+json",
+              "User-Agent": "VideoForge-PixelLab-Continuation",
+          })
+          with urlopen(req, timeout=30) as response:
+              result = json.load(response)
+          conclusion = result.get("conclusion")
+          print("PRIMEIRO_LOTE_STATUS=" + str(conclusion))
+          if result.get("status") != "completed" or conclusion != "success":
+              raise SystemExit("Primeiro lote não teve sucesso. Nenhuma nova geração autorizada.")
+          PY
+      - name: Criar sequencialmente apenas animacoes que ainda faltam
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+          PIXELLAB_GENERATION_AUTHORIZED: "true"
+          PIXELLAB_MAX_TOTAL: "44"
+          PIXELLAB_BATCH_SIZE: "8"
+        run: python -m videoforge.pixellab.complete
+      - name: Guardar relatorios sem tokens, IDs e imagens privadas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-complete-${{ github.run_id }}
+          path: output/pixellab-complete/
+          retention-days: 7
+          if-no-files-found: warn
