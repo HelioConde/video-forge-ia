@@ -1,0 +1,107 @@
+name: PixelLab - Receber todas as imagens no GitHub
+
+# Somente GET: recebe imagens já geradas pelo Alex e pelos objetos.
+# Mesmo se o lote pago falhar, importa apenas movimentos completos e válidos.
+# Nunca reenvia POSTs pagos nem armazena exportações privadas no Git.
+on:
+  # Autoteste não pago quando o próprio recebedor é alterado.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-production-import.yml"
+  workflow_run:
+    workflows:
+      - "PixelLab - Completar animacoes da produtora"
+      - "PixelLab - Objetos animados da produtora"
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      categoria:
+        description: "Quais imagens sincronizar da biblioteca PixelLab?"
+        required: true
+        type: choice
+        default: todas
+        options:
+          - todas
+          - alex
+          - objetos
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pixellab-recepcao-de-imagens
+  cancel-in-progress: false
+
+jobs:
+  receber:
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion != 'cancelled') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      RECEBER_ALEX: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'alex')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Completar animacoes da produtora') }}
+      RECEBER_OBJETOS: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'objetos')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Objetos animados da produtora') }}
+    steps:
+      - name: Checkout da versão atual de main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar Pillow para validar PNGs e montar atlas
+        run: python -m pip install "Pillow>=10,<13"
+      - name: Testar importação incremental e segura
+        run: |
+          python -m unittest discover -s tests -p "test_pixellab_*receive.py" -v
+          python -m unittest discover -s tests -p "test_pixellab_objects_receive.py" -v
+      - name: Exportar frames do Alex por GET sem gerar novos
+        if: ${{ env.RECEBER_ALEX == 'true' }}
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+        run: python scripts/export_pixellab_ready.py --source /tmp/character-frames.zip
+      - name: Montar os movimentos completos do Alex, preservando anteriores
+        if: ${{ env.RECEBER_ALEX == 'true' }}
+        run: |
+          if [ -f /tmp/character-frames.zip ]; then
+            python scripts/import_pixellab_production.py --source /tmp/character-frames.zip
+          else
+            echo "PixelLab está processando o personagem; importação adiada com segurança."
+          fi
+      - name: Receber spritesheets de cadeira e armário do PixelLab
+        if: ${{ env.RECEBER_OBJETOS == 'true' }}
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+        run: python scripts/import_pixellab_objects.py
+      - name: Validar integridade dos manifests e arquivos PNG
+        run: python scripts/verify_pixellab_assets.py
+      - name: Publicar apenas PNGs e manifests saneados no repositório
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for folder in site/assets/pixellab/agents/alex/production site/assets/pixellab/objects/production; do
+            if [ -d "$folder" ]; then git add -- "$folder"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "Não há imagens novas ou alteradas. Nenhum commit necessário."
+            exit 0
+          fi
+          git commit -m "assets: sincroniza sprites PixelLab validados sem metadados privados"
+          git pull --rebase origin main
+          git push origin HEAD:main
+      - name: Relatórios sem tokens ou identificadores privados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-studio-recepcao-${{ github.run_id }}
+          path: |
+            output/pixellab-production/receive-summary.json
+            output/pixellab-production/object-receive.json
+            output/pixellab-production/asset-validation.json
+          retention-days: 7
+          if-no-files-found: warn
