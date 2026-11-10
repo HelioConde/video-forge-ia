@@ -67,7 +67,8 @@
     defaultZoom(){
       const fit=Math.min(this.viewW/W,this.viewH/H);
       if(this.viewW>700)return 1;
-      return Math.min(4.2,Math.max(1.3,(this.viewH/(H*.96))/fit));
+      const suggested=Math.min(4.2,Math.max(1.3,(this.viewH/(H*.96))/fit));
+      return scene.getArtMode()==='pixellab'?Math.min(suggested,3):suggested;
     }
     resize(){
       const bounds=this.canvas.parentElement.getBoundingClientRect();
