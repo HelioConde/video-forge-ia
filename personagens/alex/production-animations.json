@@ -1,0 +1,1415 @@
+{
+  "schema": "videoforge/pixellab-production-catalog/v1",
+  "character": "alex",
+  "existing": [
+    "idle",
+    "walk",
+    "type",
+    "sit",
+    "talk",
+    "wave"
+  ],
+  "policy": {
+    "requires_existing_base": true,
+    "manual_approval_for_costs": true,
+    "skip_existing_directions": true,
+    "max_post_per_batch": 8,
+    "unknown_object_assets": "pending",
+    "frontend_import": "after_visual_review"
+  },
+  "items": [
+    {
+      "motion": "approach_person",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk to another worker and stop at a comfortable conversational distance. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "turn_to_person",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Turn smoothly toward another character before speaking. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "start_conversation",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Greet another worker with a short welcoming gesture. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "talk_casual",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Chat casually with gentle expressive hand and head gestures. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "talk_explain",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Explain a video production idea with deliberate pointing and hand gestures. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "talk_excited",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Speak enthusiastically with lively hand and shoulder movement. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "talk_serious",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Speak calmly and professionally with restrained gestures. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "talk_whisper",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lean in slightly and whisper discreetly toward a colleague. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "listen_idle",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Listen to another person, gaze and head directed toward the speaker. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "listen_focus",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lean forward, listen carefully, and react with subtle nods. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "nod_yes",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Nod in agreement two times. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "shake_head_no",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Shake head gently in disagreement. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "point_at_object",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Extend one arm and point toward a screen or storyboarding wall. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "think_response",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pause, touch chin thoughtfully, then return to neutral. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "laugh_together",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Laugh and rock shoulders while talking to a friend. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "handshake",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Extend one hand and shake hands in greeting. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "high_five",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Raise a hand to high five a colleague. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "goodbye",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Wave goodbye then turn back to the workstation. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "ask_help",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Raise a hand to request assistance from the team. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "presentation",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Stand and present a plan using broad clear gestures. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "team_meeting",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Listen and gesture during a seated team meeting. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "celebrate_team",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Celebrate as a team with a fist pump and smile. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "conversa",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "approach_chair",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk to chair and face its seat. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "pull_chair",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pull an office chair slightly backward. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "sit_down",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lower body naturally to sit on an office chair. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "adjust_chair",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Shift sitting posture and adjust position. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "rotate_chair_left",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Rotate a swivel chair toward the left. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "object",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "rotate_chair_right",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Rotate a swivel chair toward the right. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "object",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "lean_forward",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lean forward in chair to study screen closely. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "lean_back",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lean back to relax in chair. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "stand_up",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Stand up naturally from office chair. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "push_chair_back",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Push office chair under desk. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "pick_up_desk_item",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pick up a small object from desk with one hand. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "put_down_desk_item",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Place an item back on desktop. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cadeira",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "mouse_move",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Operate a computer mouse with subtle forearm motion. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "mouse_click",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Click computer mouse twice while staying seated. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "keyboard_type",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Type rapidly with both hands on keyboard. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "keyboard_shortcuts",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Alternate keyboard shortcuts with mouse movements. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "read_document",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Hold and read a script document attentively. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "write_notes",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Write hand notes with pen and paper. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "draw_tablet",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Sketch with a pen on a graphics tablet. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "inspect_art",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Study digital artwork on screen, squint and compare. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "edit_video",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Edit a video timeline with mouse and keyboard. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "review_storyboard",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Review storyboard panels while gesturing at them. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "put_on_headphones",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lift and place studio headphones on head. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "take_off_headphones",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Remove studio headphones and place them on desk. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "adjust_microphone",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Adjust studio microphone angle and height. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "sing_seated",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Sing expressively while sitting in a chair at a studio microphone, articulating mouth and head. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "sing_standing",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Sing expressively while standing at a microphone stand. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "narrate",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Record spoken narration with subtle mouth and posture movements. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "listen_recording",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Listen to recording while wearing headphones. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "recording_finish",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Finish recording, relax shoulders and remove headphones. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "point_at_storyboard",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Point toward a storyboard on wall while explaining the scene. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "inspect_script",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Read and mark a printed script with a pen. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "draw_layers",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Move pen across digital drawing tablet and adjust hand position. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "animation_review",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Inspect character movement on monitor and point out an issue. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "subtitle_edit",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Type and adjust caption timing in a video editor. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "sound_mix",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Turn knobs and sliders on an audio mixing desk. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "qa_inspection",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Check audio and video carefully while comparing frames. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "trabalho",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 0
+    },
+    {
+      "motion": "enter_breakroom",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk into break room through a door. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "approach_coffee_machine",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk up to coffee machine. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "grab_mug",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pick up a ceramic coffee mug from counter. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "place_mug_machine",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Set an empty mug beneath coffee machine. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "make_coffee",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Press coffee machine button and wait for coffee. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "pick_up_coffee",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pick up a freshly prepared coffee mug. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "carry_mug",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk carefully with a coffee mug in one hand. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "sip_coffee",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lift coffee mug to mouth, sip, then lower it. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "coffee_chat",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Have a relaxed conversation while holding coffee. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "sit_with_coffee",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Sit down holding a coffee mug. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "eat_snack",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pick up and eat a small snack. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "wash_mug",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Wash mug under a tap in a sink. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "return_mug",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Put mug back on counter or shelf. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "cafe",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "approach_water_cooler",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk to water cooler. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "grab_cup",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Take a drinking cup from cup holder. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "fill_water",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Hold cup beneath water dispenser and press lever. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "drink_water",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Raise cup to mouth, drink water, then lower it. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "refill_water",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Refill drinking cup with more water. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "discard_cup",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Place used disposable cup into waste bin. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "leave_water_cooler",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Turn away from cooler and walk back to station. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "agua",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "enter_game_room",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk through game room door. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "sit_on_sofa",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Sit down on a sofa cushion. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "grab_controller",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pick up a game controller with both hands. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "play_gamepad",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Play a video game while seated, pressing controller buttons. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "game_focus",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lean forward intensely, focused on a video game. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "game_victory",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Celebrate winning a video game with raised hands. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "game_defeat",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. React to losing a game with a playful disappointed gesture. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "watch_friend_play",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Watch a friend play and react to the screen. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "play_arcade",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Move arcade joystick and push arcade cabinet buttons. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "play_pool",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Aim a pool cue and strike a billiard ball. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "play_cards",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Hold, examine and place playing cards onto a table. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "play_boardgame",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Move a tabletop board-game piece with one hand. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "leave_controller",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Put a game controller down on a side table. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "jogos",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 1
+    },
+    {
+      "motion": "stretch_arms",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Stretch arms and shoulders after long desk work. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "stretch_back",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Stretch back from seated position. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "yawn",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Yawn and cover mouth. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "rub_eyes",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Rub sleepy eyes after computer use. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "check_phone",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Look at a smartphone and scroll with thumb. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "phone_call",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Hold phone to ear and speak. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "sit_relaxed",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Relax sitting on sofa with comfortable body posture. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "rest_on_sofa",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Lean back on a sofa to rest. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "listen_music",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Listen to music with gentle head movements. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "dance",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Dance with a short rhythmic step sequence. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "read_book",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Hold a book and turn a page. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "look_window",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Look through window with hands relaxed. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "take_photo",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Raise phone and take a photo. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "descanso",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "approach_restroom",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk to restroom entrance. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "open_restroom_door",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Reach for handle to open restroom door. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "enter_restroom",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Walk through doorway and disappear behind wall. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "exit_restroom",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Leave restroom through open doorway. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "wash_hands",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Wash hands under a sink faucet. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "dry_hands",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Dry hands with towel or dryer. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "use_mirror",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Adjust hairstyle while facing mirror. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "close_restroom_door",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Reach for handle and close restroom door. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "banheiro",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "smile",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Give a warm relaxed smile. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "laugh",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Laugh naturally with shoulders moving. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "surprised",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. React with startled head and hands. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "confused",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Tilt head in confusion. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "thinking",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Place hand on chin and think. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "frustrated",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. React with a restrained frustrated gesture. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "tired",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Slouch shoulders with a tired expression. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "happy",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Express happiness with a positive hand gesture. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "excited",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Show enthusiasm, lightly bounce and smile. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "celebrate",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Celebrate raising both hands. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "applause",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Clap hands briefly in appreciation. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "agree",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Nod in agreement. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "disagree",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Shake head in polite disagreement. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "ask_help_gesture",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Wave toward colleague requesting assistance. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "emocoes",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "open_door",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Turn door knob and pull door open. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "switch_light",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Press wall switch to turn lights on or off. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "turn_on_pc",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Press computer power button. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "open_drawer",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Pull desk drawer open. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "take_book",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Reach to bookshelf and take a book. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "use_printer",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Press printer button and retrieve paper. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "open_cabinet",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Open cupboard door. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "object",
+      "directions": [
+        "north"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "use_elevator",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Enter elevator cabin and face the doors. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "sequence",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "throw_trash",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Place small piece of waste into bin. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    },
+    {
+      "motion": "remote_control",
+      "description": "Same original 64x64 pixel art office employee Alex, consistent appearance and palette. Four-frame smooth animation. Point remote toward television and press button. Low top-down RPG view, isolated character, transparent background, no text or altered clothing.",
+      "category": "ambiente",
+      "kind": "character",
+      "directions": [
+        "south"
+      ],
+      "priority": 2
+    }
+  ]
+}
