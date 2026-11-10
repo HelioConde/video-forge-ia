@@ -29,3 +29,7 @@ O usuário autorizou a criação de **todas as animações listadas e necessári
 Depois da conclusão bem-sucedida de `pixellab-production-continue.yml`, o workflow `pixellab-production-import.yml` baixa por GET o ZIP do personagem, valida a origem e a presença dos **145 pares movimento/direção** e converte os frames em 122 atlases `site/assets/pixellab/agents/alex/production/<motion>.png` com manifesto de hashes e dimensões. Não transfere o ZIP nem metadados privados para o Git.
 
 Esse workflow falha se qualquer frame estiver ausente/vazio e **não comita atlas parciais**. Publicar os PNGs no repositório não muda automaticamente o comportamento dos agentes; adicionar uma animação ao Canvas depende da interação e dos estados de UI.
+
+## Móveis animados
+
+A auditoria `pixellab-production-object-audit.yml` confirmou cadeira existente sem animações de giro e ausência do armário. A ação pontual `pixellab-production-objects.yml` usa a biblioteca `objects` e executa no máximo **quatro POSTs pagos**: `rotate_chair_left`, `rotate_chair_right`, criação do armário se ainda não existir e `open_cabinet`. Não cria nova cadeira nem repete animações existentes. Usa a trava `pixellab-personagens` para não executar simultaneamente ao lote grande do Alex. Resultado fica no PixelLab; o GitHub recebe somente relatório saneado. Novas imagens de móveis ainda precisam de exportação e aprovação antes de usar no site.

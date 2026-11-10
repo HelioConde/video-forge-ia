@@ -1,0 +1,43 @@
+name: PixelLab - Objetos animados da produtora
+
+# Execução pontual autorizada: cadeira (giro esquerda/direita), armário.
+# Respeita a mesma trava dos personagens para evitar saturação da API.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-production-objects.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 125
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testar chamadas de objetos offline
+        run: |
+          python -m unittest discover -s tests -p 'test_pixellab_production_object*.py' -v
+      - name: Reutilizar cadeira, criar armario se necessario e animar apenas o que falta
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_OBJECT_GENERATION_AUTHORIZED: "true"
+        run: python -m videoforge.pixellab.production_object_build --mode generate
+      - name: Relatório saneado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: producer-objects-${{ github.run_id }}
+          path: output/pixellab-production/object-build/report.json
+          retention-days: 7
+          if-no-files-found: warn
