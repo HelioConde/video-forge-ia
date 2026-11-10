@@ -1,0 +1,240 @@
+{
+  "schema": "videoforge/pixellab-social-roadmap/v1",
+  "character": "alex",
+  "existing": [
+    "idle",
+    "walk",
+    "type",
+    "sit",
+    "talk",
+    "wave"
+  ],
+  "pending": [
+    {
+      "motion": "stand_up",
+      "priority": 0,
+      "directions": [
+        "south",
+        "north"
+      ],
+      "objects": [
+        "office-chair"
+      ],
+      "description": "Character stands up naturally from an office swivel chair, pixel art transition; preserve character identity."
+    },
+    {
+      "motion": "sit_down",
+      "priority": 0,
+      "directions": [
+        "south",
+        "north"
+      ],
+      "objects": [
+        "office-chair"
+      ],
+      "description": "Character lowers into a seated pose on an office chair, clean transition in place; preserve identity."
+    },
+    {
+      "motion": "sing_seated",
+      "priority": 0,
+      "directions": [
+        "south",
+        "north"
+      ],
+      "objects": [
+        "chair",
+        "microphone",
+        "headphones"
+      ],
+      "description": "Character singing into a studio microphone while seated in an office chair, expressive lip and arm movement, consistent 16-bit pixel art."
+    },
+    {
+      "motion": "sip_coffee",
+      "priority": 0,
+      "directions": [
+        "south",
+        "north"
+      ],
+      "objects": [
+        "mug"
+      ],
+      "description": "Character lifts a coffee mug, takes a sip and lowers it to the desk, consistent with the base character."
+    },
+    {
+      "motion": "drink_water",
+      "priority": 0,
+      "directions": [
+        "north",
+        "south"
+      ],
+      "objects": [
+        "water-cooler",
+        "cup"
+      ],
+      "description": "Character holds a cup of water, drinks and lowers it while standing by a cooler."
+    },
+    {
+      "motion": "play_gamepad",
+      "priority": 0,
+      "directions": [
+        "south",
+        "north"
+      ],
+      "objects": [
+        "game-controller",
+        "sofa"
+      ],
+      "description": "Character sitting with a game controller, pressing buttons with subtle body movement, pixel art game animation."
+    },
+    {
+      "motion": "open_door",
+      "priority": 0,
+      "directions": [
+        "north",
+        "south"
+      ],
+      "objects": [
+        "door"
+      ],
+      "description": "Character reaches for door handle and opens or closes a door."
+    },
+    {
+      "motion": "wash_hands",
+      "priority": 1,
+      "directions": [
+        "north"
+      ],
+      "objects": [
+        "sink"
+      ],
+      "description": "Character washing hands at a restroom sink, subtle arm movements."
+    },
+    {
+      "motion": "put_on_headphones",
+      "priority": 1,
+      "directions": [
+        "south"
+      ],
+      "objects": [
+        "headphones"
+      ],
+      "description": "Character lifts and adjusts studio headphones on their head."
+    },
+    {
+      "motion": "stretch",
+      "priority": 1,
+      "directions": [
+        "south"
+      ],
+      "objects": [],
+      "description": "Character stretching arms after work and relaxing back into neutral pose."
+    },
+    {
+      "motion": "read_script",
+      "priority": 1,
+      "directions": [
+        "south"
+      ],
+      "objects": [
+        "paper"
+      ],
+      "description": "Character reading a sheet of script notes in hand while seated."
+    },
+    {
+      "motion": "laugh",
+      "priority": 1,
+      "directions": [
+        "south"
+      ],
+      "objects": [],
+      "description": "Character chuckles with small shoulder and head movement."
+    },
+    {
+      "motion": "clap",
+      "priority": 1,
+      "directions": [
+        "south"
+      ],
+      "objects": [],
+      "description": "Character applauds briefly with hands visible."
+    },
+    {
+      "motion": "arcade_play",
+      "priority": 1,
+      "directions": [
+        "north"
+      ],
+      "objects": [
+        "arcade-cabinet"
+      ],
+      "description": "Character using arcade joystick and buttons facing cabinet."
+    },
+    {
+      "motion": "cheer",
+      "priority": 1,
+      "directions": [
+        "south"
+      ],
+      "objects": [],
+      "description": "Character pumps fist in celebration."
+    },
+    {
+      "motion": "draw_tablet",
+      "priority": 2,
+      "directions": [
+        "north"
+      ],
+      "objects": [
+        "graphics-tablet"
+      ],
+      "description": "Character drawing on a pen display tablet at a desk."
+    },
+    {
+      "motion": "edit_timeline",
+      "priority": 2,
+      "directions": [
+        "north"
+      ],
+      "objects": [
+        "monitor"
+      ],
+      "description": "Character working with mouse and timeline monitor editing video."
+    },
+    {
+      "motion": "inspect_storyboard",
+      "priority": 2,
+      "directions": [
+        "north"
+      ],
+      "objects": [
+        "storyboard"
+      ],
+      "description": "Character pointing to a storyboarding wall and reviewing panels."
+    },
+    {
+      "motion": "use_phone",
+      "priority": 2,
+      "directions": [
+        "south"
+      ],
+      "objects": [
+        "phone"
+      ],
+      "description": "Character glances at smartphone and types briefly."
+    },
+    {
+      "motion": "carry_cup",
+      "priority": 2,
+      "directions": [
+        "south",
+        "north"
+      ],
+      "objects": [
+        "cup"
+      ],
+      "description": "Character walking carefully while holding a cup."
+    }
+  ],
+  "generate_automatically": false,
+  "budget_requires_review": true
+}
