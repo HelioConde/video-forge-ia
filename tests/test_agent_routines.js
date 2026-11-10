@@ -126,7 +126,8 @@ assert(pB.x>slots[0][0]&&pB.x<360,
   "deslocamento deve percorrer o corredor central, longe das outras cadeiras");
 console.log("AISLE_ROUTE_OK: passeio deixa a coluna de cadeiras antes de descer");
 
-\n// O frame de caminhada usa os oito quadros quando o atlas oferece 8.
+
+// O frame de caminhada usa os oito quadros quando o atlas oferece 8.
 window.VideoForgeAnimator={frameCount:name=>name==="walk"?8:4};
 const eight=mod.create(slots);
 assert.equal(eight.travel("diretor","water",1000),true);
