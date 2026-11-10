@@ -39,6 +39,8 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion != 'cancelled') }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
+    outputs:
+      imagens_alteradas: ${{ steps.publicar_png.outputs.alterou }}
     env:
       PYTHONPATH: ${{ github.workspace }}
       RECEBER_ALEX: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'alex')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Completar animacoes da produtora') }}
@@ -81,6 +83,7 @@ jobs:
       - name: Validar integridade dos manifests e arquivos PNG
         run: python scripts/verify_pixellab_assets.py
       - name: Publicar apenas PNGs e manifests saneados no repositório
+        id: publicar_png
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -90,11 +93,13 @@ jobs:
           done
           if git diff --cached --quiet; then
             echo "Não há imagens novas ou alteradas. Nenhum commit necessário."
+            echo "alterou=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git commit -m "assets: sincroniza sprites PixelLab validados sem metadados privados"
           git pull --rebase origin main
           git push origin HEAD:main
+          echo "alterou=true" >> "$GITHUB_OUTPUT"
       - name: Relatórios sem tokens ou identificadores privados
         if: always()
         uses: actions/upload-artifact@v4
@@ -106,3 +111,13 @@ jobs:
             output/pixellab-production/asset-validation.json
           retention-days: 7
           if-no-files-found: warn
+
+  publicar-pages:
+    # Push com GITHUB_TOKEN não dispara outros workflows; usar chamada explícita.
+    needs: receber
+    if: ${{ needs.receber.outputs.imagens_alteradas == 'true' }}
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

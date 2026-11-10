@@ -166,3 +166,8 @@ O workflow de importação `.github/workflows/pixellab-production-import.yml` é
 `scripts/import_pixellab_production.py` recebe os frames do Alex, confere a identidade do personagem, valida PNGs RGBA de 88×88, monta spritesheets de quatro quadros e preserva movimentos já importados quando a exportação nova está parcial. O manifesto público informa o total de movimentos disponíveis/pendentes.
 
 `scripts/import_pixellab_objects.py` lê a biblioteca de objetos e o ZIP autenticado de spritesheet por meio de `PixelLabClient.download_object_spritesheet`. Somente os PNGs sanificados da cadeira e armário são versionados sob `site/assets/pixellab/objects/production/`. URLs e layouts originais da API não entram no site. Uma imagem de objeto importada não é interpretada como animação conectada até receber mapeamento visual/âncoras. `scripts/verify_pixellab_assets.py` confere assinaturas PNG, tamanhos, hashes e caminhos antes do commit. O trigger `site/**` do Pages realiza o deploy após cada alteração validada.
+
+
+### Propagação confiável das imagens importadas ao Pages
+
+O `GITHUB_TOKEN` não reativa workflows via `push` quando um próprio Actions faz commit. O recebedor possui saída `imagens_alteradas` e invoca a publicação via `workflow_call` somente se novos PNGs/manifests forem versionados. O workflow Pages é reutilizável e faz checkout explícito de `main` para publicar a revisão que contém as mídias aprovadas. Esta chamada não executa IA nem publica vídeos em canais.

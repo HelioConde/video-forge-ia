@@ -42,3 +42,8 @@ O importador agora aceita **lotes parciais**: uma animação só entra quando **
 A recepção inclui objetos: `site/assets/pixellab/objects/production/manifest.json`, com imagens de spritesheet e prévias da cadeira e do armário, sem sobrescrever objetos aprovados do cenário. A API PixelLab oferece `GET /objects/{id}/spritesheet`, que exige Bearer; o cliente remove a credencial em qualquer redirecionamento para armazenamento. Layouts privados e ZIPs temporários nunca entram no Git. O site continua usando os seis movimentos básicos quando não existem sprites extras.
 
 Para sincronizar manualmente sem custo de geração: **Actions → PixelLab - Receber todas as imagens no GitHub → Run workflow**, escolher `todas`, `alex` ou `objetos`. Quando os workflows `Completar animacoes da produtora` ou `Objetos animados da produtora` terminarem, a sincronização também dispara automaticamente. O workflow revalida os PNGs antes de qualquer commit e o Pages publica somente o que passou na validação.
+
+
+### Publicação do GitHub Pages após importação de PNGs
+
+Commits criados por GitHub Actions usando `GITHUB_TOKEN` não disparam novos workflows `on: push`. Portanto o recebedor verifica se houve mudança, faz commit dos PNGs aprovados e **chama diretamente o workflow reutilizável** `.github/workflows/pages.yml` por `workflow_call`. O Pages usa checkout de `main` para receber os PNGs importados, em vez de uma revisão anterior do workflow que iniciou o processo. Se não houver arquivos novos, o recebedor não força deploy desnecessário.
