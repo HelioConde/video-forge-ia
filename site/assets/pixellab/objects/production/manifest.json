@@ -12,9 +12,9 @@
         },
         {
           "file": "office-chair/sprite-000.png",
-          "width": 64,
-          "height": 64,
-          "sha256": "68ad131e9b7719fe4cb1a7f3bd43d226e0afa95708e0a049fea47c01f5d1387e"
+          "width": 256,
+          "height": 128,
+          "sha256": "a60c179c486015a8d1a4db892193c6b4817780c760c14be0a6d1af3eccd19b95"
         }
       ],
       "spritesheetCount": 1
