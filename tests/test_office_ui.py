@@ -39,7 +39,12 @@ class OfficeUITests(unittest.TestCase):
         self.assertNotIn("https://",renderer)
         art=(ROOT/"office-art.js").read_text(encoding="utf-8")
         self.assertIn("window.VideoForgeArt=",art)
-        self.assertIn("paintBackground:officeBase",art)
+        # O cenário antigo permanece como fallback; PixelLab usa sprites locais.
+        self.assertIn("officeBase(c)",art)
+        self.assertIn("pixelBase(c)",art)
+        self.assertIn("loadSprites",art)
+        self.assertIn("setArtMode",art)
+        self.assertIn("paintBackground:",art)
         self.assertIn("paintAgents:function",art)
         self.assertIn("CREATIVE  ROOM",art)
         self.assertIn("MEDIA LAB",art)
