@@ -77,3 +77,10 @@ Configure primeiro o token e, se necessário, o ID base em GitHub Secrets; no Ac
 O workflow [PixelLab - Inventario de animacoes existentes](../.github/workflows/pixellab-inventory.yml) executa somente GET e é atualizado quando o script de inventário muda. Lista quantos personagens existem e as animações por movimento e direção. Quando não identifica uma base Alex sem ambiguidade, inspeciona todas as bases **anonimamente**, sem imprimir prompts, nomes, IDs, URLs ou saldo no histórico público. Os números temporários de cada personagem não servem como ID permanente.
 
 O inventário não realiza geração nem autoriza lote automático. Antes de gerar as 48 combinações, confirme a base certa e a contagem de movimentos realmente faltantes, evitando custos duplicados.
+
+## Gerar várias animações com o Work
+
+Para evitar 48 execuções manuais e duplicações, o projeto também contém o
+[workflow de animações em lote pelo Work](../.github/workflows/pixellab-work.yml).
+A execução padrão apenas lê a biblioteca; o modo pago permite no máximo oito
+novas direções e exige as duas autorizações. Veja [guia detalhado](PIXELLAB-WORK.md).

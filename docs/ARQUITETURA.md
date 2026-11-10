@@ -120,3 +120,12 @@ Os arquivos de arte não executam serviços de IA. A publicação da interface o
 - `output/pixellab/`: arquivos temporários fora do Git.
 
 A geração de sprites ainda não está conectada ao Canvas nem ao renderizador dos vídeos. Veja `docs/PIXELLAB.md`.
+
+## Orquestração PixelLab em lote para Work
+
+- `videoforge/pixellab/batch.py`: consulta GET a base exata, compara movimentos/direções, reutiliza grupo anterior por ID, limita novas gerações e escreve relatório público sem UUID.
+- `.github/workflows/pixellab-work.yml`: workflow manual para o ChatGPT Work, com modos planejar/gerar, autorização de custo/exposição, trava `pixellab-personagens` e máximo de oito POSTs por disparo.
+- `tests/test_pixellab_batch.py`: simulações sem API paga, cobrindo reuso, antduplicação, bloqueios e exportações.
+- `docs/PIXELLAB-WORK.md`: operação, parâmetros e procedimento de retomada segura.
+
+A fonte de verdade dos movimentos continua sendo a conta PixelLab; o GitHub armazena apenas relatório de execução e ZIPs opcionais por sete dias, nunca segredos ou mídias geradas permanentemente no Git.

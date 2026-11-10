@@ -68,6 +68,14 @@ A API precisa de `PIXELLAB_API_TOKEN` cadastrado em GitHub Secrets. No repositó
 
 [Instruções de configuração e execução](docs/PIXELLAB.md).
 
+### Produção em lote pelo ChatGPT Work
+
+O [workflow PixelLab para Work](.github/workflows/pixellab-work.yml) permite **planejar ou gerar automaticamente até 8 direções ausentes por execução**, sem recriar o personagem base. Ele consulta os grupos existentes, reutiliza `animation_group_id` e evita duplicatas; repetições devem ser sequenciais e verificadas entre rodadas.
+
+É obrigatório selecionar o personagem correto no Secret `PIXELLAB_CHARACTER_ID`: foram encontradas **27 bases** na conta, portanto não é seguro escolher uma automaticamente. Por padrão o workflow é apenas leitura; solicita confirmação de custo e visibilidade de artefatos para qualquer geração paga.
+
+[Manual de execução pelo Work](docs/PIXELLAB-WORK.md).
+
 ## Primeiro teste (sem custo de IA e sem upload)
 
 Requisito: Python 3.12+.
