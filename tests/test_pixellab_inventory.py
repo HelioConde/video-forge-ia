@@ -40,7 +40,9 @@ class InventoryTest(unittest.TestCase):
         self.assertNotIn("url", text)
 
     def test_refuses_to_guess_among_multiple_characters(self):
-        fake=Fake([{"id": A,"name":"Other"},{"id": B, "name":"Other2"}], {})
+        fake=Fake([{"id": A,"name":"Other"},{"id": B, "name":"Other2"}],
+                  {A: {"animations": [], "animation_count": 0},
+                   B: {"animations": [], "animation_count": 0}})
         report=inspect_account(fake)
         self.assertEqual(report["selecao"], "ambiguo")
         self.assertEqual(report["personagens_inspecionados"], 0)
