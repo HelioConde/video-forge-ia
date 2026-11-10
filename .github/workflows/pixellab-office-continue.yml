@@ -1,0 +1,43 @@
+name: PixelLab - Cenarios e Objetos - Continuar
+
+# Retoma somente após conclusão bem-sucedida do primeiro workflow.
+# Sem cron e sem disparo a cada push.
+on:
+  workflow_run:
+    workflows: ["PixelLab - Cenarios e Objetos - Inicio"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-office-assets
+  cancel-in-progress: false
+
+jobs:
+  remaining:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 160
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar gerador antes de continuar custos
+        run: python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Criar apenas os dois cenarios e quatro objetos restantes
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_OFFICE_AUTHORIZED: "true"
+          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "true"
+        run: python -m videoforge.pixellab.office_assets --mode generate --stage remaining --max-new 6
+      - name: Guardar relatorio e PNGs temporarios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-office-rest-${{ github.run_id }}
+          path: output/pixellab-office/
+          retention-days: 7
+          if-no-files-found: warn

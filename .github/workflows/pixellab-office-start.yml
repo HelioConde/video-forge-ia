@@ -1,0 +1,43 @@
+name: PixelLab - Cenarios e Objetos - Inicio
+
+# Execução pontual autorizada: este workflow é criado uma vez e dispara no commit.
+# Não editar/reativar sem nova auditoria. Não possui cron.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-office-start.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-office-assets
+  cancel-in-progress: false
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar plano e seguranca antes de gerar
+        run: python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Criar primeira sala e dois objetos sem duplicatas
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_OFFICE_AUTHORIZED: "true"
+          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "true"
+        run: python -m videoforge.pixellab.office_assets --mode generate --stage first --max-new 3
+      - name: Preservar relatorio e PNGs temporarios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-office-first-${{ github.run_id }}
+          path: output/pixellab-office/
+          retention-days: 7
+          if-no-files-found: warn

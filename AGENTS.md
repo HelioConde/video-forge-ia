@@ -62,3 +62,7 @@ Personagens são definidos em `personagens/<id>/profile.json`, API e CLI em `vid
 ## Lotes PixelLab acionados pelo Work
 
 A execução em lote usa `videoforge/pixellab/batch.py` e `.github/workflows/pixellab-work.yml`. Antes de criar qualquer animação deve conferir o inventário do personagem exato selecionado por Secret, sem inferir qual dentre os 27 personagens é correto. Não recriar nem apagar a base, não publicar UUID ou token em relatórios, e não gerar movimentos/direções duplicados. Manter plano gratuito como padrão, limite máximo de 8 POSTs de animação por execução, duas autorizações explícitas para custos e exposição de resultados, e trava compartilhada de concorrência. Na presença de grupos desconhecidos ou dados incompletos, interromper em vez de adivinhar. Executar testes `tests/test_pixellab_batch.py` e ver `docs/PIXELLAB-WORK.md`.
+
+## Geração PixelLab de cenários e objetos
+
+Regras específicas em `docs/PIXELLAB-OFFICE.md`. Inventariar as bibliotecas Rooms e Objects antes de gerar; nomes estáveis `VideoForge AI - ... 2026`; não apagar nem recrear assets existentes; não publicar token, UUIDs ou URLs privadas. A produção autorizada foi organizada em primeiro lote (até três POSTs) e continuação após sucesso (até seis). Nunca reativar esses workflows pagos via commit sem revisão explícita. Mídia gerada fica na biblioteca PixelLab e, opcionalmente, nos artifacts temporários; não versionar PNG em código-fonte. Não alterar `site/office-art.js` antes de checagem visual das artes.

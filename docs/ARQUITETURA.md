@@ -129,3 +129,9 @@ A geração de sprites ainda não está conectada ao Canvas nem ao renderizador 
 - `docs/PIXELLAB-WORK.md`: operação, parâmetros e procedimento de retomada segura.
 
 A fonte de verdade dos movimentos continua sendo a conta PixelLab; o GitHub armazena apenas relatório de execução e ZIPs opcionais por sete dias, nunca segredos ou mídias geradas permanentemente no Git.
+
+## Cenários e objetos do Pixel Studio gerados no PixelLab
+
+O catálogo `cenarios/escritorio/pixellab-plan.json` descreve três salas e seis objetos em paleta coerente. O módulo `videoforge/pixellab/office_assets.py` faz auditoria paginada, controla custos por limite de POSTs, salva status saneado e exporta PNGs quando URLs de prévia confiáveis estiverem disponíveis. As bibliotecas Rooms e Objects do PixelLab são fonte de verdade; não criar mídia versionada.
+
+Workflows: `pixellab-office-audit.yml` (somente GET), `pixellab-office-start.yml` (uma sala e dois objetos), `pixellab-office-continue.yml` (duas salas e quatro objetos, condicionado ao sucesso do primeiro). Validar com `tests/test_pixellab_office.py`. Arte visual só é ligada ao Canvas após inspeção das imagens. Ver `docs/PIXELLAB-OFFICE.md`.

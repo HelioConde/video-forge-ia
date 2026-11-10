@@ -76,6 +76,12 @@ O [workflow PixelLab para Work](.github/workflows/pixellab-work.yml) permite **p
 
 [Manual de execução pelo Work](docs/PIXELLAB-WORK.md).
 
+## Cenários e móveis PixelLab para o Pixel Studio
+
+Além dos personagens, o projeto gera **3 salas (Rooms)** e **6 objetos independentes (Objects)** usando a API PixelLab. Um inventário gratuito confere duplicatas antes de cada chamada paga. A criação é dividida em dois workflows autorizados, com relatórios e possíveis PNGs temporários em artifacts; os recursos permanecem na biblioteca PixelLab.
+
+[Ver catálogo, execução e cuidados](docs/PIXELLAB-OFFICE.md).
+
 ## Primeiro teste (sem custo de IA e sem upload)
 
 Requisito: Python 3.12+.
