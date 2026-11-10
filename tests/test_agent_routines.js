@@ -101,7 +101,7 @@ for(let t=1000;t<=2400;t+=33){
   assert(Math.hypot(b.x-a.x,b.y-a.y)<=4.1,
     "walk precisa manter deslocamento contínuo em cada frame");
 }
-assert.notEqual(smooth.poseFor("diretor",1600).frame,initial.frame,
+assert.notEqual(smooth.poseFor("diretor",1200).frame,initial.frame,
   "a passada deve evoluir conforme a distância percorrida");
 const directions=new Set();
 for(let t=1000;t<15000;t+=40){
