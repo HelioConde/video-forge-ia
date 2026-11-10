@@ -164,8 +164,34 @@
     box(c,sx-4,sy-11-idle,3,3,"#2d2630");
     box(c,sx+9,sy-11-idle,3,3,"#2d2630");
     box(c,sx+1,sy-5-idle,6,2,"#9d644e");
-    if(i===0){box(c,sx-18,sy-29-idle,41,6,"#25243c");box(c,sx-5,sy-10-idle,18,4,"#d2b2e9");}
-    if(i===4){box(c,sx-8,sy+1-idle,18,6,"#f3dd9a");}
+    if(i===0){ // Direção — óculos e gravata
+      box(c,sx-18,sy-29-idle,41,6,"#25243c");
+      box(c,sx-5,sy-10-idle,18,4,"#d2b2e9");
+      box(c,sx+1,sy+3-idle,5,14,"#f5d488");
+    }
+    if(i===1){ // Roteirista — lápis
+      box(c,sx+20,sy+2-idle,3,17,"#f5d488");box(c,sx+20,sy+1-idle,3,3,"#303a47");
+    }
+    if(i===2){ // Artista — faixa e cinto
+      box(c,sx-16,sy-29-idle,35,4,"#9fe0cb");box(c,sx-12,sy+18-idle,27,3,"#4a9081");
+    }
+    if(i===3){ // Animador — headset
+      box(c,sx-15,sy-19-idle,6,16,"#3a526c");box(c,sx+16,sy-19-idle,5,16,"#3a526c");
+      box(c,sx+18,sy-5-idle,9,3,"#f6d1a0");
+    }
+    if(i===4){ // Narrador — microfone de lapela
+      box(c,sx-8,sy+1-idle,18,6,"#f3dd9a");box(c,sx+3,sy+4-idle,4,4,"#2d5261");
+    }
+    if(i===5){ // Editor — crachá
+      box(c,sx+4,sy+6-idle,9,11,"#f4dfbe");box(c,sx+6,sy+10-idle,5,3,"#55869a");
+    }
+    if(i===6){ // Revisor — óculos
+      box(c,sx-7,sy-13-idle,11,6,"#5e4f48");box(c,sx+7,sy-13-idle,11,6,"#5e4f48");
+      box(c,sx+4,sy-11-idle,3,2,"#5e4f48");
+    }
+    if(i===7){ // Publicador — emblema verde
+      box(c,sx+6,sy+4-idle,8,8,"#b8efc2");box(c,sx+8,sy+6-idle,4,4,"#376e55");
+    }
     if(active){box(c,sx+22,sy+5-idle,7,7,"#a9f5b5");box(c,sx-26,sy+7,7,7,skin);}
     if(selected){stroke(c,sx-28,sy-37,58,76,"#fff1a1",3);box(c,sx-5,sy-47,12,8,"#f6cf77");}
   }

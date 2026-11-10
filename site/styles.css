@@ -60,3 +60,9 @@
   .quick-menu{z-index:4}
 }
 @media(max-height:650px){.mini-panel{width:132px}.mini-hint{display:none}}
+
+/* Ajuste final após revisão da captura: HUD menor, sem cobrir a primeira placa. */
+.corner-hud{max-width:388px;padding:14px 17px 13px}
+.hud-title{font-size:clamp(18px,1.75vw,23px);line-height:1.1}
+.hud-stats{margin-top:11px;padding-top:9px}
+@media(max-width:600px){.corner-hud{max-width:calc(100% - 119px);padding:9px 10px}.hud-title{font-size:14px}}
