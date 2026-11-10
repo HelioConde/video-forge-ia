@@ -13,15 +13,33 @@
     publicador:{label:"Publicador",work:["keyboard_shortcuts","mouse_click","qa_inspection","keyboard_type"],demo:["keyboard_shortcuts","mouse_click","qa_inspection","talk_serious"],fallback:"type"}
   });
   const ORDER=Object.keys(PROFILES);
+  // Cada especialidade expõe sua galeria, sem executar IA nem simular tarefas reais.
+  const ROLE_CATEGORIES=Object.freeze({
+    diretor:["conversa","emocoes","cadeira","descanso","ambiente"],
+    roteirista:["trabalho","conversa","cadeira","descanso","cafe"],
+    artista:["trabalho","conversa","cafe","agua","emocoes"],
+    animador:["trabalho","jogos","conversa","descanso","cadeira"],
+    narrador:["trabalho","conversa","cafe","agua","banheiro"],
+    editor:["trabalho","jogos","cadeira","emocoes","ambiente"],
+    revisor:["trabalho","conversa","banheiro","agua","descanso"],
+    publicador:["ambiente","jogos","trabalho","cafe","emocoes","banheiro"]
+  });
+  const STATION_DEMO=new Set(["emocoes","descanso"]);
   const ACTIVE=new Set(["trabalhando","revisao"]);
   function profile(id){return PROFILES[id]||null;}
-  function choose(agent, now, demoEnabled, ready){
+  function choose(agent, now, demoEnabled, ready, catalog=[]){
     if(!agent||!profile(agent.id))return "idle";
     if(agent.status==="erro")return "idle";
     const item=profile(agent.id);
     const running=ACTIVE.has(agent.status);
     if(!running&&!demoEnabled)return agent.status==="concluido"?"wave":"idle";
-    const options=(running?item.work:item.demo).filter(x=>ready(x));
+    // Emoções e descanso aparecem apenas na demonstração opt-in.
+    // Café, banheiro e jogos só ocorrem em rotas contextuais, não no posto.
+    const extra=!running&&demoEnabled?catalog.filter(x=>
+      ROLE_CATEGORIES[agent.id]?.includes(x.category) &&
+      STATION_DEMO.has(x.category)).map(x=>x.name):[];
+    const options=[...new Set([...(running?item.work:item.demo),...extra])]
+      .filter(x=>ready(x));
     if(!options.length)return running?item.fallback:"idle";
     const index=(Math.floor(Math.max(0,now)/3600)+ORDER.indexOf(agent.id))%options.length;
     return options[index];
@@ -35,6 +53,11 @@
     const results=await Promise.all(sprites.map(async name=>({name,ok:await animator.preloadProduction(name)})));
     return results.filter(x=>x.ok).map(x=>x.name);
   }
-  function names(id){const item=profile(id);return item?[...new Set([...item.work,...item.demo])]:[];}
-  window.VideoForgeBehaviors={profile,names,choose,preload,roles:ORDER.slice()};
+  function names(id,catalog=[]){
+    const item=profile(id);
+    return item?[...new Set([...item.work,...item.demo,...catalog
+      .filter(x=>ROLE_CATEGORIES[id]?.includes(x.category)).map(x=>x.name)])]:[];
+  }
+  function categories(id){return ROLE_CATEGORIES[id]?.slice()||[];}
+  window.VideoForgeBehaviors={profile,names,choose,preload,categories,roles:ORDER.slice()};
 })();
