@@ -41,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Testar motor de delegação
-        run: python -m unittest tests.test_delegation -v
+        run: python -m unittest discover -s tests -p 'test_delegation.py' -v
       - name: Receber briefing e distribuir as 18 tarefas
         env:
           VIDEO_ID: ${{ inputs.id }}
@@ -67,8 +67,6 @@ jobs:
           PY
           python -m videoforge.production.dispatcher --demand output/gerente/demanda.json --output output/gerente/plano.json
       - name: Relatório da delegação (sem execução ou publicação)
-        env:
-          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
         run: |
           python - <<'PY'
           import json,os
