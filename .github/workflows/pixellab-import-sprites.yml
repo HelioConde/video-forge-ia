@@ -1,0 +1,80 @@
+name: PixelLab - Incorporar sprites aprovados ao site
+
+# Publicação pontual de nove PNGs já gerados. Nenhuma chamada à API PixelLab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-import-sprites.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: videoforge-import-pixellab-sprites
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Baixar apenas artifacts aprovados
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/pixellab/first /tmp/pixellab/rest
+          gh run download 42844340885 -R "${{ github.repository }}" \
+            -n pixellab-office-first-42844340885 -D /tmp/pixellab/first
+          gh run download 42845029772 -R "${{ github.repository }}" \
+            -n pixellab-office-rest-42845029772 -D /tmp/pixellab/rest
+      - name: Verificar dimensoes e copiar PNGs aprovados
+        run: |
+          python - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          root=Path("site/assets/pixellab")
+          source=Path("/tmp/pixellab")
+          specs={
+            "scenes/main-office.png":("first",(256,256)),
+            "scenes/creative-room.png":("rest",(256,256)),
+            "scenes/media-lab.png":("rest",(256,256)),
+            "objects/desk-pc.png":("first",(96,96)),
+            "objects/office-chair.png":("first",(64,64)),
+            "objects/plant.png":("rest",(64,64)),
+            "objects/bookshelf.png":("rest",(96,96)),
+            "objects/audio-mixer.png":("rest",(96,96)),
+            "objects/studio-screen.png":("rest",(96,96)),
+          }
+          manifest={"schema":"videoforge/pixellab-office-assets/v1","files":{}}
+          for name,(batch,(width,height)) in specs.items():
+            path=source/batch/name
+            data=path.read_bytes()
+            if not 500<len(data)<1_000_000 or data[:8]!=b"\x89PNG\r\n\x1a\n":
+              raise ValueError("Arquivo não é um PNG válido: "+name)
+            size=struct.unpack(">II",data[16:24])
+            if size!=(width,height) or data[25] != 6: # PNG RGBA
+              raise ValueError("Dimensões/formato inesperado: "+name)
+            dest=root/name;dest.parent.mkdir(parents=True,exist_ok=True)
+            dest.write_bytes(data)
+            manifest["files"][name]={"width":width,"height":height,"sha256":hashlib.sha256(data).hexdigest()}
+          (root/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
+          print("PIXELLAB_IMPORT_OK: 9 PNGs verificados")
+          PY
+      - name: Versionar sprites no repositorio
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/assets/pixellab/
+          if git diff --cached --quiet; then
+            echo "Sprites já existentes; sem novo commit"
+            exit 0
+          fi
+          git commit -m "assets: adiciona tres salas e seis sprites PixelLab ao site"
+          git pull --rebase origin main
+          git push origin HEAD:main
