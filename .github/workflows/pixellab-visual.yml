@@ -1,0 +1,70 @@
+name: PixelLab - Revisao visual desktop e mobile
+
+# Teste real do Canvas no navegador, sem chamadas pagas ao PixelLab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-visual.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar navegador de teste
+        run: |
+          python -m pip install "playwright>=1.50,<1.70"
+          python -m playwright install chromium --with-deps
+      - name: Preparar snapshot saneado e servidor local
+        run: |
+          python scripts/build_dashboard_data.py --output site/data/status.json
+          python -m http.server 8765 --bind 127.0.0.1 --directory site >/tmp/videoforge-server.log 2>&1 &
+      - name: Capturar e inspecionar site no navegador
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          root=Path("output/visual-tests")
+          root.mkdir(parents=True,exist_ok=True)
+          with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True,args=["--no-sandbox"])
+              for name,width,height in (("desktop",1440,900),("mobile",390,844)):
+                  page=browser.new_page(viewport={"width":width,"height":height},
+                                        device_scale_factor=1, is_mobile=(name=="mobile"),
+                                        has_touch=(name=="mobile"))
+                  errors=[]
+                  page.on("pageerror",lambda e:errors.append(str(e)))
+                  page.goto("http://127.0.0.1:8765/",wait_until="networkidle")
+                  page.wait_for_function("window.VideoForgeAnimator.ready() && window.VideoForgeArt.getArtMode()==='pixellab'",timeout=30000)
+                  assert page.locator("#agentsCount").inner_text()=="8"
+                  page.screenshot(path=str(root/(name+"-scene.png")),full_page=True)
+                  page.locator("#btnAgents").click()
+                  preview=page.locator("button.animation-preview")
+                  preview.wait_for(timeout=10000)
+                  preview.click()
+                  assert "idle" in preview.inner_text().lower()
+                  preview.click()
+                  assert "walk" in preview.inner_text().lower()
+                  page.screenshot(path=str(root/(name+"-preview.png")),full_page=True)
+                  if errors:raise RuntimeError("Erro JavaScript: "+"; ".join(errors))
+                  print(name+": canvas carregado; prévia idle e walk funcionando")
+                  page.close()
+              browser.close()
+          PY
+      - name: Salvar capturas e evidencias
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-canvas-screenshots-${{ github.run_id }}
+          path: output/visual-tests/
+          retention-days: 7
+          if-no-files-found: warn
