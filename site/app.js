@@ -9,6 +9,7 @@
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
   window.VideoForgeAnimator.preload().then(ready=>{
     office.setAgentSpritesReady(ready);
+    if(roleDemoButton)roleDemoButton.disabled=!ready||office.getArtMode()!=='pixellab';
     window.VideoForgeAnimator.loadProductionManifest().then(()=>{
       if(office.roleDemoEnabled())office.loadRoleAnimations();
       if(state.snapshot)renderPanel();
@@ -191,6 +192,32 @@
         }
       }
       if(window.VideoForgeAnimator.ready()&&office.getArtMode()==='pixellab'){
+        const colleagues=snap.agentes.filter(x=>x.id!==a.id&&
+          !live(x.status)&&x.status!=='erro');
+        if(colleagues.length){
+          const meeting=make("div","routine-section");
+          meeting.append(make("div","routine-title","CONVERSA NA SALA CRIATIVA · PRÉVIA"));
+          meeting.append(make("small","preview-note",
+            "Dois funcionários caminham até a reunião, alternam fala e escuta e retornam às mesas."));
+          const chooser=make("select","production-motion-select");
+          chooser.setAttribute("aria-label","Selecionar colega para conversar");
+          colleagues.forEach(x=>chooser.add(new Option(x.nome,x.id)));
+          const start=make("button","animation-preview","Conversar com colega");
+          start.type="button";
+          start.disabled=live(a.status)||a.status==='erro';
+          start.addEventListener("click",()=>{
+            const started=office.startConversation(chooser.value);
+            if(started){
+              state.previewMotion=null;
+              syncFreeTimeButton();
+              renderPanel();
+            }else{
+              start.textContent="Já existe um passeio ou reunião em andamento";
+            }
+          });
+          meeting.append(chooser,start);
+          detail.append(meeting);
+        }
         const section=make("div","routine-section");
         section.append(make("div","routine-title","PASSEIOS NO ESCRITÓRIO · DEMONSTRAÇÃO"));
         section.append(make("small","preview-note",

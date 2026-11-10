@@ -54,3 +54,36 @@ work.setFreeTimeDemo(true,0);
 work.tick([{id:"diretor",status:"trabalhando"}],2000);
 assert.equal(work.poseFor("diretor",2000),null);
 console.log("ROTINAS_PREVIA_OK: caminhada, tempo livre opt-in e prioridade ao backend");
+
+const meeting=mod.create(slots);
+assert.equal(meeting.meet("diretor","roteirista",1000),true);
+assert.equal(meeting.meet("diretor","roteirista",1002),false);
+const first=meeting.poseFor("diretor",1000);
+const second=meeting.poseFor("roteirista",1000);
+assert.equal(first.motion,"walk");
+assert.notEqual(first.x,second.x);
+const speakerTime=14000;
+meeting.tick([
+  {id:"diretor",status:"nao_conectado"},
+  {id:"roteirista",status:"nao_conectado"}
+],speakerTime);
+const one=meeting.poseFor("diretor",speakerTime);
+const two=meeting.poseFor("roteirista",speakerTime);
+assert.equal([one.motion,two.motion].filter(x=>x==="talk_explain").length,1);
+assert.equal([one.motion,two.motion].filter(x=>x==="listen_focus").length,1);
+assert(one.x!==two.x,"personagens não ocupam o mesmo ponto de reunião");
+assert(meeting.current("diretor",speakerTime).includes("Conversa"));
+meeting.tick([
+  {id:"diretor",status:"nao_conectado"},
+  {id:"roteirista",status:"nao_conectado"}
+],60000);
+assert.equal(meeting.poseFor("diretor",60000).target,"home");
+const interrupted=mod.create(slots);
+assert.equal(interrupted.meet("diretor","roteirista",1000),true);
+interrupted.tick([
+  {id:"diretor",status:"trabalhando"},
+  {id:"roteirista",status:"nao_conectado"}
+],1100);
+assert.equal(interrupted.poseFor("diretor",1100),null);
+assert.equal(interrupted.poseFor("roteirista",1100),null);
+console.log("CONVERSAS_PREVIA_OK: deslocamento, alternância e cancelamento por atividade real");

@@ -139,3 +139,7 @@
 .production-preview{margin-top:10px;border-top:1px solid #476671;padding-top:8px}
 .production-motion-select{width:100%;margin-top:5px;padding:9px 7px;background:#173240;color:#f1f5e9;border:1px solid #7fa695;border-radius:5px;font:600 11px ui-monospace,Consolas,monospace}
 .production-motion-select:focus-visible{outline:2px solid #b8ecc8}
+#btnRoleDemo.active{background:#304d51;border-color:#a8e2ae;color:#eaffcd}
+.production-preview strong{color:#c0efd4;font-size:11px}
+.production-preview p.detail-text{font-size:12px;margin:5px 0 4px}
+

@@ -84,6 +84,20 @@
       this.previewMotion=motion;
       this.render(0);
     }
+    startConversation(otherId){
+      if(scene.getArtMode()!=='pixellab'||!this.agentSpritesReady)return false;
+      const a=this.agents.find(x=>x.id===this.selected);
+      const b=this.agents.find(x=>x.id===otherId);
+      if(!a||!b||[a,b].some(x=>active(x)||x.status==='erro'))return false;
+      if(this.routines.freeTimeEnabled())this.routines.setFreeTimeDemo(false,performance.now());
+      const started=this.routines.meet(a.id,b.id,performance.now());
+      if(started){
+        this.previewMotion=null;
+        this.loadRoleAnimations();
+        this.render(performance.now());
+      }
+      return started;
+    }
     travelSelected(destination){
       if(scene.getArtMode()!=='pixellab'||!this.agentSpritesReady)return false;
       const agent=this.agents.find(a=>a.id===this.selected);
