@@ -1,0 +1,38 @@
+name: PixelLab - Teste gratuito de conexao
+
+# Verifica somente endpoints GET; nenhuma geração é iniciada.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-verify.yml"
+      - "videoforge/pixellab/probe.py"
+      - "tests/test_pixellab_probe.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-readonly-check
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testes offline (sem PixelLab)
+        run: |
+          python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+          python -m videoforge.pixellab.cli --operation plan --character alex --motion idle --direction south --output /tmp/pixellab-safe-plan
+      - name: Conferir autenticação e biblioteca (somente GET, sem gerar imagens)
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+        run: python -m videoforge.pixellab.probe
