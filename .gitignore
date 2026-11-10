@@ -1,0 +1,25 @@
+# Credenciais e ambientes locais
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+
+# Mídias e artefatos gerados (não versionar)
+output/
+renders/
+assets/generated/
+*.mp4
+*.mov
+*.mp3
+*.wav
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
