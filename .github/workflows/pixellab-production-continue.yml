@@ -1,0 +1,44 @@
+name: PixelLab - Completar animacoes da produtora
+
+# Continua automaticamente somente se o piloto aprovado passar
+# na validação de sprites. Limite absoluto: 145 novas direções.
+on:
+  workflow_run:
+    workflows: ["PixelLab - Primeira leva da produtora"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  remaining:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar motor antes de continuar cobranças
+        run: python -m unittest discover -s tests -v
+      - name: Completar movimentos realmente faltantes na conta
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+          PIXELLAB_PRODUCTION_AUTHORIZED: "true"
+          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "true"
+        run: python -m videoforge.pixellab.production_animations --mode generate --max-new 145
+      - name: Relatório final sem segredos, jobs ou IDs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: producer-complete-${{ github.run_id }}
+          path: output/pixellab-production/report.json
+          retention-days: 7
+          if-no-files-found: warn

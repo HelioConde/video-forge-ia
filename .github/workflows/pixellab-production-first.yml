@@ -1,0 +1,73 @@
+name: PixelLab - Primeira leva da produtora
+
+# Pedido explícito do proprietário para criar as novas animações do Alex.
+# Execução pontual inicial (6 POSTs no máximo). Não habilitar cron.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-production-first.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar código e inventário
+        run: python -m unittest discover -s tests -v
+      - name: Criar até seis direções novas de conversa, sem recriar base
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+          PIXELLAB_PRODUCTION_AUTHORIZED: "true"
+          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "true"
+        run: python -m videoforge.pixellab.production_animations --mode generate --max-new 6
+      - name: Verificar que os novos frames PNG existem e não estão vazios
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+        run: |
+          python -m pip install "Pillow>=10,<13"
+          python - <<'PY'
+          import io,json,os,zipfile
+          from PIL import Image
+          from videoforge.pixellab.client import PixelLabClient
+          from videoforge.pixellab.launch import resolve_target
+          report=json.load(open("output/pixellab-production/report.json"))
+          if report["status"] not in ("partial_next_batch","completed"):
+              raise SystemExit("Geração inicial não foi concluída.")
+          client=PixelLabClient(os.environ["PIXELLAB_API_TOKEN"])
+          character=resolve_target(client,os.environ["PIXELLAB_TARGET_FINGERPRINT"])
+          with zipfile.ZipFile(io.BytesIO(client.download(character,spritesheet=False))) as source:
+              names=set(source.namelist())
+              for item in report["completed"]:
+                  motion,direction=item["motion"],item["direction"]
+                  for frame in range(4):
+                      key=f"Idle/animations/{motion}/{direction}/frame_{frame:03}.png"
+                      if key not in names:
+                          raise SystemExit("Frame ausente na exportação: "+motion+"/"+direction)
+                      image=Image.open(io.BytesIO(source.read(key))).convert("RGBA")
+                      if not image.getbbox():
+                          raise SystemExit("Frame vazio em "+motion+"/"+direction)
+          print("PIXELLAB_FIRST_BATCH_VERIFIED="+str(len(report["completed"])))
+          PY
+      - name: Salvar somente relatório saneado sem sprites/IDs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: producer-first-${{ github.run_id }}
+          path: output/pixellab-production/report.json
+          retention-days: 7
+          if-no-files-found: warn
