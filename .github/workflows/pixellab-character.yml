@@ -95,8 +95,9 @@ jobs:
           CHAR: ${{ inputs.personagem }}
           MOVEMENT: ${{ inputs.movimento }}
           DIRECTION: ${{ inputs.direcao }}
+          OPERATION: ${{ inputs.operacao }}
         run: |
-          python -m videoforge.pixellab.cli --operation plan \
+          python -m videoforge.pixellab.cli --operation "$OPERATION" \
             --character "$CHAR" --motion "$MOVEMENT" --direction "$DIRECTION"
       - name: Bloqueio de cobranças ou resultados públicos
         if: ${{ inputs.operacao != 'plan' && (!inputs.confirmar_custo || !inputs.artefatos_publicos) }}
