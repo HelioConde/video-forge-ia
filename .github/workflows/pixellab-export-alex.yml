@@ -1,0 +1,54 @@
+name: PixelLab - Exportar sprites Alex para integracao
+
+# Fluxo unico de exportação gratuita, sem POST e sem nova geração de imagens.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-export-alex.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testar identidade e bibliotecas
+        run: python -m unittest discover -s tests -p "test_pixellab*.py" -v
+      - name: Exportar os sprites já existentes (somente GET)
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.pixellab.client import PixelLabClient
+          from videoforge.pixellab.launch import resolve_target
+          root=Path("output/pixellab-alex-export")
+          root.mkdir(parents=True,exist_ok=True)
+          client=PixelLabClient(os.environ["PIXELLAB_API_TOKEN"])
+          target=resolve_target(client,os.environ["PIXELLAB_TARGET_FINGERPRINT"])
+          for sheet,name in ((False,"character-frames.zip"),(True,"spritesheet.zip")):
+              payload=client.download(target,spritesheet=sheet)
+              (root/name).write_bytes(payload)
+              print("EXPORT_OK:",name,len(payload),"bytes")
+          PY
+      - name: Salvar apenas ZIPs dos sprites da base autorizada
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-alex-export-${{ github.run_id }}
+          path: output/pixellab-alex-export/
+          retention-days: 7
+          if-no-files-found: error
