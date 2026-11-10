@@ -149,7 +149,10 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const motion=position?.moving?'walk':position?position.motion:
                selected&&previewMotion?previewMotion:chosen||motionForAgent(agent);
   const direction=position?.direction||(i<4?'south':'north');
-  const frame=reduceMotion?0:Math.floor((t||0)/180)%4;
+  // O passo acompanha a distância percorrida por este agente; outros gestos mantêm o relógio normal.
+  const frame=reduceMotion?0:
+              position?.moving&&Number.isInteger(position.frame)?
+                position.frame:Math.floor((t||0)/180)%4;
   const x=position?.x??stations[i][0],y=position?.y??stations[i][1]+111;
   const size=72;
   if(!animator.drawProduction(c,motion,direction,frame,x,y,size) &&
