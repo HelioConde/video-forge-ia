@@ -31,11 +31,11 @@ jobs:
         env:
           PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
           PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
-          PIXELLAB_LAUNCH_MODE: "plan"
+          PIXELLAB_LAUNCH_MODE: "generate"
           PIXELLAB_SCOPE: "all"
           PIXELLAB_MAX_NEW: "4"
-          PIXELLAB_GENERATION_AUTHORIZED: "false"
-          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "false"
+          PIXELLAB_GENERATION_AUTHORIZED: "true"
+          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "true"
         run: python -m videoforge.pixellab.launch
       - name: Relatório público sem identificadores ou sprites
         if: always()
