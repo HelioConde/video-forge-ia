@@ -87,3 +87,32 @@ interrupted.tick([
 assert.equal(interrupted.poseFor("diretor",1100),null);
 assert.equal(interrupted.poseFor("roteirista",1100),null);
 console.log("CONVERSAS_PREVIA_OK: deslocamento, alternância e cancelamento por atividade real");
+
+const smooth=mod.create(slots);
+assert.equal(smooth.travel("diretor","water",1000),true);
+assert.equal(smooth.hasMoving(1000),true);
+const initial=smooth.poseFor("diretor",1000);
+assert.equal(initial.frame,0);
+assert.equal(initial.motion,"walk");
+// Caminhada em 30 FPS deve percorrer menos de 4 pixels de mundo por quadro.
+for(let t=1000;t<=2400;t+=33){
+  const a=smooth.poseFor("diretor",t);
+  const b=smooth.poseFor("diretor",t+33);
+  assert(Math.hypot(b.x-a.x,b.y-a.y)<=4.1,
+    "walk precisa manter deslocamento contínuo em cada frame");
+}
+assert.notEqual(smooth.poseFor("diretor",1600).frame,initial.frame,
+  "a passada deve evoluir conforme a distância percorrida");
+const directions=new Set();
+for(let t=1000;t<15000;t+=40){
+  const pose=smooth.poseFor("diretor",t);
+  if(pose.moving)directions.add(pose.direction);
+}
+assert([...directions].some(x=>x.includes("-")),
+  "a curva do corredor precisa passar por direção diagonal");
+assert.equal(smooth.poseFor("diretor",100000).motion,"idle");
+assert.equal(smooth.hasMoving(100000),false);
+smooth.travel("diretor","coffee",123456);
+assert.equal(smooth.poseFor("diretor",123456).frame,0,
+  "novo trajeto não pode herdar a fase do relógio global");
+console.log("WALK_SMOOTH_OK: posição contínua, curva diagonal e passada por distância");
