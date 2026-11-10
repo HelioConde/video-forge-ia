@@ -85,3 +85,7 @@ O catálogo `personagens/alex/production-animations.json` lista 137 ações. As 
 ## Recepção automática de imagens da produtora
 
 O workflow `.github/workflows/pixellab-production-import.yml` é **somente leitura do PixelLab (GET)**: pode receber novas imagens quando os lotes existentes terminarem ou em execução manual, sem cobrar créditos. O importador aceita apenas **movimentos completamente verificáveis**, preservando imagens anteriores em caso de ZIP parcial. Não copiar ZIPs, layouts, UUIDs, URLs de prévia, prompts ou segredos para o repositório. Testar com `tests/test_pixellab_receive.py` e `tests/test_pixellab_objects_receive.py` (Pillow instalado nos jobs). Os PNGs/manifestos importados em `site/assets/pixellab/` passam por `scripts/verify_pixellab_assets.py` antes do commit e acionam Pages. Não afirmar que animações já estão conectadas ao Canvas só porque foram recebidas no Git.
+
+## Perfis visuais de agentes corrigidos
+
+Não usar sprites que não estejam no manifesto de produção. Perfis em `site/agent-behavior.js` escolhem movimentos de cada cargo; o modo 🎬 é demonstração opt-in para IAs não conectadas, e os passeios/conversas não atualizam o backend. As oito posições de cadeiras em `site/office-art.js` são validadas por `tests/test_office_layout.js`; ao alterar o cenário, manter espaço para os sprites de 72 px e placas sem sobreposições. Consultar `docs/CORRECOES_AGENTS.md`.

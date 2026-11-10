@@ -123,3 +123,7 @@ Os seis spritesheets básicos continuam sendo carregados ao abrir o escritório.
 O GitHub recebe sprites extras do Alex e imagens de móveis pela action de importação `pixellab-production-import.yml`. O importador gera atlases `agents/alex/production/*.png` e um manifesto com hash e direções para **todos os movimentos já validados**, mesmo se o lote de geração terminar parcialmente. Os seis movimentos básicos não são alterados. A visualização carrega cada sprite extra sob demanda e escolhe uma direção válida para a prévia, sem indicar trabalho real do backend.
 
 Cadeira e armário são recebidos na pasta `objects/production/` com arquivos PNG e manifesto próprio. Esses assets não substituem automaticamente o sprite de cadeira já usado no cenário; ainda é necessário ligar estados/frames ao Canvas após revisão visual.
+
+### Correções das animações por profissão
+
+O botão 🎬 ativa prévia visual dos oito papéis; o backend não é afetado e os status continuam sendo exibidos com o valor real. O botão de conversar com colega leva dois agents à sala criativa e alterna fala/escuta por sprites já importados. O teste de layout impede personagens sobre as janelas e etiquetas invadindo as fileiras.

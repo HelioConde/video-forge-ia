@@ -136,3 +136,7 @@ Para animar conversas, reuniões e as especializações, o catálogo `personagen
 O workflow `.github/workflows/pixellab-production-import.yml` recebe, apenas por GET, os **sprites do Alex e os objetos animados** quando os lotes pagos terminam. Ele também pode ser executado manualmente para sincronizar imagens já existentes no PixelLab. Atlases completos são aceitos mesmo quando outros movimentos ainda estão processando, preservando versões anteriores; cada PNG tem tamanho e SHA-256 validados. O GitHub Pages atualiza automaticamente quando novos arquivos são commitados em `site/assets/pixellab/`. Não são iniciadas gerações, uploads de vídeos ou cobranças por esse recebedor.
 
 Os seis atlas básicos, três cenários e seis objetos já aprovados permanecem intactos. A pasta `agents/alex/production/` recebe novos movimentos e `objects/production/` recebe spritesheets e prévias dos móveis, todos com manifests públicos saneados. Objetos novos ainda precisam de mapeamento de animações ao cenário; a recepção não significa que os objetos já estão animados na interface.
+
+## Atualização: agentes animados e correção de cadeiras
+
+O Pixel Studio utiliza agora movimentos profissionais por cargo via `site/agent-behavior.js`, com demonstração opcional pelo botão 🎬 e conversas sincronizadas pela sala criativa. Os oito assentos PixelLab foram alinhados às cadeiras e as placas estão mais compactas. Os estados reais continuam vindo exclusivamente do backend, sem simular execução de IAs. Mais detalhes em [docs/CORRECOES_AGENTS.md](docs/CORRECOES_AGENTS.md).

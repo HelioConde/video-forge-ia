@@ -46,6 +46,7 @@ jobs:
           node --check site/agent-routines.js
           node --check site/agent-behavior.js
           node tests/test_agent_behavior.js
+          node tests/test_office_layout.js
           node tests/test_agent_routines.js
           node --check site/office-art.js
           node --check site/office-renderer.js

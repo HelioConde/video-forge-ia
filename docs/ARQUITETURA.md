@@ -171,3 +171,7 @@ O workflow de importação `.github/workflows/pixellab-production-import.yml` é
 ### Propagação confiável das imagens importadas ao Pages
 
 O `GITHUB_TOKEN` não reativa workflows via `push` quando um próprio Actions faz commit. O recebedor possui saída `imagens_alteradas` e invoca a publicação via `workflow_call` somente se novos PNGs/manifests forem versionados. O workflow Pages é reutilizável e faz checkout explícito de `main` para publicar a revisão que contém as mídias aprovadas. Esta chamada não executa IA nem publica vídeos em canais.
+
+## Movimentos profissionais e alinhamento de agents
+
+O catálogo de animações especializadas é consumido pelo `site/agent-behavior.js` sem duplicação de nomes no renderizador. O Canvas seleciona as ações por cargo e status do backend; a prévia 🎬 permanece opt-in para funções não conectadas. `site/agent-routines.js` controla a demonstração de conversas e o deslocamento aos pontos da reunião. Slots e placas da sala PixelLab foram reposicionados e validados em `tests/test_office_layout.js`. Nenhuma chamada paga ou publicação de vídeos foi acionada. Consulte `docs/CORRECOES_AGENTS.md`.
