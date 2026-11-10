@@ -20,11 +20,12 @@ Abra **Actions → PixelLab - Gerar personagem e animacoes → Run workflow**. S
 | `plan` | Prévia do plano, grátis |
 | `create` | Cria personagem com 8 direções |
 | `animate` | Anima o personagem existente |
+| `state` | Cria uma nova pose/estado de uma base existente, preservando a paleta |
 | `ensure-and-animate` | Reusa a base existente; caso a conta não tenha personagens, cria uma base e anima |
 | `create-and-animate` | Cria personagem novo e depois anima |
 | `export` | Exporta arquivos do personagem sem nova geração |
 
-Movimentos disponíveis no perfil: **idle, walk, type, sit, talk, wave**. O primeiro teste usa 64×64, animação v3 com quatro frames por direção.
+Movimentos disponíveis: **idle, walk, type, sit, talk, wave**. Para `state`, escolha `estado` entre **sitting, typing, thinking, waving**. O PixelLab aplica a alteração de pose às direções do personagem base. O primeiro teste usa 64×64, animação v3 com quatro frames por direção.
 
 ## Custos e privacidade
 
@@ -66,3 +67,7 @@ gh workflow run pixellab-character.yml --ref main -f operacao=ensure-and-animate
 Em caso de timeout, consulte o job anterior no PixelLab antes de reenviar, pois ele pode continuar em execução.
 
 Referência: [API oficial PixelLab v2](https://api.pixellab.ai/v2/docs).
+
+### Exemplo — criar pose sentado (sem recriar personagem)
+
+Configure primeiro o token e, se necessário, o ID base em GitHub Secrets; no Actions selecione `operacao=state` e `estado=sitting`. A API envia a descrição da pose ao endpoint `POST /v2/create-character-state`, com `use_color_palette_from_reference=true` para tentar preservar as cores. Uma nova versão do personagem é exportada para ZIP. A fidelidade visual deve ser revisada antes de usar no escritório.
