@@ -1,7 +1,9 @@
 /* VIDEOFORGE AI — handmade pixel-art scene. Original artwork. */
 const SW=1280, SH=820;
 const classicStations=[[174,295],[346,295],[518,295],[690,295],[174,528],[346,528],[518,528],[690,528]];
-const pixelStations=[[205,143],[456,143],[205,253],[456,253],[205,363],[456,363],[205,473],[456,473]];
+// Os pontos são âncoras das cadeiras do cenário 512x512, não das janelas.
+// O render usa y+111; manter sprites e placas dentro da sala de produção.
+const pixelStations=[[218,219],[438,219],[218,322],[438,322],[218,426],[438,426],[218,524],[438,524]];
 // A matriz é mantida por referência; o renderizador e o hit-test usam os mesmos slots.
 const stations=classicStations.map(p=>p.slice());
 let artMode='classic',spritesReady=false;
