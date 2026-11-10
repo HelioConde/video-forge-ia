@@ -126,21 +126,24 @@
       "name": "Direção e gestão",
       "lead": "diretor",
       "specialists": [
-        [
-          "gerente-producao",
-          "Gerente de produção",
-          "priorização, recursos e bloqueios"
-        ],
-        [
-          "coordenador-pautas",
-          "Coordenador de pautas",
-          "briefings e distribuição de tarefas"
-        ],
-        [
-          "analista-producao",
-          "Analista de produção",
-          "métricas e controle de produtividade"
-        ]
+        {
+          "id": "gerente-producao",
+          "nome": "Gerente de produção",
+          "funcao": "priorização, recursos e bloqueios",
+          "habilitado": false
+        },
+        {
+          "id": "coordenador-pautas",
+          "nome": "Coordenador de pautas",
+          "funcao": "briefings e distribuição de tarefas",
+          "habilitado": false
+        },
+        {
+          "id": "analista-producao",
+          "nome": "Analista de produção",
+          "funcao": "métricas e controle de produtividade",
+          "habilitado": false
+        }
       ]
     },
     {
@@ -148,41 +151,48 @@
       "name": "Editorial e pesquisa",
       "lead": "roteirista",
       "specialists": [
-        [
-          "pesquisador",
-          "Pesquisador de tendências",
-          "temas e fontes"
-        ],
-        [
-          "estrategista-canais",
-          "Estrategista de canais",
-          "segmentação e voz de marca"
-        ],
-        [
-          "roteirista-cenas",
-          "Roteirista de cenas",
-          "estrutura por cenas"
-        ],
-        [
-          "revisor-narrativa",
-          "Revisor de narrativa",
-          "fatos, coerência e continuidade"
-        ],
-        [
-          "titulo",
-          "Especialista em títulos",
-          "opções e testes de título"
-        ],
-        [
-          "descricao",
-          "Especialista em descrição",
-          "descrições e capítulos"
-        ],
-        [
-          "tags-seo",
-          "Especialista em tags e SEO",
-          "keywords e metadados"
-        ]
+        {
+          "id": "pesquisador",
+          "nome": "Pesquisador de tendências",
+          "funcao": "temas e fontes",
+          "habilitado": false
+        },
+        {
+          "id": "estrategista-canais",
+          "nome": "Estrategista de canais",
+          "funcao": "segmentação e voz de marca",
+          "habilitado": false
+        },
+        {
+          "id": "roteirista-cenas",
+          "nome": "Roteirista de cenas",
+          "funcao": "estrutura por cenas",
+          "habilitado": false
+        },
+        {
+          "id": "revisor-narrativa",
+          "nome": "Revisor de narrativa",
+          "funcao": "fatos, coerência e continuidade",
+          "habilitado": false
+        },
+        {
+          "id": "titulo",
+          "nome": "Especialista em títulos",
+          "funcao": "opções e testes de título",
+          "habilitado": false
+        },
+        {
+          "id": "descricao",
+          "nome": "Especialista em descrição",
+          "funcao": "descrições e capítulos",
+          "habilitado": false
+        },
+        {
+          "id": "tags-seo",
+          "nome": "Especialista em tags e SEO",
+          "funcao": "keywords e metadados",
+          "habilitado": false
+        }
       ]
     },
     {
@@ -190,31 +200,36 @@
       "name": "Arte e design",
       "lead": "artista",
       "specialists": [
-        [
-          "personagens",
-          "Designer de personagens",
-          "modelos e consistência"
-        ],
-        [
-          "cenarios",
-          "Criador de cenários",
-          "backgrounds e ambientes"
-        ],
-        [
-          "ilustrador",
-          "Ilustrador",
-          "camadas e adereços"
-        ],
-        [
-          "thumbnail",
-          "Designer de thumbnails",
-          "arte de capa e legibilidade"
-        ],
-        [
-          "storyboard",
-          "Artista de storyboard",
-          "planos e enquadramentos"
-        ]
+        {
+          "id": "personagens",
+          "nome": "Designer de personagens",
+          "funcao": "modelos e consistência",
+          "habilitado": false
+        },
+        {
+          "id": "cenarios",
+          "nome": "Criador de cenários",
+          "funcao": "backgrounds e ambientes",
+          "habilitado": false
+        },
+        {
+          "id": "ilustrador",
+          "nome": "Ilustrador",
+          "funcao": "camadas e adereços",
+          "habilitado": false
+        },
+        {
+          "id": "thumbnail",
+          "nome": "Designer de thumbnails",
+          "funcao": "arte de capa e legibilidade",
+          "habilitado": false
+        },
+        {
+          "id": "storyboard",
+          "nome": "Artista de storyboard",
+          "funcao": "planos e enquadramentos",
+          "habilitado": false
+        }
       ]
     },
     {
@@ -222,36 +237,42 @@
       "name": "Produção audiovisual",
       "lead": "editor",
       "specialists": [
-        [
-          "voz",
-          "Dublador e narrador",
-          "vozes e pronunciamento"
-        ],
-        [
-          "audio",
-          "Técnico de áudio",
-          "limpeza e mixagem"
-        ],
-        [
-          "animacao",
-          "Animador de cenas",
-          "movimentos e sincronismo"
-        ],
-        [
-          "montagem",
-          "Montador",
-          "edição e ritmo"
-        ],
-        [
-          "legendas",
-          "Especialista em legendas",
-          "sincronia e acessibilidade"
-        ],
-        [
-          "render",
-          "Técnico de render",
-          "exportação e codecs"
-        ]
+        {
+          "id": "voz",
+          "nome": "Dublador e narrador",
+          "funcao": "vozes e pronunciamento",
+          "habilitado": false
+        },
+        {
+          "id": "audio",
+          "nome": "Técnico de áudio",
+          "funcao": "limpeza e mixagem",
+          "habilitado": false
+        },
+        {
+          "id": "animacao",
+          "nome": "Animador de cenas",
+          "funcao": "movimentos e sincronismo",
+          "habilitado": false
+        },
+        {
+          "id": "montagem",
+          "nome": "Montador",
+          "funcao": "edição e ritmo",
+          "habilitado": false
+        },
+        {
+          "id": "legendas",
+          "nome": "Especialista em legendas",
+          "funcao": "sincronia e acessibilidade",
+          "habilitado": false
+        },
+        {
+          "id": "render",
+          "nome": "Técnico de render",
+          "funcao": "exportação e codecs",
+          "habilitado": false
+        }
       ]
     },
     {
@@ -259,36 +280,42 @@
       "name": "Qualidade e distribuição",
       "lead": "revisor",
       "specialists": [
-        [
-          "revisor-visual",
-          "Revisor visual",
-          "fidelidade de personagens e imagens"
-        ],
-        [
-          "revisor-conteudo",
-          "Revisor de conteúdo",
-          "políticas, direitos e qualidade"
-        ],
-        [
-          "qa-tecnico",
-          "QA técnico",
-          "duração, áudio, formato e upload"
-        ],
-        [
-          "publicacao",
-          "Especialista de publicação",
-          "upload sob aprovação do gerente"
-        ],
-        [
-          "agendamento",
-          "Agendador",
-          "janelas e fila editorial"
-        ],
-        [
-          "analista-audiencia",
-          "Analista de audiência",
-          "CTR, retenção e ações futuras"
-        ]
+        {
+          "id": "revisor-visual",
+          "nome": "Revisor visual",
+          "funcao": "fidelidade de personagens e imagens",
+          "habilitado": false
+        },
+        {
+          "id": "revisor-conteudo",
+          "nome": "Revisor de conteúdo",
+          "funcao": "políticas, direitos e qualidade",
+          "habilitado": false
+        },
+        {
+          "id": "qa-tecnico",
+          "nome": "QA técnico",
+          "funcao": "duração, áudio, formato e upload",
+          "habilitado": false
+        },
+        {
+          "id": "publicacao",
+          "nome": "Especialista de publicação",
+          "funcao": "upload sob aprovação do gerente",
+          "habilitado": false
+        },
+        {
+          "id": "agendamento",
+          "nome": "Agendador",
+          "funcao": "janelas e fila editorial",
+          "habilitado": false
+        },
+        {
+          "id": "analista-audiencia",
+          "nome": "Analista de audiência",
+          "funcao": "CTR, retenção e ações futuras",
+          "habilitado": false
+        }
       ]
     }
   ],
