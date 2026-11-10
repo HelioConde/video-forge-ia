@@ -1,0 +1,114 @@
+name: PixelLab - Gerar personagem e animacoes
+
+# Chamadas pagas somente com aprovação explícita; nunca em push ou cron.
+on:
+  workflow_dispatch:
+    inputs:
+      operacao:
+        description: "O que produzir?"
+        required: true
+        type: choice
+        default: plan
+        options:
+          - plan
+          - create
+          - animate
+          - create-and-animate
+          - ensure-and-animate
+          - export
+      personagem:
+        description: "Perfil em personagens/ (começamos com Alex)"
+        required: true
+        type: choice
+        default: alex
+        options:
+          - alex
+      movimento:
+        description: "Animação (4 frames por direção)"
+        required: true
+        type: choice
+        default: idle
+        options:
+          - idle
+          - walk
+          - type
+          - sit
+          - talk
+          - wave
+      direcao:
+        description: "Apenas uma direção por execução para limitar custo"
+        required: true
+        type: choice
+        default: south
+        options:
+          - south
+          - south-east
+          - east
+          - north-east
+          - north
+          - north-west
+          - west
+          - south-west
+      confirmar_custo:
+        description: "Autorizo cobranças da API PixelLab nesta execução"
+        type: boolean
+        required: true
+        default: false
+      artefatos_publicos:
+        description: "Entendo que os ZIPs serão acessíveis no repositório público"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  character:
+    name: PixelLab / ${{ inputs.personagem }} / ${{ inputs.operacao }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testar integração local sem custos
+        run: python -m unittest discover -s tests -p "test_pixellab.py" -v
+      - name: Preparar plano sem chamar API paga
+        env:
+          CHAR: ${{ inputs.personagem }}
+          MOVEMENT: ${{ inputs.movimento }}
+          DIRECTION: ${{ inputs.direcao }}
+        run: |
+          python -m videoforge.pixellab.cli --operation plan \
+            --character "$CHAR" --motion "$MOVEMENT" --direction "$DIRECTION"
+      - name: Bloqueio de cobranças ou resultados públicos
+        if: ${{ inputs.operacao != 'plan' && (!inputs.confirmar_custo || !inputs.artefatos_publicos) }}
+        run: |
+          echo "::notice::Apenas planejamento executado. Para gerar sprites reais, confirme o custo e que os artefatos deste repositório público serão acessíveis por terceiros."
+      - name: Gerar ou animar com PixelLab (pago)
+        if: ${{ inputs.operacao != 'plan' && inputs.confirmar_custo && inputs.artefatos_publicos }}
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_CHARACTER_ID: ${{ inputs.personagem }}ACTER_ID
+          CHAR: ${{ inputs.personagem }}
+          MOVEMENT: ${{ inputs.movimento }}
+          DIRECTION: ${{ inputs.direcao }}
+          OPERATION: ${{ inputs.operacao }}
+        run: |
+          python -m videoforge.pixellab.cli --execute \
+            --operation "$OPERATION" --character "$CHAR" \
+            --motion "$MOVEMENT" --direction "$DIRECTION"
+      - name: Resultado do processamento
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-${{ inputs.personagem }}-${{ github.run_id }}
+          path: output/pixellab/
+          retention-days: 7
+          if-no-files-found: warn
