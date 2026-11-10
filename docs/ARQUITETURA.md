@@ -25,6 +25,34 @@ output/         # gerados localmente, fora do Git
 - **Modelo de produção**: receita independente do canal para etapas de roteiro, imagem, animação, voz e montagem.
 - **Modelo de IA**: provedor e identificação configuráveis para cada etapa (`provedor` e `modelo_ia`), ainda não integrados.
 
+## Padrão obrigatório de organização e manutenção contínua
+
+**Regra permanente: toda implementação, manutenção, correção, experimento ou refatoração deve deixar o projeto organizado.** Nenhuma funcionalidade deve ser considerada concluída se introduzir desordem estrutural, duplicação desnecessária ou documentação desatualizada.
+
+### Responsabilidades por local
+
+| Caminho | Responsabilidade |
+| --- | --- |
+| `canal/<id>/canal.json` | Configurações próprias do canal e modelo padrão |
+| `canal/<id>/videos/<id>/video.json` | Definição de cada vídeo e seleção opcional de modelo |
+| `modelos/<id>/modelo.json` | Receitas reutilizáveis de produção e opções de IA |
+| `videoforge/` | Código reutilizável de orquestração, configuração e módulos de produção |
+| `tests/` | Testes correspondentes aos comportamentos implementados |
+| `.github/workflows/` | Pipelines de CI e agendamento, sem lógica de negócio duplicada |
+| `docs/` | Documentação de arquitetura, decisões e procedimentos |
+| `output/` | Saídas geradas, logs e mídias locais; conteúdo não versionado |
+
+### Checklist obrigatório para cada mudança
+
+1. **Antes:** inspecionar os diretórios e os módulos afetados; aproveitar os componentes existentes antes de criar outros.
+2. **Durante:** colocar cada arquivo na pasta de sua responsabilidade, manter nomes claros, funções coesas e interfaces estáveis.
+3. **Isolamento:** não misturar configurações, assets nem credenciais entre canais; herança de modelo por vídeo precisa continuar funcionando.
+4. **Limpeza:** evitar arquivos descartáveis ou duplicados; só apagar conteúdo após confirmar que não é utilizado.
+5. **Depois:** atualizar README/documentação e exemplos quando houver mudança de comportamento, executar testes e inspecionar a estrutura final.
+6. **Integração:** manter os workflows organizados e validar que automações novas não substituam ou quebrem as existentes.
+
+As regras também estão resumidas no [README principal](../README.md) e devem ser seguidas por agentes conforme [AGENTS.md](../AGENTS.md).
+
 ## Meta
 
 Automatizar: pauta > roteiro > planejamento de cenas > geração de imagens e camadas > animação > narração > montagem > validação > upload no YouTube.
