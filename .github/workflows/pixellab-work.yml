@@ -1,0 +1,117 @@
+name: PixelLab - Animacoes em lote para Work
+
+# Work inicia pelo GitHub Actions UI ou gh workflow run.
+# Sem agenda. Padrão apenas consulta a biblioteca: nenhuma chamada paga.
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "planejar consulta a API sem custo ou gerar"
+        type: choice
+        required: true
+        default: planejar
+        options:
+          - planejar
+          - gerar
+      movimento:
+        description: "Escolha movimento ou todos"
+        type: choice
+        required: true
+        default: todos
+        options:
+          - todos
+          - idle
+          - walk
+          - type
+          - sit
+          - talk
+          - wave
+      max_novas:
+        description: "Máximo de chamadas pagas nesta execução (1-8)"
+        type: choice
+        required: true
+        default: "4"
+        options:
+          - "1"
+          - "4"
+          - "8"
+      liberar_grupos_desconhecidos:
+        description: "Pular bloqueio de grupos de animação desconhecidos? Só depois de auditoria"
+        type: boolean
+        default: false
+        required: true
+      confirmar_custo:
+        description: "Autorizo até max_novas cobranças da API PixelLab"
+        type: boolean
+        default: false
+        required: true
+      artefatos_publicos:
+        description: "Sei que o GitHub pode expor o resultado desta execução publicamente"
+        type: boolean
+        default: false
+        required: true
+      exportar_zips:
+        description: "Baixar spritesheets ZIP (contêm metadados/IDs; público)"
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  # Compartilha a trava com o workflow de animação individual.
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  work:
+    name: Work / PixelLab lote
+    runs-on: ubuntu-latest
+    timeout-minutes: 140
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Testar modo gratuito e planejador antes de chamar API
+        run: |
+          python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Verificar autorizações de geração
+        if: ${{ inputs.modo == 'gerar' && (!inputs.confirmar_custo || !inputs.artefatos_publicos) }}
+        run: |
+          echo "::error::Geração requer confirmação de custo e artefatos públicos."
+          exit 1
+      - name: Planejar ou gerar somente direções faltantes
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_CHARACTER_ID: ${{ secrets.PIXELLAB_CHARACTER_ID }}
+          MODE: ${{ inputs.modo }}
+          SCOPE: ${{ inputs.movimento }}
+          MAX_NEW: ${{ inputs.max_novas }}
+          ALLOW_UNKNOWN: ${{ inputs.liberar_grupos_desconhecidos }}
+          APPROVED: ${{ inputs.confirmar_custo }}
+          PUBLIC: ${{ inputs.artefatos_publicos }}
+          EXPORT: ${{ inputs.exportar_zips }}
+        run: |
+          set -euo pipefail
+          args=(--mode plan --scope all --max-new "$MAX_NEW")
+          if [ "$SCOPE" != "todos" ]; then
+            args=(--mode plan --scope "$SCOPE" --max-new "$MAX_NEW")
+          fi
+          if [ "$MODE" = "gerar" ]; then
+            args[1]=generate
+          fi
+          if [ "$ALLOW_UNKNOWN" = "true" ]; then args+=(--allow-unknown); fi
+          if [ "$APPROVED" = "true" ]; then args+=(--authorize-cost); fi
+          if [ "$PUBLIC" = "true" ]; then args+=(--public-artifacts); fi
+          if [ "$EXPORT" = "true" ] && [ "$MODE" = "gerar" ] && [ "$PUBLIC" = "true" ]; then args+=(--export-zips); fi
+          python -m videoforge.pixellab.batch "${args[@]}"
+      - name: Salvar relatório e sprites opcionais
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-work-${{ github.run_id }}
+          path: output/pixellab-batch/
+          if-no-files-found: warn
+          retention-days: 7
