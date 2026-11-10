@@ -98,6 +98,7 @@
     return productionManifest?
       Object.entries(productionManifest.motions).map(([name,spec])=>({name,category:spec.category})):[];
   }
+  function productionLoaded(motion){return productionImages.has(motion);}
   async function preloadProduction(motion){
     if(!productionManifest)await loadProductionManifest();
     const spec=productionManifest?.motions?.[motion];
@@ -132,6 +133,6 @@
   }
   window.VideoForgeAnimator={
     preload,ready:()=>available,draw,motions:ALLOWED.slice(),
-    loadProductionManifest,productionMotions,preloadProduction,drawProduction
+    loadProductionManifest,productionMotions,preloadProduction,productionLoaded,drawProduction
   };
 })();

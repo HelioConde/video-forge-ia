@@ -10,6 +10,7 @@
   window.VideoForgeAnimator.preload().then(ready=>{
     office.setAgentSpritesReady(ready);
     window.VideoForgeAnimator.loadProductionManifest().then(()=>{
+      if(office.roleDemoEnabled())office.loadRoleAnimations();
       if(state.snapshot)renderPanel();
     });
     if(state.snapshot)renderPanel();
@@ -29,6 +30,21 @@
     syncFreeTimeButton();
     if(state.snapshot)renderPanel();
   });
+  const roleDemoButton=$("btnRoleDemo");
+  function syncRoleDemoButton(){
+    const enabled=office.roleDemoEnabled();
+    roleDemoButton.setAttribute("aria-pressed",String(enabled));
+    roleDemoButton.classList.toggle("active",enabled);
+    roleDemoButton.title=enabled?
+      "Desativar demonstração das profissões":"Demonstrar movimentos dos funcionários sem executar IA";
+    roleDemoButton.setAttribute("aria-label",roleDemoButton.title);
+  }
+  roleDemoButton.disabled=true;
+  roleDemoButton.addEventListener("click",()=>{
+    office.setRoleDemo(!office.roleDemoEnabled());
+    syncRoleDemoButton();
+    render();
+  });
   const artBtn=$("btnArtMode");
   function updateArtButton(){
     const active=office.getArtMode()==='pixellab';
@@ -44,6 +60,8 @@
     artBtn.disabled=!ready;
     if(ready)office.setArtMode('pixellab');
     freeTimeButton.disabled=!ready;
+    roleDemoButton.disabled=!ready||!window.VideoForgeAnimator.ready();
+    syncRoleDemoButton();
     syncFreeTimeButton();
     updateArtButton();
     if(state.snapshot)renderPanel();
@@ -52,6 +70,8 @@
     office.setArtMode(office.getArtMode()==='pixellab'?'classic':'pixellab');
     updateArtButton();
     freeTimeButton.disabled=office.getArtMode()!=='pixellab'||!window.VideoForgeAnimator.ready();
+    roleDemoButton.disabled=office.getArtMode()!=='pixellab'||!window.VideoForgeAnimator.ready();
+    syncRoleDemoButton();
     syncFreeTimeButton();
     if(state.snapshot)renderPanel();
   });
@@ -117,6 +137,19 @@
         detail.append(info);
       }
       if(window.VideoForgeAnimator.ready()){
+        const specialty=window.VideoForgeBehaviors?.profile(a.id);
+        if(specialty){
+          const available=new Set(window.VideoForgeAnimator.productionMotions().map(x=>x.name));
+          const configured=window.VideoForgeBehaviors.names(a.id);
+          const readyNames=configured.filter(x=>available.has(x));
+          const info=make("div","production-preview");
+          info.append(make("strong","","ANIMAÇÕES DA PROFISSÃO"));
+          info.append(make("p","detail-text",
+            readyNames.length+" de "+configured.length+" movimentos previstos disponíveis na biblioteca."));
+          info.append(make("small","preview-note",
+            "Movimentos automáticos seguem tarefas reais; simulação opcional pelo botão 🎬, sem ativar agentes IA."));
+          detail.append(info);
+        }
         const preview=make("button","animation-preview");
         preview.type="button";
         const motions=[null,"idle","walk","type","sit","talk","wave"];
@@ -206,7 +239,8 @@
     $("activeCount").textContent=String(snap.agentes.filter(a=>live(a.status)).length);
     $("channelsCount").textContent=String(snap.canais.length);
     const actual=snap.fonte==="eventos_backend";
-    $("sceneSource").textContent=actual?"SNAPSHOT DE ATIVIDADE":"SEM EXECUÇÃO DE AGENTES";
+    $("sceneSource").textContent=(actual?"SNAPSHOT DE ATIVIDADE":"SEM EXECUÇÃO DE AGENTES")+
+      (office.roleDemoEnabled()?" · ROTINAS EM PRÉVIA":"");
     $("connectionBadge").dataset.live=String(actual);
     $("connectionBadge").lastChild.textContent=actual?" SNAPSHOT RECEBIDO":" NÃO CONECTADO";
     if(snap.gerado_em){const d=new Date(snap.gerado_em);$("snapshotAge").textContent=isNaN(d.getTime())?"Sem data":"Snapshot "+d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
