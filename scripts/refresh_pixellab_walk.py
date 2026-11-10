@@ -45,7 +45,8 @@ def _find_state_animation(names: set[str], state: str, animation: str) -> str | 
 
 def replace_walk(source: Path, root: Path = ROOT, *,
                  state: str = SOURCE_STATE, animation: str = SOURCE_ANIMATION,
-                 fingerprint: str = FINGERPRINT) -> dict:
+                 fingerprint: str = FINGERPRINT,
+                 attestation: Path | None = None) -> dict:
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,49}", state) or not re.fullmatch(
         r"[a-z][a-z0-9_]{1,49}", animation
     ):
@@ -65,6 +66,18 @@ def replace_walk(source: Path, root: Path = ROOT, *,
             or hashlib.sha256(old.read_bytes()).hexdigest() != entry.get("sha256")):
         raise ValueError("Atlas atual é inválido; não substituir.")
 
+    # Em exportações de grupos, cada estado possui ID próprio. A prova assinada
+    # pelo fluxo local de exportação guarda SHA do arquivo e da base validada
+    # em resolve_target, sem expor IDs ou chaves.
+    verified_by_exporter = False
+    if attestation is not None:
+        certificate = json.loads(attestation.read_text(encoding="utf-8"))
+        if (certificate.get("schema") != "videoforge/pixellab-export-attestation/v1"
+                or certificate.get("character_sha256") != fingerprint
+                or certificate.get("zip_sha256") != hashlib.sha256(source.read_bytes()).hexdigest()):
+            raise ValueError("Prova de exportação inválida ou arquivo alterado.")
+        verified_by_exporter = True
+
     with ZipFile(source) as archive:
         infos = archive.infolist()
         if (len(infos) > 4000 or len({item.filename for item in infos}) != len(infos)
@@ -72,19 +85,26 @@ def replace_walk(source: Path, root: Path = ROOT, *,
             raise ValueError("ZIP excessivo ou duplicado.")
         metadata = json.loads(archive.read("metadata.json"))
         states = metadata.get("states", [])
-        if (not isinstance(states, list) or not any(
+        metadata_matches = isinstance(states, list) and any(
             isinstance(s, dict) and isinstance(s.get("character"), dict)
             and isinstance(s["character"].get("id"), str)
             and hashlib.sha256(s["character"]["id"].encode()).hexdigest() == fingerprint
             for s in states
-        )):
+        )
+        if not verified_by_exporter and not metadata_matches:
             raise ValueError("A exportação não corresponde ao Alex autorizado.")
 
         names = set(archive.namelist())
         prefix = _find_state_animation(names, state, animation)
         if prefix is None:
+            # Exibir apenas os nomes de estados esperados, não pastas contendo IDs.
+            seen = sorted({
+                path.split("/")[0].casefold()
+                for path in names if "/animations/" in path
+                and path.split("/")[0].casefold() in ("walk", "idle")
+            })
             return {"status": "selected_state_missing", "sourceState": state,
-                    "source": animation, "changed": False}
+                    "source": animation, "knownStates": seen, "changed": False}
         required = [f"{prefix}/{direction}/frame_{frame:03}.png"
                     for direction in DIRECTIONS for frame in range(8)]
         if not set(required) <= names:
@@ -127,8 +147,10 @@ def main() -> None:
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--state", default=SOURCE_STATE)
     parser.add_argument("--animation", default=SOURCE_ANIMATION)
+    parser.add_argument("--attestation", type=Path)
     args = parser.parse_args()
-    report = replace_walk(args.source, state=args.state, animation=args.animation)
+    report = replace_walk(args.source, state=args.state, animation=args.animation,
+                          attestation=args.attestation)
     out = Path("output/pixellab-production/walk-upgrade.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",

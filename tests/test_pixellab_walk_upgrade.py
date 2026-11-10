@@ -96,6 +96,29 @@ class WalkFromCorrectStateTests(unittest.TestCase):
             self.assertEqual(replace_walk(exported, root, fingerprint=IDENTITY)["status"],
                              "updated")
 
+    def test_accepts_verified_export_with_sibling_state_identifier(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, exported = make_export(Path(directory))
+            proof = Path(directory) / "export.verified.json"
+            proof.write_text(json.dumps({
+                "schema": "videoforge/pixellab-export-attestation/v1",
+                "character_sha256": "a"*64,
+                "zip_sha256": hashlib.sha256(exported.read_bytes()).hexdigest(),
+            }))
+            self.assertEqual(replace_walk(exported, root, fingerprint="a"*64,
+                                          attestation=proof)["status"], "updated")
+
+    def test_rejects_tampered_export_attestation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, exported = make_export(Path(directory))
+            proof = Path(directory) / "export.verified.json"
+            proof.write_text(json.dumps({
+                "schema": "videoforge/pixellab-export-attestation/v1",
+                "character_sha256": "a"*64, "zip_sha256": "0"*64,
+            }))
+            with self.assertRaises(ValueError):
+                replace_walk(exported, root, fingerprint="a"*64, attestation=proof)
+
     def test_rejects_wrong_character(self):
         with tempfile.TemporaryDirectory() as directory:
             root, exported = make_export(Path(directory))

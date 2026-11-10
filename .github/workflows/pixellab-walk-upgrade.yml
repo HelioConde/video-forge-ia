@@ -48,7 +48,7 @@ jobs:
       - name: Selecionar Walking SOMENTE do estado walk (64 frames)
         run: |
           if [ -f /tmp/pixellab-walk-export.zip ]; then
-            python scripts/refresh_pixellab_walk.py --source /tmp/pixellab-walk-export.zip --state walk --animation walking
+            python scripts/refresh_pixellab_walk.py --source /tmp/pixellab-walk-export.zip --state walk --animation walking --attestation /tmp/pixellab-walk-export.zip.verified.json
           else
             echo "PixelLab ainda não liberou o ZIP: walk antigo preservado."
           fi

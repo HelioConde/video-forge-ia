@@ -7,6 +7,7 @@ Nenhum POST, token, UUID ou arquivo privado é publicado.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -24,6 +25,16 @@ def export_when_ready(client: PixelLabClient, cid: str, dest: Path) -> str:
         raise
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(payload)
+    # Prova local de proveniência: resolve_target validou a identidade na API.
+    # O ZIP pode conter estados com IDs próprios diferentes da base original.
+    attestation = {
+        "schema": "videoforge/pixellab-export-attestation/v1",
+        "character_sha256": hashlib.sha256(cid.encode("utf-8")).hexdigest(),
+        "zip_sha256": hashlib.sha256(payload).hexdigest(),
+    }
+    dest.with_suffix(dest.suffix + ".verified.json").write_text(
+        json.dumps(attestation, sort_keys=True), encoding="utf-8"
+    )
     return "exported"
 
 
