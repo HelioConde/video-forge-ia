@@ -53,6 +53,20 @@ output/         # gerados localmente, fora do Git
 
 As regras também estão resumidas no [README principal](../README.md) e devem ser seguidas por agentes conforme [AGENTS.md](../AGENTS.md).
 
+## Catálogo de canais herdado do AutoEditorVideo
+
+| Pasta | Chave legada | Modelo inicial |
+| --- | --- | --- |
+| `canal/otaku-br/` | `br` | `camadas-animadas` |
+| `canal/otaku-en/` | `en` | `imagem-estatica` |
+| `canal/gamer/` | `games` | `imagem-estatica` |
+| `canal/manu-kids/` | `kids` | `camadas-animadas` |
+| `canal/alchemy-lab/` | `alchemy` | `imagem-estatica` |
+
+Os padrões são provisórios. Os arquivos em `arquivo-editorial/` são referências e não scripts de publicação. O teste de 10 segundos agora fica em `canal/alchemy-lab/videos/teste-10s/`.
+
+Consulte [MIGRACAO_AUTOEDITORVIDEO.md](MIGRACAO_AUTOEDITORVIDEO.md). Nenhum token ou upload foi migrado.
+
 ## Meta
 
 Automatizar: pauta > roteiro > planejamento de cenas > geração de imagens e camadas > animação > narração > montagem > validação > upload no YouTube.

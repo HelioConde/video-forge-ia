@@ -16,9 +16,18 @@
       "visual_prompt": "Dorama cinematográfico: uma jovem encontra uma carta misteriosa sob a chuva; enquadramento vertical; personagens consistentes.",
       "narration": "Naquela noite, uma carta mudou tudo.",
       "layers": [
-        {"name": "background", "type": "static"},
-        {"name": "personagem", "type": "transparent_animated"},
-        {"name": "carta", "type": "transparent_animated"}
+        {
+          "name": "background",
+          "type": "static"
+        },
+        {
+          "name": "personagem",
+          "type": "transparent_animated"
+        },
+        {
+          "name": "carta",
+          "type": "transparent_animated"
+        }
       ]
     },
     {
@@ -27,10 +36,22 @@
       "visual_prompt": "Mesmo cenário e aparência dos personagens: close na carta aberta, reação de surpresa; iluminação cinematográfica.",
       "narration": "O segredo estava escrito com o nome dela.",
       "layers": [
-        {"name": "background", "type": "static"},
-        {"name": "personagem", "type": "transparent_animated"},
-        {"name": "carta", "type": "transparent_animated"}
+        {
+          "name": "background",
+          "type": "static"
+        },
+        {
+          "name": "personagem",
+          "type": "transparent_animated"
+        },
+        {
+          "name": "carta",
+          "type": "transparent_animated"
+        }
       ]
     }
-  ]
+  ],
+  "modelo": "camadas-animadas",
+  "_somente_teste": true,
+  "_aviso": "Apenas storyboard: nenhuma mídia é gerada ou publicada."
 }

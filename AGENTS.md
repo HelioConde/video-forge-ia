@@ -28,3 +28,7 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 10. Não habilitar geração paga ou publicação real sem configuração e autorização explícitas.
 
 **Critério de conclusão:** a tarefa deve funcionar e a aplicação deve continuar organizada, compreensível e sustentável para a próxima modificação.
+
+## Regras adicionais da migração
+
+As pastas de canais reais são `otaku-br`, `otaku-en`, `gamer`, `manu-kids` e `alchemy-lab` dentro de `canal/`. A pasta fictícia `exemplo` foi removida. Não tratar `arquivo-editorial/` ou `conteudos/indice.json` como fila de produção. Não transportar workflows, segredos ou tokens do AutoEditorVideo. Consultar `docs/MIGRACAO_AUTOEDITORVIDEO.md` antes de modificar a migração.

@@ -21,7 +21,7 @@ jobs:
       - name: Executar testes
         run: python -m unittest discover -s tests -v
       - name: Simular storyboard de 10 segundos (sem publicar)
-        run: python -m videoforge.pipeline --video canal/exemplo/videos/teste-10s/video.json --output output/storyboard.json
+        run: python -m videoforge.pipeline --video canal/alchemy-lab/videos/teste-10s/video.json --output output/storyboard.json
       - name: Salvar storyboard de teste
         uses: actions/upload-artifact@v4
         with:

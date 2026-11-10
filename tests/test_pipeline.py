@@ -7,7 +7,7 @@ from videoforge.pipeline import build_storyboard
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXAMPLE = "canal/exemplo/videos/teste-10s/video.json"
+EXAMPLE = "canal/alchemy-lab/videos/teste-10s/video.json"
 
 
 class StoryboardTest(unittest.TestCase):
@@ -20,7 +20,7 @@ class StoryboardTest(unittest.TestCase):
         self.assertEqual(len(plan["timeline"]), 2)
         self.assertEqual(plan["timeline"][0]["start_seconds"], 0)
         self.assertEqual(plan["timeline"][-1]["end_seconds"], 10)
-        self.assertEqual(plan["canal"]["id"], "exemplo")
+        self.assertEqual(plan["canal"]["id"], "alchemy-lab")
         self.assertEqual(plan["modelo"]["id"], "camadas-animadas")
         self.assertFalse(plan["publishing"]["upload_enabled"])
 

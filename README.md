@@ -6,29 +6,34 @@
 
 ## Organização do projeto
 
+Os cinco canais do AutoEditorVideo estão separados em pastas independentes. Cada canal possui suas próprias regras editoriais e um modelo padrão, que pode ser substituído individualmente em um vídeo.
+
 ```text
 video-forte-ia/
-├── canal/                          # uma pasta por canal
-│   └── exemplo/
-│       ├── canal.json              # modelo padrão do canal
-│       └── videos/
-│           └── teste-10s/
-│               └── video.json      # roteiro e possível modelo próprio
-├── modelos/                        # receitas de produção reutilizáveis
+├── canal/
+│   ├── otaku-br/        # Otaku Multicena
+│   ├── otaku-en/        # Otaku Reframe
+│   ├── gamer/           # Conde Games (marca proposta)
+│   ├── manu-kids/       # Emanuelly Kids / Manu Kids
+│   └── alchemy-lab/     # Alchemy Lab
+│       └── videos/teste-10s/
+├── modelos/
 │   ├── camadas-animadas/modelo.json
 │   └── imagem-estatica/modelo.json
 ├── videoforge/
-│   ├── config.py                    # lê e resolve canal/vídeo/modelo
-│   └── pipeline.py                  # valida storyboard JSON
 ├── tests/
-├── docs/ARQUITETURA.md
-└── .github/workflows/validate.yml
+├── docs/
+└── .github/workflows/
 ```
+
+Cada canal contém `canal.json`, `conteudos/indice.json`, `README.md` e `videos/`. Referências históricas selecionadas ficam em `arquivo-editorial/` e **não** podem ser usadas como manifestos executáveis.
+
+Confira o [catálogo dos canais](canal/README.md) e o [relatório de migração](docs/MIGRACAO_AUTOEDITORVIDEO.md).
 
 ### Como funciona a escolha do modelo
 
-O canal usa `"modelo_padrao": "camadas-animadas"` no `canal.json`.
-Um vídeo pode optar por `"modelo": "imagem-estatica"` no próprio `video.json`. Sem a propriedade, herda o padrão do canal.
+Cada canal tem seu próprio `modelo_padrao` no `canal.json`.
+Um vídeo pode optar por `"modelo": "camadas-animadas"` no próprio `video.json`. Sem a propriedade, herda o padrão do canal; as escolhas iniciais são provisórias.
 
 Cada modelo de produção também reserva configurações distintas de **provedor e modelo de IA por etapa** (roteiro, imagem, animação, voz), ainda pendentes de implementação.
 
@@ -55,7 +60,7 @@ Requisito: Python 3.12+.
 
 ```bash
 python -m unittest discover -s tests -v
-python -m videoforge.pipeline --video canal/exemplo/videos/teste-10s/video.json --output output/storyboard.json
+python -m videoforge.pipeline --video canal/alchemy-lab/videos/teste-10s/video.json --output output/storyboard.json
 ```
 
 A ação **Actions > Validar VideoForge AI** também roda os testes e salva o storyboard de 10 segundos como artifact. Isso **não** produz um vídeo.
