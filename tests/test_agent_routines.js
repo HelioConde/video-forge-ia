@@ -159,6 +159,7 @@ for(const dest of ["coffee","water","games","restroom"]){
   assert(context.current("editor",50000).includes("simulação")||context.current("editor",50000).includes("No destino"));
 }
 context.clear();
-context.travel("editor","home",1000);
+context.travel("editor","coffee",1000);
+context.travel("editor","home",1500);
 assert.equal(context.poseFor("editor",20000).motion,"sit");
 console.log("INTERACOES_ROUTINES_OK: café, água, jogos, banheiro e cadeira com sequências reais");
