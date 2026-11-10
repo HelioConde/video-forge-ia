@@ -40,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
+      PYTHONPATH: ${{ github.workspace }}
       RECEBER_ALEX: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'alex')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Completar animacoes da produtora') }}
       RECEBER_OBJETOS: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'objetos')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Objetos animados da produtora') }}
     steps:
