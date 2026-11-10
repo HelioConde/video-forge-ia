@@ -88,9 +88,11 @@ class PixelLabClient:
         return self._request("POST", "/create-character-v3", body)
 
     def animate(self, character_id: str, *, name: str, description: str,
-                direction: str, frame_count: int = 4):
+                direction: str, frame_count: int = 4,
+                animation_group_id: str | None = None):
         return self._request("POST", "/characters/animations", {
             "character_id": character_id,
+            **({"animation_group_id": animation_group_id} if animation_group_id else {}),
             "animation_name": name,
             "action_description": description,
             "mode": "v3",
