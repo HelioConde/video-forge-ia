@@ -47,3 +47,7 @@ Para sincronizar manualmente sem custo de geração: **Actions → PixelLab - Re
 ### Publicação do GitHub Pages após importação de PNGs
 
 Commits criados por GitHub Actions usando `GITHUB_TOKEN` não disparam novos workflows `on: push`. Portanto o recebedor verifica se houve mudança, faz commit dos PNGs aprovados e **chama diretamente o workflow reutilizável** `.github/workflows/pages.yml` por `workflow_call`. O Pages usa checkout de `main` para receber os PNGs importados, em vez de uma revisão anterior do workflow que iniciou o processo. Se não houver arquivos novos, o recebedor não força deploy desnecessário.
+
+## Caminhada corrigida pelo gerente — estado walk, não Idle
+
+O gerente substituiu manualmente a caminhada no PixelLab. O importador `scripts/refresh_pixellab_walk.py` **seleciona exclusivamente o grupo `walking` do estado `walk`** no ZIP do Alex, jamais a animação de mesmo nome sob `Idle` ou outra variante. O estado `walk` precisa conter 8 direções × 8 quadros RGBA 88×88. Se faltar o estado ou um frame, preserva o atlas anterior e relata a pendência; não retorna à versão que o gerente rejeitou. O manifesto inclui `sourceState: walk` para auditoria. A action `pixellab-walk-upgrade.yml` roda essa correção por GET sem gerar novas imagens pagas e publica Pages somente depois de validar um novo atlas.

@@ -11,11 +11,6 @@ on:
       - "site/agent-routines.js"
       - "tests/test_pixellab_walk_upgrade.py"
   workflow_dispatch:
-    inputs:
-      preferred:
-        description: "Nome do grupo de caminhada mais recente (opcional)"
-        type: string
-        required: false
 
 permissions:
   contents: write
@@ -50,16 +45,10 @@ jobs:
           PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
           PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
         run: python scripts/export_pixellab_ready.py --source /tmp/pixellab-walk-export.zip
-      - name: Trocar walking só se tiver oito direções e 64 frames
-        env:
-          PREFERRED: ${{ inputs.preferred }}
+      - name: Selecionar Walking SOMENTE do estado walk (64 frames)
         run: |
           if [ -f /tmp/pixellab-walk-export.zip ]; then
-            if [ -n "$PREFERRED" ]; then
-              python scripts/refresh_pixellab_walk.py --source /tmp/pixellab-walk-export.zip --preferred "$PREFERRED"
-            else
-              python scripts/refresh_pixellab_walk.py --source /tmp/pixellab-walk-export.zip
-            fi
+            python scripts/refresh_pixellab_walk.py --source /tmp/pixellab-walk-export.zip --state walk --animation walking
           else
             echo "PixelLab ainda não liberou o ZIP: walk antigo preservado."
           fi
