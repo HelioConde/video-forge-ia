@@ -1,4 +1,4 @@
-/* Atlas estático PixelLab: quatro colunas de frames e oito linhas de direções.
+/* Atlas PixelLab: walk pode ter oito colunas; os outros movimentos têm quatro.
    Não consulta API nem usa tokens no navegador. */
 (() => {
   "use strict";
@@ -7,7 +7,7 @@
                     "north","north-west","west","south-west"];
   const base="./assets/pixellab/agents/alex/";
   const images=new Map();
-  let available=false,loading=null;
+  let available=false,loading=null,baseManifest=null;
   const validPath=path=>/^[a-z]+\.png$/.test(path);
   async function preload(){
     if(loading)return loading;
@@ -23,14 +23,15 @@
            throw new Error("Manifest de animações incompatível");
         const assets=await Promise.all(ALLOWED.map(motion=>new Promise((resolve,reject)=>{
           const spec=data.motions?.[motion];
+          const frames=motion==="walk"&&spec?.frames===8?8:4;
           if(!spec||!validPath(spec.file)||spec.file!==motion+".png"||
-             spec.width!==352||spec.height!==704){
+             spec.width!==88*frames||spec.height!==704){
             reject(new Error("Spritesheet inválida: "+motion));return;
           }
           const image=new Image();
           image.decoding="async";
           image.onload=()=>{
-            if(image.naturalWidth!==352||image.naturalHeight!==704){
+            if(image.naturalWidth!==88*frames||image.naturalHeight!==704){
               reject(new Error("Dimensões inválidas: "+motion));return;
             }
             resolve([motion,image]);
@@ -39,9 +40,11 @@
           image.src=base+spec.file;
         })));
         for(const [motion,image] of assets)images.set(motion,image);
+        baseManifest=data;
         available=true;
       }catch(error){
         available=false;
+        baseManifest=null;
         images.clear();
         console.warn("VideoForge: sprites Alex indisponíveis, mantendo desenho original.",error.message);
       }
@@ -49,12 +52,16 @@
     })();
     return loading;
   }
+  function frameCount(motion){
+    const spec=baseManifest?.motions?.[motion];
+    return motion==="walk"&&spec?.frames===8?8:4;
+  }
   function draw(ctx,motion,direction,frame,x,y,size=88){
     if(!available||!ALLOWED.includes(motion))return false;
     const dirIndex=DIRECTIONS.indexOf(direction);
     const atlas=images.get(motion);
     if(dirIndex<0||!atlas)return false;
-    const offset=Math.floor(Math.max(0,Number(frame)||0))%4;
+    const offset=Math.floor(Math.max(0,Number(frame)||0))%frameCount(motion);
     const px=Math.round(x-size/2),py=Math.round(y-size/2);
     ctx.imageSmoothingEnabled=false;
     ctx.drawImage(atlas,offset*88,dirIndex*88,88,88,px,py,size,size);
@@ -132,7 +139,7 @@
     return true;
   }
   window.VideoForgeAnimator={
-    preload,ready:()=>available,draw,motions:ALLOWED.slice(),
+    preload,ready:()=>available,draw,frameCount,motions:ALLOWED.slice(),
     loadProductionManifest,productionMotions,preloadProduction,productionLoaded,drawProduction
   };
 })();

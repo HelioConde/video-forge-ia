@@ -125,3 +125,16 @@ const pB=aisle.poseFor("diretor",3000);
 assert(pB.x>slots[0][0]&&pB.x<360,
   "deslocamento deve percorrer o corredor central, longe das outras cadeiras");
 console.log("AISLE_ROUTE_OK: passeio deixa a coluna de cadeiras antes de descer");
+
+\n// O frame de caminhada usa os oito quadros quando o atlas oferece 8.
+window.VideoForgeAnimator={frameCount:name=>name==="walk"?8:4};
+const eight=mod.create(slots);
+assert.equal(eight.travel("diretor","water",1000),true);
+const seenFrames=new Set();
+for(let t=1000;t<1800;t+=20){
+  const pose=eight.poseFor("diretor",t);
+  if(pose.moving)seenFrames.add(pose.frame);
+}
+assert.deepEqual([...seenFrames].sort((a,b)=>a-b),[0,1,2,3,4,5,6,7]);
+assert.equal(eight.poseFor("diretor",1000).frame,0);
+console.log("WALK_8_FRAMES_OK: todos os oito quadros percorrem um ciclo sem acelerar o agente");

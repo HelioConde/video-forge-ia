@@ -33,6 +33,7 @@ jobs:
           node tests/test_agent_behavior.js
           node tests/test_office_layout.js
           node tests/test_agent_routines.js
+          node tests/test_walk_animator.js
           node --check site/office-art.js
           node --check site/office-renderer.js
       - name: Gerar e validar snapshot público

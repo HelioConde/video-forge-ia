@@ -28,8 +28,10 @@ def replace_walk(source: Path, root: Path=ROOT, *, preferred: str|None=None,
         raise ValueError("Manifesto original incompatível.")
     entry=manifest["motions"]["walk"]
     old=root/"walk.png"
-    if (entry.get("file")!="walk.png" or entry.get("width")!=352 or
-        entry.get("height")!=704 or hashlib.sha256(old.read_bytes()).hexdigest()!=entry.get("sha256")):
+    old_count=entry.get("frames",manifest["frames"])
+    if (entry.get("file")!="walk.png" or old_count not in (4,8) or
+        entry.get("width")!=88*old_count or entry.get("height")!=704 or
+        hashlib.sha256(old.read_bytes()).hexdigest()!=entry.get("sha256")):
         raise ValueError("Walk original inválido; não substituir.")
     with ZipFile(source) as archive:
         infos=archive.infolist()
@@ -46,14 +48,23 @@ def replace_walk(source: Path, root: Path=ROOT, *, preferred: str|None=None,
         groups={p.split("/")[2] for p in names if p.startswith("Idle/animations/") and len(p.split("/"))==5}
         for name in ((preferred,) if preferred else PREFERRED):
             if name not in groups: continue
+            has_extra=any(
+                f"Idle/animations/{name}/{d}/frame_{n:03}.png" in names
+                for d in DIRECTIONS for n in range(4,8)
+            )
+            # A animação PixMinimax chamada "walking" tem oito quadros.
+            # Nunca tratá-la como quatro mesmo durante exportação incompleta.
+            count=8 if name=="walking" or has_extra else 4
+            if count<old_count:
+                continue  # Não reduzir uma caminhada já importada de oito quadros.
             required=[f"Idle/animations/{name}/{d}/frame_{n:03}.png"
-                      for d in DIRECTIONS for n in range(4)]
+                      for d in DIRECTIONS for n in range(count)]
             if not set(required)<=names:
                 if name!="walk":return {"status":"incomplete","source":name,"changed":False}
                 continue
-            atlas=Image.new("RGBA",(352,704))
+            atlas=Image.new("RGBA",(88*count,704))
             for row,direction in enumerate(DIRECTIONS):
-                for col in range(4):
+                for col in range(count):
                     key=f"Idle/animations/{name}/{direction}/frame_{col:03}.png"
                     if archive.getinfo(key).file_size>1024*1024:
                         raise ValueError("Frame acima do limite.")
@@ -66,6 +77,8 @@ def replace_walk(source: Path, root: Path=ROOT, *, preferred: str|None=None,
             if digest==entry["sha256"]:
                 return {"status":"unchanged","source":name,"changed":False}
             manifest["motions"]["walk"]["sha256"]=digest
+            manifest["motions"]["walk"]["frames"]=count
+            manifest["motions"]["walk"]["width"]=count*88
             manifest["motions"]["walk"]["sourceAnimation"]=name
             old.write_bytes(data)
             file.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

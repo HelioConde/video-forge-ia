@@ -31,6 +31,19 @@ def _png(path: Path, spec: dict) -> None:
 
 def verify(root: Path=ROOT) -> dict:
     stats={"alex_motions":0,"alex_directions":0,"objects":0,"object_pngs":0}
+    # O atlas básico usa quatro quadros por movimento; walk pode usar oito.
+    basic=root/"agents/alex/manifest.json"
+    if basic.exists():
+        master=json.loads(basic.read_text(encoding="utf-8"))
+        if master.get("schema")!="videoforge/pixellab-agent-atlas/v1" or master.get("character")!="alex":
+            raise ValueError("Schema básico do Alex inválido.")
+        for motion,spec in master["motions"].items():
+            frames=spec.get("frames",master["frames"])
+            if frames not in ((4,8) if motion=="walk" else (4,)) or (
+                spec.get("width") != frames*master["frameWidth"] or
+                spec.get("height") != len(master["directions"])*master["frameHeight"]):
+                raise ValueError("Atlas básico com quantidade de quadros incompatível.")
+            _png(basic.parent/spec["file"],spec)
     char_file=root/"agents/alex/production/manifest.json"
     if char_file.exists():
         manifest=json.loads(char_file.read_text(encoding="utf-8"))

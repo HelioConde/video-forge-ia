@@ -12,7 +12,7 @@
   const HEADINGS = ["east","south-east","south","south-west",
                     "west","north-west","north","north-east"];
   const SPEED = 112; // px/seg; a 30 FPS são aproximadamente 3,7 px por desenho.
-  const WALK_STRIDE = 14; // distância para avançar o frame da passada.
+  const WALK_CYCLE_DISTANCE = 56; // ciclo completo em pixels, seja 4 ou 8 frames.
   const TURN_RADIUS = 18; // curva curta entre mudanças de direção.
 
   function heading(dx,dy) {
@@ -111,7 +111,9 @@
         const last=route.points.at(-1),before=route.points.at(-2)||last;
         position.direction=heading(last.x-before.x,last.y-before.y);
       }
-      const walkFrame=position.moving?Math.floor(distance/WALK_STRIDE)%4:0;
+      const frameCount=window.VideoForgeAnimator?.frameCount?.("walk")===8?8:4;
+      const walkStride=WALK_CYCLE_DISTANCE/frameCount;
+      const walkFrame=position.moving?Math.floor(distance/walkStride)%frameCount:0;
       let motion=position.moving?"walk":"idle";
       let direction=position.direction;
       if(!position.moving&&meeting&&(id===meeting.a||id===meeting.b)){

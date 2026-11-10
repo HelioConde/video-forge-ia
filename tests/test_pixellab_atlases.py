@@ -36,7 +36,9 @@ class PublicAtlasTests(unittest.TestCase):
                 data = (ASSETS / details["file"]).read_bytes()
                 self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
                 dimensions = struct.unpack(">II", data[16:24])
-                self.assertEqual(dimensions, (352, 704))
+                frames = details.get("frames", manifest["frames"])
+                self.assertIn(frames, (4, 8) if motion == "walk" else (4,))
+                self.assertEqual(dimensions, (88 * frames, 704))
                 self.assertEqual((details["width"], details["height"]), dimensions)
                 self.assertEqual(data[25], 6)  # PNG RGBA
                 self.assertEqual(hashlib.sha256(data).hexdigest(), details["sha256"])
