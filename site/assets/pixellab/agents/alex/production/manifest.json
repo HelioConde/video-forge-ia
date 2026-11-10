@@ -1,0 +1,640 @@
+{
+  "schema": "videoforge/pixellab-production-atlas/v1",
+  "character": "alex",
+  "frameWidth": 88,
+  "frameHeight": 88,
+  "frames": 4,
+  "expectedMotionCount": 122,
+  "motions": {
+    "turn_to_person": {
+      "file": "turn_to_person.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a9b4fbf97bbf9a55aeb5e43a6f535cb35e10d949e5a9eb84f82cc31d5259f6b2",
+      "category": "conversa"
+    },
+    "start_conversation": {
+      "file": "start_conversation.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "01f4b39ccfb71e8d856cffe1431252f6a841f1ae5541fa000c4839fe0afa3dcc",
+      "category": "conversa"
+    },
+    "talk_casual": {
+      "file": "talk_casual.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "ba5c4bb6dfd9bacad718cad26df94cbb0cc58562533256de48c3283b96a99aaa",
+      "category": "conversa"
+    },
+    "talk_explain": {
+      "file": "talk_explain.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "94c96807ce5603384fd4f2cdea70c29f6bff29b68d4e9eb45dbc63c802643e1e",
+      "category": "conversa"
+    },
+    "talk_excited": {
+      "file": "talk_excited.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "2ca6cce00343a5742a6419bcd21e7ea1058040f9fdeb829a191014d62b613821",
+      "category": "conversa"
+    },
+    "talk_serious": {
+      "file": "talk_serious.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "8817d5424299935851775c61e75c108acf23ce535ac04fe1bf59d0b9a3869f5f",
+      "category": "conversa"
+    },
+    "talk_whisper": {
+      "file": "talk_whisper.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "142ac475dca9e57cdf6e28fa88966190302e96f1e11847e0bf5252f827ced2b4",
+      "category": "conversa"
+    },
+    "listen_idle": {
+      "file": "listen_idle.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "fe99b1086211e30e7f96c544d9e738db03c8643cb8224a830c8033d370e62508",
+      "category": "conversa"
+    },
+    "listen_focus": {
+      "file": "listen_focus.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "7f6c6c29b3c7f9ff38946aa891ddaec5fc624ded7589aa0c64d349edbfd3a341",
+      "category": "conversa"
+    },
+    "nod_yes": {
+      "file": "nod_yes.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "474657ea7ad1c6c81b4f1f8cfb13a65cb108442fe0227bcc651754dcbbe63ff0",
+      "category": "conversa"
+    },
+    "shake_head_no": {
+      "file": "shake_head_no.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "627b6b1cb5e8e584a520f9c65c463b2e03a0e6e851df345a530445f044d71bc9",
+      "category": "conversa"
+    },
+    "point_at_object": {
+      "file": "point_at_object.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "d6616b6e680feb708b33a4c82f042a96f08790aa8b8d35be076f117f17e331c1",
+      "category": "conversa"
+    },
+    "think_response": {
+      "file": "think_response.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "2e5a99fa4e81e694dd3e6045ef3cbda038d78d1357315013dd9db8dde801b217",
+      "category": "conversa"
+    },
+    "laugh_together": {
+      "file": "laugh_together.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "35e3e021d17c36255139b8fc994cc7880bff2c3af2bb91bd7099c8fcb7526d3d",
+      "category": "conversa"
+    },
+    "handshake": {
+      "file": "handshake.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "287d5a4f1d9ce4d14d3f2900205674b4026656fa8c8cbb90e589fef2dc4d9ad2",
+      "category": "conversa"
+    },
+    "high_five": {
+      "file": "high_five.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "6835737fcde0cfaa883c7c03fa31d3bb9ed46e4a2ec9a1ee5186488f06fd88ae",
+      "category": "conversa"
+    },
+    "ask_help": {
+      "file": "ask_help.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "09ea6d3c9333b70eb5f9eebcdadfd2c2c3994f35676218f82077f5d48acd356d",
+      "category": "conversa"
+    },
+    "presentation": {
+      "file": "presentation.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a06018fa20e036b85342b88fd24b76e71e7903b425da2f0e3ea47986484b2116",
+      "category": "conversa"
+    },
+    "team_meeting": {
+      "file": "team_meeting.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a20ccbfbdca5a79d0084d9d4b077fb594dcb56ca5c2d317305f3d475ba2c2336",
+      "category": "conversa"
+    },
+    "celebrate_team": {
+      "file": "celebrate_team.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "80763d70783155a0e49061b9c5bab2c92624291d07c43a5f5a39044fd5cb4bd9",
+      "category": "conversa"
+    },
+    "pull_chair": {
+      "file": "pull_chair.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8829bec12915b816dd98af4332521ed892c407623306532ad3e25f62f8e3ed16",
+      "category": "cadeira"
+    },
+    "sit_down": {
+      "file": "sit_down.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "e312fa1cfb54e87f569bf7cdea8d762824975d79d5c4b78f77aad66fbc506ed7",
+      "category": "cadeira"
+    },
+    "adjust_chair": {
+      "file": "adjust_chair.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "e7729217968c07a6c893d581d0b44037158d6843272d2bd161074fbcb89b4829",
+      "category": "cadeira"
+    },
+    "lean_forward": {
+      "file": "lean_forward.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "1ca93af0665fb23d49791c24671a26baacb0a599a28247bd905219332abab9ae",
+      "category": "cadeira"
+    },
+    "lean_back": {
+      "file": "lean_back.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a6367f65109a53ecee456aa0ebc315d2ab806a9f6a46f0806e37e8b8fef23a20",
+      "category": "cadeira"
+    },
+    "stand_up": {
+      "file": "stand_up.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "79dae6c59f5d3f038edc58a6528fb00570c70775f5ccbc791918baadf2f12122",
+      "category": "cadeira"
+    },
+    "push_chair_back": {
+      "file": "push_chair_back.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "6c344d4391362d39a7da3dd99f1ec5ea22eb48b89c3ab4bf6c291d1b1ac98fe3",
+      "category": "cadeira"
+    },
+    "pick_up_desk_item": {
+      "file": "pick_up_desk_item.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "bb40f1605e9626df6f1b6dfb58cac209bb58ada6e5f9f01f94ff8ad27ae6978f",
+      "category": "cadeira"
+    },
+    "put_down_desk_item": {
+      "file": "put_down_desk_item.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "3e208c71baecf41264ff8a2bd733455224a7b76f837e6f43e34326ad2cb92a04",
+      "category": "cadeira"
+    },
+    "mouse_move": {
+      "file": "mouse_move.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "b705eb3da12bdaafccd2d22da748acd1172814ee23556285d97fee04c9d9a902",
+      "category": "trabalho"
+    },
+    "mouse_click": {
+      "file": "mouse_click.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "d3bcfc0f60ddd67e2d36ae3f3f6572c40d9f290eb6856bd9bb5ee37cd504fca6",
+      "category": "trabalho"
+    },
+    "keyboard_type": {
+      "file": "keyboard_type.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "2e509008b4a74476003f840ba4b8aa2adc12fe290ebc9ac9eb3b8175e58f66cd",
+      "category": "trabalho"
+    },
+    "keyboard_shortcuts": {
+      "file": "keyboard_shortcuts.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "43b770e9f4d77897161cdd0396c97cf1ae601a226db85b36320fd5be6ab10346",
+      "category": "trabalho"
+    },
+    "read_document": {
+      "file": "read_document.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "2889e873da6c1eae00ec8b9ad13624e60744d12eaffb32ae560abbac300415f2",
+      "category": "trabalho"
+    },
+    "write_notes": {
+      "file": "write_notes.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "9dd2070448d7e182ba3c413f58ca93f4ea7e3aada9cae1206a3bddea611a90b2",
+      "category": "trabalho"
+    },
+    "draw_tablet": {
+      "file": "draw_tablet.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "67eaf5cd5c29ab454cc90c3601672b68a37eb8d472cc6eae7ae2bc3ee4c97d18",
+      "category": "trabalho"
+    },
+    "inspect_art": {
+      "file": "inspect_art.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "5ffb6482ec4f3cb2450cbe20d278c15a4dac477166f5fa06713128e4867d4e8e",
+      "category": "trabalho"
+    },
+    "edit_video": {
+      "file": "edit_video.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ceefcc5a1db38f85bbda7d569da1c9b4a54cb52bffed0ca44560da0f8b7b16a3",
+      "category": "trabalho"
+    },
+    "review_storyboard": {
+      "file": "review_storyboard.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a900c6e77f5626fa26a8404fd23a70bbf792d656083e195d98e5a8774f5292ac",
+      "category": "trabalho"
+    },
+    "put_on_headphones": {
+      "file": "put_on_headphones.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "0b42bce5c764e7e67a7c8314f293cd114615feddd9ad948cf53e7dbf508e1df6",
+      "category": "trabalho"
+    },
+    "take_off_headphones": {
+      "file": "take_off_headphones.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "939327e8714e1b581970099fdb850a162bd6e69424c963a76846a5d6fa95044b",
+      "category": "trabalho"
+    },
+    "adjust_microphone": {
+      "file": "adjust_microphone.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "9a3b2e24f8d5235dd585f9b4bf3cb9679c00e0df67f85a2ed77350f7cad2e330",
+      "category": "trabalho"
+    },
+    "sing_seated": {
+      "file": "sing_seated.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "87f919224e95988d1e5136ddb47b85edd0495b9e77ad5309449da97d9668e746",
+      "category": "trabalho"
+    },
+    "sing_standing": {
+      "file": "sing_standing.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "88bc6cb3fd10bbb9696fe648f53c5e81bf695f5b8449d17e2e45ba9c6c066d70",
+      "category": "trabalho"
+    },
+    "narrate": {
+      "file": "narrate.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "bd065d4b418e91ed85c4efe23c773d82ea385f811fda7ac591b1030c1de77414",
+      "category": "trabalho"
+    },
+    "listen_recording": {
+      "file": "listen_recording.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "aac5cc66dd6f9a89973069a9458580d0dc1405988bc9635afab61dbc7f4ede61",
+      "category": "trabalho"
+    },
+    "recording_finish": {
+      "file": "recording_finish.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "adfab085d1382f3d9d45115f2c7bf62ff5525058ec8524a7fa27a95f1734564f",
+      "category": "trabalho"
+    },
+    "point_at_storyboard": {
+      "file": "point_at_storyboard.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8558fa7bfd33590d9dbf2059b77db94bd6339fbbff3f2e85c55bbf806fddb88a",
+      "category": "trabalho"
+    },
+    "inspect_script": {
+      "file": "inspect_script.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8ff57e4eca4df54e741db400bb6e0d538b92b0bec95e9dd02a5b3cbad55e143b",
+      "category": "trabalho"
+    },
+    "draw_layers": {
+      "file": "draw_layers.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "2e7f20b87e0dc47c6ad8578ed5c9c2e3543208062ac3293a0399447e60aee2e6",
+      "category": "trabalho"
+    },
+    "animation_review": {
+      "file": "animation_review.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ffe681230c6cc6f8ca67ec43ba71d3a021da33efec04389272f0f180a7e61aa8",
+      "category": "trabalho"
+    },
+    "subtitle_edit": {
+      "file": "subtitle_edit.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "306f4db5bfaa0f7354d609b97b05e79e12f412ba53eab24ee3cfc8babed4fa82",
+      "category": "trabalho"
+    },
+    "sound_mix": {
+      "file": "sound_mix.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "6d9ea064c0ba3e53903b7d3b39a1f4028eec510daae37520ce98fbbca8582fa0",
+      "category": "trabalho"
+    },
+    "qa_inspection": {
+      "file": "qa_inspection.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "f57858d4dbeb3fe62137acfe45982854b8c87193b37c121087ab6d11ffc6ff94",
+      "category": "trabalho"
+    }
+  },
+  "availableMotionCount": 54,
+  "pendingMotionCount": 68,
+  "pendingMotions": [
+    "grab_mug",
+    "place_mug_machine",
+    "make_coffee",
+    "pick_up_coffee",
+    "carry_mug",
+    "sip_coffee",
+    "coffee_chat",
+    "sit_with_coffee",
+    "eat_snack",
+    "wash_mug",
+    "return_mug",
+    "grab_cup",
+    "fill_water",
+    "drink_water",
+    "refill_water",
+    "discard_cup",
+    "sit_on_sofa",
+    "grab_controller",
+    "play_gamepad",
+    "game_focus",
+    "game_victory",
+    "game_defeat",
+    "watch_friend_play",
+    "play_arcade",
+    "play_pool",
+    "play_cards",
+    "play_boardgame",
+    "leave_controller",
+    "stretch_arms",
+    "stretch_back",
+    "yawn",
+    "rub_eyes",
+    "check_phone",
+    "phone_call",
+    "sit_relaxed",
+    "rest_on_sofa",
+    "listen_music",
+    "dance",
+    "read_book",
+    "look_window",
+    "take_photo",
+    "open_restroom_door",
+    "wash_hands",
+    "dry_hands",
+    "use_mirror",
+    "close_restroom_door",
+    "smile",
+    "laugh",
+    "surprised",
+    "confused",
+    "thinking",
+    "frustrated",
+    "tired",
+    "happy",
+    "excited",
+    "celebrate",
+    "applause",
+    "agree",
+    "disagree",
+    "ask_help_gesture",
+    "open_door",
+    "switch_light",
+    "turn_on_pc",
+    "open_drawer",
+    "take_book",
+    "use_printer",
+    "throw_trash",
+    "remote_control"
+  ],
+  "availableDirectionCount": 70,
+  "status": "partial"
+}
