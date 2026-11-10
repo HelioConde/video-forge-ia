@@ -36,9 +36,11 @@
       this.lastFrame=0;
       const loop=(ts)=>{
         const animating=this.agentSpritesReady&&scene.getArtMode()==='pixellab';
-        const moving=(this.agents.some(active)||animating)&&!this.reduceMotion;
-        const fps=moving?10:3;
-        if(ts-this.lastFrame>=1000/fps){this.render(ts);this.lastFrame=ts;}
+        const walking=animating&&this.routines.hasMoving(ts);
+        // Com rotas ativas, desenhar a 30 FPS; em repouso gastar menos recursos.
+        const fps=this.reduceMotion?3:walking?30:
+                  (this.agents.some(active)||animating)?12:3;
+        if(ts-this.lastFrame>=1000/fps-1){this.render(ts);this.lastFrame=ts;}
         this.frame=requestAnimationFrame(loop);
       };
       this.frame=requestAnimationFrame(loop);
