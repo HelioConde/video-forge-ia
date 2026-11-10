@@ -28,7 +28,7 @@ class SiteSpritesTests(unittest.TestCase):
         for name,shape in NAMES.items():
             with self.subTest(sprite=name):
                 data=(ASSETS/name).read_bytes()
-                self.assertEqual(data[:8],b"\\x89PNG\\r\\n\\x1a\\n")
+                self.assertEqual(data[:8],bytes([137,80,78,71,13,10,26,10]))
                 self.assertEqual(struct.unpack(">II",data[16:24]),shape)
                 self.assertEqual(data[25],6) # RGBA, props transparentes
                 self.assertEqual(manifest["files"][name]["sha256"],hashlib.sha256(data).hexdigest())
