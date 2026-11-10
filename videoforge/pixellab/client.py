@@ -159,3 +159,48 @@ class PixelLabClient:
     def download(self, character_id: str, *, spritesheet: bool):
         kind = "spritesheet" if spritesheet else "zip"
         return self._request("GET", f"/characters/{character_id}/{kind}", binary=True)
+
+
+    def download_object_spritesheet(self, object_id: str) -> bytes:
+        """GET autenticado do ZIP de objeto; remove Authorization em redirects.
+
+        /objects/{id}/spritesheet precisa Bearer. Redirecionamentos para o
+        storage são seguidos SEM token. Nunca gera/edita objetos.
+        """
+        from urllib.request import build_opener, HTTPRedirectHandler
+        from urllib.parse import urlparse
+        from uuid import UUID
+
+        try:
+            oid = str(UUID(object_id))
+        except (ValueError, TypeError):
+            raise PixelLabError("ID de objeto inválido.") from None
+
+        class StorageRedirect(HTTPRedirectHandler):
+            def redirect_request(self, req, fp, code, msg, headers, newurl):
+                target = urlparse(newurl)
+                host = (target.hostname or "").lower()
+                allowed = ("pixellab.ai", "cloudfront.net", "amazonaws.com",
+                           "googleapis.com", "r2.dev")
+                if target.scheme != "https" or not any(
+                    host == domain or host.endswith("." + domain) for domain in allowed
+                ):
+                    raise PixelLabError("Redirecionamento de exportação não autorizado.")
+                # Nunca transportar token ao domínio de armazenamento.
+                return Request(newurl, method="GET", headers={"Accept": "application/zip"})
+
+        url = API_ROOT + f"/objects/{oid}/spritesheet"
+        req = Request(url, method="GET", headers={
+            "Authorization": "Bearer " + self.token,
+            "Accept": "application/zip",
+        })
+        try:
+            with build_opener(StorageRedirect).open(req, timeout=self.timeout) as response:
+                payload = response.read(40 * 1024 * 1024 + 1)
+            if len(payload) > 40 * 1024 * 1024 or payload[:4] != b"PK\x03\x04":
+                raise PixelLabError("Exportação ZIP de objeto inválida ou muito grande.")
+            return payload
+        except HTTPError as exc:
+            raise PixelLabError(f"Exportação de objeto indisponível (HTTP {exc.code}).") from None
+        except (TimeoutError, URLError, OSError):
+            raise PixelLabError("Falha ao exportar objeto; nenhuma geração foi iniciada.") from None
