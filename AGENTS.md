@@ -89,3 +89,7 @@ O workflow `.github/workflows/pixellab-production-import.yml` é **somente leitu
 ## Perfis visuais de agentes corrigidos
 
 Não usar sprites que não estejam no manifesto de produção. Perfis em `site/agent-behavior.js` escolhem movimentos de cada cargo; o modo 🎬 é demonstração opt-in para IAs não conectadas, e os passeios/conversas não atualizam o backend. As oito posições de cadeiras em `site/office-art.js` são validadas por `tests/test_office_layout.js`; ao alterar o cenário, manter espaço para os sprites de 72 px e placas sem sobreposições. Consultar `docs/CORRECOES_AGENTS.md`.
+
+## Caminhada de agentes em pixel art
+
+Velocidade, rotas e fase dos passos devem permanecer em `site/agent-routines.js`; FPS e viewport em `site/office-renderer.js`; desenho de frames em `site/office-art.js`. Não converter animações decorativas em estados reais de produção. Preservar `prefers-reduced-motion`, testes Node de caminhada e revisão visual desktop/mobile. Não gerar novos sprites pagos para corrigir apenas tempo/interpolação no Canvas.
