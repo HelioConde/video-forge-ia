@@ -1,0 +1,16 @@
+{
+  "id": "alex",
+  "name": "Alex — VideoForge AI",
+  "description": "A friendly young adult male creative video producer, short slim proportions, warm light skin, expressive brown eyes, thick wavy dark brown hair, mustard yellow hoodie, cream white t-shirt with a small black movie clapperboard and orange play symbol, charcoal cargo trousers with side pockets, white sneakers with gray and orange accents, black over-ear headphones around his neck with orange play symbols, black smartwatch. Consistent 2D RPG pixel art sprite, low top-down view, clean outlines, detailed but readable at 64 pixels, full body, central composition. Transparent background, same clothing and facial features in all eight directions.",
+  "size": 64,
+  "view": "low top-down",
+  "reference_file": null,
+  "motions": {
+    "idle": "Subtle idle breathing, relaxed posture, blinking naturally, seamless four-frame loop, keep clothing, proportions and colours unchanged.",
+    "walk": "Walking in place at a comfortable pace, alternating legs and arms, seamless four-frame loop, preserve clothing and silhouette.",
+    "type": "Standing beside a desk, typing rhythmically with both hands on a keyboard, slight upper body movement, seamless loop.",
+    "sit": "Lowering into a sitting pose, bending knees and hips, clear controlled movement, preserve face and outfit.",
+    "talk": "Gentle conversational gestures with one hand, subtle head motion, small mouth movement, seamless loop.",
+    "wave": "Friendly short wave with one raised hand, small arm movement, stable body, seamless loop."
+  }
+}
