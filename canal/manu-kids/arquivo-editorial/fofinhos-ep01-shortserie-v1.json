@@ -1,0 +1,411 @@
+{
+  "schema": "mini-mundo/emanuelly-serie-shorts/v1",
+  "series": "Fofinhos",
+  "origin_story": "docs/KIDS-EMANUELLY-SERIE-BIBLIA-V1.md",
+  "arc": "EP 01 — O Ovo Azul e o Nascimento de Fofinho",
+  "season": 1,
+  "episode": 1,
+  "parts_count": 4,
+  "language": "pt-BR",
+  "audience": "crianças de aproximadamente 4 a 7 anos e responsáveis",
+  "channel": "kids",
+  "channel_name": "MiniMundo Curioso",
+  "channel_name_status": "provisório",
+  "made_for_kids": true,
+  "max_video_duration_seconds": 60,
+  "max_audio_duration_seconds": 59.2,
+  "target_duration_seconds": {
+    "min": 45,
+    "max": 55
+  },
+  "estimated_duration_status": "requer medicao real de TTS para confirmar",
+  "publish_enabled": false,
+  "upload_authorized": false,
+  "narration_style": "acolhedora, pausada, perguntas curtas com tempo de resposta, ritmo gentil",
+  "series_continuity": [
+    "Os mesmos personagens e cenários mantêm aparência entre partes",
+    "Cada parte tem começo, mini-descoberta e gancho leve no final",
+    "A parte seguinte começa retomando a pergunta anterior sem longas recapitulações",
+    "Sem choque, ameaça, susto ou suspense assustador",
+    "Emanuelly encontra e cuida de Fofinho; Fofinho nasce de um ovo de dragão e tem poder de água",
+    "Irmãs gêmeas Arco-Íris e Rosa chegam um ano depois; não revelar na origem de Fofinho"
+  ],
+  "production_note": "Parte 1: rascunho antigo de 9 cenas OBSOLETO; usar narracao aprovada em conteudos/fofinhos-ep01-parte01-narracao-aprovada-v1.json. Parte 2: roteiro editorial v2 com 10 trechos de voz e planos visuais SEM LIMITE FIXO, definidos em conteudos/fofinhos-ep01-parte02-direcao-v2.json. Partes 3 e 4 preservadas; NENHUM upload automatico.",
+  "parts": [
+    {
+      "id": "kids-emanuelly-ep01-p01-ovo-azul",
+      "part": 1,
+      "heading": "EP 01 — Parte 01/04",
+      "title": "Emanuelly encontrou um OVO AZUL! 🥚💙 #Shorts",
+      "language": "pt-BR",
+      "status": "rascunho_obsoleto_nao_renderizar",
+      "goal": "Apresentar Emanuelly, o ovo, o cuidado e o primeiro som",
+      "continuity_from_previous": null,
+      "continuity_to_next": "ovo_azul_bate_toc_toc",
+      "mini_payoff": "Emanuelly encontra um lar seguro para o ovo azul",
+      "hook": "Você já viu um ovo azul brilhando no jardim?",
+      "closing_teaser": "Emanuelly se aproximou. Quem será que estava lá dentro?",
+      "segments": [
+        {
+          "index": 1,
+          "spoken_text": "Você já viu um ovo azul brilhando no jardim?",
+          "pause_after_s": 1.8,
+          "visual_cue": "Close no ovo azul entre as flores, suavemente iluminado",
+          "emotion": "curiosidade"
+        },
+        {
+          "index": 2,
+          "spoken_text": "Emanuelly viu um! Ela era uma menina muito carinhosa.",
+          "pause_after_s": 0.5,
+          "visual_cue": "Emanuelly se aproxima do jardim sorrindo",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 3,
+          "spoken_text": "No mundo dela, os bichinhos de pelúcia podiam ganhar vida!",
+          "pause_after_s": 0.6,
+          "visual_cue": "Emanuelly sozinha em seu mundo acolhedor; pequenos brilhos de magia ao redor de brinquedos guardados FORA DO QUADRO. Nenhuma pelúcia ou outro personagem visível.",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 4,
+          "spoken_text": "Perto das flores, havia um ovo azul com desenhos de gotinhas.",
+          "pause_after_s": 0.8,
+          "visual_cue": "Detalhe do ovo azul com desenhos de água",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 5,
+          "spoken_text": "— Que lindo! — ela disse, pegando o ovo com cuidado.",
+          "pause_after_s": 0.5,
+          "visual_cue": "Emanuelly segura o ovo com ambas as mãos",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 6,
+          "spoken_text": "Em casa, preparou uma mantinha e uma almofada bem fofinha.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Montagem de um ninho confortável",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 7,
+          "spoken_text": "— Vou cuidar de você! — prometeu.",
+          "pause_after_s": 0.8,
+          "visual_cue": "Emanuelly sorri para o ovo",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 8,
+          "spoken_text": "Quando a lua apareceu, o ovo balançou... toc, toc!",
+          "pause_after_s": 0.9,
+          "visual_cue": "Somente Emanuelly e o MESMO ovo azul FECHADO na almofada, dentro do quarto à noite. Ovo balança levemente, sem nenhum bichinho de pelúcia ou personagem ao lado.",
+          "emotion": "surpresa_afetuosa"
+        },
+        {
+          "index": 9,
+          "spoken_text": "Emanuelly se aproximou. Quem será que estava lá dentro?",
+          "pause_after_s": 1.8,
+          "visual_cue": "Emanuelly sozinha aproxima-se do ovo azul ainda INTACTO e FECHADO, sem revelar quem está dentro e sem personagens extras.",
+          "emotion": "curiosidade"
+        }
+      ],
+      "narration": "Você já viu um ovo azul brilhando no jardim? Emanuelly viu um! Ela era uma menina muito carinhosa. No mundo dela, os bichinhos de pelúcia podiam ganhar vida! Perto das flores, havia um ovo azul com desenhos de gotinhas. — Que lindo! — ela disse, pegando o ovo com cuidado. Em casa, preparou uma mantinha e uma almofada bem fofinha. — Vou cuidar de você! — prometeu. Quando a lua apareceu, o ovo balançou... toc, toc! Emanuelly se aproximou. Quem será que estava lá dentro?",
+      "voice": "pt-BR-FranciscaNeural",
+      "estimated_duration_status": "nao_cronometrado_por_tts",
+      "approved_replacement": "conteudos/fofinhos-ep01-parte01-narracao-aprovada-v1.json"
+    },
+    {
+      "id": "kids-emanuelly-ep01-p02-nascimento",
+      "part": 2,
+      "heading": "EP 01 — Parte 02/04",
+      "title": "O que NASCEU do ovo azul? 🐱💙 #Shorts",
+      "language": "pt-BR",
+      "status": "roteiro_editorial_v2_para_revisao",
+      "goal": "Mostrar o nascimento do mesmo Fofinho azul com movimento vivo, revelar a primeira gotinha e dar seu nome sem quebrar o canone",
+      "continuity_from_previous": "ovo_azul_bate_toc_toc",
+      "continuity_to_next": "primeira_gota_flutua",
+      "mini_payoff": "Fofinho nasce, demonstra o primeiro sinal de seu poder de água e recebe seu nome",
+      "hook": "Toc, toc! Lembra do ovo azul de Emanuelly?",
+      "closing_teaser": "Fofinho bateu as patinhas... e a gotinha dançou no ar! Que magia será essa?",
+      "segments": [
+        {
+          "index": 1,
+          "spoken_text": "Toc, toc! Lembra do ovo azul de Emanuelly?",
+          "pause_after_s": 0.8,
+          "visual_cue": "Continuacao literal do piloto: mesmo ovo, a mesma caminha, janela com luar; duas batidas claras; Emanuelly reage ao som",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 2,
+          "spoken_text": "Naquela noite, ele começou a balançar devagar.",
+          "pause_after_s": 0.6,
+          "visual_cue": "Ovo oscila com fisica suave; luz percorre a manta; ambiente noturno vivo, reflexos discretos",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 3,
+          "spoken_text": "Uma rachadurinha apareceu... e depois outra!",
+          "pause_after_s": 0.8,
+          "visual_cue": "Rachaduras leves aparecem com close progressivo e reflexos de luz; sem assustar",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 4,
+          "spoken_text": "Emanuelly chegou pertinho: — Estou aqui com você!",
+          "pause_after_s": 0.7,
+          "visual_cue": "Emanuelly se aproxima, inclina a cabeca e tranquiliza o ovo; olhar fixo na casca",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 5,
+          "spoken_text": "Crac! A casquinha se abriu.",
+          "pause_after_s": 0.6,
+          "visual_cue": "O mesmo ovo racha e abre sem mudar desenho; um clarão macio revela o interior vazio",
+          "emotion": "alegria"
+        },
+        {
+          "index": 6,
+          "spoken_text": "Lá de dentro saiu um gatinho de pelúcia azul, pequeno e redondinho!",
+          "pause_after_s": 0.8,
+          "visual_cue": "Nascimento em multiplos planos: Fofinho azul surge da mesma casca, rostinho e patinhas; sem outros personagens",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 7,
+          "spoken_text": "Ele olhou para Emanuelly e disse: — Miau!",
+          "pause_after_s": 0.7,
+          "visual_cue": "Primeiro encontro de olhares e um miau suave; pose da boquinha e reacao de Emanuelly",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 8,
+          "spoken_text": "De repente, uma gotinha azul começou a flutuar!",
+          "pause_after_s": 0.7,
+          "visual_cue": "Primeira gotinha flutua junto a pata ANTES de Emanuelly nomear o amigo, conforme a historia-base original",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 9,
+          "spoken_text": "— Você é tão fofinho! Seu nome será Fofinho! — disse Emanuelly.",
+          "pause_after_s": 0.6,
+          "visual_cue": "Emanuelly sorri, da o nome Fofinho e o gatinho reage com ternura; gotinha permanece na cena",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 10,
+          "spoken_text": "Fofinho bateu as patinhas... e a gotinha dançou no ar! Que magia será essa?",
+          "pause_after_s": 1.8,
+          "visual_cue": "Patinhas se mexem, gotinha danca, luz azul reflete; encerrar com curiosidade gentil sobre o poder da agua",
+          "emotion": "curiosidade"
+        }
+      ],
+      "narration": "Toc, toc! Lembra do ovo azul de Emanuelly? Naquela noite, ele começou a balançar devagar. Uma rachadurinha apareceu... e depois outra! Emanuelly chegou pertinho: — Estou aqui com você! Crac! A casquinha se abriu. Lá de dentro saiu um gatinho de pelúcia azul, pequeno e redondinho! Ele olhou para Emanuelly e disse: — Miau! De repente, uma gotinha azul começou a flutuar! — Você é tão fofinho! Seu nome será Fofinho! — disse Emanuelly. Fofinho bateu as patinhas... e a gotinha dançou no ar! Que magia será essa?",
+      "voice": "pt-BR-FranciscaNeural",
+      "estimated_duration_status": "nao_cronometrado_por_tts",
+      "visual_storyboard": "conteudos/fofinhos-ep01-parte02-direcao-v2.json",
+      "visual_scene_policy": "SEM LIMITE FIXO: um trecho narrado aceita multiplos planos visuais, gerados da direcao v2. Nenhum limite 1:1 com as 10 falas.",
+      "motion_quality_policy": "Cada plano deve ter acao verificavel; ovo, gatinho, agua, brilho e camera animados separadamente. Nao apresentar o movimento de camera como se fosse rigging articulado.",
+      "continuity_note": "A primeira gotinha surge antes do nome Fofinho, seguindo a Biblia da serie. Permanecem o mesmo quarto, ovo, caminha e personagens.",
+      "production_approval": "pendente_qa_visual_e_escuta; nao publicar automaticamente"
+    },
+    {
+      "id": "kids-emanuelly-ep01-p03-poder-agua",
+      "part": 3,
+      "heading": "EP 01 — Parte 03/04",
+      "title": "Fofinho tem um PODER MÁGICO! 💧🐱 #Shorts",
+      "language": "pt-BR",
+      "status": "roteiro_editorial_para_testar",
+      "goal": "Revelar poderes de água de Fofinho e a alegria que eles trazem",
+      "continuity_from_previous": "primeira_gota_flutua",
+      "continuity_to_next": "surpresa_do_carinho",
+      "mini_payoff": "Fofinho descobre e mostra seu poder de água",
+      "hook": "Uma gotinha flutuando? Foi Fofinho quem fez aquilo!",
+      "closing_teaser": "Mas Fofinho tinha outra surpresa. Como ele ajudaria sua amiga num dia triste?",
+      "segments": [
+        {
+          "index": 1,
+          "spoken_text": "Uma gotinha flutuando? Foi Fofinho quem fez aquilo!",
+          "pause_after_s": 0.7,
+          "visual_cue": "Mesma gota da Parte 2 sobre a pata de Fofinho",
+          "emotion": "descoberta"
+        },
+        {
+          "index": 2,
+          "spoken_text": "Ele olhou para cima e mexeu as patinhas macias.",
+          "pause_after_s": 0.6,
+          "visual_cue": "Gatinho observa a água e movimenta as patinhas",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 3,
+          "spoken_text": "A gotinha virou duas... depois três!",
+          "pause_after_s": 0.8,
+          "visual_cue": "Três gotas surgem uma por vez, sem flashes",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 4,
+          "spoken_text": "Elas dançavam devagar no ar, como pedacinhos do céu.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Gotas fazem um círculo suave",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 5,
+          "spoken_text": "— Uau! Você consegue brincar com a água! — disse Emanuelly.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Emanuelly sorri e acompanha a dança",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 6,
+          "spoken_text": "Fofinho criou uma bolhinha que subiu, subiu... plof!",
+          "pause_after_s": 0.8,
+          "visual_cue": "Bolha sobe e estoura delicadamente",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 7,
+          "spoken_text": "Um chuvisquinho fez Emanuelly dar uma risadinha.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Pouca água cai como confete de gotinhas",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 8,
+          "spoken_text": "Daquele dia em diante, os dois brincavam juntos com carinho.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Momentos curtos dos dois brincando",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 9,
+          "spoken_text": "Mas Fofinho tinha outra surpresa. Como ele ajudaria sua amiga num dia triste?",
+          "pause_after_s": 1.8,
+          "visual_cue": "Fofinho encosta a pata em Emanuelly; tom afetuoso",
+          "emotion": "curiosidade"
+        }
+      ],
+      "narration": "Uma gotinha flutuando? Foi Fofinho quem fez aquilo! Ele olhou para cima e mexeu as patinhas macias. A gotinha virou duas... depois três! Elas dançavam devagar no ar, como pedacinhos do céu. — Uau! Você consegue brincar com a água! — disse Emanuelly. Fofinho criou uma bolhinha que subiu, subiu... plof! Um chuvisquinho fez Emanuelly dar uma risadinha. Daquele dia em diante, os dois brincavam juntos com carinho. Mas Fofinho tinha outra surpresa. Como ele ajudaria sua amiga num dia triste?",
+      "voice": "pt-BR-FranciscaNeural",
+      "estimated_duration_status": "nao_cronometrado_por_tts"
+    },
+    {
+      "id": "kids-emanuelly-ep01-p04-abraco-magico",
+      "part": 4,
+      "heading": "EP 01 — Parte 04/04",
+      "title": "O abraço MÁGICO de Fofinho! 💙🧸 #Shorts",
+      "language": "pt-BR",
+      "status": "roteiro_editorial_para_testar",
+      "goal": "Concluir a origem de Fofinho e abrir possibilidade de futuras amizades",
+      "continuity_from_previous": "surpresa_do_carinho",
+      "continuity_to_next": "novos_ovos_no_futuro",
+      "mini_payoff": "Emanuelly se sente acolhida e os dois firmam a amizade",
+      "hook": "Quando Emanuelly estava tristinha, sabe o que Fofinho fazia?",
+      "closing_teaser": "Um dia, outros ovos especiais também apareceriam... Que novos amigos a magia traria?",
+      "segments": [
+        {
+          "index": 1,
+          "spoken_text": "Quando Emanuelly estava tristinha, sabe o que Fofinho fazia?",
+          "pause_after_s": 1.8,
+          "visual_cue": "Emanuelly sentada, Fofinho se aproxima mansinho",
+          "emotion": "acolhimento"
+        },
+        {
+          "index": 2,
+          "spoken_text": "O gatinho azul sentava pertinho e encostava o focinho na mão dela.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Fofinho oferece companhia sem falar",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 3,
+          "spoken_text": "Depois, fazia uma gotinha pousar no nariz dela... plim!",
+          "pause_after_s": 0.9,
+          "visual_cue": "Gota leve toca a ponta do nariz",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 4,
+          "spoken_text": "Emanuelly sorria, e Fofinho ronronava, todo feliz.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Os dois sorriem com movimento de expressão",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 5,
+          "spoken_text": "À noite, ela abraçou seu amiguinho de pelúcia.",
+          "pause_after_s": 0.6,
+          "visual_cue": "Abraço gentil, sem apertos bruscos",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 6,
+          "spoken_text": "— Obrigada por estar comigo, Fofinho! Você é muito especial!",
+          "pause_after_s": 0.8,
+          "visual_cue": "Emanuelly agradece olhando nos olhos do amigo",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 7,
+          "spoken_text": "Ele se aconchegou na almofada, pronto para sonhar.",
+          "pause_after_s": 0.8,
+          "visual_cue": "Luz noturna suave; Fofinho se acomoda",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 8,
+          "spoken_text": "Foi assim que começou uma amizade mágica e cheia de amor.",
+          "pause_after_s": 0.7,
+          "visual_cue": "Montagem delicada das boas lembranças",
+          "emotion": "calmo_acolhedor"
+        },
+        {
+          "index": 9,
+          "spoken_text": "Um dia, outros ovos especiais também apareceriam... Que novos amigos a magia traria?",
+          "pause_after_s": 1.8,
+          "visual_cue": "Ao longe, silhuetas delicadas de ovos brilhantes, sem decidir quantidade ou design",
+          "emotion": "curiosidade"
+        }
+      ],
+      "narration": "Quando Emanuelly estava tristinha, sabe o que Fofinho fazia? O gatinho azul sentava pertinho e encostava o focinho na mão dela. Depois, fazia uma gotinha pousar no nariz dela... plim! Emanuelly sorria, e Fofinho ronronava, todo feliz. À noite, ela abraçou seu amiguinho de pelúcia. — Obrigada por estar comigo, Fofinho! Você é muito especial! Ele se aconchegou na almofada, pronto para sonhar. Foi assim que começou uma amizade mágica e cheia de amor. Um dia, outros ovos especiais também apareceriam... Que novos amigos a magia traria?",
+      "voice": "pt-BR-FranciscaNeural",
+      "estimated_duration_status": "nao_cronometrado_por_tts"
+    }
+  ],
+  "visual_continuity_policy": {
+    "schema": "emanuelly/character-continuity/v2",
+    "image_model": "gpt-image-2",
+    "full_cast_sheet_usable_as_scene_reference": false,
+    "scene_reference_stages": {
+      "before_birth": "emanuelly-solo",
+      "after_birth": "emanuelly-fofinho"
+    },
+    "first_appearance_rules": {
+      "Fofinho": "EP 01 Part 02 Beat 06 — após casca abrir",
+      "Fofinha Arco-Íris": "EP futuros, um ano depois de Fofinho",
+      "Fofinha Rosa": "EP futuros, gêmea da Arco-Íris",
+      "Raposo": "somente quando apresentado em episódio futuro",
+      "Porco-espinho": "somente quando apresentado em episódio futuro"
+    },
+    "never_before_birth": [
+      "Fofinho",
+      "Fofinha Arco-Íris",
+      "Fofinha Rosa",
+      "Raposo",
+      "Porco-espinho"
+    ],
+    "ep01_part1": {
+      "allowed_visible_characters": [
+        "Emanuelly"
+      ],
+      "allowed_object": "O único ovo azul fechado e intacto",
+      "forbidden": "Não mostrar nenhum pelúcia, gato, onça, porco-espinho, reflexo de personagem ou silhueta de personagens",
+      "frames_03_08": "Emanuelly sozinha. Quadro 03: sugestão abstrata de magia sem pelúcias. Quadro 08: apenas Manu, ovo e quarto noturno."
+    },
+    "qa_note": "As regras técnicas não são reconhecimento visual garantido. Revisar os MP4 completos antes de publicar."
+  },
+  "approved_part1_source": "conteudos/fofinhos-ep01-parte01-narracao-aprovada-v1.json",
+  "part1_production_status": "obsoleto_aguardando_reedicao_15_cenas"
+}

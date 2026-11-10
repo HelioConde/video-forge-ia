@@ -1,0 +1,198 @@
+{
+  "schema": "autoeditorvideo/alchemy-editorial-niches-pilot/v1",
+  "created_at": "2026-11-09",
+  "channel": "alchemy",
+  "channel_id": "UCCTYFE5Cmz2aYZ37cJQ-wcg",
+  "status": "editorial_queue_only_not_reserved_not_generated",
+  "purpose": "Pilotar três nichos com demanda observada e imagens ilustrativas IA, sem alegar previsões de alcance",
+  "selected_niches": [
+    {
+      "id": "historias-reais",
+      "name": "Histórias reais extraordinárias",
+      "weight": 1,
+      "why": "Narrativa de suspense, reviravolta e personagem central; boa adequação a ilustrações cinematográficas",
+      "fact_check": "Confirmar nomes, datas e fontes históricas antes de roteirizar"
+    },
+    {
+      "id": "engenharia-ciencia",
+      "name": "Engenharia e ciência surpreendente",
+      "weight": 1,
+      "why": "Explicações visuais com cortes e comparações, sem filmagens reais",
+      "fact_check": "Checar grandezas e mecanismos físicos"
+    },
+    {
+      "id": "natureza-extrema",
+      "name": "Animais e natureza extrema",
+      "weight": 1,
+      "why": "Cenas visualmente distintas e curiosidade sobre adaptação e sobrevivência",
+      "fact_check": "Checar espécie, habitat e alegações científicas"
+    }
+  ],
+  "pilot_episodes": [
+    {
+      "topic_id": "alchemy-hist-01",
+      "niche": "historias-reais",
+      "title": "A Mulher Que Sobreviveu a Uma Queda de Mais de 10 Mil Metros",
+      "subject": "Vesna Vulović",
+      "hook": "Como alguém sobrevive a uma queda tão extrema?",
+      "visuals": [
+        "avião comercial antigo ilustrativo",
+        "céu e nuvens",
+        "mapa estilizado do trajeto",
+        "resgate ilustrativo sem fingir registro real"
+      ],
+      "target_seconds": [
+        35,
+        45
+      ],
+      "validation": "Conferir altitude e contexto em fontes confiáveis; não representar especulações como fatos"
+    },
+    {
+      "topic_id": "alchemy-hist-02",
+      "niche": "historias-reais",
+      "title": "A Cidade Que Ficou Enterrada por Séculos",
+      "subject": "Pompeia",
+      "hook": "Uma cidade inteira desapareceu sob as cinzas. Como foi redescoberta?",
+      "visuals": [
+        "cidade romana reconstruída",
+        "Vesúvio ao fundo",
+        "cinzas e ruas desertas",
+        "escavação arqueológica ilustrativa"
+      ],
+      "target_seconds": [
+        35,
+        45
+      ],
+      "validation": "Revisar cronologia da erupção e redescoberta"
+    },
+    {
+      "topic_id": "alchemy-hist-03",
+      "niche": "historias-reais",
+      "title": "O Navio Que Ficou Preso no Gelo por Meses",
+      "subject": "Endurance de Shackleton",
+      "hook": "O gelo prendeu o navio. Como a tripulação conseguiu sobreviver?",
+      "visuals": [
+        "navio de madeira no gelo",
+        "paisagem polar",
+        "acampamento ilustrativo",
+        "rota de sobrevivência em mapa"
+      ],
+      "target_seconds": [
+        35,
+        45
+      ],
+      "validation": "Conferir expedição, datas e desfecho"
+    },
+    {
+      "topic_id": "alchemy-engen-01",
+      "niche": "engenharia-ciencia",
+      "title": "Por Que um Navio Gigante Não Afunda?",
+      "hook": "Ele pesa milhares de toneladas. O que impede que afunde?",
+      "visuals": [
+        "cargueiro no oceano",
+        "corte transversal ilustrativo",
+        "água deslocada",
+        "comparação entre casco e bloco sólido"
+      ],
+      "target_seconds": [
+        25,
+        40
+      ],
+      "validation": "Explicar empuxo e densidade média corretamente"
+    },
+    {
+      "topic_id": "alchemy-engen-02",
+      "niche": "engenharia-ciencia",
+      "title": "Como Uma Barragem Gigante Aguenta Tanta Água?",
+      "hook": "Milhões de toneladas pressionam essa parede. Por que ela resiste?",
+      "visuals": [
+        "barragem e reservatório",
+        "corte esquemático",
+        "setas de pressão ilustrativas",
+        "base larga e fundações"
+      ],
+      "target_seconds": [
+        25,
+        40
+      ],
+      "validation": "Distinguir tipos de barragem e não universalizar a geometria"
+    },
+    {
+      "topic_id": "alchemy-engen-03",
+      "niche": "engenharia-ciencia",
+      "title": "Como um Submarino Afunda e Volta à Superfície?",
+      "hook": "Como uma máquina pesada escolhe quando afundar?",
+      "visuals": [
+        "submarino no mar",
+        "tanques de lastro em corte",
+        "entrada e saída de água",
+        "subida ilustrativa"
+      ],
+      "target_seconds": [
+        25,
+        40
+      ],
+      "validation": "Checar funcionamento dos tanques de lastro"
+    },
+    {
+      "topic_id": "alchemy-natureza-01",
+      "niche": "natureza-extrema",
+      "title": "O Peixe Que Produz Sua Própria Luz no Fundo do Mar",
+      "hook": "No escuro absoluto, esse peixe tem sua própria luz. Como?",
+      "visuals": [
+        "peixe-pescador abissal",
+        "oceano profundo",
+        "órgão luminoso em detalhe",
+        "silhuetas marinhas"
+      ],
+      "target_seconds": [
+        25,
+        40
+      ],
+      "validation": "Distinguir bioluminescência e simbiose; não misturar espécies"
+    },
+    {
+      "topic_id": "alchemy-natureza-02",
+      "niche": "natureza-extrema",
+      "title": "Como os Tardígrados Sobrevivem a Condições Extremas?",
+      "hook": "Esse animal minúsculo aguenta condições que destruiriam muitos outros.",
+      "visuals": [
+        "tardígrado macro ilustrado",
+        "gota de água e musgo",
+        "animação esquemática da criptobiose",
+        "escala microscópica"
+      ],
+      "target_seconds": [
+        25,
+        40
+      ],
+      "validation": "Evitar alegar invulnerabilidade; explicar condições e limites"
+    },
+    {
+      "topic_id": "alchemy-natureza-03",
+      "niche": "natureza-extrema",
+      "title": "Por Que o Polvo Consegue Mudar de Cor Tão Rápido?",
+      "hook": "Em segundos, o polvo parece desaparecer. Como ele faz isso?",
+      "visuals": [
+        "polvo em recife",
+        "cromatóforos em esquema",
+        "mudança de padrão de pele",
+        "camuflagem em rochas"
+      ],
+      "target_seconds": [
+        25,
+        40
+      ],
+      "validation": "Revisar papel de cromatóforos e controle neural"
+    }
+  ],
+  "production_rules": {
+    "visuals": "Somente imagens IA ilustrativas, sem falsificar filmagens ou evidências",
+    "duplicate_check": "Antes de reservar IDs, comparar títulos, assunto, narrativa e uploads com listas anteriores e reservas",
+    "qa": "Fontes verificadas, roteiro original, áudio e legenda canônicos, direitos e revisão visual",
+    "upload": "Nenhum upload autorizado por esta lista",
+    "execution": "Não aciona GitHub Actions nem altera o perfil ativo",
+    "pilot": "3 vídeos por nicho, medir views engajadas, retenção e inscritos por 1000 engaged views em janelas comparáveis"
+  },
+  "research_note": "Seleção baseada na pesquisa editorial anterior; não são previsões de views nem palavras-chave confirmadas individualmente em tempo real."
+}

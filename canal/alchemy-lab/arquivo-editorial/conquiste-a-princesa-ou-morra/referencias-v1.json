@@ -1,0 +1,203 @@
+{
+  "schema": "autoeditorvideo/alchemy-original-canonical-reference-manifest/v1",
+  "created_at": "2026-11-10",
+  "channel": "alchemy",
+  "youtube_channel_id": "UCCTYFE5Cmz2aYZ37cJQ-wcg",
+  "storyboard": "canais/alchemy-lab/conteudos/conquiste-a-princesa-ou-morra/episodio-01.json",
+  "technical_reference": "scripts/kids_emanuelly_todos_videos_v2.py + motion-remotion/src/emanuelly-layer-stage.tsx, EP01 Part3",
+  "implementation": "scripts/alchemy_dorama_original.py + motion-remotion/src/alchemy-dorama-short.tsx",
+  "status": "pending_original_assets_no_media_generated",
+  "asset_directory": "assets/gerados/alchemy-dorama-original/referencias",
+  "note": "Original characters/backgrounds and approved transparent pose variants are required as in Fofinho EP1 Part3. Derived pose files must be gpt-image-2 edits from the specified source_id and store source_sha256 equal to the approved parent SHA. All references are pending; no media was generated.",
+  "entries": [
+    {
+      "id": "REN-01",
+      "kind": "personagem",
+      "description": "Ren, reference fixed face/costume/scar",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/REN-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "ELARA-01",
+      "kind": "personagem",
+      "description": "Elara, silver hair, blue dress and violet eyes",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/ELARA-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "VALDREN-01",
+      "kind": "personagem",
+      "description": "King Valdren, crown and burgundy cape",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/VALDREN-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "OREN-01",
+      "kind": "personagem",
+      "description": "Captain Oren, guard uniform",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/OREN-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "LUVA-01",
+      "kind": "personagem",
+      "description": "Only intruder's left gloved hand and snake ring",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/LUVA-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "TRONO-01",
+      "kind": "cenario",
+      "description": "Throne room empty background, fixed geometry",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/TRONO-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "ACADEMIA-01",
+      "kind": "cenario",
+      "description": "Training courtyard empty background",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/ACADEMIA-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "ARQUIVO-01",
+      "kind": "cenario",
+      "description": "Royal archive empty background",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/ARQUIVO-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "CORREDOR-01",
+      "kind": "cenario",
+      "description": "Castle corridor empty background",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/CORREDOR-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "PROP-01",
+      "kind": "objeto",
+      "description": "True seal, lion facing LEFT and crack lower right",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/PROP-01.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "PROP-02",
+      "kind": "objeto",
+      "description": "Counterfeit seal, lion facing RIGHT no crack",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/PROP-02.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "PROP-03",
+      "kind": "objeto",
+      "description": "Execution sword",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/PROP-03.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "REN-01-ajoelhado",
+      "kind": "pose_derivada",
+      "source_id": "REN-01",
+      "source_sha256": null,
+      "description": "Ren kneeling with same outfit, face, scar",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/REN-01-ajoelhado.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "REN-01-treinando",
+      "kind": "pose_derivada",
+      "source_id": "REN-01",
+      "source_sha256": null,
+      "description": "Ren standing and holding a training sword with canonical outfit",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/REN-01-treinando.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "REN-01-trabalhando",
+      "kind": "pose_derivada",
+      "source_id": "REN-01",
+      "source_sha256": null,
+      "description": "Ren upright working with the royal seal; no altered face",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/REN-01-trabalhando.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "REN-01-assustado",
+      "kind": "pose_derivada",
+      "source_id": "REN-01",
+      "source_sha256": null,
+      "description": "Ren shocked at the system, same identity",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/REN-01-assustado.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "REN-01-apontando",
+      "kind": "pose_derivada",
+      "source_id": "REN-01",
+      "source_sha256": null,
+      "description": "Ren pointing toward the royal seal",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/REN-01-apontando.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "ELARA-01-observando",
+      "kind": "pose_derivada",
+      "source_id": "ELARA-01",
+      "source_sha256": null,
+      "description": "Princess observing king's judgment, same dress and crown",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/ELARA-01-observando.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "ELARA-01-firme",
+      "kind": "pose_derivada",
+      "source_id": "ELARA-01",
+      "source_sha256": null,
+      "description": "Princess making a firm gesture to stop execution",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/ELARA-01-firme.png",
+      "sha256": null,
+      "approved": false
+    },
+    {
+      "id": "VALDREN-01-julgando",
+      "kind": "pose_derivada",
+      "source_id": "VALDREN-01",
+      "source_sha256": null,
+      "description": "King pointing outward issuing the sentence",
+      "file": "assets/gerados/alchemy-dorama-original/referencias/VALDREN-01-julgando.png",
+      "sha256": null,
+      "approved": false
+    }
+  ],
+  "ui": {
+    "UI-01": {
+      "implementation": "vector_overlay_in_remotion",
+      "locked_design": "cyan_border_dark_glass_white_type_fixed_system_header",
+      "approved_visual": false
+    },
+    "UI-02": {
+      "implementation": "same_UI-01_with_red_warning_border",
+      "approved_visual": false
+    }
+  },
+  "no_auto_generation": true,
+  "no_upload": true
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "arquivo-otaku/shorts-english/v1",
+  "channel": "Otaku Reframe",
+  "language": "en-US",
+  "voice": "en-US-GuyNeural",
+  "episodes": [
+    {
+      "id": "003-death-note-xadrez",
+      "title": "Light vs. L: The Deadliest Mind Game in Anime? ♟️ #Shorts",
+      "cover": "MENTAL CHECKMATE",
+      "script": "Light and L never needed to throw a single punch to go to war. In Death Note, every conversation felt like a move in a game of chess. Light carefully hid what he knew, while L watched even the silences. Revealing one clue too early could mean defeat. But this was no ordinary chessboard. Every decision could cost someone their life. Their rivalry became a race to uncover each other's identity. So, in this battle of minds, whose side would you take: Light or L?",
+      "series": "Death Note"
+    },
+    {
+      "id": "004-death-note-segundo-kira",
+      "title": "The SECOND KIRA Changed Everything in Death Note! 😱 #Shorts",
+      "cover": "SECOND KIRA?!",
+      "script": "L thought he was hunting one Kira. Then someone else appeared with the same terrifying power to kill. The second Kira started sending messages, throwing the entire investigation into chaos. Behind this new identity was Misa Amane, who had her own reasons for seeking out Light. Suddenly, this was no longer a duel between two brilliant minds. Every decision could expose more than one secret. Do you think Misa's arrival helped Light, or put everything he had planned at risk?",
+      "series": "Death Note"
+    },
+    {
+      "id": "005-death-note-sangue",
+      "title": "The Dark Price of Kira's Justice 🩸 | Death Note #Shorts",
+      "cover": "THE TRUE PRICE",
+      "script": "In Death Note, horror rarely needs to show blood. Sometimes all it takes is a name written in a notebook. Light claimed he was fighting for justice. But who gave him the right to decide who deserved to live? With every new victim, the line between justice and absolute power grew thinner. The blood in this story is a visual metaphor for those consequences, not an actual scene from the anime. What do you think? Was Light fighting evil, or slowly becoming part of it himself?",
+      "series": "Death Note"
+    },
+    {
+      "id": "006-death-note-shinigami",
+      "title": "Ryuk: The Shinigami Who Started It All 👁️ #Shorts",
+      "cover": "WHY DID RYUK?",
+      "script": "Ryuk is a shinigami, a god of death. But he didn't leave the Death Note in the human world to save anyone. He was simply bored. By dropping that notebook, he set Light's entire story in motion. While human lives hung in the balance, Ryuk watched everything unfold like entertainment. That's what makes him so unsettling. The chaos didn't begin with a master plan. It started with curiosity and boredom. What do you think? Was Ryuk merely a spectator, or the most dangerous character in Death Note?",
+      "series": "Death Note"
+    },
+    {
+      "id": "007-death-note-maca",
+      "title": "Why Is Ryuk Obsessed With APPLES in Death Note? 🍎 #Shorts",
+      "cover": "RYUK'S OBSESSION",
+      "script": "A terrifying god of death who can't get enough of apples? Ryuk has one surprisingly human weakness. He absolutely loves apples from the human world. In Death Note, that strange craving contrasts with his creepy appearance and the way he watches human lives unfold. While Light tries to control people's destinies, Ryuk just wants entertainment, and a bite of something sweet. Apples become one of his most recognizable traits. So tell me: what's stranger, the power of the Death Note itself, or Ryuk's obsession with apples?",
+      "series": "Death Note"
+    }
+  ]
+}

@@ -1,0 +1,600 @@
+{
+  "schema": "autoeditorvideo/original-anime-storyboard-draft/v1",
+  "experiment_name": "Alchemy Lab — anime dorama original",
+  "series_id": "alchemy-original-conquiste-a-princesa",
+  "series_title": "Conquiste a Princesa ou Morra!",
+  "episode_id": "alchemy-114-conquiste-princesa-ep01",
+  "reservation_owner": "alchemy_dorama_original_20261110",
+  "channel": "alchemy",
+  "youtube_channel_id": "UCCTYFE5Cmz2aYZ37cJQ-wcg",
+  "language": "pt-BR",
+  "created_at": "2026-11-10",
+  "episode_number": 1,
+  "episode_title": "O Fracassado Condenado",
+  "target_platform": "YouTube Shorts",
+  "aspect_ratio": "9:16",
+  "resolution": "1080x1920",
+  "duration_seconds_target": 175,
+  "duration_seconds_min": 150,
+  "duration_seconds_max": 180,
+  "spoken_word_count_estimate": 331,
+  "duration_verified_by_real_audio": false,
+  "status": "editorial_storyboard_not_rendered",
+  "upload_authorized": false,
+  "auto_generate": false,
+  "publish": false,
+  "reference_bible": "canais/alchemy-lab/conteudos/conquiste-a-princesa-ou-morra/README.md",
+  "plot_logline": "Ren, um jovem humilhado e acusado de roubar o selo real, é julgado pelo rei. Um menu invisível obriga-o a conquistar a princesa em trinta dias sob pena de morte; para sobreviver ao carrasco, ele primeiro precisa convencê-la a suspender a execução.",
+  "story_structure": {
+    "present_opening": "Ren de joelhos perante o rei, acusado e prestes a morrer",
+    "flashbacks": [
+      {
+        "start_second": 17,
+        "end_second": 39,
+        "trigger": "Rei relembra as sete reprovações",
+        "purpose": "Empatia e passado de fracasso"
+      },
+      {
+        "start_second": 49,
+        "end_second": 85,
+        "trigger": "Ren alega ter trabalhado no arquivo",
+        "purpose": "Revelar armação, selo verdadeiro, anel-serpente, captura injusta"
+      }
+    ],
+    "reveal": "Selo em julgamento é falsificado porque leão está voltado para a direita",
+    "emergency_mission": "Convencer Elara a suspender execução em 90 segundos",
+    "temporary_win": "Princesa intervém por evidência, não por romance",
+    "cliffhanger": "Elara pergunta se Ren também recebeu missão; painel mostra anomalia"
+  },
+  "visual_continuity": {
+    "policy": "Fofinhos-grade visual bible: freeze original anchors for identities, locations, props and UI across all scenes and all episodes; backgrounds reused and scenes edited using real anchor images; never independently remake elements",
+    "approved_anchor_hashes": {},
+    "required_anchor_ids": [
+      "REN-01",
+      "ELARA-01",
+      "VALDREN-01",
+      "OREN-01",
+      "LUVA-01",
+      "TRONO-01",
+      "ACADEMIA-01",
+      "ARQUIVO-01",
+      "PROP-01",
+      "PROP-02",
+      "PROP-03",
+      "UI-01",
+      "UI-02"
+    ],
+    "anchors_generated": false,
+    "anchor_status": "pending_approved_references_and_sha256",
+    "menu_implementation": "2D postproduction overlay with fixed visual components; content and countdown text only are dynamic",
+    "flashback_rule": "Same characters, clothing, settings, item geometry. Time difference via approved warm grading and time caption, not restylization",
+    "keep_assets_separate": true,
+    "character_animation_required": true,
+    "camera_zoom_alone_is_not_character_animation": true,
+    "block_on_unverified_identity": true,
+    "block_on_wrong_prop_orientation": true,
+    "block_on_missing_scene": true
+  },
+  "sound_direction": {
+    "narrator": "Voz madura e envolvente em português brasileiro; sem gritos publicitários; pausas de tensão reais",
+    "ren": "Jovem adulto, inseguro no flashback, desesperado no tribunal, depois determinado",
+    "elara": "Contida, firme, observadora, não apaixonada desde o primeiro episódio",
+    "valdren": "Autoridade dura, sem exagero caricato",
+    "oren": "Ordens curtas, militar",
+    "system": "Voz sintética neutra curta e consistente",
+    "editorial_note": "Para TTS multivoz, medir durações reais; não acelerar artificialmente. Ajustar pausas/tempos mantendo vídeo entre 150 e 180 s."
+  },
+  "youtube_metadata_draft": {
+    "title": "Conquiste a Princesa ou Morra! 👑 | Ep. 1: Condenado pelo Rei",
+    "description": "Um fracassado é condenado pelo rei. No instante da execução, um sistema invisível lhe impõe uma missão impossível: conquistar a princesa em 30 dias, ou morrer. Episódio 1 de uma história original em estilo anime, com romance, fantasia, flashbacks e mistério.",
+    "tags": [
+      "anime original",
+      "dorama anime",
+      "fantasia medieval",
+      "sistema de missões",
+      "romance fantasia",
+      "princesa",
+      "anime brasileiro",
+      "história original",
+      "episódio 1"
+    ],
+    "made_for_kids": false,
+    "music_rights_review": "pending",
+    "synthetic_media_disclosure_review": "pending"
+  },
+  "scenes": [
+    {
+      "number": 1,
+      "scene_id": "EP01-S01",
+      "start_second": 0,
+      "end_second": 6,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "VALDREN-01",
+        "OREN-01"
+      ],
+      "item_anchors": [
+        "PROP-03"
+      ],
+      "action_visual": "Plano fechado na espada sobre Ren ajoelhado; cortar para o rei no alto do trono.",
+      "spoken_lines": [
+        {
+          "speaker": "NARRADOR",
+          "text": "No dia da sua execução, Ren só tinha uma certeza: ninguém acreditaria nele."
+        }
+      ],
+      "dramatic_function": "hook",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 2,
+      "scene_id": "EP01-S02",
+      "start_second": 6,
+      "end_second": 17,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "VALDREN-01",
+        "ELARA-01"
+      ],
+      "item_anchors": [
+        "PROP-02"
+      ],
+      "action_visual": "O rei aponta para o selo falso sobre almofada; princesa fica à direita do trono.",
+      "spoken_lines": [
+        {
+          "speaker": "VALDREN",
+          "text": "Ren! Sete vezes reprovado na academia... e agora, acusado de roubar o selo real. Você tem algo a dizer antes da sentença?"
+        }
+      ],
+      "dramatic_function": "julgamento",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 3,
+      "scene_id": "EP01-S03",
+      "start_second": 17,
+      "end_second": 28,
+      "time_layer": "FLASHBACK",
+      "background_anchor": "ACADEMIA-01",
+      "character_anchors": [
+        "REN-01"
+      ],
+      "item_anchors": [],
+      "action_visual": "Corte seco para o mesmo Ren no pátio de treinamento, caída da espada de madeira; atmosfera âmbar.",
+      "spoken_lines": [
+        {
+          "speaker": "NARRADOR",
+          "text": "Sete dias antes, Ren ainda sonhava com uma espada e uma chance. A sétima reprovação acabou com as duas coisas."
+        }
+      ],
+      "dramatic_function": "flashback_frustração",
+      "overlay_text": "7 DIAS ANTES",
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 4,
+      "scene_id": "EP01-S04",
+      "start_second": 28,
+      "end_second": 39,
+      "time_layer": "FLASHBACK",
+      "background_anchor": "ACADEMIA-01",
+      "character_anchors": [
+        "REN-01"
+      ],
+      "item_anchors": [],
+      "action_visual": "Ren retoma a espada, erra o golpe, cai; sombras de observadores nas arquibancadas, sem criar personagens principais novos.",
+      "spoken_lines": [
+        {
+          "speaker": "INSTRUTOR",
+          "text": "De novo no chão! Um homem sem talento não merece vestir a armadura do reino."
+        },
+        {
+          "speaker": "REN",
+          "text": "Só preciso de mais uma chance..."
+        }
+      ],
+      "dramatic_function": "flashback_frustração",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 5,
+      "scene_id": "EP01-S05",
+      "start_second": 39,
+      "end_second": 49,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "VALDREN-01"
+      ],
+      "item_anchors": [
+        "PROP-02"
+      ],
+      "action_visual": "Match cut do Ren no chão para Ren ajoelhado no círculo solar do salão; mesma cicatriz e roupa.",
+      "spoken_lines": [
+        {
+          "speaker": "REN",
+          "text": "Majestade, eu não roubei nada! Estava trabalhando no arquivo quando me encontraram."
+        },
+        {
+          "speaker": "VALDREN",
+          "text": "Silêncio!"
+        }
+      ],
+      "dramatic_function": "volta_ao_presente",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 6,
+      "scene_id": "EP01-S06",
+      "start_second": 49,
+      "end_second": 62,
+      "time_layer": "FLASHBACK",
+      "background_anchor": "ARQUIVO-01",
+      "character_anchors": [
+        "REN-01"
+      ],
+      "item_anchors": [
+        "PROP-01"
+      ],
+      "action_visual": "Ren limpa a vitrine do selo verdadeiro: leão olhando para a esquerda, microfissura inferior direita em close.",
+      "spoken_lines": [
+        {
+          "speaker": "NARRADOR",
+          "text": "Naquela noite, Ren limpava o arquivo real. Conhecia cada arranhão do selo: o leão voltado à esquerda e uma pequena fissura na borda."
+        }
+      ],
+      "dramatic_function": "flashback_acusação",
+      "overlay_text": "NAQUELA NOITE",
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 7,
+      "scene_id": "EP01-S07",
+      "start_second": 62,
+      "end_second": 74,
+      "time_layer": "FLASHBACK",
+      "background_anchor": "ARQUIVO-01",
+      "character_anchors": [
+        "REN-01",
+        "LUVA-01"
+      ],
+      "item_anchors": [
+        "PROP-01",
+        "PROP-02"
+      ],
+      "action_visual": "Apenas mão esquerda com luva preta e anel-serpente troca o selo real pelo falso; não mostrar rosto.",
+      "spoken_lines": [
+        {
+          "speaker": "NARRADOR",
+          "text": "Um ruído veio do corredor. Ren virou a cabeça por um instante. Uma mão enluvada surgiu junto à vitrine. Quando ele olhou novamente, algo estava errado."
+        }
+      ],
+      "dramatic_function": "flashback_acusação",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 8,
+      "scene_id": "EP01-S08",
+      "start_second": 74,
+      "end_second": 85,
+      "time_layer": "FLASHBACK",
+      "background_anchor": "ARQUIVO-01",
+      "character_anchors": [
+        "REN-01",
+        "OREN-01"
+      ],
+      "item_anchors": [
+        "PROP-02"
+      ],
+      "action_visual": "Selo falso cai próximo ao pedestal; Ren o segura para não quebrar, Oren entra pela porta fixa.",
+      "spoken_lines": [
+        {
+          "speaker": "OREN",
+          "text": "Peguem o ladrão! Está com o selo nas mãos!"
+        },
+        {
+          "speaker": "REN",
+          "text": "Não! Eu ouvi alguém! Havia outra pessoa aqui!"
+        }
+      ],
+      "dramatic_function": "flashback_acusação",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 9,
+      "scene_id": "EP01-S09",
+      "start_second": 85,
+      "end_second": 97,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "VALDREN-01",
+        "ELARA-01",
+        "OREN-01"
+      ],
+      "item_anchors": [
+        "PROP-02",
+        "PROP-03"
+      ],
+      "action_visual": "Volta ao julgamento com mesmas posições; espada se ergue; olhos da princesa observam sem reação.",
+      "spoken_lines": [
+        {
+          "speaker": "VALDREN",
+          "text": "Pela traição contra a coroa, eu o condeno à morte."
+        },
+        {
+          "speaker": "NARRADOR",
+          "text": "Ren tentou gritar. Mas a voz desapareceu quando a lâmina se ergueu."
+        }
+      ],
+      "dramatic_function": "sentença",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 10,
+      "scene_id": "EP01-S10",
+      "start_second": 97,
+      "end_second": 108,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01"
+      ],
+      "item_anchors": [
+        "UI-01"
+      ],
+      "action_visual": "Leve suspensão perceptiva do som; UI 2D translúcida azul **somente no POV de Ren**; ninguém a observa.",
+      "spoken_lines": [
+        {
+          "speaker": "SISTEMA",
+          "text": "Sistema do Destino ativado. Missão principal: conquiste o coração da princesa Elara em trinta dias. Penalidade por falha: morte."
+        },
+        {
+          "speaker": "REN",
+          "text": "O quê? Só eu consigo ver isso?"
+        }
+      ],
+      "dramatic_function": "sistema_desperta",
+      "overlay_text": "SISTEMA DO DESTINO | MISSÃO PRINCIPAL | CONQUISTE ELARA | 30 DIAS | FALHA: MORTE",
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 11,
+      "scene_id": "EP01-S11",
+      "start_second": 108,
+      "end_second": 120,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "ELARA-01"
+      ],
+      "item_anchors": [
+        "UI-01"
+      ],
+      "action_visual": "A mesma interface UI-01 atualiza o texto, mantendo quadro, fonte, borda e posição; 90 segundos começam.",
+      "spoken_lines": [
+        {
+          "speaker": "SISTEMA",
+          "text": "Missão emergencial: faça a princesa suspender sua execução. Tempo limite: noventa segundos."
+        },
+        {
+          "speaker": "REN",
+          "text": "Conquistar a princesa? Eu nem consigo sair vivo deste salão!"
+        }
+      ],
+      "dramatic_function": "contagem",
+      "overlay_text": "MISSÃO DE EMERGÊNCIA | IMPEDIR EXECUÇÃO | 01:30",
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 12,
+      "scene_id": "EP01-S12",
+      "start_second": 120,
+      "end_second": 132,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "ELARA-01",
+        "VALDREN-01"
+      ],
+      "item_anchors": [
+        "PROP-02"
+      ],
+      "action_visual": "Ren ignora espada, encara princesa sem postura romântica; sinaliza para a almofada da evidência.",
+      "spoken_lines": [
+        {
+          "speaker": "REN",
+          "text": "Princesa Elara! Antes que eu morra, olhe para o selo sobre a almofada!"
+        },
+        {
+          "speaker": "VALDREN",
+          "text": "Que insolência é essa?"
+        }
+      ],
+      "dramatic_function": "pedido_de_ajuda",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 13,
+      "scene_id": "EP01-S13",
+      "start_second": 132,
+      "end_second": 145,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "REN-01",
+        "ELARA-01"
+      ],
+      "item_anchors": [
+        "PROP-02"
+      ],
+      "action_visual": "Close no falso: leão olhando à direita, sem fissura; NÃO inverter/espelhar a imagem.",
+      "spoken_lines": [
+        {
+          "speaker": "REN",
+          "text": "O verdadeiro tem o leão olhando à esquerda. Eu o limpei ontem! Este aponta para a direita. Ele não é o selo roubado... é uma cópia!"
+        }
+      ],
+      "dramatic_function": "pista_corroborada",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 14,
+      "scene_id": "EP01-S14",
+      "start_second": 145,
+      "end_second": 158,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "ELARA-01",
+        "VALDREN-01",
+        "REN-01"
+      ],
+      "item_anchors": [
+        "PROP-02"
+      ],
+      "action_visual": "Princesa desce os degraus, examina selo e compara em silêncio com lembrança visual do objeto; rei mantém no trono.",
+      "spoken_lines": [
+        {
+          "speaker": "ELARA",
+          "text": "Pai... ele tem razão. A marca está invertida. Se condenarmos esse homem, nunca encontraremos o verdadeiro ladrão."
+        },
+        {
+          "speaker": "VALDREN",
+          "text": "Isso não prova sua inocência!"
+        }
+      ],
+      "dramatic_function": "princesa_decide",
+      "overlay_text": null,
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 15,
+      "scene_id": "EP01-S15",
+      "start_second": 158,
+      "end_second": 166,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "ELARA-01",
+        "VALDREN-01",
+        "REN-01"
+      ],
+      "item_anchors": [
+        "PROP-03"
+      ],
+      "action_visual": "Elara levanta a mão e impede carrasco. Nenhum toque romântico; ela age por justiça.",
+      "spoken_lines": [
+        {
+          "speaker": "ELARA",
+          "text": "Então adie a execução. Eu mesma vou interrogá-lo."
+        },
+        {
+          "speaker": "VALDREN",
+          "text": "Está bem. Mas ele ficará sob sua guarda."
+        }
+      ],
+      "dramatic_function": "vitória_temporária",
+      "overlay_text": "MISSÃO DE EMERGÊNCIA CONCLUÍDA",
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    },
+    {
+      "number": 16,
+      "scene_id": "EP01-S16",
+      "start_second": 166,
+      "end_second": 175,
+      "time_layer": "PRESENTE",
+      "background_anchor": "TRONO-01",
+      "character_anchors": [
+        "ELARA-01",
+        "REN-01"
+      ],
+      "item_anchors": [
+        "UI-01",
+        "UI-02"
+      ],
+      "action_visual": "A princesa chega perto de Ren e sussurra. Close nas pupilas; UI vermelho somente POV Ren; congelar no aviso final.",
+      "spoken_lines": [
+        {
+          "speaker": "ELARA",
+          "text": "Diga-me uma coisa, Ren... você também recebeu uma missão?"
+        },
+        {
+          "speaker": "SISTEMA",
+          "text": "Anomalia detectada. A princesa conhece o sistema."
+        },
+        {
+          "speaker": "NARRADOR",
+          "text": "E o pior de seus problemas acabava de começar."
+        }
+      ],
+      "dramatic_function": "cliffhanger",
+      "overlay_text": "ANOMALIA DETECTADA | A PRINCESA CONHECE O SISTEMA",
+      "reference_status": "pending_original_anchors",
+      "shot_review_status": "not_generated"
+    }
+  ],
+  "render_gates": {
+    "existing_channel_niche_unchanged": true,
+    "requires_real_reference_images": true,
+    "requires_visual_human_review": true,
+    "requires_exact_channel_oauth": true,
+    "requires_audio_measurement": true,
+    "requires_copyright_clearance": true,
+    "requires_explicit_upload_approval": true,
+    "script_ready_for_story_review": true,
+    "video_generation_not_started": true,
+    "public_upload_not_authorized": true
+  },
+  "animation_pipeline": {
+    "source": "Fofinho EP1 Parte 3 — scripts/kids_emanuelly_todos_videos_v2.py & motion-remotion/src/emanuelly-layer-stage.tsx",
+    "implementation": "scripts/alchemy_dorama_original.py & motion-remotion/src/alchemy-dorama-short.tsx",
+    "renderer_composition": "AlchemyDoramaOriginal",
+    "strategy": "fixed approved background PNGs and transparent sprites on independently animated Remotion 2D layers",
+    "image_asset_manifest": "canais/alchemy-lab/conteudos/conquiste-a-princesa-ou-morra/referencias-v1.json",
+    "native_character_rigging": false,
+    "pose_changes_require_real_approved_variants": true,
+    "strict_visual_consistency": true,
+    "unique_menu_component": true,
+    "flashback_reuses_same_character_and_background_anchors": true,
+    "video_seconds_min": 150,
+    "video_seconds_max": 180,
+    "stage": "integrated_code_not_rendered",
+    "requires_real_approved_anchor_sha256": true,
+    "requires_real_narration_and_timestamps": true,
+    "uses_kids_assets_or_music": false,
+    "automatically_uploads": false
+  }
+}
