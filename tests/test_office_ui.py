@@ -24,6 +24,7 @@ class OfficeUITests(unittest.TestCase):
     def test_full_viewport_is_defined(self):
         css=(ROOT/"styles.css").read_text(encoding="utf-8")
         self.assertIn("100dvh",css)
+        self.assertIn(".workspace{position:absolute;inset:0",css)
         self.assertIn("touch-action:none",css)
 
     def test_original_canvas_renderer_supports_controls(self):

@@ -15,3 +15,27 @@
 @media(max-width:960px){.top-center,.top-meta{display:none}.topbar{padding:0 15px}.corner-hud{left:13px;top:13px;min-width:0;max-width:calc(100% - 152px);padding:13px 15px}.hud-title{font-size:20px}.hud-subtitle{font-size:10px}.hud-stats{gap:10px;margin-top:11px}.scene-actions{top:14px;right:13px}.quick-menu{left:14px;bottom:52px}.scene-hints{gap:8px}}
 @media(max-width:600px){.topbar{height:58px;flex-basis:58px}.brand{gap:8px;min-width:unset}.brand-symbol{width:34px;height:34px;font-size:17px}.brand-copy strong{font-size:12px}.brand-copy small{font-size:7px}.top-actions{gap:8px}.top-badge{font-size:8px;padding:7px}.github-button{padding:7px 9px}.github-text{display:none}.corner-hud{left:9px;top:10px;max-width:calc(100% - 119px);padding:10px 10px}.hud-title{font-size:15px}.eyebrow{font-size:8px}.hud-subtitle{display:none}.hud-stats{font-size:8px;gap:7px;margin-top:8px;padding-top:8px;flex-wrap:wrap}.hud-stats b{font-size:13px}.scene-actions{right:7px;top:10px;display:grid;grid-template-columns:repeat(2,30px);gap:4px;padding:4px}.scene-button{width:30px;height:30px;font-size:18px}.tools-divider{display:none}.quick-menu{bottom:52px;left:10px;gap:6px}.quick-button{font-size:10px;gap:5px;padding:9px}.quick-icon{font-size:14px}.workspace-footer{height:34px;padding:0 10px;font-size:9px}.scene-hints{display:none}.side-panel{top:auto;left:7px;right:7px;bottom:41px;width:auto;height:min(73dvh,540px);transform:translateY(calc(100% + 48px))}.panel-header{padding:14px}.panel-scroll{padding:3px 10px 10px}.panel-details{padding:12px 14px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+
+/* Full viewport verdadeiro: o Canvas ocupa 100% da janela, e a barra é sobreposta. */
+.shell{position:relative}
+.topbar{position:absolute;top:0;left:0;right:0;height:66px;z-index:6;background:#131f30f2;backdrop-filter:blur(7px)}
+.workspace{position:absolute;inset:0;width:100%;height:100dvh}
+.corner-hud{top:86px}
+.scene-actions{top:87px}
+.side-panel{top:139px}
+.workspace:fullscreen .corner-hud{top:20px}
+.workspace:fullscreen .scene-actions{top:21px}
+.workspace:fullscreen .side-panel{top:73px}
+@media(max-width:960px){
+  .corner-hud{top:78px}
+  .scene-actions{top:80px}
+  .side-panel{top:125px}
+}
+@media(max-width:600px){
+  .topbar{height:58px}
+  .corner-hud{top:68px}
+  .scene-actions{top:68px}
+  .side-panel{top:auto}
+  .workspace:fullscreen .corner-hud{top:10px}
+  .workspace:fullscreen .scene-actions{top:10px}
+}
