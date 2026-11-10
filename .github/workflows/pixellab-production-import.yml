@@ -4,6 +4,11 @@ name: PixelLab - Receber todas as imagens no GitHub
 # Mesmo se o lote pago falhar, importa apenas movimentos completos e válidos.
 # Nunca reenvia POSTs pagos nem armazena exportações privadas no Git.
 on:
+  # Autoteste não pago quando o próprio recebedor é alterado.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-production-import.yml"
   workflow_run:
     workflows:
       - "PixelLab - Completar animacoes da produtora"
@@ -31,12 +36,12 @@ concurrency:
 
 jobs:
   receber:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion != 'cancelled') }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.conclusion != 'cancelled') }}
     runs-on: ubuntu-latest
     timeout-minutes: 50
     env:
-      RECEBER_ALEX: ${{ (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'alex')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Completar animacoes da produtora') }}
-      RECEBER_OBJETOS: ${{ (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'objetos')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Objetos animados da produtora') }}
+      RECEBER_ALEX: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'alex')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Completar animacoes da produtora') }}
+      RECEBER_OBJETOS: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.categoria == 'todas' || inputs.categoria == 'objetos')) || (github.event_name == 'workflow_run' && github.event.workflow_run.name == 'PixelLab - Objetos animados da produtora') }}
     steps:
       - name: Checkout da versão atual de main
         uses: actions/checkout@v4
