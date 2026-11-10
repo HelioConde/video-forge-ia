@@ -1,0 +1,12 @@
+{
+  "id": "camadas-animadas",
+  "nome": "Composição com camadas animadas",
+  "descricao": "Cria uma cena de referência e depois separa cenário, personagens e objetos transparentes para animar individualmente.",
+  "etapas": {
+    "roteiro": {"provedor": null, "modelo_ia": null},
+    "imagem": {"modo": "imagem-referencia-e-camadas", "provedor": null, "modelo_ia": null},
+    "animacao": {"modo": "elementos-separados", "provedor": null, "modelo_ia": null},
+    "voz": {"provedor": null, "modelo_ia": null},
+    "montagem": {"motor": "ffmpeg"}
+  }
+}

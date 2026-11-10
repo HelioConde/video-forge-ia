@@ -2,19 +2,37 @@
 
 **Gerador modular de vídeos com IA e publicação automatizada no YouTube.**
 
-> **Estado atual: fundação / teste.** O código entregue neste primeiro passo valida um roteiro de cenas (storyboard) e gera um arquivo JSON. **Ainda não gera MP4, não chama provedores de IA e não faz upload.**
+> **Estado atual: estrutura e testes (dry-run).** Ainda não gera MP4, não chama provedores de IA e não faz upload.
 
-## Como vai funcionar
+## Organização do projeto
 
-1. Receber tema e configurações de cada canal.
-2. Gerar roteiro, diálogos e planejamento das cenas com IA.
-3. Criar uma imagem de referência por cena; separar cenário, personagens e objetos com transparência.
-4. Animar os elementos mantendo aparência e continuidade.
-5. Gerar narração, legendas, música/efeitos e renderizar o vídeo.
-6. Validar o resultado e publicar pelo YouTube Data API com OAuth, começando por upload privado.
-7. Agendar execuções, registrar resultados e impedir publicações duplicadas.
+```text
+video-forte-ia/
+├── canal/                          # uma pasta por canal
+│   └── exemplo/
+│       ├── canal.json              # modelo padrão do canal
+│       └── videos/
+│           └── teste-10s/
+│               └── video.json      # roteiro e possível modelo próprio
+├── modelos/                        # receitas de produção reutilizáveis
+│   ├── camadas-animadas/modelo.json
+│   └── imagem-estatica/modelo.json
+├── videoforge/
+│   ├── config.py                    # lê e resolve canal/vídeo/modelo
+│   └── pipeline.py                  # valida storyboard JSON
+├── tests/
+├── docs/ARQUITETURA.md
+└── .github/workflows/validate.yml
+```
 
-A arquitetura é detalhada em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+### Como funciona a escolha do modelo
+
+O canal usa `"modelo_padrao": "camadas-animadas"` no `canal.json`.
+Um vídeo pode optar por `"modelo": "imagem-estatica"` no próprio `video.json`. Sem a propriedade, herda o padrão do canal.
+
+Cada modelo de produção também reserva configurações distintas de **provedor e modelo de IA por etapa** (roteiro, imagem, animação, voz), ainda pendentes de implementação.
+
+Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md).
 
 ## Primeiro teste (sem custo de IA e sem upload)
 
@@ -22,35 +40,20 @@ Requisito: Python 3.12+.
 
 ```bash
 python -m unittest discover -s tests -v
-python -m videoforge.pipeline --config config/example.json --output output/storyboard.json
+python -m videoforge.pipeline --video canal/exemplo/videos/teste-10s/video.json --output output/storyboard.json
 ```
 
-O comando gera `output/storyboard.json` com duas cenas de 5 segundos (10 segundos no total).
-Também existe uma ação manual em **Actions > Validar VideoForge AI > Run workflow**, que executa os testes e disponibiliza o JSON como artifact.
-
-## Estrutura inicial
-
-```text
-video-forte-ia/
-├── .github/workflows/validate.yml  # CI em modo de teste
-├── config/example.json              # storyboard de demonstração
-├── docs/ARQUITETURA.md              # módulos e roadmap
-├── tests/test_pipeline.py           # verificações automáticas
-├── videoforge/pipeline.py           # planejamento e validação
-├── videoforge/__init__.py
-└── .gitignore
-```
+A ação **Actions > Validar VideoForge AI** também roda os testes e salva o storyboard de 10 segundos como artifact. Isso **não** produz um vídeo.
 
 ## Próximas entregas
 
-- Integração real com provedores de roteiro, imagens e voz.
-- Renderização das camadas animadas com FFmpeg.
-- Primeira saída MP4 de 10 segundos para avaliação visual.
-- Upload privado de teste pelo YouTube; só depois agendamento e publicação automática.
+- Gerar roteiro, imagem de referência, personagens/cenários/objetos transparentes e animação por camadas.
+- Gerar voz, mixagem e MP4 com FFmpeg.
+- Validar o primeiro vídeo de 10 segundos.
+- Fazer upload **privado** de teste, depois automatizar o agendamento.
 
-## Proteção de dados
+## Segurança
 
-**Não coloque chaves de API, tokens OAuth nem arquivos privados no repositório.**
-As credenciais futuras ficarão em GitHub Actions Secrets. A automação deve usar limites de custo, checagem de qualidade e um identificador único para cada publicação.
+Não adicione chaves de API, tokens OAuth nem mídias privadas no Git. Armazene credenciais em GitHub Actions Secrets; use limites de custo e prevenção contra duplicatas.
 
-**Nome do produto:** VideoForge AI. **Nome atual do repositório:** `video-forte-ia` (pode ser renomeado no GitHub).
+**Nome do produto:** VideoForge AI. **Nome atual do repositório:** `video-forte-ia`.

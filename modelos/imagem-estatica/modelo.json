@@ -1,0 +1,12 @@
+{
+  "id": "imagem-estatica",
+  "nome": "Vídeo com imagens estáticas e movimento de câmera",
+  "descricao": "Usa uma imagem por cena, transições e movimentos de câmera; adequado quando a animação de personagens não for necessária.",
+  "etapas": {
+    "roteiro": {"provedor": null, "modelo_ia": null},
+    "imagem": {"modo": "cena-unica", "provedor": null, "modelo_ia": null},
+    "animacao": {"modo": "zoom-pan", "provedor": null, "modelo_ia": null},
+    "voz": {"provedor": null, "modelo_ia": null},
+    "montagem": {"motor": "ffmpeg"}
+  }
+}

@@ -1,4 +1,7 @@
 {
+  "id": "teste-10s",
+  "titulo": "Dorama misterioso — teste de 10 segundos",
+  "_modelo_opcional": "Para escolher outro modelo apenas neste vídeo, adicione a propriedade modelo com o ID de uma pasta em modelos/.",
   "video": {
     "duration_seconds": 10,
     "width": 1080,

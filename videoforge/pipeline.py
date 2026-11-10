@@ -11,6 +11,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from videoforge.config import load_video_config
+
 
 def build_storyboard(config: dict[str, Any]) -> dict[str, Any]:
     video = config.get("video", {})
@@ -61,7 +63,7 @@ def build_storyboard(config: dict[str, Any]) -> dict[str, Any]:
             f"A soma das cenas ({elapsed}s) deve ser igual à duração do vídeo ({duration}s)"
         )
 
-    return {
+    result = {
         "project": "VideoForge AI",
         "status": "storyboard_ready_assets_not_generated",
         "mode": "dry-run",
@@ -79,14 +81,25 @@ def build_storyboard(config: dict[str, Any]) -> dict[str, Any]:
         },
     }
 
+    if "canal" in config:
+        result["canal"] = config["canal"]
+    if "modelo" in config:
+        result["modelo"] = config["modelo"]
+
+    return result
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Gera storyboard em modo de teste")
-    parser.add_argument("--config", default="config/example.json")
+    parser.add_argument(
+        "--video",
+        default="canal/exemplo/videos/teste-10s/video.json",
+        help="Arquivo canal/<id>/videos/<id>/video.json",
+    )
     parser.add_argument("--output", default="output/storyboard.json")
     args = parser.parse_args()
 
-    config = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    config = load_video_config(args.video)
     storyboard = build_storyboard(config)
     path = Path(args.output)
     path.parent.mkdir(parents=True, exist_ok=True)
