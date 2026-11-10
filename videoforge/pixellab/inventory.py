@@ -94,6 +94,27 @@ def inspect_account(client: PixelLabClient, *, character_id: str = "") -> dict[s
             1 for row in characters if isinstance(row, dict) and row.get("state_name")
         ),
     }
+    if not selected and characters:
+        # Verificar TODAS as bases de forma anônima, sem escolher uma por engano.
+        catalog = []
+        for idx, row in enumerate(sorted(characters, key=lambda item: (
+            str(item.get("created_at", "")), str(item.get("id", "")))), start=1):
+            if not isinstance(row, dict):
+                raise ValueError("Entrada da biblioteca malformada.")
+            detail = client.character(parse_character_id(row["id"]))
+            analyzed = normalize_animation(detail)
+            catalog.append({
+                "indice": idx,
+                "estado_da_base": detail.get("status") if detail.get("status") in
+                    ("completed", "pending", "processing", "failed") else "desconhecido",
+                "estado_nomeado": bool(row.get("state_name")),
+                "grupos": analyzed["total_grupos"],
+                "movimentos": {
+                    name: len(directions) for name, directions in analyzed["existentes"].items()
+                } if analyzed["inspecionavel"] else None,
+                "outras_animacoes": analyzed["outros_grupos"],
+            })
+        summary["catalogo_anonimo"] = catalog
     if selected:
         cid = parse_character_id(selected[0]["id"])
         detail = client.character(cid)
@@ -126,7 +147,22 @@ def emit_summary(summary: dict[str, Any]) -> str:
         else:
             lines.append("A API informou uma contagem, mas não forneceu detalhes suficientes para classificar direções.")
     else:
-        lines.append("Nenhum personagem selecionado sem ambiguidade; nenhuma geração iniciada.")
+        catalog = summary.get("catalogo_anonimo")
+        if catalog:
+            total_known = sum((row["grupos"] or 0) for row in catalog)
+            complete = sum(1 for row in catalog if row["movimentos"] is not None)
+            animated = sum(1 for row in catalog if (row["grupos"] or 0)>0)
+            lines.append(f"Bases com animações: **{animated} de {len(catalog)}**; grupos identificados: **{total_known}**")
+            lines.append(f"Bases com direções inspecionáveis: **{complete} de {len(catalog)}**")
+            lines.extend(["", "| Personagem anônimo | Grupos | Direções conhecidas por movimento | Outros grupos |",
+                          "|---|---:|---|---:|"])
+            for row in catalog:
+                motions = row["movimentos"]
+                label = ", ".join(f"{k}:{v}" for k,v in motions.items() if v) if motions is not None else "desconhecido"
+                lines.append(f"| #{row['indice']:02d} | {row['grupos'] if row['grupos'] is not None else '?'} | {label or 'nenhuma'} | {row['outras_animacoes'] if row['outras_animacoes'] is not None else '?'} |")
+            lines.append("A numeração é temporária e não identifica um personagem específico fora desta execução.")
+        else:
+            lines.append("Biblioteca vazia; nenhuma geração iniciada.")
     lines.extend(["", "**Segurança:** nenhum ID, prompt, URL, token ou saldo foi incluído no relatório.",
                   "**Custo:** nenhuma chamada POST, geração ou animação foi realizada."])
     return "\n".join(lines) + "\n"

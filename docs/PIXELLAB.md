@@ -71,3 +71,9 @@ Referência: [API oficial PixelLab v2](https://api.pixellab.ai/v2/docs).
 ### Exemplo — criar pose sentado (sem recriar personagem)
 
 Configure primeiro o token e, se necessário, o ID base em GitHub Secrets; no Actions selecione `operacao=state` e `estado=sitting`. A API envia a descrição da pose ao endpoint `POST /v2/create-character-state`, com `use_color_palette_from_reference=true` para tentar preservar as cores. Uma nova versão do personagem é exportada para ZIP. A fidelidade visual deve ser revisada antes de usar no escritório.
+
+## Auditoria de animações antes de gerar
+
+O workflow [PixelLab - Inventario de animacoes existentes](../.github/workflows/pixellab-inventory.yml) executa somente GET e é atualizado quando o script de inventário muda. Lista quantos personagens existem e as animações por movimento e direção. Quando não identifica uma base Alex sem ambiguidade, inspeciona todas as bases **anonimamente**, sem imprimir prompts, nomes, IDs, URLs ou saldo no histórico público. Os números temporários de cada personagem não servem como ID permanente.
+
+O inventário não realiza geração nem autoriza lote automático. Antes de gerar as 48 combinações, confirme a base certa e a contagem de movimentos realmente faltantes, evitando custos duplicados.

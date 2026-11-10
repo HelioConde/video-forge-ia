@@ -45,6 +45,22 @@ class InventoryTest(unittest.TestCase):
         self.assertEqual(report["selecao"], "ambiguo")
         self.assertEqual(report["personagens_inspecionados"], 0)
 
+    def test_anonymous_catalog_inspects_all_without_revealing_ids(self):
+        fake=Fake([{"id": A, "name": "Secret One"}, {"id": B, "name": "Secret Two"}],
+          {
+            A: {"animations":[{"animation_type":"walk","directions":[{"direction":"south","frame_count":4,"frames":[]}]}],"status":"completed"},
+            B: {"animations":[{"animation_type":"idle","directions":[{"direction":"north","frame_count":4,"frames":[]}]}],"status":"completed"},
+          })
+        report=inspect_account(fake)
+        self.assertEqual(len(report["catalogo_anonimo"]),2)
+        self.assertEqual(fake.calls.count("GET /characters/{id}"),2)
+        rendered=emit_summary(report)
+        self.assertNotIn(A, rendered)
+        self.assertNotIn(B, rendered)
+        self.assertNotIn("Secret", rendered)
+        self.assertIn("walk:1", rendered)
+        self.assertIn("idle:1", rendered)
+
     def test_explicit_id_wins(self):
         fake=Fake([{"id":A,"name":"Other"},{"id":B,"name":"Alex"}],
                   {A: {"animations": [], "animation_count":0}})
