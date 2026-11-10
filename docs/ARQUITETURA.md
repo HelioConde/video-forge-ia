@@ -109,3 +109,14 @@ O frontend estático é organizado em `site/`:
 - `data/status.json`: snapshot público gerado pelo backend, sem credenciais.
 
 Os arquivos de arte não executam serviços de IA. A publicação da interface ocorre por GitHub Pages Actions e é independente da publicação de vídeos no YouTube.
+
+## Integração opcional PixelLab
+
+- `personagens/<slug>/profile.json`: descrição e animações próprias de cada personagem.
+- `videoforge/pixellab/client.py`: autenticação, APIs PixelLab v2, jobs e exportações.
+- `videoforge/pixellab/cli.py`: seleção da base existente ou criação, animações e planejamento seguro.
+- `.github/workflows/pixellab-character.yml`: comando manual com controle de custos e divulgação.
+- `tests/test_pixellab.py`: testes simulados sem rede.
+- `output/pixellab/`: arquivos temporários fora do Git.
+
+A geração de sprites ainda não está conectada ao Canvas nem ao renderizador dos vídeos. Veja `docs/PIXELLAB.md`.
