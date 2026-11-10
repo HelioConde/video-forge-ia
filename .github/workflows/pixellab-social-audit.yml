@@ -1,0 +1,36 @@
+name: PixelLab - Auditar interacoes do Alex
+# Exclusivamente GET, nenhum POST ou consumo de créditos.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-social-audit.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar inventário offline
+        run: python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Consultar grupos sociais existentes do Alex
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+        run: python -m videoforge.pixellab.social_audit
+      - name: Salvar relatório sem informações privadas
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-social-audit-${{ github.run_id }}
+          path: output/pixellab-social-audit/report.json
+          retention-days: 7
+          if-no-files-found: warn
