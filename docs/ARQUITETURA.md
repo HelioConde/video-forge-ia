@@ -153,3 +153,7 @@ O workflow `.github/workflows/pixellab-export-alex.yml` exporta os frames sem ge
 `agentes/equipe.json` v2 preserva oito cargos visuais e acrescenta estrutura hierárquica (`manager`, `departamentos`, especialistas lógicos desativados). O exportador `scripts/build_dashboard_data.py` publica apenas contagens e nomes de departamentos como `organizacao`. No painel, as relações são marcadas como planejadas; não inventar execução real.
 
 `videoforge/production/dispatcher.py` cria o DAG de 18 tarefas por demanda; as atividades são apenas `blocked` ou `ready` até haver artefato validado. Não executa IA/pagamento/publicação. `personagens/alex/production-animations.json` contém 137 ações categorizadas em `character`, `sequence` e `object`. O motor `videoforge/pixellab/production_animations.py` só paga por direções de personagem ausentes após verificar GET e autorização, sem guardar IDs privados nos artefatos; novos sprites precisarão de revisão visual antes de entrar no Canvas.
+
+### Atlas extras da produtora e carregamento tardio
+
+A action `pixellab-production-import.yml` transforma a exportação do PixelLab em atlases PNG e manifesto de produção, sem UUIDs. O carregador do Canvas lê o manifesto como recurso opcional e só busca a animação escolhida pelo usuário; nenhuma animação nova é simulada enquanto o arquivo não estiver presente. Os seis atlas originais e o fallback anterior permanecem inalterados. Os movimentos extras são usados apenas como **prévia visual** até os eventos reais dos especialistas serem conectados.

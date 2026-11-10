@@ -112,3 +112,7 @@ Essa opção não realiza as ações reais de beber/jogar/cantar e não signific
 ## Estrutura de gestão de vídeo (dados planejados)
 
 O snapshot público contém `organizacao` derivada de `agentes/equipe.json`: cinco departamentos, 27 especialistas planejados e identificação do gerente humano. Os oito cargos anteriores continuam como postos visuais; a seleção de um líder exibe a contagem de subordinados lógicos. **Não são 27 IAs online**, e o site continua sem executar o pipeline. Veja `docs/EQUIPE_PRODUCAO.md`.
+
+### Previsualização de animações extras
+
+Os seis spritesheets básicos continuam sendo carregados ao abrir o escritório. O carregador `site/agent-animator.js` também suporta o manifesto `assets/pixellab/agents/alex/production/manifest.json`, quando disponível. Animações adicionais são **carregadas sob demanda**, para não descarregar dezenas de MB no celular. O painel permite escolher e testar uma delas no agente selecionado, sem alterar o status real de trabalho. Enquanto a exportação do PixelLab não concluir, essa seleção fica oculta.

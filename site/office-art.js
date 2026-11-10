@@ -138,7 +138,8 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const direction=position?.direction||(i<4?'south':'north');
   const frame=reduceMotion?0:Math.floor((t||0)/180)%4;
   const x=position?.x??stations[i][0],y=position?.y??stations[i][1]+111;
-  if(!animator.draw(c,motion,direction,frame,x,y,88))return false;
+  if(!animator.draw(c,motion,direction,frame,x,y,88) &&
+     !animator.drawProduction(c,motion,direction,frame,x,y,88))return false;
   if(selected){line(c,x-38,y-44,76,90,'#ffe19d',2);star(c,x,y-50,'#f9dd8c');}
   return true;
 }

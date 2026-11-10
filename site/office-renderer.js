@@ -57,7 +57,8 @@
       this.render(0);
     }
     setPreviewMotion(motion){
-      const choices=[null,'idle','walk','type','sit','talk','wave'];
+      const choices=[null,'idle','walk','type','sit','talk','wave',
+        ...window.VideoForgeAnimator.productionMotions().map(x=>x.name)];
       if(!choices.includes(motion))return;
       this.previewMotion=motion;
       this.render(0);

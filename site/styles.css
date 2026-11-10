@@ -135,3 +135,7 @@
 .organization-overview strong{font:800 10px/1.5 ui-monospace,Consolas,monospace;color:#b8e9c7}
 .organization-overview p{font:600 11px/1.5 ui-monospace,Consolas,monospace;color:#e8eddd;margin:5px 0}
 .organization-overview small{display:block;font:500 10px/1.45 ui-monospace,Consolas,monospace;color:#adbfbb;margin-top:4px}
+
+.production-preview{margin-top:10px;border-top:1px solid #476671;padding-top:8px}
+.production-motion-select{width:100%;margin-top:5px;padding:9px 7px;background:#173240;color:#f1f5e9;border:1px solid #7fa695;border-radius:5px;font:600 11px ui-monospace,Consolas,monospace}
+.production-motion-select:focus-visible{outline:2px solid #b8ecc8}

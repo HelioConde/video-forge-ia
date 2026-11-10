@@ -9,6 +9,9 @@
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
   window.VideoForgeAnimator.preload().then(ready=>{
     office.setAgentSpritesReady(ready);
+    window.VideoForgeAnimator.loadProductionManifest().then(()=>{
+      if(state.snapshot)renderPanel();
+    });
     if(state.snapshot)renderPanel();
   });
   state.previewMotion=null;
@@ -128,6 +131,31 @@
         });
         detail.append(preview,make("small","preview-note",
           "Prévia visual. Não indica trabalho real do agente."));
+        const extra=window.VideoForgeAnimator.productionMotions();
+        if(extra.length){
+          const chooser=make("div","production-preview");
+          chooser.append(make("small","preview-note",
+            "Animações adicionais do PixelLab — demonstração, não atividade real"));
+          const select=make("select","production-motion-select");
+          select.setAttribute("aria-label","Escolher animação extra para prévia");
+          const first=new Option("Selecionar uma animação extra","");select.add(first);
+          extra.forEach(item=>{const opt=new Option(item.category+" · "+item.name,item.name);select.add(opt);});
+          const play=make("button","animation-preview","Ver animação extra");
+          play.type="button";
+          play.addEventListener("click",async()=>{
+            const motion=select.value;
+            if(!motion)return;
+            play.disabled=true;play.textContent="Carregando sprite...";
+            const ready=await window.VideoForgeAnimator.preloadProduction(motion);
+            play.disabled=false;
+            play.textContent=ready?"Exibir: "+motion:"Sprite indisponível";
+            if(ready){
+              state.previewMotion=motion;
+              office.setPreviewMotion(motion);
+            }
+          });
+          chooser.append(select,play);detail.append(chooser);
+        }
       }
       if(window.VideoForgeAnimator.ready()&&office.getArtMode()==='pixellab'){
         const section=make("div","routine-section");
