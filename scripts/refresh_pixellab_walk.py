@@ -17,7 +17,7 @@ from PIL import Image
 
 DIRECTIONS = ("south", "south-east", "east", "north-east",
               "north", "north-west", "west", "south-west")
-FINGERPRINT = "9708e3207969cd208f819d20d74960da4c7d303f0fd08a45"
+FINGERPRINT = "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
 ROOT = Path("site/assets/pixellab/agents/alex")
 SOURCE_STATE = "walk"
 SOURCE_ANIMATION = "walking"
@@ -47,6 +47,8 @@ def replace_walk(source: Path, root: Path = ROOT, *,
                  state: str = SOURCE_STATE, animation: str = SOURCE_ANIMATION,
                  fingerprint: str = FINGERPRINT,
                  attestation: Path | None = None) -> dict:
+    if not re.fullmatch(r"[a-f0-9]{64}", fingerprint):
+        raise ValueError("Impressão digital do personagem inválida.")
     if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,49}", state) or not re.fullmatch(
         r"[a-z][a-z0-9_]{1,49}", animation
     ):
