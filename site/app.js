@@ -1,149 +1,91 @@
-"use strict";
-
-const LABELS = {
-  nao_conectado: "Não conectado",
-  aguardando: "Aguardando",
-  trabalhando: "Trabalhando",
-  revisao: "Em revisão",
-  concluido: "Concluído",
-  erro: "Erro"
-};
-const $ = (id) => document.getElementById(id);
-const state = { snapshot: null, selected: "diretor", canal: "todos" };
-
-function el(tag, className, content) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (content !== undefined) node.textContent = String(content);
-  return node;
-}
-function avatar() {
-  const node = el("span", "pixel-human");
-  node.setAttribute("aria-hidden", "true");
-  return node;
-}
-function active(status) {
-  return ["trabalhando", "revisao"].includes(status);
-}
-function displayStatus(status) {
-  return LABELS[status] || "Estado desconhecido";
-}
-function friendlyDate(iso) {
-  if (!iso) return "Sem horário";
-  const date = new Date(iso);
-  return isNaN(date.getTime()) ? "Sem horário" : date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-}
-function renderInspector() {
-  const snap = state.snapshot;
-  if (!snap) return;
-  const a = snap.agentes.find(x => x.id === state.selected) || snap.agentes[0];
-  if (!a) return;
-  $("agentIndex").textContent = "POSTO / " + String(snap.agentes.indexOf(a) + 1).padStart(2, "0");
-  $("inspectorName").textContent = a.nome;
-  $("inspectorRole").textContent = a.funcao;
-  $("inspectorState").textContent = displayStatus(a.status);
-  $("inspectorState").className = "inspector-state" + (active(a.status) ? " is-working" : "");
-  $("inspectorTask").textContent = a.tarefa || "Nenhuma tarefa reportada";
-  const ch = snap.canais.find(c => c.id === a.canal);
-  $("inspectorChannel").textContent = ch ? ch.nome : "Não atribuído";
-  const area = $("inspectorAvatar");
-  area.replaceChildren(avatar());
-  area.dataset.agent = a.id;
-}
-function renderAgents() {
-  const snap = state.snapshot;
-  const frag = document.createDocumentFragment();
-  for (const a of snap.agentes) {
-    const card = el("button", "desk");
-    card.type = "button";
-    card.dataset.agent = a.id;
-    card.classList.toggle("is-selected", state.selected === a.id);
-    card.classList.toggle("is-working", active(a.status));
-    card.classList.toggle("is-waiting", a.status === "aguardando");
-    card.setAttribute("aria-pressed", state.selected === a.id ? "true" : "false");
-    card.setAttribute("aria-label", a.nome + ": " + displayStatus(a.status) + ". Abrir detalhes");
-    card.append(el("span", "desk-monitor"), el("span", "desk-furniture"), avatar());
-    card.append(el("span", "desk-name", a.nome), el("span", "desk-state", displayStatus(a.status)));
-    card.addEventListener("click", () => {
-      state.selected = a.id;
-      renderAgents();
-      renderInspector();
-    });
-    frag.append(card);
+/* VideoForge AI Pixel Office — interface e dados verificáveis, sem simular trabalhos. */
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const STATUS={nao_conectado:"Não conectado",aguardando:"Aguardando",trabalhando:"Trabalhando",revisao:"Em revisão",concluido:"Concluído",erro:"Erro"};
+  const ICON={diretor:"◆",roteirista:"✎",artista:"✿",animador:"♜",narrador:"♫",editor:"▣",revisor:"✓",publicador:"↗"};
+  const state={snapshot:null,selected:null,tab:"agents",open:false};
+  const canvas=$("officeCanvas"), workspace=$("workspace");
+  const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
+  const make=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=String(text);return x;};
+  const label=x=>STATUS[x]||"Indisponível";
+  const live=x=>["trabalhando","revisao"].includes(x);
+  const dot=x=>x==="erro"?"error":live(x)?"running":x==="aguardando"?"waiting":"";
+  function setOpen(on){state.open=on;const panel=$("sidePanel");panel.classList.toggle("open",on);panel.setAttribute("aria-hidden",String(!on));$("btnAgents").setAttribute("aria-expanded",String(on&&state.tab==="agents"));$("btnChannels").setAttribute("aria-expanded",String(on&&state.tab==="channels"));}
+  function selectTab(tab){state.tab=tab;setOpen(true);renderPanel();}
+  function agentCard(a){const b=make("button","agent-item"+(state.selected===a.id?" active":""));b.type="button";b.setAttribute("aria-pressed",String(state.selected===a.id));const portrait=make("span","avatar-box",ICON[a.id]||"◇");portrait.setAttribute("aria-hidden","true");
+    const body=make("span","agent-item-main");body.append(make("strong","",a.nome),make("small","",a.funcao));
+    const status=make("i","state-dot "+dot(a.status));status.setAttribute("aria-label",label(a.status));b.append(portrait,body,status);
+    b.addEventListener("click",()=>{state.selected=a.id;office.setSelected(a.id);renderPanel();});
+    return b;
   }
-  $("agentFloor").replaceChildren(frag);
-}
-function renderChannels() {
-  const wrap = $("channelsList");
-  const frag = document.createDocumentFragment();
-  const list = state.canal === "todos" ? state.snapshot.canais : state.snapshot.canais.filter(c => c.id === state.canal);
-  for (const c of list) {
-    const card = el("article", "channel-card");
-    card.append(el("span", "channel-icon", "▶"));
-    card.append(el("strong", "", c.nome));
-    card.append(el("span", "channel-sub", c.id + " · " + c.idioma));
-    card.append(el("span", "channel-model", c.modelo));
-    frag.append(card);
+  function channelCard(c){const b=make("button","channel-item");b.type="button";
+    const portrait=make("span","avatar-box","▶");portrait.setAttribute("aria-hidden","true");
+    const body=make("span","channel-item-main");body.append(make("strong","",c.nome),make("small","",c.idioma+" · "+c.modelo));
+    b.append(portrait,body);b.addEventListener("click",()=>{state.selectedChannel=c.id;renderPanel();});b.classList.toggle("active",state.selectedChannel===c.id);return b;
   }
-  wrap.replaceChildren(frag);
-}
-function updateFilters() {
-  const select = $("channelFilter");
-  const previous = state.canal;
-  select.replaceChildren(el("option", "", "Todos os canais"));
-  select.firstElementChild.value = "todos";
-  for (const c of state.snapshot.canais) {
-    const opt = el("option", "", c.nome);
-    opt.value = c.id;
-    select.append(opt);
-  }
-  state.canal = state.snapshot.canais.some(c => c.id === previous) ? previous : "todos";
-  select.value = state.canal;
-}
-function renderDashboard() {
-  const snapshot = state.snapshot;
-  const total = snapshot.agentes.length;
-  const running = snapshot.agentes.filter(a => active(a.status)).length;
-  $("countAgents").textContent = total;
-  $("countActive").textContent = running;
-  $("countChannels").textContent = snapshot.canais.length;
-  $("countPending").textContent = snapshot.agentes.filter(a => a.status === "aguardando").length;
-  const noEvents = snapshot.fonte !== "eventos_backend";
-  $("sourceLabel").textContent = noEvents ? "Prévia · sem agentes ativos" : "Snapshot do backend";
-  $("lastUpdate").textContent = "Atualizado: " + friendlyDate(snapshot.gerado_em);
-  $("noticeText").textContent = noEvents
-    ? "Este é um escritório de demonstração. Os oito agentes estão cadastrados, mas nenhum processo de IA foi conectado. O painel não executa tarefas."
-    : "Os estados exibidos vieram de um relatório do backend. Esta é uma fotografia do último deploy, não uma transmissão em tempo real.";
-  updateFilters();
-  renderAgents();
-  renderInspector();
-  renderChannels();
-}
-async function load() {
-  try {
-    const response = await fetch("./data/status.json?v=" + Date.now(), { cache: "no-store" });
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    const data = await response.json();
-    if (!data || data.schema !== "videoforge/agent-office/v1" || !Array.isArray(data.agentes) || !Array.isArray(data.canais)) {
-      throw new Error("Dados do painel inválidos");
+  function renderPanel(){
+    const snap=state.snapshot;if(!snap)return;
+    const isAgents=state.tab==="agents";
+    $("panelSection").textContent=isAgents?"01 / EQUIPE":"02 / CANAIS";
+    $("panelTitle").textContent=isAgents?"Equipe do VideoForge":"Linhas de produção";
+    $("tabAgents").classList.toggle("active",isAgents);$("tabChannels").classList.toggle("active",!isAgents);
+    $("tabAgents").setAttribute("aria-selected",String(isAgents));$("tabChannels").setAttribute("aria-selected",String(!isAgents));
+    const root=$("panelList"),frag=document.createDocumentFragment();
+    (isAgents?snap.agentes:snap.canais).forEach(item=>frag.append(isAgents?agentCard(item):channelCard(item)));
+    root.replaceChildren(frag);
+    const detail=$("panelDetails");detail.replaceChildren();
+    if(isAgents){const a=snap.agentes.find(a=>a.id===state.selected)||snap.agentes[0];if(!a)return;
+      detail.append(make("div","detail-kicker","AGENTE SELECIONADO"),make("div","detail-title",a.nome),make("div","detail-status","● "+label(a.status)),make("p","detail-text",a.tarefa||"Nenhuma tarefa informada"));
+      const channel=snap.canais.find(c=>c.id===a.canal);
+      detail.append(make("div","detail-footnote","Canal: "+(channel?channel.nome:"Não atribuído")));
+    }else{const c=snap.canais.find(c=>c.id===state.selectedChannel)||snap.canais[0];if(!c)return;
+      detail.append(make("div","detail-kicker","CANAL REGISTRADO"),make("div","detail-title",c.nome),make("div","detail-status",c.idioma+" · "+c.modelo),make("p","detail-text","O painel não publica vídeos. Este canal ainda não está conectado a um executor de IA."));
     }
-    state.snapshot = data;
-    renderDashboard();
-  } catch (error) {
-    if (!state.snapshot) {
-      $("agentFloor").replaceChildren(el("p", "loading", "Não foi possível carregar o snapshot. Execute o exportador antes de abrir o site."));
-      $("channelsList").replaceChildren(el("p", "loading", "Dados indisponíveis."));
-      $("sourceLabel").textContent = "Snapshot indisponível";
-    }
-    $("lastUpdate").textContent = "Sem atualização";
-    $("noticeText").textContent = "O painel não conseguiu acessar dados válidos. Nenhuma atividade foi presumida.";
-    console.error("Falha ao carregar status:", error);
   }
-}
-$("channelFilter").addEventListener("change", (event) => {
-  state.canal = event.target.value;
-  if (state.snapshot) renderChannels();
-});
-$("footerYear").textContent = String(new Date().getFullYear());
-load();
-setInterval(load, 60000);
+  function render(){
+    const snap=state.snapshot;if(!snap)return;
+    if(!snap.agentes.find(a=>a.id===state.selected))state.selected=snap.agentes[0]?.id||null;
+    office.setAgents(snap.agentes);office.setSelected(state.selected);
+    $("agentsCount").textContent=String(snap.agentes.length);
+    $("activeCount").textContent=String(snap.agentes.filter(a=>live(a.status)).length);
+    $("channelsCount").textContent=String(snap.canais.length);
+    const actual=snap.fonte==="eventos_backend";
+    $("sceneSource").textContent=actual?"SNAPSHOT DE ATIVIDADE":"SEM EXECUÇÃO DE AGENTES";
+    $("connectionBadge").dataset.live=String(actual);
+    $("connectionBadge").lastChild.textContent=actual?" SNAPSHOT RECEBIDO":" NÃO CONECTADO";
+    if(snap.gerado_em){const d=new Date(snap.gerado_em);$("snapshotAge").textContent=isNaN(d.getTime())?"Sem data":"Snapshot "+d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
+    renderPanel();
+  }
+  async function load(){
+    try{
+      const response=await fetch("./data/status.json?t="+Date.now(),{cache:"no-store"});
+      if(!response.ok)throw new Error("HTTP "+response.status);
+      const data=await response.json();
+      if(!data||data.schema!=="videoforge/agent-office/v1"||!Array.isArray(data.agentes)||!Array.isArray(data.canais))throw new Error("Formato de snapshot inválido");
+      state.snapshot=data;render();
+    }catch(err){
+      $("sceneSource").textContent="SNAPSHOT INDISPONÍVEL";
+      $("snapshotAge").textContent="Sem dados";
+      console.error("VideoForge: erro no snapshot",err);
+    }
+  }
+  $("btnZoomIn").addEventListener("click",()=>office.zoomAt(1.2));
+  $("btnZoomOut").addEventListener("click",()=>office.zoomAt(1/1.2));
+  $("btnReset").addEventListener("click",()=>office.reset());
+  $("btnFullscreen").addEventListener("click",async()=>{
+    try{if(document.fullscreenElement){await document.exitFullscreen();}else if(workspace.requestFullscreen){await workspace.requestFullscreen();}}
+    catch(err){console.warn("Modo tela cheia não disponível:",err);}
+  });
+  $("btnAgents").addEventListener("click",()=>{if(state.open&&state.tab==="agents"){setOpen(false);}else selectTab("agents");});
+  $("btnChannels").addEventListener("click",()=>{if(state.open&&state.tab==="channels"){setOpen(false);}else selectTab("channels");});
+  $("btnClose").addEventListener("click",()=>setOpen(false));
+  $("tabAgents").addEventListener("click",()=>selectTab("agents"));
+  $("tabChannels").addEventListener("click",()=>selectTab("channels"));
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&state.open)setOpen(false);
+    if((e.key==="+"||e.key==="=")&&!(e.target instanceof HTMLInputElement))office.zoomAt(1.15);
+    if(e.key==="-"&&!(e.target instanceof HTMLInputElement))office.zoomAt(1/1.15);
+  });
+  load();window.setInterval(load,60000);
+})();

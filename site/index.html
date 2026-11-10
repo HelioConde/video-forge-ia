@@ -2,111 +2,72 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0c1020">
-  <meta name="description" content="Escritório de agentes do VideoForge AI: acompanhe a equipe responsável pela produção de vídeos.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; object-src 'none';">
-  <title>VideoForge AI · Escritório de Agentes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="VideoForge AI: um escritório de agentes representado em pixel art e Canvas em tela inteira.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'">
+  <title>VideoForge AI | Pixel Office</title>
   <link rel="stylesheet" href="./styles.css">
-  <script src="./app.js" defer></script>
+  <script defer src="./office-renderer.js"></script>
+  <script defer src="./app.js"></script>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="header">
-      <a class="brand" href="./" aria-label="VideoForge AI, início">
-        <span class="brand-icon" aria-hidden="true">▶</span>
-        <span><strong>VIDEOFORGE<span class="brand-ai">.AI</span></strong><small>AGENT HEADQUARTERS</small></span>
-      </a>
-      <div class="header-right">
-        <span class="tag tag--outline">PAINEL v0.1</span>
-        <a class="github-link" href="https://github.com/HelioConde/video-forte-ia/actions" target="_blank" rel="noopener noreferrer">GitHub Actions <span aria-hidden="true">↗</span></a>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="VideoForge AI, escritório principal"><span class="brand-symbol">V<span class="spark">✦</span></span><span class="brand-copy"><strong>VIDEOFORGE <em>AI</em></strong><small>PIXEL OPERATIONS CENTER</small></span></a>
+      <div class="top-center"><span class="brand-divider"></span><span class="top-location"><span class="top-pulse"></span> STUDIO / ANDAR 01</span></div>
+      <div class="top-actions">
+        <span class="top-meta" id="snapshotAge">Prévia local</span>
+        <span class="top-badge" id="connectionBadge"><span></span> NÃO CONECTADO</span>
+        <a class="github-button" target="_blank" rel="noopener noreferrer" href="https://github.com/HelioConde/video-forte-ia/actions" aria-label="Abrir GitHub Actions"><span class="github-text">GitHub Actions</span><span aria-hidden="true">↗</span></a>
       </div>
     </header>
+    <main class="workspace" id="workspace">
+      <canvas id="officeCanvas" aria-label="Escritório pixel-art interativo com oito estações de agentes de inteligência artificial. Arraste para explorar e toque em um agente para abrir detalhes." role="img"></canvas>
 
-    <main>
-      <div class="intro">
-        <div>
-          <div class="eyebrow"><span class="eyebrow-line"></span> CENTRO DE OPERAÇÕES · PRODUÇÃO DE VÍDEOS</div>
-          <h1>Sua equipe de <em>agentes IA</em></h1>
-          <p>Um escritório virtual para acompanhar cada etapa da criação, edição e publicação dos seus vídeos.</p>
-        </div>
-        <div class="build-indicator">
-          <span class="mini-lamp" aria-hidden="true"></span>
-          <div><strong id="sourceLabel">Carregando dados</strong><small id="lastUpdate">Verificando a origem do painel...</small></div>
+      <div class="corner-hud" aria-live="polite">
+        <div class="eyebrow"><span class="hud-spark">✦</span> AMBIENTE VIRTUAL <span class="eyebrow-muted">/ HQ</span></div>
+        <div class="hud-title">A fábrica de vídeos <span>ganhou vida.</span></div>
+        <div class="hud-subtitle">Explore o escritório e conheça sua equipe de IA.</div>
+        <div class="hud-stats">
+          <span><b id="agentsCount">8</b> AGENTES</span>
+          <span><b id="activeCount">0</b> TRABALHANDO</span>
+          <span><b id="channelsCount">5</b> CANAIS</span>
         </div>
       </div>
 
-      <section class="overview" aria-label="Indicadores do escritório">
-        <div class="metric"><span class="metric-icon">▣</span><span class="metric-number" id="countAgents">—</span><span class="metric-label">AGENTES</span></div>
-        <div class="metric"><span class="metric-icon">◉</span><span class="metric-number" id="countActive">—</span><span class="metric-label">EM ATIVIDADE</span></div>
-        <div class="metric"><span class="metric-icon">▤</span><span class="metric-number" id="countChannels">—</span><span class="metric-label">CANAIS</span></div>
-        <div class="metric"><span class="metric-icon">◷</span><span class="metric-number" id="countPending">—</span><span class="metric-label">AGUARDANDO</span></div>
-      </section>
-
-      <div class="notice" role="status">
-        <span class="notice-icon" aria-hidden="true">ⓘ</span>
-        <span id="noticeText">Este é um painel de visualização. Os agentes não executam tarefas dentro do GitHub Pages.</span>
+      <div class="scene-actions" aria-label="Ferramentas do cenário">
+        <button type="button" class="scene-button" id="btnZoomIn" title="Aproximar" aria-label="Aproximar cenário">+</button>
+        <button type="button" class="scene-button" id="btnZoomOut" title="Afastar" aria-label="Afastar cenário">−</button>
+        <button type="button" class="scene-button" id="btnReset" title="Centralizar" aria-label="Centralizar cenário">⌖</button>
+        <span class="tools-divider"></span>
+        <button type="button" class="scene-button" id="btnFullscreen" title="Tela cheia" aria-label="Alternar tela cheia">⛶</button>
       </div>
 
-      <div class="section-heading">
-        <div><span class="section-kicker">01 / ESCRITÓRIO</span><h2>Andar de produção</h2></div>
-        <div class="legend" aria-label="Estados possíveis"><span><i class="dot dot--work"></i> Trabalhando</span><span><i class="dot dot--wait"></i> Aguardando</span><span><i class="dot dot--offline"></i> Não conectado</span></div>
+      <div class="quick-menu" aria-label="Painéis">
+        <button type="button" class="quick-button" id="btnAgents"><span class="quick-icon" aria-hidden="true">♟</span> Equipe <span class="quick-number">08</span></button>
+        <button type="button" class="quick-button" id="btnChannels"><span class="quick-icon" aria-hidden="true">▣</span> Canais <span class="quick-number">05</span></button>
       </div>
 
-      <div class="workplace-layout">
-        <section class="office-frame" aria-label="Escritório virtual dos agentes">
-          <div class="office-wall">
-            <div class="windows" aria-hidden="true"><span></span><span></span><span></span></div>
-            <div class="wall-heading">VIDEO PRODUCTION STUDIO <span>● HQ / 01</span></div>
-          </div>
-          <div class="office-floor">
-            <span class="office-plant office-plant--left" aria-hidden="true">♣</span>
-            <span class="office-plant office-plant--right" aria-hidden="true">♣</span>
-            <div class="desk-grid" id="agentFloor" aria-live="polite">
-              <p class="loading">Carregando estações de trabalho...</p>
-            </div>
-            <div class="office-footer"><span>☕ ÁREA DE DESCANSO</span><span>⌁ 8 POSTOS DE TRABALHO</span></div>
-          </div>
-        </section>
-
-        <aside class="inspector" aria-label="Detalhes do agente selecionado">
-          <div class="inspector-top"><span class="section-kicker">PERFIL DO AGENTE</span><span class="inspector-id" id="agentIndex">—</span></div>
-          <div class="inspector-avatar" id="inspectorAvatar"><span class="question-mark">?</span></div>
-          <h3 id="inspectorName">Selecione um agente</h3>
-          <div class="inspector-role" id="inspectorRole">—</div>
-          <div class="inspector-divider"></div>
-          <div class="detail-label">ESTADO ATUAL</div>
-          <div class="inspector-state" id="inspectorState">Aguardando dados</div>
-          <div class="detail-label">TAREFA</div>
-          <p id="inspectorTask" class="inspector-task">Selecione uma estação no escritório para inspecionar o agente.</p>
-          <div class="detail-label">CANAL</div>
-          <p id="inspectorChannel" class="inspector-channel">—</p>
-          <div class="inspector-bottom">Os agentes serão conectados ao backend de produção em uma etapa futura.</div>
-        </aside>
+      <div class="workspace-footer">
+        <div class="scene-caption"><span class="pixel-led"></span><span>PIXEL OFFICE · <strong id="sceneSource">SEM EXECUÇÃO DE AGENTES</strong></span></div>
+        <div class="scene-hints"><span>✥ Arraste para mover</span><span>⊕ Scroll ou +/- para zoom</span><span>◎ Selecione um agente</span></div>
       </div>
 
-      <section class="channels-section" aria-label="Canais cadastrados">
-        <div class="section-heading channel-header">
-          <div><span class="section-kicker">02 / CANAIS</span><h2>Linhas de produção</h2></div>
-          <div class="channel-controls"><label for="channelFilter">Ver canal</label><select id="channelFilter"><option value="todos">Todos os canais</option></select></div>
+      <aside id="sidePanel" class="side-panel" role="dialog" aria-modal="false" aria-label="Painel de agentes e canais" aria-hidden="true">
+        <div class="panel-header">
+          <div><small id="panelSection">01 / EQUIPE</small><h2 id="panelTitle">Agentes do estúdio</h2></div>
+          <button class="close-button" type="button" id="btnClose" aria-label="Fechar painel">×</button>
         </div>
-        <div class="channel-grid" id="channelsList"><p class="loading">Carregando canais...</p></div>
-      </section>
-
-      <section class="pipeline-section" aria-label="Etapas de produção">
-        <div class="section-heading"><div><span class="section-kicker">03 / PIPELINE</span><h2>Da ideia ao YouTube</h2></div><span class="tag">EM ESTRUTURAÇÃO</span></div>
-        <div class="pipeline" id="pipeline">
-          <div class="pipeline-step">01 <strong>Roteiro</strong></div>
-          <div class="pipeline-step">02 <strong>Imagem</strong></div>
-          <div class="pipeline-step">03 <strong>Animação</strong></div>
-          <div class="pipeline-step">04 <strong>Áudio</strong></div>
-          <div class="pipeline-step">05 <strong>Edição</strong></div>
-          <div class="pipeline-step">06 <strong>Revisão</strong></div>
-          <div class="pipeline-step">07 <strong>Upload</strong></div>
+        <div class="panel-tabs" role="tablist" aria-label="Visualização do painel">
+          <button class="tab active" type="button" id="tabAgents" role="tab" aria-selected="true">Funcionários</button>
+          <button class="tab" type="button" id="tabChannels" role="tab" aria-selected="false">Canais</button>
         </div>
-      </section>
+        <div id="panelList" class="panel-scroll" aria-live="polite"></div>
+        <div id="panelDetails" class="panel-details" aria-live="polite"></div>
+        <div class="panel-footer"><span class="pixel-led muted"></span> Status fornecido pelo último snapshot do backend.</div>
+      </aside>
     </main>
-    <footer class="footer"><span>© VIDEOFORGE AI · <span id="footerYear">2026</span></span><span>PAINEL DE MONITORAMENTO · SEM EXECUÇÃO DE IA NO NAVEGADOR</span></footer>
   </div>
 </body>
 </html>
