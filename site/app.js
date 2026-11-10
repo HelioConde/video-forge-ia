@@ -141,14 +141,15 @@
         const specialty=window.VideoForgeBehaviors?.profile(a.id);
         if(specialty){
           const available=new Set(window.VideoForgeAnimator.productionMotions().map(x=>x.name));
-          const configured=window.VideoForgeBehaviors.names(a.id);
+          const configured=window.VideoForgeBehaviors.names(
+            a.id,window.VideoForgeAnimator.productionMotions());
           const readyNames=configured.filter(x=>available.has(x));
           const info=make("div","production-preview");
           info.append(make("strong","","ANIMAÇÕES DA PROFISSÃO"));
           info.append(make("p","detail-text",
             readyNames.length+" de "+configured.length+" movimentos previstos disponíveis na biblioteca."));
           info.append(make("small","preview-note",
-            "Movimentos automáticos seguem tarefas reais; simulação opcional pelo botão 🎬, sem ativar agentes IA."));
+            "Galeria por profissão e simulação 🎬; animações não comprovam trabalho executado por IA."));
           detail.append(info);
         }
         const preview=make("button","animation-preview");
@@ -221,7 +222,7 @@
         const section=make("div","routine-section");
         section.append(make("div","routine-title","PASSEIOS NO ESCRITÓRIO · DEMONSTRAÇÃO"));
         section.append(make("small","preview-note",
-          "Usa somente walk/idle. Beber, jogar e usar o banheiro ainda não têm animação própria."));
+          "Usa sprites PixelLab no destino. Portas, banheiro e jogos ainda são cenários demonstrativos."));
         const destination=[
           ["coffee","Ir ao café"],["water","Ir ao bebedouro"],
           ["games","Ir aos jogos (prévia)"],["restroom","Ir à porta do banheiro"],
