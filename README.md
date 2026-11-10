@@ -34,6 +34,21 @@ Cada modelo de produção também reserva configurações distintas de **provedo
 
 Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md).
 
+## Regra permanente de organização
+
+**A organização do VideoForge AI é uma exigência contínua, em toda alteração — não apenas na criação do projeto.** Antes de adicionar, alterar, mover ou remover qualquer código, configuração, modelo, vídeo ou automação, é obrigatório preservar uma estrutura clara, consistente e fácil de manter.
+
+- Manter cada canal em `canal/<id>/`, seus vídeos em `canal/<id>/videos/<id>/` e os modelos reutilizáveis em `modelos/<id>/`.
+- Separar responsabilidades por módulos; evitar arquivos gigantes, código duplicado e funcionalidades sem relação misturadas no mesmo arquivo.
+- Usar nomes descritivos e consistentes para arquivos, pastas, funções e configurações. Não criar scripts ou pastas temporárias sem necessidade.
+- Reaproveitar componentes e modelos compartilhados sem comprometer o isolamento dos canais; permitir um modelo próprio por vídeo.
+- Manter arquivos gerados, mídias, logs e credenciais fora do código versionado e nos lugares definidos pela arquitetura.
+- Ao concluir qualquer alteração, revisar a estrutura, remover apenas artefatos realmente obsoletos com segurança, atualizar a documentação e executar os testes pertinentes.
+- Se uma mudança exigir nova pasta ou módulo, justificar sua responsabilidade, respeitar os padrões existentes e atualizar este guia.
+- Não reorganizar nem excluir conteúdo de outros canais sem necessidade e sem verificar referências e dependências.
+
+As orientações operacionais para agentes de IA e colaboradores estão em [AGENTS.md](AGENTS.md).
+
 ## Primeiro teste (sem custo de IA e sem upload)
 
 Requisito: Python 3.12+.
