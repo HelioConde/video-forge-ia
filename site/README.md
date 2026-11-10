@@ -92,3 +92,12 @@ Se faltar algum atlas, a aplicação mantém os oito personagens desenhados orig
 ## Testes automáticos do atlas
 
 Os testes `tests/test_pixellab_atlases.py` validam que os seis atlas e o manifesto estão no repositório, que cada PNG tem dimensão **352×704**, RGBA e hash SHA-256 correspondente, e que a lista de direções e frames é estável. A validação e o deploy de Pages verificam a sintaxe de `agent-animator.js` com `node --check`.
+
+
+## Rotinas visuais de descanso (protótipo)
+
+O novo módulo `site/agent-routines.js` permite escolher manualmente um agente no **modo PixelLab** e mostrar sua caminhada até pontos sinalizados de café, água, jogos e entrada do banheiro. O painel possui os comandos de ida e **Voltar à mesa**. A movimentação usa `walk` com oito direções e `idle` ao chegar. O caminho usa um corredor visual predefinido, não é pathfinding completo por colisão. O minimapa e hit-testing seguem a posição do sprite durante o deslocamento.
+
+**Muito importante:** trata-se de demonstração gráfica acionada pelo usuário, sem alteração do `status` recebido no backend, sem simular trabalho, sem rotina autônoma real. Não existe ainda animação para beber, jogar, cantar sentado, levantar da cadeira, entrar no banheiro ou lavar as mãos: ao chegar, o sprite fica parado e a UI identifica que a ação específica está pendente. Os destinos `JOGOS*` e `WC*` são apenas marcações de áreas futuras, não salas concluídas no PixelLab. O backend prevalece sobre a demonstração se registrar atividade real.
+
+Consulte `docs/PLANO_INTERACOES_ESCRITORIO.md` para a sequência de novos sprites e ambientes.

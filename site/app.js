@@ -27,10 +27,12 @@
     artBtn.disabled=!ready;
     if(ready)office.setArtMode('pixellab');
     updateArtButton();
+    if(state.snapshot)renderPanel();
   });
   artBtn.addEventListener('click',()=>{
     office.setArtMode(office.getArtMode()==='pixellab'?'classic':'pixellab');
     updateArtButton();
+    if(state.snapshot)renderPanel();
   });
   office.setMiniMap($("officeMiniMap"));
   const miniPanel=document.querySelector(".mini-panel");
@@ -91,6 +93,38 @@
         });
         detail.append(preview,make("small","preview-note",
           "Prévia visual. Não indica trabalho real do agente."));
+      }
+      if(window.VideoForgeAnimator.ready()&&office.getArtMode()==='pixellab'){
+        const section=make("div","routine-section");
+        section.append(make("div","routine-title","PASSEIOS NO ESCRITÓRIO · DEMONSTRAÇÃO"));
+        section.append(make("small","preview-note",
+          "Usa somente walk/idle. Beber, jogar e usar o banheiro ainda não têm animação própria."));
+        const destination=[
+          ["coffee","Ir ao café"],["water","Ir ao bebedouro"],
+          ["games","Ir aos jogos (prévia)"],["restroom","Ir à porta do banheiro"],
+          ["home","Voltar à mesa"]
+        ];
+        const buttons=make("div","routine-buttons");
+        const canPreview=!live(a.status)&&a.status!=='erro';
+        destination.forEach(([key,word])=>{
+          const button=make("button","routine-button",word);
+          button.type="button";
+          button.dataset.destination=key;
+          button.disabled=!canPreview;
+          button.title=canPreview?"Rota ilustrativa, não execução real":"Indisponível durante atividade real";
+          button.addEventListener("click",()=>{
+            state.previewMotion=null;
+            office.setPreviewMotion(null);
+            if(office.travelSelected(key)){
+              const text=section.querySelector(".routine-state");
+              if(text)text.textContent=office.routineState(a.id);
+            }
+          });
+          buttons.append(button);
+        });
+        section.append(buttons);
+        section.append(make("div","routine-state",office.routineState(a.id)));
+        detail.append(section);
       }
     }else{const c=snap.canais.find(c=>c.id===state.selectedChannel)||snap.canais[0];if(!c)return;
       detail.append(make("div","detail-kicker","CANAL REGISTRADO"),make("div","detail-title",c.nome),make("div","detail-status",c.idioma+" · "+c.modelo),make("p","detail-text","O painel não publica vídeos. Este canal ainda não está conectado a um executor de IA."));

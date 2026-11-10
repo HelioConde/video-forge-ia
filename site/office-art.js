@@ -75,6 +75,16 @@ function pixelBase(c){
   text(c,'SHELF',1060,658,'#d0d9cc',10,'center');
   text(c,'AUDIO',774,748,'#d0d9cc',10,'center');
   text(c,'EDITING',984,754,'#d0d9cc',10,'center');
+  // Marcadores de destinos futuros, não móveis PixelLab concluídos.
+  const stations=[
+    [668,585,'CAFÉ'],[859,582,'ÁGUA'],[1082,671,'JOGOS*'],[1130,548,'WC*']
+  ];
+  stations.forEach(([x,y,label])=>{
+    rect(c,x,y,94,21,'#213d48');
+    line(c,x,y,94,21,'#a2c8ae',1);
+    text(c,label,x+47,y+14,'#d7edce',11,'center');
+  });
+  text(c,'* ÁREAS PLANEJADAS / ROTAS EM PRÉVIA',1212,780,'#9cbdc5',11,'right');
 }
 function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function line(c,x,y,w,h,col,t=2){c.lineWidth=t;c.strokeStyle=col;c.strokeRect(Math.round(x)+.5,Math.round(y)+.5,w,h);}
@@ -120,27 +130,35 @@ function motionForAgent(agent){
   };
   return profession[agent.id]||'idle';
 }
-function paintPixelAgent(c,agent,i,x,y,selected,t,previewMotion,reduceMotion){
+function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotion){
   const animator=window.VideoForgeAnimator;
   if(artMode!=='pixellab'||!spritesReady||!animator?.ready())return false;
-  const motion=selected&&previewMotion?previewMotion:motionForAgent(agent);
-  const direction=i<4?'south':'north';
+  const motion=position?.moving?'walk':position?position.motion:
+               selected&&previewMotion?previewMotion:motionForAgent(agent);
+  const direction=position?.direction||(i<4?'south':'north');
   const frame=reduceMotion?0:Math.floor((t||0)/180)%4;
-  if(!animator.draw(c,motion,direction,frame,x,y+111,88))return false;
-  if(selected){line(c,x-38,y+67,76,90,'#ffe19d',2);star(c,x,y+61,'#f9dd8c');}
+  const x=position?.x??stations[i][0],y=position?.y??stations[i][1]+111;
+  if(!animator.draw(c,motion,direction,frame,x,y,88))return false;
+  if(selected){line(c,x-38,y-44,76,90,'#ffe19d',2);star(c,x,y-50,'#f9dd8c');}
   return true;
 }
 window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode:()=>artMode,
   spritesAvailable:()=>spritesReady,
   paintBackground:c=>(artMode==='pixellab'&&spritesReady?pixelBase(c):officeBase(c)),
-  paintAgents:function(c,agents,selected,t,previewMotion=null,reduceMotion=false){
-    agents.forEach((a,i)=>{
+  paintAgents:function(c,agents,selected,t,previewMotion=null,reduceMotion=false,routines=null){
+    const entries=agents.map((a,i)=>{
+      const pos=artMode==='pixellab'&&routines?routines.poseFor(a.id,t):null;
+      return {a,i,pos,depth:pos?.y??(stations[i]?.[1]+111||0)};
+    }).sort((a,b)=>a.depth-b.depth);
+    entries.forEach(({a,i,pos})=>{
       if(!stations[i])return;
-      const [x,y]=stations[i],isSelected=a.id===selected;
+      const [homeX,homeY]=stations[i],isSelected=a.id===selected;
+      const x=pos?.x??homeX,y=pos?.y??homeY+111;
       const active=['trabalhando','revisao'].includes(a.status);
-      if(!paintPixelAgent(c,a,i,x,y,isSelected,t,previewMotion,reduceMotion)){
-        avatar(c,x,y+111,i,isSelected,active);
+      if(!paintPixelAgent(c,a,i,pos,isSelected,t,previewMotion,reduceMotion)){
+        avatar(c,x,y,i,isSelected,active);
       }
-      statusBar(c,x,y+173,i,a.nome||a.id,a.status,isSelected);
+      // O status exibido sempre vem do backend, nunca da rotina ilustrativa.
+      statusBar(c,x,y+62,i,a.nome||a.id,a.status,isSelected);
     });
   }};

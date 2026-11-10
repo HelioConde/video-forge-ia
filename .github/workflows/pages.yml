@@ -38,6 +38,8 @@ jobs:
         run: |
           node --check site/app.js
           node --check site/agent-animator.js
+          node --check site/agent-routines.js
+          node tests/test_agent_routines.js
           node --check site/office-art.js
           node --check site/office-renderer.js
       - name: Gerar snapshot publico sem segredos

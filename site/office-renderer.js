@@ -14,6 +14,7 @@
       this.onSelect=onSelect;
       this.agents=[];this.selected=null;this.zoom=1;this.panX=0;this.panY=0;
       this.agentSpritesReady=false;this.previewMotion=null;
+      this.routines=window.VideoForgeRoutines.create(slots);
       this.pointerMap=new Map();this.drag=null;this.pinch=null;this.wasMobile=null;
       this.miniCanvas=null;this.miniCtx=null;
       this.bg=document.createElement('canvas');this.bg.width=W;this.bg.height=H;
@@ -42,7 +43,14 @@
       };
       this.frame=requestAnimationFrame(loop);
     }
-    setAgents(list){this.agents=list.slice(0,slots.length);this.render(0);}
+    setAgents(list){
+      this.agents=list.slice(0,slots.length);
+      // Eventos de produção reais prevalecem sobre qualquer demonstração manual.
+      this.agents.forEach(a=>{
+        if(active(a)||a.status==='erro')this.routines.cancel(a.id);
+      });
+      this.render(0);
+    }
     setSelected(id){this.selected=id;this.render(0);}
     setAgentSpritesReady(ready){
       this.agentSpritesReady=Boolean(ready);
@@ -54,8 +62,19 @@
       this.previewMotion=motion;
       this.render(0);
     }
+    travelSelected(destination){
+      if(scene.getArtMode()!=='pixellab'||!this.agentSpritesReady)return false;
+      const agent=this.agents.find(a=>a.id===this.selected);
+      if(!agent||active(agent)||agent.status==='erro')return false;
+      if(!this.routines.travel(agent.id,destination,performance.now()))return false;
+      this.previewMotion=null;
+      this.render(performance.now());
+      return true;
+    }
+    routineState(id){return this.routines.current(id,performance.now());}
     setArtMode(mode){
       if(!scene.setArtMode(mode))return false;
+      if(mode==='classic')this.routines.clear();
       scene.paintBackground(this.bg.getContext('2d'));
       this.reset();this.renderMiniMap();
       return true;
@@ -105,7 +124,10 @@
     focusAgent(id){
       const idx=this.agents.findIndex(a=>a.id===id);
       if(idx<0)return;
-      if(this.viewW<=700)this.centerWorld(slots[idx][0],slots[idx][1]+98);
+      if(this.viewW<=700){
+        const pos=this.routines.poseFor(id,performance.now());
+        this.centerWorld(pos?.x??slots[idx][0],pos?.y??slots[idx][1]+98);
+      }
       this.render(0);
     }
     zoomAt(mult,cx=this.viewW/2,cy=this.viewH/2){
@@ -130,7 +152,8 @@
       if(this.getArtMode()==='pixellab'){
         let best=null,bestDistance=Infinity;
         for(let i=0;i<this.agents.length;i++){
-          const [sx,sy]=slots[i],dx=p.x-sx,dy=p.y-(sy+111);
+          const [sx,sy]=slots[i],pos=this.routines.poseFor(this.agents[i].id,performance.now());
+          const dx=p.x-(pos?.x??sx),dy=p.y-(pos?.y??sy+111);
           const distance=Math.hypot(dx,dy);
           if(Math.abs(dx)<=68&&Math.abs(dy)<=67&&distance<bestDistance){
             best=this.agents[i].id;bestDistance=distance;
@@ -185,7 +208,8 @@
       const v=this.viewport();
       c.save();c.translate(v.x,v.y);c.scale(v.scale,v.scale);c.imageSmoothingEnabled=false;
       c.drawImage(this.bg,0,0);
-      scene.paintAgents(c,this.agents,this.selected,ts,this.previewMotion,this.reduceMotion);
+      const now=ts||performance.now();
+      scene.paintAgents(c,this.agents,this.selected,now,this.previewMotion,this.reduceMotion,this.routines);
       c.restore();this.renderMiniMap();
     }
     renderMiniMap(){
@@ -194,7 +218,9 @@
       c.clearRect(0,0,mw,mh);c.imageSmoothingEnabled=false;
       c.drawImage(this.bg,0,0,W,H,0,0,mw,mh);
       this.agents.forEach((a,i)=>{
-        const [x,y]=slots[i];
+        const [sx,sy]=slots[i];
+        const pos=this.routines.poseFor(a.id,performance.now());
+        const x=pos?.x??sx,y=pos?.y??sy+111;
         c.fillStyle=a.id===this.selected?'#f5cd83':active(a)?'#98f5be':'#edf2df';
         c.fillRect(x/W*mw-2,y/H*mh-2,5,5);
       });

@@ -143,3 +143,7 @@ As nove imagens aprovadas foram copiadas dos artifacts das Actions para `site/as
 ## Animação de agentes a partir dos sprites do PixelLab
 
 O workflow `.github/workflows/pixellab-export-alex.yml` exporta os frames sem gerar novamente; `scripts/import_pixellab_agents.py` converte o ZIP validado em atlas PNG, eliminando todos os metadados privados; a action `.github/workflows/pixellab-import-alex.yml` salva os arquivos no repositório. O manifesto `site/assets/pixellab/agents/alex/manifest.json` guarda apenas direções, movimentos, dimensões e hashes. O carregador `site/agent-animator.js` valida seis atlas de 352×704 e desenha sincronicamente no Canvas com suporte a `prefers-reduced-motion`. `site/office-art.js` faz a seleção de animação por status backend e `site/office-renderer.js` mantém apenas câmera, render e hit-testing. Falha ao importar qualquer atlas não impede a arte anterior.
+
+## Locomoção visual e interação com cenários
+
+`site/agent-routines.js` mantém somente rotas de demonstração em memória do navegador. A biblioteca de destinos limita as ações a café, água, jogos, entrada do banheiro e retorno à estação; não altera `status` do backend, não faz solicitações à API PixelLab e não exibe consumo de recursos inexistentes. O Canvas `office-art.js` utiliza a mesma posição/direção calculada para `walk` e `idle`, `office-renderer.js` aplica o mesmo deslocamento a hit-testing e minimapa, e `app.js` oferece comandos explicitamente rotulados como prévia. Não confundir com robôs operacionais ou uma simulação persistente de trabalho.

@@ -70,3 +70,7 @@ Regras específicas em `docs/PIXELLAB-OFFICE.md`. Inventariar as bibliotecas Roo
 ## Sprites animados PixelLab no escritório
 
 A fonte de verdade é o export da biblioteca PixelLab, sem POST pago. `scripts/import_pixellab_agents.py` valida personagem, directions e os 192 frames de 88×88 antes de montar os seis atlas. Não commit-ar ZIPs originais ou JSONs contendo UUIDs, tokens, nomes pessoais, URLs e prompts; commit-ar somente PNGs de sprites e manifesto saneado. No browser, `agent-animator.js` desenha quadros já carregados, sem chamadas de API. O status visual deve refletir somente o snapshot real: qualquer demonstração de movimentos sem atividade deve ser marcada explicitamente como prévia. Falhas dos atlas preservam os avatares originais.
+
+## Rotas e interações de ambiente
+
+`site/agent-routines.js` contém rotas de **demonstração manual** sem agendar ações automáticas nem alterar status de agentes. Movimentos e tarefas reais sempre vêm do backend. Não fingir que ações ainda sem sprites PixelLab (cantar, beber, jogar, banheiro etc.) já estão animadas. Os marcadores WC e jogos são provisórios e devem ser substituídos por salas reais somente após geração/aprovação dos assets. Testar com `node tests/test_agent_routines.js`, validação geral e capturas responsivas.

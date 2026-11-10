@@ -119,3 +119,7 @@ Mais detalhes: [guia do escritório](site/README.md).
 ## Animações do Alex no Pixel Studio
 
 A integração de agentes agora usa as **48 combinações de seis movimentos e oito direções** exportadas do PixelLab, comprimidas em **seis atlas PNG** com quatro frames por direção. Os arquivos permanecem em `site/assets/pixellab/agents/alex/`; o `site/agent-animator.js` pré-carrega os atlas para desenhar diretamente no Canvas. O modo PixelLab aplica a animação coerente com o status real do agente e oferece um botão de prévia sem simular trabalho. Se algum arquivo faltar, preserva os avatars originais. Os oito agentes compartilham temporariamente o Alex.
+
+## Navegação visual entre espaços do escritório
+
+O módulo `site/agent-routines.js` acrescenta passeios demonstrativos manuais para os agentes: café, bebedouro, jogos, porta do banheiro e retorno ao posto. Usa a animação real `walk` do Alex e não altera os eventos de trabalho. Novos ambientes e ações sociais precisam ser gerados no PixelLab antes de substituir os marcadores por objetos reais. [Plano de animações e interações](docs/PLANO_INTERACOES_ESCRITORIO.md).
