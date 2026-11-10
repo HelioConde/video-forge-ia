@@ -1,0 +1,47 @@
+name: PixelLab - Geracao autorizada Alex
+
+# Disparo único por atualização deste arquivo; sem cron ou repetição automática.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-launch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  run:
+    name: PixelLab / verificar personagem e animacoes
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Garantir que testes do gerador passem
+        run: python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Consultar personagem selecionado, sem recriar nem publicar sprites
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+          PIXELLAB_LAUNCH_MODE: "plan"
+          PIXELLAB_SCOPE: "all"
+          PIXELLAB_MAX_NEW: "4"
+          PIXELLAB_GENERATION_AUTHORIZED: "false"
+          PIXELLAB_PUBLIC_REPORT_AUTHORIZED: "false"
+        run: python -m videoforge.pixellab.launch
+      - name: Relatório público sem identificadores ou sprites
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-approved-${{ github.run_id }}
+          path: output/pixellab-batch/report.json
+          retention-days: 7
+          if-no-files-found: warn
