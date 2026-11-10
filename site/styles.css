@@ -66,3 +66,23 @@
 .hud-title{font-size:clamp(18px,1.75vw,23px);line-height:1.1}
 .hud-stats{margin-top:11px;padding-top:9px}
 @media(max-width:600px){.corner-hud{max-width:calc(100% - 119px);padding:9px 10px}.hud-title{font-size:14px}}
+
+/* Pixel Studio V3: paleta refinada e minimapa compacto no celular. */
+.workspace{background:radial-gradient(ellipse at 49% 42%,#354958 0%,#1c3040 54%,#0d1a29 100%)}
+.topbar{background:linear-gradient(90deg,#142536f5,#1b3040f2);border-bottom-color:#4b6875}
+.corner-hud{background:linear-gradient(135deg,#14293ce9,#172b3be0);border-color:#719195;box-shadow:0 12px 36px #06121d8c,4px 4px 0 #1025358c}
+.hud-title span{color:#b7edc4}
+.scene-button:hover{background:#3b5965;border-color:#bfecbe}
+.side-panel{background:#16283af8;border-color:#75959b}
+.quick-button{backdrop-filter:blur(4px)}
+.mini-toggle{display:none}
+@media(max-width:600px){
+  .mini-panel{width:129px;right:9px;bottom:44px;z-index:4}
+  .mini-toggle{display:block;width:100%;padding:7px 4px;border:0;background:#294557;color:#e7efdf;border-radius:3px;font:800 10px ui-monospace,monospace;text-align:center}
+  .mini-toggle:focus-visible{outline:2px solid #f1d28d}
+  .mini-panel[data-collapsed="true"]{width:93px;padding:3px;background:#13293be8}
+  .mini-panel[data-collapsed="true"] .mini-header,
+  .mini-panel[data-collapsed="true"] #officeMiniMap,
+  .mini-panel[data-collapsed="true"] .mini-hint{display:none}
+  .corner-hud{box-shadow:0 8px 18px #0818278c}
+}

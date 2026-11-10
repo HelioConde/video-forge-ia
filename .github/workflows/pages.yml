@@ -37,6 +37,7 @@ jobs:
       - name: Verificar JavaScript
         run: |
           node --check site/app.js
+          node --check site/office-art.js
           node --check site/office-renderer.js
       - name: Gerar snapshot publico sem segredos
         run: python scripts/build_dashboard_data.py --output site/data/status.json

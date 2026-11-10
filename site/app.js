@@ -8,6 +8,13 @@
   const canvas=$("officeCanvas"), workspace=$("workspace");
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
   office.setMiniMap($("officeMiniMap"));
+  const miniPanel=document.querySelector(".mini-panel");
+  const miniToggle=$("btnMiniMap");
+  miniToggle.addEventListener("click",()=>{
+    const opening=miniPanel.dataset.collapsed==="true";
+    miniPanel.dataset.collapsed=String(!opening);
+    miniToggle.setAttribute("aria-expanded",String(opening));
+  });
   const make=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=String(text);return x;};
   const label=x=>STATUS[x]||"Indisponível";
   const live=x=>["trabalhando","revisao"].includes(x);

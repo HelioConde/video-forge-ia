@@ -6,8 +6,9 @@
   <meta name="theme-color" content="#111827">
   <meta name="description" content="VideoForge AI: um escritório de agentes representado em pixel art e Canvas em tela inteira.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'">
-  <title>VideoForge AI | Pixel Office</title>
+  <title>VideoForge AI | Pixel Studio</title>
   <link rel="stylesheet" href="./styles.css">
+  <script defer src="./office-art.js"></script>
   <script defer src="./office-renderer.js"></script>
   <script defer src="./app.js"></script>
 </head>
@@ -44,7 +45,8 @@
         <button type="button" class="scene-button" id="btnFullscreen" title="Tela cheia" aria-label="Alternar tela cheia">⛶</button>
       </div>
 
-      <div class="mini-panel" aria-label="Minimapa do escritório">
+      <div class="mini-panel" aria-label="Minimapa do escritório" data-collapsed="true">
+        <button type="button" class="mini-toggle" id="btnMiniMap" aria-expanded="false" aria-label="Mostrar ou ocultar minimapa">◈ Minimapa</button>
         <div class="mini-header"><span>◈ MAPA DO ESTÚDIO</span><span class="mini-led" aria-hidden="true"></span></div>
         <canvas id="officeMiniMap" width="200" height="128" role="img" aria-label="Minimapa clicável: toque em um lugar para centralizar a câmera"></canvas>
         <div class="mini-hint">TOQUE PARA NAVEGAR</div>
