@@ -250,6 +250,23 @@
       if(!this.viewW||!this.viewH)return;
       const now=ts||performance.now();
       this.routines.tick(this.agents,now);
+      // Carregar a animação específica da atividade presente, não os 122
+      // sprites de uma vez. A biblioteca é pública e não ativa trabalhos reais.
+      const animator=window.VideoForgeAnimator;
+      if(this.agentSpritesReady&&scene.getArtMode()==='pixellab'&&animator){
+        const catalog=animator.productionMotions();
+        const known=new Set(catalog.map(x=>x.name));
+        for(const agent of this.agents){
+          const pose=this.routines.poseFor(agent.id,now);
+          const motion=pose?.motion||window.VideoForgeBehaviors?.choose(
+            agent,now,this.roleDemo,name=>known.has(name),catalog);
+          if(motion&&known.has(motion)&&!animator.productionLoaded(motion)){
+            animator.preloadProduction(motion).then(loaded=>{
+              if(loaded)this.render(performance.now());
+            });
+          }
+        }
+      }
       const c=this.ctx,d=this.dpr;
       c.setTransform(d,0,0,d,0,0);
       c.fillStyle='#111b2a';c.fillRect(0,0,this.viewW,this.viewH);
