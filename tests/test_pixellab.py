@@ -24,6 +24,10 @@ class StubAPI:
         self.events.append("animate")
         return {"background_job_ids": [ID_C], "animation_group_id": ID_B}
 
+    def characters(self):
+        self.events.append("characters")
+        return {"characters": [], "total": 0}
+
     def character(self, *args, **kwargs):
         self.events.append("character")
         return {"id": ID_A}
@@ -96,6 +100,27 @@ class PipelineTests(unittest.TestCase):
             with self.assertRaises(PixelLabError):
                 run("animate", "alex", "walk", "south",
                     execute=True, output=Path(td), client=StubAPI())
+
+    def test_auto_reuses_only_character_in_account(self):
+        class OneCharacter(StubAPI):
+            def characters(self):
+                self.events.append("characters")
+                return {"characters": [{"id": ID_A, "name": "My Pixel Character"}], "total": 1}
+        with tempfile.TemporaryDirectory() as td:
+            api = OneCharacter()
+            run("animate", "alex", "idle", "south",
+                execute=True, client=api, output=Path(td))
+            self.assertIn("characters", api.events)
+            self.assertNotIn("create", api.events)
+
+    def test_multiple_characters_are_never_guessed(self):
+        class Multiple(StubAPI):
+            def characters(self):
+                return {"characters": [{"id": ID_A, "name": "Other"}, {"id": ID_B, "name": "Other 2"}], "total": 2}
+        with tempfile.TemporaryDirectory() as td:
+            with self.assertRaises(PixelLabError):
+                run("ensure-and-animate", "alex", "idle", "south",
+                    execute=True, client=Multiple(), output=Path(td))
 
     def test_invalid_motion_is_rejected_before_cost(self):
         with self.assertRaises(ValueError):

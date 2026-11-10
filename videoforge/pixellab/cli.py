@@ -101,6 +101,36 @@ def plan(slug: str, profile: dict, operation: str, motion: str, direction: str,
     }
 
 
+def discover_existing(client: PixelLabClient, profile: dict) -> str | None:
+    """Recupera uma base antiga apenas se for possível identificá-la sem adivinhação."""
+    response = client.characters()
+    characters = response.get("characters")
+    if not isinstance(characters, list):
+        raise PixelLabError("Inventário da conta PixelLab em formato inesperado.")
+    total = response.get("total", len(characters))
+    if total != len(characters):
+        raise PixelLabError(
+            "Existem mais personagens do que o inventário retornou. "
+            "Configure PIXELLAB_CHARACTER_ID para selecionar a base correta."
+        )
+    matching = [
+        item for item in characters
+        if isinstance(item, dict) and
+        str(item.get("name", "")).casefold() in {
+            profile.get("name", "").casefold(), profile.get("id", "").casefold()
+        }
+    ]
+    matches = matching if matching else characters
+    if len(matches) != 1:
+        if not matches:
+            return None
+        raise PixelLabError(
+            "Vários personagens na conta; não vou escolher um aleatório. "
+            "Configure PIXELLAB_CHARACTER_ID uma vez no GitHub Secrets."
+        )
+    return parse_character_id(matches[0]["id"])
+
+
 def generate(profile: dict, slug: str, client: PixelLabClient,
              folder: Path, info: dict, *, root: Path = ROOT) -> str:
     body = client.create(
@@ -168,10 +198,13 @@ def run(operation: str, slug: str, motion: str, direction: str, *,
     if client is None:
         client = PixelLabClient(token)
     # Em repo público não persista character_id nos arquivos Git versionados.
-    if operation in ("animate", "export") and not current:
+    # Sem segredo configurado, tenta descobrir uma única base correspondente na conta.
+    if operation in ("animate", "export", "ensure-and-animate") and current is None:
+        current = discover_existing(client, profile)
+    if operation in ("animate", "export") and current is None:
         raise PixelLabError(
-            "Falta PIXELLAB_CHARACTER_ID. Configure o ID do personagem base "
-            "em GitHub Actions Secrets ou use create-and-animate."
+            "Nenhum personagem reutilizável encontrado. Configure PIXELLAB_CHARACTER_ID "
+            "ou escolha create-and-animate para gerar uma nova base."
         )
     if operation == "create":
         current = generate(profile, slug, client, folder, info, root=root)

@@ -99,6 +99,10 @@ class PixelLabClient:
             "enhance_prompt": False,
         })
 
+    def characters(self):
+        """Inventário de conta; seleção automática apenas quando não é ambígua."""
+        return self._request("GET", "/characters")
+
     def character(self, character_id: str):
         return self._request("GET", f"/characters/{character_id}")
 
