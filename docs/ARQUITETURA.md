@@ -135,3 +135,7 @@ A fonte de verdade dos movimentos continua sendo a conta PixelLab; o GitHub arma
 O catálogo `cenarios/escritorio/pixellab-plan.json` descreve três salas e seis objetos em paleta coerente. O módulo `videoforge/pixellab/office_assets.py` faz auditoria paginada, controla custos por limite de POSTs, salva status saneado e exporta PNGs quando URLs de prévia confiáveis estiverem disponíveis. As bibliotecas Rooms e Objects do PixelLab são fonte de verdade; não criar mídia versionada.
 
 Workflows: `pixellab-office-audit.yml` (somente GET), `pixellab-office-start.yml` (uma sala e dois objetos), `pixellab-office-continue.yml` (duas salas e quatro objetos, condicionado ao sucesso do primeiro). Validar com `tests/test_pixellab_office.py`. Arte visual só é ligada ao Canvas após inspeção das imagens. Ver `docs/PIXELLAB-OFFICE.md`.
+
+## Publicação dos sprites PixelLab para o Canvas
+
+As nove imagens aprovadas foram copiadas dos artifacts das Actions para `site/assets/pixellab/` em um único importador com validação de PNG, dimensões, hash e ausência de dados de conta. O manifesto local registra `sha256`, sem IDs ou URLs privadas de PixelLab. O desenho de cenas no Canvas continua concentrado em `site/office-art.js`; o renderizador `site/office-renderer.js` só controla carregamento/viewport/seleção, e `site/app.js` controla o botão de modo. Falhas de carga preservam a arte anterior. O site é estático e não chama PixelLab em tempo de execução.

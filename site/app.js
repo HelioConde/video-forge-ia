@@ -7,6 +7,26 @@
   const state={snapshot:null,selected:null,tab:"agents",open:false};
   const canvas=$("officeCanvas"), workspace=$("workspace");
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
+  const artBtn=$("btnArtMode");
+  function updateArtButton(){
+    const active=office.getArtMode()==='pixellab';
+    artBtn.setAttribute('aria-pressed',String(active));
+    artBtn.classList.toggle('active',active);
+    artBtn.title=active?'Voltar ao cenário original':'Ativar cenários e objetos PixelLab';
+    artBtn.setAttribute('aria-label',artBtn.title);
+    artBtn.textContent=active?'▦':'✦';
+  }
+  artBtn.disabled=true;
+  artBtn.title='Carregando sprites PixelLab';
+  window.VideoForgeArt.loadSprites().then(ready=>{
+    artBtn.disabled=!ready;
+    if(ready)office.setArtMode('pixellab');
+    updateArtButton();
+  });
+  artBtn.addEventListener('click',()=>{
+    office.setArtMode(office.getArtMode()==='pixellab'?'classic':'pixellab');
+    updateArtButton();
+  });
   office.setMiniMap($("officeMiniMap"));
   const miniPanel=document.querySelector(".mini-panel");
   const miniToggle=$("btnMiniMap");

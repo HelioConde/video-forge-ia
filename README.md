@@ -109,3 +109,9 @@ Não adicione chaves de API, tokens OAuth nem mídias privadas no Git. Armazene 
 ## Regra permanente de entrega e publicação do painel
 
 Sempre que modificar a interface do escritório, os agentes ou as configurações de canais que o painel utiliza, **não concluir a tarefa apenas com os arquivos no repositório**: executar a validação, permitir o deploy automático do Pages, conferir o resultado da execução e informar o link publicado quando confirmado. Se a publicação falhar ou depender de acesso/configuração indisponível, informar claramente o bloqueio e oferecer o próximo passo. Nunca afirmar que a página está online sem evidência do GitHub.
+
+## Sprites reais PixelLab no escritório virtual
+
+Os **9 PNGs aprovados** das salas/objetos foram incorporados ao repositório em `site/assets/pixellab/`. O Canvas do `site/` carrega as imagens localmente e usa o novo modo PixelLab como padrão após o carregamento; um botão alterna para o layout desenhado originalmente. O minimapa e a seleção dos agentes acompanham a disposição ativa. As animações de personagens permanecem guardadas na biblioteca PixelLab e ainda serão integradas separadamente.
+
+Mais detalhes: [guia do escritório](site/README.md).

@@ -42,6 +42,13 @@
     }
     setAgents(list){this.agents=list.slice(0,slots.length);this.render(0);}
     setSelected(id){this.selected=id;this.render(0);}
+    setArtMode(mode){
+      if(!scene.setArtMode(mode))return false;
+      scene.paintBackground(this.bg.getContext('2d'));
+      this.reset();this.renderMiniMap();
+      return true;
+    }
+    getArtMode(){return scene.getArtMode();}
     setMiniMap(canvas){
       this.miniCanvas=canvas;
       this.miniCtx=canvas.getContext('2d');
@@ -107,6 +114,17 @@
     localPointer(e){const r=this.canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
     agentAt(x,y){
       const p=this.toWorld(x,y);
+      if(this.getArtMode()==='pixellab'){
+        let best=null,bestDistance=Infinity;
+        for(let i=0;i<this.agents.length;i++){
+          const [sx,sy]=slots[i],dx=p.x-sx,dy=p.y-(sy+111);
+          const distance=Math.hypot(dx,dy);
+          if(Math.abs(dx)<=68&&Math.abs(dy)<=67&&distance<bestDistance){
+            best=this.agents[i].id;bestDistance=distance;
+          }
+        }
+        return best;
+      }
       for(let i=0;i<this.agents.length;i++){
         const [sx,sy]=slots[i];
         if(Math.abs(p.x-sx)<=69&&p.y>sy-38&&p.y<sy+206)return this.agents[i].id;

@@ -72,3 +72,11 @@ A versão atual reorganiza o cenário em três ambientes, com piso texturizado, 
 O minimapa fica **recolhido no celular** para não encobrir os trabalhadores. Toque em "Minimapa" para expandi-lo. O status dos agentes continua baseado exclusivamente no snapshot gerado pelo backend, sem simulação de tarefas executadas.
 
 A arquitetura visual separa **arte** (`office-art.js`) de **interação** (`office-renderer.js`). Qualquer nova personalização deve respeitar essa divisão e a regra permanente de organização do repositório.
+
+## Cenários PixelLab incorporados ao Canvas
+
+As imagens **originais aprovadas** estão versionadas em `site/assets/pixellab/`: três salas 256×256 px e seis objetos transparentes 64×64 ou 96×96 px. O arquivo `manifest.json` registra dimensões e SHA-256 de cada imagem. Foi produzido a partir dos artifacts das execuções PixelLab 42844340885 e 42845029772.
+
+O botão **▦ / ✦** na barra de ferramentas alterna entre a arte original e a composição PixelLab. O modo PixelLab é habilitado automaticamente após carregar os nove PNGs; se qualquer arquivo falhar, o escritório antigo continua funcionando. O Canvas desenha as três salas sem distorção, posiciona os seis objetos sem fundo e mantém oito agentes selecionáveis. O minimapa e o foco de agentes usam os mesmos slots da arte ativa.
+
+Os agentes ainda são desenhados pela arte original de `office-art.js` (sem spritesheet de personagem ligado); o estágio atual conecta **cenários e objetos**, não as 48 animações de personagens. O código não chama a API PixelLab no navegador, não transmite tokens e não altera o status real dos agentes. A interface do escritório continua sendo uma projeção de dados do backend.

@@ -1,6 +1,81 @@
 /* VIDEOFORGE AI — handmade pixel-art scene. Original artwork. */
 const SW=1280, SH=820;
-const stations=[[174,295],[346,295],[518,295],[690,295],[174,528],[346,528],[518,528],[690,528]];
+const classicStations=[[174,295],[346,295],[518,295],[690,295],[174,528],[346,528],[518,528],[690,528]];
+const pixelStations=[[205,143],[456,143],[205,253],[456,253],[205,363],[456,363],[205,473],[456,473]];
+// A matriz é mantida por referência; o renderizador e o hit-test usam os mesmos slots.
+const stations=classicStations.map(p=>p.slice());
+let artMode='classic',spritesReady=false;
+const spriteImages={};
+const SPRITE_PATHS={
+  main:'scenes/main-office.png',
+  creative:'scenes/creative-room.png',
+  media:'scenes/media-lab.png',
+  desk:'objects/desk-pc.png',
+  chair:'objects/office-chair.png',
+  plant:'objects/plant.png',
+  bookshelf:'objects/bookshelf.png',
+  audio:'objects/audio-mixer.png',
+  editing:'objects/studio-screen.png'
+};
+function loadSprites(){
+  const names=Object.entries(SPRITE_PATHS);
+  return Promise.all(names.map(([key,path])=>new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.decoding='async';
+    img.onload=()=>{if(!img.naturalWidth||!img.naturalHeight)reject(new Error('Sprite inválido: '+key));
+                 else resolve([key,img]);};
+    img.onerror=()=>reject(new Error('Sprite ausente: '+key));
+    img.src='./assets/pixellab/'+path;
+  }))).then(results=>{
+    results.forEach(([key,img])=>spriteImages[key]=img);
+    spritesReady=true;return true;
+  }).catch(err=>{console.warn('PixelLab: mantendo arte original.',err.message);return false;});
+}
+function setArtMode(mode){
+  if(!['classic','pixellab'].includes(mode))return false;
+  if(mode==='pixellab'&&!spritesReady)return false;
+  artMode=mode;
+  const target=mode==='pixellab'?pixelStations:classicStations;
+  target.forEach((slot,i)=>{stations[i][0]=slot[0];stations[i][1]=slot[1];});
+  return true;
+}
+function sprite(c,key,x,y,w,h){
+  const img=spriteImages[key];
+  if(img)c.drawImage(img,Math.round(x),Math.round(y),Math.round(w),Math.round(h));
+}
+function pixelBase(c){
+  rect(c,0,0,SW,SH,'#152331');
+  for(let y=0;y<SH;y+=32)for(let x=0;x<SW;x+=32)
+    if((x/32+y/32)%2===0)rect(c,x,y,32,32,'#192c3a');
+  rect(c,25,113,1226,675,'#233747');
+  line(c,25,113,1226,675,'#587380',4);
+  rect(c,45,137,1183,35,'#122434');
+  text(c,'PIXEL STUDIO  /  VIDEOFORGE AI',66,160,'#b9e6d1',15);
+  text(c,'3 SALAS   +   6 OBJETOS',1200,159,'#d6c79d',12,'right');
+  // As cenas PixelLab são top-down: preservar a proporção nativa e pixels nítidos.
+  sprite(c,'main',79,194,512,512);
+  sprite(c,'creative',655,196,256,256);
+  sprite(c,'media',954,196,256,256);
+  text(c,'PRODUÇÃO',337,190,'#e7dbc5',15,'center');
+  text(c,'SALA CRIATIVA',783,190,'#e7dbc5',13,'center');
+  text(c,'LABORATÓRIO',1082,190,'#e7dbc5',13,'center');
+  rect(c,631,479,595,267,'#253b49');
+  line(c,631,479,595,267,'#678383',3);
+  text(c,'OBJETOS / MOBILIÁRIO',651,503,'#bce6d0',14);
+  // Sprites transparentes, reutilizáveis e sem fundo pintado por cima do cenário.
+  sprite(c,'desk',650,519,128,128);
+  sprite(c,'chair',793,549,84,84);
+  sprite(c,'plant',898,539,86,86);
+  sprite(c,'bookshelf',1001,513,124,124);
+  sprite(c,'audio',720,637,118,100);
+  sprite(c,'editing',920,638,128,101);
+  text(c,'DESK',713,661,'#d0d9cc',10,'center');
+  text(c,'CHAIR',831,658,'#d0d9cc',10,'center');
+  text(c,'PLANT',940,658,'#d0d9cc',10,'center');
+  text(c,'SHELF',1060,658,'#d0d9cc',10,'center');
+  text(c,'AUDIO',774,748,'#d0d9cc',10,'center');
+  text(c,'EDITING',984,754,'#d0d9cc',10,'center');
+}
 function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function line(c,x,y,w,h,col,t=2){c.lineWidth=t;c.strokeStyle=col;c.strokeRect(Math.round(x)+.5,Math.round(y)+.5,w,h);}
 function text(c,s,x,y,col='#f2e7d6',size=12,align='left'){c.fillStyle=col;c.textAlign=align;c.textBaseline='alphabetic';c.font='bold '+size+'px monospace';c.fillText(s,x,y);}
@@ -35,4 +110,7 @@ function avatar(c,x,y,i,selected=false,doing=false){const skin=['#e5ae87','#c887
 function statusBar(c,x,y,i,label,status,selected){const active=['trabalhando','revisao'].includes(status);rect(c,x-66,y-12,133,29,'#1a2c3a');line(c,x-66,y-12,133,29,selected?'#f3ce89':active?'#78dbaa':'#75969b',2);text(c,label,x,y+1,'#f4e8d5',13,'center');const msg=active?'● em atividade':status==='aguardando'?'● aguardando':status==='concluido'?'● concluído':status==='erro'?'● erro':'● não conectado';text(c,msg,x,y+13,active?'#91efb6':'#aabdc3',9,'center');}
 function drawScene(c,agents=[],selected=null){officeBase(c);agents.forEach((a,i)=>{if(!stations[i])return;const [x,y]=stations[i];const active=['trabalhando','revisao'].includes(a.status);avatar(c,x,y+111,i,a.id===selected,active);statusBar(c,x,y+173,i,a.nome,a.status,a.id===selected);});}
 
-window.VideoForgeArt={W:SW,H:SH,slots:stations,paintBackground:officeBase,paintAgents:function(c,agents,selected,t){agents.forEach((a,i)=>{if(!stations[i])return;const [x,y]=stations[i];const active=['trabalhando','revisao'].includes(a.status);avatar(c,x,y+111,i,a.id===selected,active);statusBar(c,x,y+173,i,a.nome||a.id,a.status,a.id===selected);});}};
+window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode:()=>artMode,
+  spritesAvailable:()=>spritesReady,
+  paintBackground:c=>(artMode==='pixellab'&&spritesReady?pixelBase(c):officeBase(c)),
+  paintAgents:function(c,agents,selected,t){agents.forEach((a,i)=>{if(!stations[i])return;const [x,y]=stations[i];const active=['trabalhando','revisao'].includes(a.status);avatar(c,x,y+111,i,a.id===selected,active);statusBar(c,x,y+173,i,a.nome||a.id,a.status,a.id===selected);});}};
