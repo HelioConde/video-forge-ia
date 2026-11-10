@@ -60,6 +60,14 @@ O escritório **Pixel Studio v3** usa Canvas 2D em tela inteira, com pixel-art o
 
 Veja [site/README.md](site/README.md) e [docs/ESCRITORIO_AGENTES.md](docs/ESCRITORIO_AGENTES.md). **Não confundir a página visual com agentes já executando tarefas.**
 
+## Geração de personagens com PixelLab
+
+O [workflow PixelLab](.github/workflows/pixellab-character.yml) permite planejar gratuitamente, criar um personagem em oito direções, animar movimentos e exportar spritesheets. Já existe o [perfil Alex](personagens/alex/profile.json). O programa pode reconhecer um personagem previamente criado em sua conta, quando não houver ambiguidade.
+
+A API precisa de `PIXELLAB_API_TOKEN` cadastrado em GitHub Secrets. No repositório público, as chamadas pagas e a exportação de ZIPs requerem autorizações explícitas. **Nenhuma geração paga foi executada apenas com a instalação do código.**
+
+[Instruções de configuração e execução](docs/PIXELLAB.md).
+
 ## Primeiro teste (sem custo de IA e sem upload)
 
 Requisito: Python 3.12+.
