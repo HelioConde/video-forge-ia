@@ -1,0 +1,26 @@
+{
+  "schema": "videoforge/pixellab-object-library/v1",
+  "objects": {
+    "office-chair": {
+      "status": "spritesheet_available",
+      "files": [
+        {
+          "file": "office-chair/preview.png",
+          "width": 64,
+          "height": 64,
+          "sha256": "68ad131e9b7719fe4cb1a7f3bd43d226e0afa95708e0a049fea47c01f5d1387e"
+        },
+        {
+          "file": "office-chair/sprite-000.png",
+          "width": 64,
+          "height": 64,
+          "sha256": "68ad131e9b7719fe4cb1a7f3bd43d226e0afa95708e0a049fea47c01f5d1387e"
+        }
+      ],
+      "spritesheetCount": 1
+    }
+  },
+  "availableObjectCount": 1,
+  "expectedObjectCount": 2,
+  "status": "partial"
+}
