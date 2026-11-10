@@ -1,0 +1,104 @@
+{
+  "schema": "videoforge/agent-office/v1",
+  "gerado_em": null,
+  "fonte": "apenas_configuracao",
+  "tempo_real": false,
+  "canais": [
+    {
+      "id": "otaku-br",
+      "nome": "Otaku Multicena",
+      "idioma": "pt-BR",
+      "modelo": "camadas-animadas"
+    },
+    {
+      "id": "otaku-en",
+      "nome": "Otaku Reframe",
+      "idioma": "en-US",
+      "modelo": "imagem-estatica"
+    },
+    {
+      "id": "gamer",
+      "nome": "Conde Games",
+      "idioma": "pt-BR",
+      "modelo": "imagem-estatica"
+    },
+    {
+      "id": "manu-kids",
+      "nome": "Emanuelly Kids",
+      "idioma": "pt-BR",
+      "modelo": "camadas-animadas"
+    },
+    {
+      "id": "alchemy-lab",
+      "nome": "Alchemy Lab",
+      "idioma": "pt-BR",
+      "modelo": "imagem-estatica"
+    }
+  ],
+  "agentes": [
+    {
+      "id": "diretor",
+      "nome": "Direção",
+      "funcao": "Coordenação e prioridades",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "roteirista",
+      "nome": "Roteirista",
+      "funcao": "Roteiros e planejamento",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "artista",
+      "nome": "Artista visual",
+      "funcao": "Cenários e personagens",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "animador",
+      "nome": "Animador",
+      "funcao": "Movimentação por camadas",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "narrador",
+      "nome": "Narrador",
+      "funcao": "Narração e mixagem",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "editor",
+      "nome": "Editor",
+      "funcao": "Edição e renderização",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "revisor",
+      "nome": "Revisor",
+      "funcao": "Controle de qualidade",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    },
+    {
+      "id": "publicador",
+      "nome": "Publicador",
+      "funcao": "Upload e agendamento",
+      "status": "nao_conectado",
+      "tarefa": "Aguardando conexão com a produção real",
+      "canal": null
+    }
+  ]
+}

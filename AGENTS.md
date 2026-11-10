@@ -32,3 +32,7 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 ## Regras adicionais da migração
 
 As pastas de canais reais são `otaku-br`, `otaku-en`, `gamer`, `manu-kids` e `alchemy-lab` dentro de `canal/`. A pasta fictícia `exemplo` foi removida. Não tratar `arquivo-editorial/` ou `conteudos/indice.json` como fila de produção. Não transportar workflows, segredos ou tokens do AutoEditorVideo. Consultar `docs/MIGRACAO_AUTOEDITORVIDEO.md` antes de modificar a migração.
+
+## Regras do dashboard Pages
+
+O escritório em `site/` deve ser organizado e consumir apenas snapshots públicos saneados gerados por `scripts/build_dashboard_data.py`. O navegador não roda agentes nem recebe tokens. Nunca exibir execução simulada como se fosse real; não copiar informações privadas para o Pages. Publicação permanece manual até revisão de visibilidade. Consulte `docs/ESCRITORIO_AGENTES.md`.
