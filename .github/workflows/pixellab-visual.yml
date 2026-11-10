@@ -1,6 +1,7 @@
 name: PixelLab - Revisao visual desktop e mobile
 
 # Teste real do Canvas no navegador, sem chamadas pagas ao PixelLab.
+# Rodada de revisão após ajuste responsivo do botão de prévia.
 on:
   push:
     branches: [main]

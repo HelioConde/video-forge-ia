@@ -86,3 +86,24 @@
   .mini-panel[data-collapsed="true"] .mini-hint{display:none}
   .corner-hud{box-shadow:0 8px 18px #0818278c}
 }
+
+
+/* Controle de demonstração das animações PixelLab, separado do status real. */
+.animation-preview{
+  display:block;width:100%;margin-top:12px;padding:11px 12px;
+  border:1px solid #83b7a2;border-radius:5px;
+  background:#244f49;color:#f0f8ed;
+  font:800 11px/1.35 ui-monospace,Consolas,monospace;
+  text-align:center;white-space:normal;cursor:pointer;
+}
+.animation-preview:hover,.animation-preview:focus-visible{
+  background:#316e5e;border-color:#c1edca;outline-offset:2px;
+}
+.preview-note{
+  display:block;margin-top:7px;color:#aac5c1;
+  font:600 10px/1.4 ui-monospace,Consolas,monospace;
+}
+@media(max-width:600px){
+  .animation-preview{padding:9px 8px;font-size:10px;}
+  .preview-note{font-size:9px;line-height:1.35;}
+}
