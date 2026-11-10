@@ -5,7 +5,7 @@
     {
       "slug": "main-office",
       "name": "VideoForge AI - Main Office 2026",
-      "theme": "A bright contemporary pixel-art indie game production office with eight compact desks and PCs arranged around a broad central walkway, honey oak flooring, navy blue wall paneling, warm windows, green plants, softly glowing monitors and cozy warm lights; orderly 16-bit game art, clean readable geometry; no people or signage.",
+      "theme": "A modern indie game production office, eight small walnut desks with computers around a central walkway, honey oak floor, navy and teal walls, windows, jade plants, warm pendant lamps. Neat cozy 16-bit pixel art, clear top-down RPG architecture, no people, no letters.",
       "view": "top-down",
       "doors": [
         {
@@ -20,7 +20,7 @@
     {
       "slug": "creative-room",
       "name": "VideoForge AI - Creative Room 2026",
-      "theme": "A creative brainstorming meeting room connected to an indie video game production office, oval walnut meeting table, four chairs, pin boards, art sketches, colorful reference swatches and plants, slate blue walls and warm wooden floor; refined cozy 16-bit pixel art environment; no people or lettering.",
+      "theme": "Cozy creative brainstorming and meeting room for a video game studio: oval walnut table, chairs, blue pinboards, colorful concept art notes, potted greenery, warm oak floor, navy and teal walls. Refined 16-bit pixel art top-down room, no people, no text.",
       "view": "top-down",
       "doors": [
         {
@@ -36,7 +36,7 @@
     {
       "slug": "media-lab",
       "name": "VideoForge AI - Media Lab 2026",
-      "theme": "A modern compact video editing and audio production studio, ultrawide editing screens, audio mixer, waveform displays, small recording microphone booth, acoustic treatment panels, server storage cabinet, warm indirect lighting, walnut wood floor and slate navy walls; tidy detailed 16-bit pixel art; no people or readable lettering.",
+      "theme": "Modern pixel art video and audio production lab: twin editing stations, colorful abstract waveform screens, audio mixer, small microphone booth, acoustic panels, server cabinet, oak floor, slate blue walls, warm amber light. Clean top-down 16-bit game environment, no text or people.",
       "view": "top-down",
       "doors": [
         {
