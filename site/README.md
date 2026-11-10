@@ -88,3 +88,7 @@ O PixelLab exportou `character-frames.zip` com seis movimentos (`idle`, `walk`, 
 O novo `agent-animator.js` carrega os seis atlas em paralelo, valida dimensões e oferece desenho síncrono, sem `await` dentro do Canvas. `office-art.js` escolhe a animação conforme o status **real** do agente; sem eventos de backend o agente fica em `idle`. O botão de prévia no painel de agentes percorre os seis movimentos sem alterar o status registrado. Para conforto, `prefers-reduced-motion` usa o primeiro frame.
 
 Se faltar algum atlas, a aplicação mantém os oito personagens desenhados originalmente e o restante do escritório continua funcionando. **Por enquanto os oito postos reutilizam a aparência Alex**; personagens distintos podem ser cadastrados depois. O navegador não chama a API PixelLab nem usa credenciais.
+
+## Testes automáticos do atlas
+
+Os testes `tests/test_pixellab_atlases.py` validam que os seis atlas e o manifesto estão no repositório, que cada PNG tem dimensão **352×704**, RGBA e hash SHA-256 correspondente, e que a lista de direções e frames é estável. A validação e o deploy de Pages verificam a sintaxe de `agent-animator.js` com `node --check`.
