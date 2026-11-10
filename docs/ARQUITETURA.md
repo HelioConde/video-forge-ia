@@ -179,3 +179,7 @@ O catálogo de animações especializadas é consumido pelo `site/agent-behavior
 ### Passada e interpolação dos agents
 
 O `site/agent-routines.js` retorna `poseFor(id, t)` com posição contínua, direção, distância acumulada e `frame` próprio para `walk`. Usa velocidade de 112 px/s, 14 px por troca de frame e curvas quadráticas curtas no corredor, sem modificar status reais. `hasMoving(t)` habilita o modo de 30 FPS em `site/office-renderer.js` apenas durante deslocamentos; `site/office-art.js` seleciona o quadro individual em vez de sincronizar todos os agents pelo relógio global. Mantêm-se os quatro frames existentes no PixelLab, sem novas chamadas pagas. Testes: `node tests/test_agent_routines.js`; CI do site e Playwright desktop/mobile.
+
+## Atualização de caminhada do Alex
+
+O utilitário `scripts/refresh_pixellab_walk.py` aceita por GET a exportação do PixelLab e só substitui `site/assets/pixellab/agents/alex/walk.png` quando há uma variante nova completa (8 direções, 4 frames, 88×88 RGBA, personagem aprovado) ou uma versão atualizada de `walk`. Atualiza o SHA-256 do manifesto. Se faltar quadro ou o conteúdo for igual, mantém o anterior. Os agentes continuam usando o nome lógico `walk`, então a troca alcança todos os trajetos, sem alterar os status reais nem iniciar geração paga. O workflow `pixellab-walk-upgrade.yml` faz a sincronização e publica Pages somente após substituição verificada.

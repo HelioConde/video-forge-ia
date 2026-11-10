@@ -133,3 +133,7 @@ O botão 🎬 ativa prévia visual dos oito papéis; o backend não é afetado e
 O motor agora usa os sprites existentes de `walk`, mas redesenha a posição a **30 FPS durante trajetos** (em vez de 10 FPS) e reduz a velocidade de 160 para 112 pixels de mundo por segundo. A fase da passada é individual e avança por 14 px percorridos, independentemente do relógio global; curvas de corredor são arredondadas com pontos de Bézier, e a direção final permanece ao parar. Fora de rotas, a taxa de renderização continua reduzida, respeitando `prefers-reduced-motion`.
 
 Isso suaviza a **movimentação do Canvas**, não aumenta o número de quadros pintados no PNG original (quatro). Nenhum crédito PixelLab é usado. O passeio continua uma prévia visual, não execução real de agents.
+
+## Atualização de caminhada do Alex
+
+O utilitário `scripts/refresh_pixellab_walk.py` aceita por GET a exportação do PixelLab e só substitui `site/assets/pixellab/agents/alex/walk.png` quando há uma variante nova completa (8 direções, 4 frames, 88×88 RGBA, personagem aprovado) ou uma versão atualizada de `walk`. Atualiza o SHA-256 do manifesto. Se faltar quadro ou o conteúdo for igual, mantém o anterior. Os agentes continuam usando o nome lógico `walk`, então a troca alcança todos os trajetos, sem alterar os status reais nem iniciar geração paga. O workflow `pixellab-walk-upgrade.yml` faz a sincronização e publica Pages somente após substituição verificada.

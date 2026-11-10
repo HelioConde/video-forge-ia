@@ -93,3 +93,7 @@ Não usar sprites que não estejam no manifesto de produção. Perfis em `site/a
 ## Caminhada de agentes em pixel art
 
 Velocidade, rotas e fase dos passos devem permanecer em `site/agent-routines.js`; FPS e viewport em `site/office-renderer.js`; desenho de frames em `site/office-art.js`. Não converter animações decorativas em estados reais de produção. Preservar `prefers-reduced-motion`, testes Node de caminhada e revisão visual desktop/mobile. Não gerar novos sprites pagos para corrigir apenas tempo/interpolação no Canvas.
+
+## Atualização de caminhada do Alex
+
+O utilitário `scripts/refresh_pixellab_walk.py` aceita por GET a exportação do PixelLab e só substitui `site/assets/pixellab/agents/alex/walk.png` quando há uma variante nova completa (8 direções, 4 frames, 88×88 RGBA, personagem aprovado) ou uma versão atualizada de `walk`. Atualiza o SHA-256 do manifesto. Se faltar quadro ou o conteúdo for igual, mantém o anterior. Os agentes continuam usando o nome lógico `walk`, então a troca alcança todos os trajetos, sem alterar os status reais nem iniciar geração paga. O workflow `pixellab-walk-upgrade.yml` faz a sincronização e publica Pages somente após substituição verificada.
