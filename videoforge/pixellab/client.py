@@ -36,7 +36,8 @@ class PixelLabClient:
             data=body,
             method=method,
             headers={
-                "Authorization": "Bearer " + self.token,
+                # ZIPs não exigem autenticação. Nunca encaminhar Bearer para redirects de storage.
+                **({} if binary else {"Authorization": "Bearer " + self.token}),
                 "Accept": "application/zip" if binary else "application/json",
                 **({"Content-Type": "application/json"} if body is not None else {}),
             },
