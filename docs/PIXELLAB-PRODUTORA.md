@@ -51,3 +51,7 @@ Commits criados por GitHub Actions usando `GITHUB_TOKEN` não disparam novos wor
 ## Caminhada corrigida pelo gerente — estado walk, não Idle
 
 O gerente substituiu manualmente a caminhada no PixelLab. O importador `scripts/refresh_pixellab_walk.py` **seleciona exclusivamente o grupo `walking` do estado `walk`** no ZIP do Alex, jamais a animação de mesmo nome sob `Idle` ou outra variante. O estado `walk` precisa conter 8 direções × 8 quadros RGBA 88×88. Se faltar o estado ou um frame, preserva o atlas anterior e relata a pendência; não retorna à versão que o gerente rejeitou. O manifesto inclui `sourceState: walk` para auditoria. A action `pixellab-walk-upgrade.yml` roda essa correção por GET sem gerar novas imagens pagas e publica Pages somente depois de validar um novo atlas.
+
+### Dimensão variável dos frames
+
+O estado `walk` escolhido pelo gerente exporta quadros **92×92**, diferentes da base original do Alex (**88×88**). O importador calcula a dimensão real sem cortar, redimensionar ou descartar pixels, registra `motions.walk.frameWidth/frameHeight` e monta 8 direções × 8 frames. O Canvas extrai cada quadro com as dimensões do manifesto, mantendo a escala visual das estações. Outras animações básicas continuam com 88×88. 

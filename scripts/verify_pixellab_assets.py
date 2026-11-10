@@ -39,9 +39,12 @@ def verify(root: Path=ROOT) -> dict:
             raise ValueError("Schema básico do Alex inválido.")
         for motion,spec in master["motions"].items():
             frames=spec.get("frames",master["frames"])
-            if frames not in ((4,8) if motion=="walk" else (4,)) or (
-                spec.get("width") != frames*master["frameWidth"] or
-                spec.get("height") != len(master["directions"])*master["frameHeight"]):
+            cell_w=spec.get("frameWidth",master["frameWidth"])
+            cell_h=spec.get("frameHeight",master["frameHeight"])
+            if (frames not in ((4,8) if motion=="walk" else (4,))
+                or not 16 <= cell_w <= 128 or not 16 <= cell_h <= 128
+                or spec.get("width") != frames*cell_w
+                or spec.get("height") != len(master["directions"])*cell_h):
                 raise ValueError("Atlas básico com quantidade de quadros incompatível.")
             _png(basic.parent/spec["file"],spec)
     char_file=root/"agents/alex/production/manifest.json"

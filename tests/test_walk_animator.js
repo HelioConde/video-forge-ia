@@ -3,7 +3,8 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 global.window={};
 const manifest=JSON.parse(fs.readFileSync("site/assets/pixellab/agents/alex/manifest.json","utf8"));
-manifest.motions.walk={...manifest.motions.walk,width:704,height:704,frames:8};
+manifest.motions.walk={...manifest.motions.walk,
+    frameWidth:92,frameHeight:92,width:736,height:736,frames:8};
 global.fetch=async()=>({ok:true,json:async()=>manifest});
 global.Image=class{
     constructor(){this.onload=null;this.onerror=null;this.naturalWidth=0;this.naturalHeight=0;}
@@ -23,8 +24,8 @@ require("../site/agent-animator.js");
     const calls=[];
     const ctx={drawImage:(...args)=>calls.push(args)};
     assert.equal(animator.draw(ctx,"walk","north",7,200,200),true);
-    assert.equal(calls[0][1],7*88,"oitavo quadro de walk deve aparecer");
-    assert.equal(calls[0][2],4*88,"direção north deve usar a quinta linha");
+    assert.equal(calls[0][1],7*92,"oitavo quadro de walk deve aparecer");
+    assert.equal(calls[0][2],4*92,"direção north deve usar a quinta linha");
     assert.equal(animator.draw(ctx,"walk","north",8,200,200),true);
     assert.equal(calls[1][1],0,"ciclo de oito quadros deve repetir");
     assert.equal(animator.draw(ctx,"talk","north",7,200,200),true);

@@ -63,8 +63,11 @@ def replace_walk(source: Path, root: Path = ROOT, *,
     entry = manifest["motions"]["walk"]
     old = root / "walk.png"
     old_count = entry.get("frames", manifest["frames"])
+    old_width = entry.get("frameWidth", manifest["frameWidth"])
+    old_height = entry.get("frameHeight", manifest["frameHeight"])
     if (entry.get("file") != "walk.png" or old_count not in (4, 8)
-            or entry.get("width") != 88 * old_count or entry.get("height") != 704
+            or entry.get("width") != old_width * old_count
+            or entry.get("height") != old_height * len(DIRECTIONS)
             or hashlib.sha256(old.read_bytes()).hexdigest() != entry.get("sha256")):
         raise ValueError("Atlas atual é inválido; não substituir.")
 
@@ -113,8 +116,11 @@ def replace_walk(source: Path, root: Path = ROOT, *,
             return {"status": "incomplete_selected_walk", "sourceState": state,
                     "source": animation, "changed": False}
 
-        atlas = Image.new("RGBA", (704, 704))
-        for row, direction in enumerate(DIRECTIONS):
+        frames = []
+        cell_width = 0
+        cell_height = 0
+        for direction in DIRECTIONS:
+            row_frames = []
             for col in range(8):
                 name = f"{prefix}/{direction}/frame_{col:03}.png"
                 if archive.getinfo(name).file_size > FRAME_BYTES_LIMIT:
@@ -122,8 +128,8 @@ def replace_walk(source: Path, root: Path = ROOT, *,
                 image = Image.open(io.BytesIO(archive.read(name)))
                 image.load()
                 if (image.mode not in ("RGBA", "RGB", "P", "LA")
-                        or not 16 <= image.width <= 88
-                        or not 16 <= image.height <= 88):
+                        or not 16 <= image.width <= 128
+                        or not 16 <= image.height <= 128):
                     raise ValueError(
                         "Dimensões/modo incompatíveis no walk: "
                         + str(image.size) + " / " + image.mode
@@ -131,11 +137,17 @@ def replace_walk(source: Path, root: Path = ROOT, *,
                 image = image.convert("RGBA")
                 if not image.getbbox():
                     raise ValueError("Frame completamente transparente no estado walk.")
-                # A base e os estados podem ter canvases diferentes (64x64/88x88).
-                # Preservar cada pixel original, centralizando em células 88x88.
-                cell = Image.new("RGBA", (88, 88))
-                cell.paste(image, ((88-image.width)//2, (88-image.height)//2))
-                atlas.paste(cell, (col * 88, row * 88))
+                cell_width = max(cell_width, image.width)
+                cell_height = max(cell_height, image.height)
+                row_frames.append(image)
+            frames.append(row_frames)
+        # Preservar pixels originais (92x92 no novo walk) sem cortar ou reduzir.
+        atlas = Image.new("RGBA", (cell_width * 8, cell_height * 8))
+        for row, row_frames in enumerate(frames):
+            for col, image in enumerate(row_frames):
+                x = col * cell_width + (cell_width - image.width) // 2
+                y = row * cell_height + (cell_height - image.height) // 2
+                atlas.paste(image, (x, y))
 
         buffer = io.BytesIO()
         atlas.save(buffer, "PNG", optimize=True)
@@ -146,7 +158,9 @@ def replace_walk(source: Path, root: Path = ROOT, *,
                     "source": animation, "changed": False}
 
         manifest["motions"]["walk"].update({
-            "sha256": digest, "frames": 8, "width": 704,
+            "sha256": digest, "frames": 8,
+            "frameWidth": cell_width, "frameHeight": cell_height,
+            "width": 8 * cell_width, "height": 8 * cell_height,
             "sourceState": state, "sourceAnimation": animation
         })
         old.write_bytes(payload)

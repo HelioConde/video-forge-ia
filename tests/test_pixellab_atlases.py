@@ -38,7 +38,9 @@ class PublicAtlasTests(unittest.TestCase):
                 dimensions = struct.unpack(">II", data[16:24])
                 frames = details.get("frames", manifest["frames"])
                 self.assertIn(frames, (4, 8) if motion == "walk" else (4,))
-                self.assertEqual(dimensions, (88 * frames, 704))
+                cell_width = details.get("frameWidth", manifest["frameWidth"])
+                cell_height = details.get("frameHeight", manifest["frameHeight"])
+                self.assertEqual(dimensions, (cell_width * frames, cell_height * 8))
                 self.assertEqual((details["width"], details["height"]), dimensions)
                 self.assertEqual(data[25], 6)  # PNG RGBA
                 self.assertEqual(hashlib.sha256(data).hexdigest(), details["sha256"])

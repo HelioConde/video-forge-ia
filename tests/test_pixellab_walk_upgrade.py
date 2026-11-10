@@ -15,7 +15,7 @@ IDENTITY = hashlib.sha256(CID.encode()).hexdigest()
 
 
 def make_export(work: Path, *, include_walk=True, include_idle=True,
-                missing=None, walk_state_name="walk"):
+                missing=None, walk_state_name="walk", frame_size=88):
     root = work / "alex"
     root.mkdir()
     old_image = Image.new("RGBA", (704, 704), (50, 50, 50, 255))
@@ -48,7 +48,7 @@ def make_export(work: Path, *, include_walk=True, include_idle=True,
                     if (folder, direction, frame) == missing:
                         continue
                     color = (seed + frame, 50, 80, 255)
-                    image = Image.new("RGBA", (88, 88), color)
+                    image = Image.new("RGBA", (frame_size, frame_size), color)
                     buffer = io.BytesIO()
                     image.save(buffer, "PNG")
                     archive.writestr(
@@ -89,6 +89,19 @@ class WalkFromCorrectStateTests(unittest.TestCase):
                                         missing=("walk", "west", 7))
             result = replace_walk(exported, root, fingerprint=IDENTITY)
             self.assertEqual(result["status"], "incomplete_selected_walk")
+
+    def test_imports_92_pixel_frames_without_rescaling(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root, exported = make_export(Path(directory), frame_size=92)
+            self.assertEqual(replace_walk(exported, root, fingerprint=IDENTITY)["status"],
+                             "updated")
+            manifest = json.loads((root / "manifest.json").read_text())
+            self.assertEqual(manifest["motions"]["walk"]["frameWidth"], 92)
+            self.assertEqual(manifest["motions"]["walk"]["frameHeight"], 92)
+            with Image.open(root / "walk.png") as atlas:
+                self.assertEqual(atlas.size, (736, 736))
+                self.assertEqual(atlas.getpixel((7 * 92 + 5, 7 * 92 + 5)),
+                                 (107, 50, 80, 255))
 
     def test_case_insensitive_state_folder(self):
         with tempfile.TemporaryDirectory() as directory:

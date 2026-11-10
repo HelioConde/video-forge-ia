@@ -24,14 +24,18 @@
         const assets=await Promise.all(ALLOWED.map(motion=>new Promise((resolve,reject)=>{
           const spec=data.motions?.[motion];
           const frames=motion==="walk"&&spec?.frames===8?8:4;
+          const frameWidth=spec?.frameWidth||data.frameWidth;
+          const frameHeight=spec?.frameHeight||data.frameHeight;
           if(!spec||!validPath(spec.file)||spec.file!==motion+".png"||
-             spec.width!==88*frames||spec.height!==704){
+             !Number.isInteger(frameWidth)||!Number.isInteger(frameHeight)||
+             frameWidth<16||frameWidth>128||frameHeight<16||frameHeight>128||
+             spec.width!==frameWidth*frames||spec.height!==frameHeight*8){
             reject(new Error("Spritesheet inválida: "+motion));return;
           }
           const image=new Image();
           image.decoding="async";
           image.onload=()=>{
-            if(image.naturalWidth!==88*frames||image.naturalHeight!==704){
+            if(image.naturalWidth!==frameWidth*frames||image.naturalHeight!==frameHeight*8){
               reject(new Error("Dimensões inválidas: "+motion));return;
             }
             resolve([motion,image]);
@@ -62,9 +66,12 @@
     const atlas=images.get(motion);
     if(dirIndex<0||!atlas)return false;
     const offset=Math.floor(Math.max(0,Number(frame)||0))%frameCount(motion);
+    const frameWidth=baseManifest?.motions?.[motion]?.frameWidth||88;
+    const frameHeight=baseManifest?.motions?.[motion]?.frameHeight||88;
     const px=Math.round(x-size/2),py=Math.round(y-size/2);
     ctx.imageSmoothingEnabled=false;
-    ctx.drawImage(atlas,offset*88,dirIndex*88,88,88,px,py,size,size);
+    ctx.drawImage(atlas,offset*frameWidth,dirIndex*frameHeight,
+                  frameWidth,frameHeight,px,py,size,size);
     return true;
   }
   // Atlas de novas animações: carregamento sob demanda, preservando os seis básicos.
