@@ -140,3 +140,7 @@ Os seis atlas básicos, três cenários e seis objetos já aprovados permanecem 
 ## Atualização: agentes animados e correção de cadeiras
 
 O Pixel Studio utiliza agora movimentos profissionais por cargo via `site/agent-behavior.js`, com demonstração opcional pelo botão 🎬 e conversas sincronizadas pela sala criativa. Os oito assentos PixelLab foram alinhados às cadeiras e as placas estão mais compactas. Os estados reais continuam vindo exclusivamente do backend, sem simular execução de IAs. Mais detalhes em [docs/CORRECOES_AGENTS.md](docs/CORRECOES_AGENTS.md).
+
+### Caminhada mais suave no escritório
+
+A movimentação das rotas demonstrativas agora é calculada a 112 px/s, com quadros de `walk` baseados na distância e redesenho de até 30 FPS enquanto os agents caminham. As curvas são graduais e o sprite não gira automaticamente para sul quando para. Nenhuma nova geração PixelLab nem atividade falsa de agentes é iniciada. Ver `site/README.md`.
