@@ -46,3 +46,7 @@ Em toda alteração relacionada a `site/`, `agentes/`, `canal/`, `scripts/build_
 ## Interface de escritório fullscreen
 
 Em tarefas visuais, preservar o Canvas 2D principal em `site/office-renderer.js`, com desenho pixel-art original e viewport responsivo; manter entrada HTML em `site/index.html`, estilos em `site/styles.css` e integração de dados em `site/app.js`. Manter controles operáveis por mouse/toque e evitar cartões que roubem a maior parte da tela. Não copiar assets proprietários do Pixel Agents; desenhos próprios são obrigatórios. Não inferir trabalho real de animações decorativas. Rodar `node --check` nos dois scripts antes do deploy.
+
+## Regra de revisão visual com captura
+
+Para mudanças significativas em Canvas e CSS, renderizar a interface em um navegador, capturar desktop e celular, procurar falhas de proporção, áreas vazias, sobreposição de HUD e usabilidade por toque. Corrigir os problemas encontrados, executar os testes de CI e verificar o Pages após o deploy. Capturas locais são prévias visuais, não evidência automática de publicação em produção.

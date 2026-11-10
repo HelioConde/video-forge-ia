@@ -7,6 +7,7 @@
   const state={snapshot:null,selected:null,tab:"agents",open:false};
   const canvas=$("officeCanvas"), workspace=$("workspace");
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
+  office.setMiniMap($("officeMiniMap"));
   const make=(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=String(text);return x;};
   const label=x=>STATUS[x]||"Indisponível";
   const live=x=>["trabalhando","revisao"].includes(x);
@@ -16,7 +17,7 @@
   function agentCard(a){const b=make("button","agent-item"+(state.selected===a.id?" active":""));b.type="button";b.setAttribute("aria-pressed",String(state.selected===a.id));const portrait=make("span","avatar-box",ICON[a.id]||"◇");portrait.setAttribute("aria-hidden","true");
     const body=make("span","agent-item-main");body.append(make("strong","",a.nome),make("small","",a.funcao));
     const status=make("i","state-dot "+dot(a.status));status.setAttribute("aria-label",label(a.status));b.append(portrait,body,status);
-    b.addEventListener("click",()=>{state.selected=a.id;office.setSelected(a.id);renderPanel();});
+    b.addEventListener("click",()=>{state.selected=a.id;office.setSelected(a.id);office.focusAgent(a.id);renderPanel();});
     return b;
   }
   function channelCard(c){const b=make("button","channel-item");b.type="button";

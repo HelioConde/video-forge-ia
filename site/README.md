@@ -55,3 +55,11 @@ Esse relatório precisa ser criado por jobs reais e revisado para evitar vazamen
 - `data/status.json`: estado mínimo exportado do backend.
 
 Toda a arte é programática e própria. Não importa bibliotecas nem assets do Pixel Agents. Animações de interface não significam execução de trabalho.
+
+## Navegação aperfeiçoada
+
+- **No celular:** o zoom padrão prioriza preencher a altura da janela, eliminando grandes faixas vazias; arraste para visitar outras mesas.
+- **Minimapa clicável:** localize uma estação e mova a câmera tocando no mapa no canto inferior direito.
+- **Seleção pela lista:** ao tocar em um funcionário, a câmera foca o respectivo posto no celular.
+- **Centralização:** use o botão ⌖ para voltar ao enquadramento original.
+- **Arte aprimorada:** tapetes, placas de postos, avisos de planejamento e console gráfico de edição são desenhados no próprio Canvas.

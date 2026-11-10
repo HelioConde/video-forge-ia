@@ -39,3 +39,24 @@
   .workspace:fullscreen .corner-hud{top:10px}
   .workspace:fullscreen .scene-actions{top:10px}
 }
+
+/* Mini-map como ferramenta de navegação, especialmente útil quando o zoom mobile preenche a altura. */
+.mini-panel{position:absolute;right:21px;bottom:57px;width:218px;z-index:3;overflow:hidden;background:#152436ec;border:1px solid #66818d;box-shadow:4px 4px 0 #0c1827ba;border-radius:7px;padding:9px;backdrop-filter:blur(3px)}
+.mini-header{display:flex;justify-content:space-between;align-items:center;font:900 10px ui-monospace,Consolas,monospace;letter-spacing:.11em;color:#dae9dd;padding:1px 2px 8px}
+.mini-led{width:8px;height:8px;background:#aacfb4;box-shadow:0 0 0 3px #304b48}
+#officeMiniMap{width:100%;height:auto;display:block;image-rendering:pixelated;border:2px solid #435d6c;background:#152637;cursor:crosshair;touch-action:manipulation}
+.mini-hint{text-align:center;font:800 9px ui-monospace,monospace;letter-spacing:.08em;color:#92a8b3;padding-top:7px}
+.corner-hud{max-width:410px}
+.hud-title{font-size:clamp(18px,1.8vw,25px)}
+.hud-title span{white-space:normal}
+@media(max-width:960px){.mini-panel{right:13px;bottom:54px;width:174px;padding:6px}.mini-header{font-size:8px;padding-bottom:5px}.mini-hint{font-size:8px}}
+@media(max-width:600px){
+  .mini-panel{right:8px;bottom:44px;width:120px;padding:5px;border-radius:5px}
+  .mini-header{font-size:7px;letter-spacing:0;padding-bottom:4px}
+  .mini-led{width:5px;height:5px}
+  .mini-hint{font-size:7px;letter-spacing:0;padding-top:3px}
+  .corner-hud{max-width:calc(100% - 119px)}
+  .hud-title{font-size:14px;line-height:1.18}
+  .quick-menu{z-index:4}
+}
+@media(max-height:650px){.mini-panel{width:132px}.mini-hint{display:none}}

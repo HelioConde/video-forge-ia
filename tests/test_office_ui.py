@@ -18,6 +18,7 @@ class OfficeUITests(unittest.TestCase):
         parser=Parser()
         parser.feed(document)
         self.assertTrue(any(tag=="canvas" and attrs.get("id")=="officeCanvas" for tag,attrs in parser.tags))
+        self.assertTrue(any(tag=="canvas" and attrs.get("id")=="officeMiniMap" for tag,attrs in parser.tags))
         self.assertTrue(any(tag=="script" and attrs.get("src")=="./office-renderer.js" for tag,attrs in parser.tags))
         self.assertTrue(any(tag=="script" and attrs.get("src")=="./app.js" for tag,attrs in parser.tags))
 
@@ -29,7 +30,7 @@ class OfficeUITests(unittest.TestCase):
 
     def test_original_canvas_renderer_supports_controls(self):
         renderer=(ROOT/"office-renderer.js").read_text(encoding="utf-8")
-        for method in ("pointerDown","pointerMove","pointerUp","zoomAt","reset","setAgents","setSelected"):
+        for method in ("pointerDown","pointerMove","pointerUp","zoomAt","reset","setAgents","setSelected","setMiniMap","renderMiniMap","focusAgent","defaultZoom"):
             self.assertIn(method,renderer)
         self.assertNotIn("https://",renderer)
 

@@ -76,3 +76,11 @@ Não copiar sprites, texturas ou assets do Pixel Agents. O escritório foi desen
 ### Testes e publicações
 
 O Actions valida JavaScript, os testes Python e a existência da estrutura de Canvas antes do deploy automático no GitHub Pages. Um deploy bem-sucedido confirma a publicação dos arquivos, **não** comprova atividade dos agentes.
+
+## Auditoria visual em desktop e celular
+
+A revisão por capturas locais em 1440 × 900 e 393 × 852 identificou duas falhas do primeiro layout: grande faixa vazia no celular e estação de trabalho com pouco contraste no piso.
+
+**Correções aplicadas:** zoom inicial adaptativo no celular para preencher a altura do escritório; foco em estação ao selecioná-la na lista; minimapa clicável com indicação do viewport; tapetes individuais, placas numeradas e detalhes decorativos nas salas. A tela pode ser arrastada e ampliada; botão ⌖ retorna ao enquadramento inicial. O painel lateral não consome a área central quando está fechado.
+
+Os screenshots de inspeção são renderizações locais do desenho em desenvolvimento. Uma publicação do Pages confirmada pelo GitHub valida deploy, não significa que os agentes executem IA.
