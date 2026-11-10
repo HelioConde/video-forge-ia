@@ -13,7 +13,7 @@
       if(!this.ctx)throw new Error('Canvas 2D indisponível');
       this.onSelect=onSelect;
       this.agents=[];this.selected=null;this.zoom=1;this.panX=0;this.panY=0;
-      this.agentSpritesReady=false;this.previewMotion=null;
+      this.agentSpritesReady=false;this.previewMotion=null;this.roleDemo=false;this.roleAssetsLoading=null;
       this.routines=window.VideoForgeRoutines.create(slots);
       this.pointerMap=new Map();this.drag=null;this.pinch=null;this.wasMobile=null;
       this.miniCanvas=null;this.miniCtx=null;
@@ -49,13 +49,34 @@
       this.agents.forEach(a=>{
         if(active(a)||a.status==='erro')this.routines.cancel(a.id);
       });
+      if(this.agents.some(active))this.loadRoleAnimations();
       this.render(0);
     }
     setSelected(id){this.selected=id;this.render(0);}
     setAgentSpritesReady(ready){
       this.agentSpritesReady=Boolean(ready);
+      if(ready&&(this.roleDemo||this.agents.some(active)))this.loadRoleAnimations();
       this.render(0);
     }
+    loadRoleAnimations(){
+      const animator=window.VideoForgeAnimator,profiles=window.VideoForgeBehaviors;
+      if(!this.agentSpritesReady||!animator||!profiles)return Promise.resolve([]);
+      if(!this.roleAssetsLoading){
+        this.roleAssetsLoading=profiles.preload(animator).then(names=>{
+          this.render(performance.now());
+          return names;
+        }).finally(()=>{this.roleAssetsLoading=null;});
+      }
+      return this.roleAssetsLoading;
+    }
+    setRoleDemo(enabled){
+      if(enabled&&(scene.getArtMode()!=='pixellab'||!this.agentSpritesReady))return false;
+      this.roleDemo=Boolean(enabled);
+      if(this.roleDemo)this.loadRoleAnimations();
+      this.render(performance.now());
+      return this.roleDemo;
+    }
+    roleDemoEnabled(){return this.roleDemo;}
     setPreviewMotion(motion){
       const choices=[null,'idle','walk','type','sit','talk','wave',
         ...window.VideoForgeAnimator.productionMotions().map(x=>x.name)];
@@ -83,7 +104,7 @@
     }
     setArtMode(mode){
       if(!scene.setArtMode(mode))return false;
-      if(mode==='classic')this.routines.clear();
+      if(mode==='classic'){this.routines.clear();this.roleDemo=false;}
       scene.paintBackground(this.bg.getContext('2d'));
       this.reset();this.renderMiniMap();
       return true;
@@ -219,7 +240,7 @@
       const v=this.viewport();
       c.save();c.translate(v.x,v.y);c.scale(v.scale,v.scale);c.imageSmoothingEnabled=false;
       c.drawImage(this.bg,0,0);
-      scene.paintAgents(c,this.agents,this.selected,now,this.previewMotion,this.reduceMotion,this.routines);
+      scene.paintAgents(c,this.agents,this.selected,now,this.previewMotion,this.reduceMotion,this.routines,this.roleDemo);
       c.restore();this.renderMiniMap();
     }
     renderMiniMap(){

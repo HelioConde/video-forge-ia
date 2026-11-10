@@ -117,7 +117,16 @@ function lamps(c){for(const x of [160,375,585,778,1038]){rect(c,x,151,3,17,'#394
 function officeBase(c){rect(c,0,0,SW,SH,'#101b2a');for(let x=0;x<SW;x+=25)rect(c,x,0,1,SH,'#182636');wall(c);floor(c);for(let y=191;y<739;y+=280){carpet(c,86,y,679,233);}divider(c);meeting(c);studio(c);lamps(c);for(let i=0;i<8;i++){const [x,y]=stations[i];desk(c,x,y,i);chair(c,x,y+60);} // plants, artboards, pathways
   plant(c,78,672,.7);plant(c,790,706,.8);plant(c,783,186,.65);rect(c,72,171,50,37,'#253b48');line(c,72,171,50,37,'#7c969b',3);text(c,'01',97,195,'#d8edb8',17,'center');rect(c,752,171,48,37,'#243c4b');text(c,'02',775,195,'#bed9cc',16,'center');for(let x=90;x<754;x+=18)if(noise(x,455)%6===0)rect(c,x,452,6,3,'#d2ad83');}
 function avatar(c,x,y,i,selected=false,doing=false){const skin=['#e5ae87','#c88767','#edc6a0','#ae7961','#cfa081','#eab98e','#bc8968','#d9a678'][i];const hair=['#2b293d','#56382e','#6e443c','#342e3b','#403e48','#aa6645','#cfb18a','#292e43'][i];const top=['#9c99e4','#f1bc76','#78c5a7','#de9cba','#86b9dc','#e69b73','#b5cc86','#75c9be'][i];const float=doing?Math.floor(Date.now()/350)%2:0;const sx=Math.round(x),sy=Math.round(y-float);ellipse(c,sx,sy+24,21,7,'#4e5555');rect(c,sx-17,sy-1,36,24,top);rect(c,sx-22,sy+3,8,17,skin);rect(c,sx+17,sy+3,8,17,skin);rect(c,sx-14,sy+21,12,13,'#4d596f');rect(c,sx+7,sy+21,12,13,'#4d596f');rect(c,sx-15,sy+33,13,5,'#343843');rect(c,sx+7,sy+33,13,5,'#343843');rect(c,sx-12,sy-27,29,29,skin);rect(c,sx-15,sy-31,34,10,hair);rect(c,sx-16,sy-22,7,15,hair);rect(c,sx+16,sy-23,6,8,hair);rect(c,sx-5,sy-11,3,3,'#2e313b');rect(c,sx+9,sy-11,3,3,'#2e313b');rect(c,sx+1,sy-4,7,2,'#a26b5e');if(i===0){rect(c,sx-4,sy+2,6,16,'#f2d195');rect(c,sx-8,sy-13,14,6,'#62758e');}if(i===1){rect(c,sx-19,sy-31,31,6,'#5b402c');rect(c,sx+19,sy+5,4,18,'#e9c48f');}if(i===2){rect(c,sx-19,sy-31,39,5,'#8acfb6');rect(c,sx+3,sy+2,9,4,'#40876f');}if(i===3){rect(c,sx-17,sy-17,5,20,'#4e586c');rect(c,sx+17,sy-17,5,20,'#4e586c');}if(i===4){rect(c,sx+2,sy+7,6,5,'#e3e5d9');}if(i===5){rect(c,sx+6,sy+3,8,11,'#f2ddb9');}if(i===6){rect(c,sx-8,sy-13,12,7,'#6a5954');rect(c,sx+7,sy-13,12,7,'#6a5954');rect(c,sx+4,sy-11,4,2,'#6a5954');}if(i===7){rect(c,sx+7,sy+7,8,8,'#d5f5cf');}if(selected){line(c,sx-31,sy-40,63,82,'#ffe19d',3);star(c,sx,sy-48,'#f9dd8c');}}
-function statusBar(c,x,y,i,label,status,selected){const active=['trabalhando','revisao'].includes(status);rect(c,x-66,y-12,133,29,'#1a2c3a');line(c,x-66,y-12,133,29,selected?'#f3ce89':active?'#78dbaa':'#75969b',2);text(c,label,x,y+1,'#f4e8d5',13,'center');const msg=active?'● em atividade':status==='aguardando'?'● aguardando':status==='concluido'?'● concluído':status==='erro'?'● erro':'● não conectado';text(c,msg,x,y+13,active?'#91efb6':'#aabdc3',9,'center');}
+function statusBar(c,x,y,i,label,status,selected,compact=false){
+  const active=['trabalhando','revisao'].includes(status);
+  const width=compact?118:133, height=compact?24:29;
+  const top=y-(compact?11:12),left=x-Math.round(width/2);
+  rect(c,left,top,width,height,'#1a2c3a');
+  line(c,left,top,width,height,selected?'#f3ce89':active?'#78dbaa':'#75969b',2);
+  text(c,label,x,y+(compact?0:1),'#f4e8d5',compact?11:13,'center');
+  const msg=active?'● em atividade':status==='aguardando'?'● aguardando':status==='concluido'?'● concluído':status==='erro'?'● erro':'● não conectado';
+  text(c,msg,x,y+(compact?11:13),active?'#91efb6':'#aabdc3',compact?8:9,'center');
+}
 function drawScene(c,agents=[],selected=null){officeBase(c);agents.forEach((a,i)=>{if(!stations[i])return;const [x,y]=stations[i];const active=['trabalhando','revisao'].includes(a.status);avatar(c,x,y+111,i,a.id===selected,active);statusBar(c,x,y+173,i,a.nome,a.status,a.id===selected);});}
 
 function motionForAgent(agent){
@@ -130,23 +139,29 @@ function motionForAgent(agent){
   };
   return profession[agent.id]||'idle';
 }
-function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotion){
+function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotion,roleDemo){
   const animator=window.VideoForgeAnimator;
   if(artMode!=='pixellab'||!spritesReady||!animator?.ready())return false;
+  const behavior=window.VideoForgeBehaviors;
+  const chosen=behavior?.choose(agent,t,roleDemo,name=>animator.productionLoaded(name));
   const motion=position?.moving?'walk':position?position.motion:
-               selected&&previewMotion?previewMotion:motionForAgent(agent);
+               selected&&previewMotion?previewMotion:chosen||motionForAgent(agent);
   const direction=position?.direction||(i<4?'south':'north');
   const frame=reduceMotion?0:Math.floor((t||0)/180)%4;
   const x=position?.x??stations[i][0],y=position?.y??stations[i][1]+111;
-  if(!animator.draw(c,motion,direction,frame,x,y,88) &&
-     !animator.drawProduction(c,motion,direction,frame,x,y,88))return false;
-  if(selected){line(c,x-38,y-44,76,90,'#ffe19d',2);star(c,x,y-50,'#f9dd8c');}
+  const size=72;
+  if(!animator.drawProduction(c,motion,direction,frame,x,y,size) &&
+     !animator.draw(c,motion,direction,frame,x,y,size)){
+    const fallback=agent.status==='trabalhando'&&!roleDemo?motionForAgent(agent):'idle';
+    if(!animator.draw(c,fallback,direction,frame,x,y,size))return false;
+  }
+  if(selected){line(c,x-33,y-38,66,76,'#ffe19d',2);star(c,x,y-42,'#f9dd8c');}
   return true;
 }
 window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode:()=>artMode,
   spritesAvailable:()=>spritesReady,
   paintBackground:c=>(artMode==='pixellab'&&spritesReady?pixelBase(c):officeBase(c)),
-  paintAgents:function(c,agents,selected,t,previewMotion=null,reduceMotion=false,routines=null){
+  paintAgents:function(c,agents,selected,t,previewMotion=null,reduceMotion=false,routines=null,roleDemo=false){
     const entries=agents.map((a,i)=>{
       const pos=artMode==='pixellab'&&routines?routines.poseFor(a.id,t):null;
       return {a,i,pos,depth:pos?.y??(stations[i]?.[1]+111||0)};
@@ -156,10 +171,10 @@ window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode
       const [homeX,homeY]=stations[i],isSelected=a.id===selected;
       const x=pos?.x??homeX,y=pos?.y??homeY+111;
       const active=['trabalhando','revisao'].includes(a.status);
-      if(!paintPixelAgent(c,a,i,pos,isSelected,t,previewMotion,reduceMotion)){
+      if(!paintPixelAgent(c,a,i,pos,isSelected,t,previewMotion,reduceMotion,roleDemo)){
         avatar(c,x,y,i,isSelected,active);
       }
       // O status exibido sempre vem do backend, nunca da rotina ilustrativa.
-      statusBar(c,x,y+62,i,a.nome||a.id,a.status,isSelected);
+      statusBar(c,x,y+(artMode==='pixellab'?54:62),i,a.nome||a.id,a.status,isSelected,artMode==='pixellab');
     });
   }};
