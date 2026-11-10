@@ -62,7 +62,7 @@ const first=meeting.poseFor("diretor",1000);
 const second=meeting.poseFor("roteirista",1000);
 assert.equal(first.motion,"walk");
 assert.notEqual(first.x,second.x);
-const speakerTime=14000;
+const speakerTime=16000;
 meeting.tick([
   {id:"diretor",status:"nao_conectado"},
   {id:"roteirista",status:"nao_conectado"}
@@ -116,3 +116,12 @@ smooth.travel("diretor","coffee",123456);
 assert.equal(smooth.poseFor("diretor",123456).frame,0,
   "novo trajeto não pode herdar a fase do relógio global");
 console.log("WALK_SMOOTH_OK: posição contínua, curva diagonal e passada por distância");
+
+const aisle=mod.create(slots);
+assert.equal(aisle.travel("diretor","water",1000),true);
+const pA=aisle.poseFor("diretor",1300);
+assert(pA.x>slots[0][0],"um agente da primeira coluna vai para o corredor");
+const pB=aisle.poseFor("diretor",3000);
+assert(pB.x>slots[0][0]&&pB.x<360,
+  "deslocamento deve percorrer o corredor central, longe das outras cadeiras");
+console.log("AISLE_ROUTE_OK: passeio deixa a coluna de cadeiras antes de descer");

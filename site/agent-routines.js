@@ -49,13 +49,21 @@
     return cleanPoints(result);
   }
   function travelRoute(from,to,home=false) {
-    // Corredor visual inferior para transitar entre área de trabalho e anexos.
-    // Não é pathfinding físico — só há interações nos pontos sinalizados.
-    const corridorY=724;
-    const points=[
+    // Acesso pelo corredor central entre as mesas, sem atravessar os
+    // outros agentes nas cadeiras. Rotas permanecem demonstrativas.
+    const corridorY=724,aisleX=328,doorX=615;
+    const points=home?[
       {x:from.x,y:from.y},
       {x:from.x,y:corridorY},
-      {x:615,y:corridorY},
+      {x:doorX,y:corridorY},
+      {x:aisleX,y:corridorY},
+      {x:aisleX,y:to.y},
+      {x:to.x,y:to.y}
+    ]:[
+      {x:from.x,y:from.y},
+      {x:aisleX,y:from.y},
+      {x:aisleX,y:corridorY},
+      {x:doorX,y:corridorY},
       {x:to.x,y:corridorY},
       {x:to.x,y:to.y}
     ];
