@@ -175,3 +175,7 @@ O `GITHUB_TOKEN` não reativa workflows via `push` quando um próprio Actions fa
 ## Movimentos profissionais e alinhamento de agents
 
 O catálogo de animações especializadas é consumido pelo `site/agent-behavior.js` sem duplicação de nomes no renderizador. O Canvas seleciona as ações por cargo e status do backend; a prévia 🎬 permanece opt-in para funções não conectadas. `site/agent-routines.js` controla a demonstração de conversas e o deslocamento aos pontos da reunião. Slots e placas da sala PixelLab foram reposicionados e validados em `tests/test_office_layout.js`. Nenhuma chamada paga ou publicação de vídeos foi acionada. Consulte `docs/CORRECOES_AGENTS.md`.
+
+### Passada e interpolação dos agents
+
+O `site/agent-routines.js` retorna `poseFor(id, t)` com posição contínua, direção, distância acumulada e `frame` próprio para `walk`. Usa velocidade de 112 px/s, 14 px por troca de frame e curvas quadráticas curtas no corredor, sem modificar status reais. `hasMoving(t)` habilita o modo de 30 FPS em `site/office-renderer.js` apenas durante deslocamentos; `site/office-art.js` seleciona o quadro individual em vez de sincronizar todos os agents pelo relógio global. Mantêm-se os quatro frames existentes no PixelLab, sem novas chamadas pagas. Testes: `node tests/test_agent_routines.js`; CI do site e Playwright desktop/mobile.
