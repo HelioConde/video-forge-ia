@@ -47,6 +47,7 @@
       step("pull_chair",650,"Puxando cadeira"),
       step("sit_down",650,"Sentando"),
       step("adjust_chair",600,"Ajustando postura"),
+      step("lean_forward",500,"Conferindo monitor"),
       step("sit",1000,"Na estação de trabalho")
     ]
   });
