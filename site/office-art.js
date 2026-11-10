@@ -145,7 +145,9 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const animator=window.VideoForgeAnimator;
   if(artMode!=='pixellab'||!spritesReady||!animator?.ready())return false;
   const behavior=window.VideoForgeBehaviors;
-  const chosen=behavior?.choose(agent,t,roleDemo,name=>animator.productionLoaded(name));
+  const library=animator.productionMotions();
+  const known=new Set(library.map(x=>x.name));
+  const chosen=behavior?.choose(agent,t,roleDemo,name=>known.has(name),library);
   const motion=position?.moving?'walk':position?position.motion:
                selected&&previewMotion?previewMotion:chosen||motionForAgent(agent);
   const direction=position?.direction||(i<4?'south':'north');
