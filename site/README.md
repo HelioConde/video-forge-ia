@@ -80,3 +80,11 @@ As imagens **originais aprovadas** estão versionadas em `site/assets/pixellab/`
 O botão **▦ / ✦** na barra de ferramentas alterna entre a arte original e a composição PixelLab. O modo PixelLab é habilitado automaticamente após carregar os nove PNGs; se qualquer arquivo falhar, o escritório antigo continua funcionando. O Canvas desenha as três salas sem distorção, posiciona os seis objetos sem fundo e mantém oito agentes selecionáveis. O minimapa e o foco de agentes usam os mesmos slots da arte ativa.
 
 Os agentes ainda são desenhados pela arte original de `office-art.js` (sem spritesheet de personagem ligado); o estágio atual conecta **cenários e objetos**, não as 48 animações de personagens. O código não chama a API PixelLab no navegador, não transmite tokens e não altera o status real dos agentes. A interface do escritório continua sendo uma projeção de dados do backend.
+
+## Sprites animados Alex — integração v4
+
+O PixelLab exportou `character-frames.zip` com seis movimentos (`idle`, `walk`, `type`, `sit`, `talk`, `wave`) e oito direções. Cada combinação possui quatro frames de **88×88** pixels (área útil 64×64 com margem transparente). A action `pixellab-import-alex.yml` valida a identidade da exportação e monta os seis atlas PNG em `assets/pixellab/agents/alex/`. Cada atlas tem **352×704**: quatro colunas de frames e oito linhas de direções. O manifesto controla ordem, dimensões e hashes sem IDs privados.
+
+O novo `agent-animator.js` carrega os seis atlas em paralelo, valida dimensões e oferece desenho síncrono, sem `await` dentro do Canvas. `office-art.js` escolhe a animação conforme o status **real** do agente; sem eventos de backend o agente fica em `idle`. O botão de prévia no painel de agentes percorre os seis movimentos sem alterar o status registrado. Para conforto, `prefers-reduced-motion` usa o primeiro frame.
+
+Se faltar algum atlas, a aplicação mantém os oito personagens desenhados originalmente e o restante do escritório continua funcionando. **Por enquanto os oito postos reutilizam a aparência Alex**; personagens distintos podem ser cadastrados depois. O navegador não chama a API PixelLab nem usa credenciais.

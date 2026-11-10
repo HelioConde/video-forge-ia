@@ -139,3 +139,7 @@ Workflows: `pixellab-office-audit.yml` (somente GET), `pixellab-office-start.yml
 ## Publicação dos sprites PixelLab para o Canvas
 
 As nove imagens aprovadas foram copiadas dos artifacts das Actions para `site/assets/pixellab/` em um único importador com validação de PNG, dimensões, hash e ausência de dados de conta. O manifesto local registra `sha256`, sem IDs ou URLs privadas de PixelLab. O desenho de cenas no Canvas continua concentrado em `site/office-art.js`; o renderizador `site/office-renderer.js` só controla carregamento/viewport/seleção, e `site/app.js` controla o botão de modo. Falhas de carga preservam a arte anterior. O site é estático e não chama PixelLab em tempo de execução.
+
+## Animação de agentes a partir dos sprites do PixelLab
+
+O workflow `.github/workflows/pixellab-export-alex.yml` exporta os frames sem gerar novamente; `scripts/import_pixellab_agents.py` converte o ZIP validado em atlas PNG, eliminando todos os metadados privados; a action `.github/workflows/pixellab-import-alex.yml` salva os arquivos no repositório. O manifesto `site/assets/pixellab/agents/alex/manifest.json` guarda apenas direções, movimentos, dimensões e hashes. O carregador `site/agent-animator.js` valida seis atlas de 352×704 e desenha sincronicamente no Canvas com suporte a `prefers-reduced-motion`. `site/office-art.js` faz a seleção de animação por status backend e `site/office-renderer.js` mantém apenas câmera, render e hit-testing. Falha ao importar qualquer atlas não impede a arte anterior.

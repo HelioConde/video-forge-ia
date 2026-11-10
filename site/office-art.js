@@ -110,7 +110,37 @@ function avatar(c,x,y,i,selected=false,doing=false){const skin=['#e5ae87','#c887
 function statusBar(c,x,y,i,label,status,selected){const active=['trabalhando','revisao'].includes(status);rect(c,x-66,y-12,133,29,'#1a2c3a');line(c,x-66,y-12,133,29,selected?'#f3ce89':active?'#78dbaa':'#75969b',2);text(c,label,x,y+1,'#f4e8d5',13,'center');const msg=active?'● em atividade':status==='aguardando'?'● aguardando':status==='concluido'?'● concluído':status==='erro'?'● erro':'● não conectado';text(c,msg,x,y+13,active?'#91efb6':'#aabdc3',9,'center');}
 function drawScene(c,agents=[],selected=null){officeBase(c);agents.forEach((a,i)=>{if(!stations[i])return;const [x,y]=stations[i];const active=['trabalhando','revisao'].includes(a.status);avatar(c,x,y+111,i,a.id===selected,active);statusBar(c,x,y+173,i,a.nome,a.status,a.id===selected);});}
 
+function motionForAgent(agent){
+  if(agent.status==='concluido')return 'wave';
+  if(agent.status==='revisao')return 'talk';
+  if(agent.status!=='trabalhando')return 'idle';
+  const profession={
+    diretor:'talk',roteirista:'type',artista:'type',animador:'type',
+    narrador:'talk',editor:'type',revisor:'talk',publicador:'wave'
+  };
+  return profession[agent.id]||'idle';
+}
+function paintPixelAgent(c,agent,i,x,y,selected,t,previewMotion,reduceMotion){
+  const animator=window.VideoForgeAnimator;
+  if(artMode!=='pixellab'||!spritesReady||!animator?.ready())return false;
+  const motion=selected&&previewMotion?previewMotion:motionForAgent(agent);
+  const direction=i<4?'south':'north';
+  const frame=reduceMotion?0:Math.floor((t||0)/180)%4;
+  if(!animator.draw(c,motion,direction,frame,x,y+111,88))return false;
+  if(selected){line(c,x-38,y+67,76,90,'#ffe19d',2);star(c,x,y+61,'#f9dd8c');}
+  return true;
+}
 window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode:()=>artMode,
   spritesAvailable:()=>spritesReady,
   paintBackground:c=>(artMode==='pixellab'&&spritesReady?pixelBase(c):officeBase(c)),
-  paintAgents:function(c,agents,selected,t){agents.forEach((a,i)=>{if(!stations[i])return;const [x,y]=stations[i];const active=['trabalhando','revisao'].includes(a.status);avatar(c,x,y+111,i,a.id===selected,active);statusBar(c,x,y+173,i,a.nome||a.id,a.status,a.id===selected);});}};
+  paintAgents:function(c,agents,selected,t,previewMotion=null,reduceMotion=false){
+    agents.forEach((a,i)=>{
+      if(!stations[i])return;
+      const [x,y]=stations[i],isSelected=a.id===selected;
+      const active=['trabalhando','revisao'].includes(a.status);
+      if(!paintPixelAgent(c,a,i,x,y,isSelected,t,previewMotion,reduceMotion)){
+        avatar(c,x,y+111,i,isSelected,active);
+      }
+      statusBar(c,x,y+173,i,a.nome||a.id,a.status,isSelected);
+    });
+  }};

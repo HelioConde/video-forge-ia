@@ -115,3 +115,7 @@ Sempre que modificar a interface do escritório, os agentes ou as configuraçõe
 Os **9 PNGs aprovados** das salas/objetos foram incorporados ao repositório em `site/assets/pixellab/`. O Canvas do `site/` carrega as imagens localmente e usa o novo modo PixelLab como padrão após o carregamento; um botão alterna para o layout desenhado originalmente. O minimapa e a seleção dos agentes acompanham a disposição ativa. As animações de personagens permanecem guardadas na biblioteca PixelLab e ainda serão integradas separadamente.
 
 Mais detalhes: [guia do escritório](site/README.md).
+
+## Animações do Alex no Pixel Studio
+
+A integração de agentes agora usa as **48 combinações de seis movimentos e oito direções** exportadas do PixelLab, comprimidas em **seis atlas PNG** com quatro frames por direção. Os arquivos permanecem em `site/assets/pixellab/agents/alex/`; o `site/agent-animator.js` pré-carrega os atlas para desenhar diretamente no Canvas. O modo PixelLab aplica a animação coerente com o status real do agente e oferece um botão de prévia sem simular trabalho. Se algum arquivo faltar, preserva os avatars originais. Os oito agentes compartilham temporariamente o Alex.

@@ -13,6 +13,7 @@
       if(!this.ctx)throw new Error('Canvas 2D indisponível');
       this.onSelect=onSelect;
       this.agents=[];this.selected=null;this.zoom=1;this.panX=0;this.panY=0;
+      this.agentSpritesReady=false;this.previewMotion=null;
       this.pointerMap=new Map();this.drag=null;this.pinch=null;this.wasMobile=null;
       this.miniCanvas=null;this.miniCtx=null;
       this.bg=document.createElement('canvas');this.bg.width=W;this.bg.height=H;
@@ -33,7 +34,8 @@
       this.resize();
       this.lastFrame=0;
       const loop=(ts)=>{
-        const moving=this.agents.some(active)&&!this.reduceMotion;
+        const animating=this.agentSpritesReady&&scene.getArtMode()==='pixellab';
+        const moving=(this.agents.some(active)||animating)&&!this.reduceMotion;
         const fps=moving?10:3;
         if(ts-this.lastFrame>=1000/fps){this.render(ts);this.lastFrame=ts;}
         this.frame=requestAnimationFrame(loop);
@@ -42,6 +44,16 @@
     }
     setAgents(list){this.agents=list.slice(0,slots.length);this.render(0);}
     setSelected(id){this.selected=id;this.render(0);}
+    setAgentSpritesReady(ready){
+      this.agentSpritesReady=Boolean(ready);
+      this.render(0);
+    }
+    setPreviewMotion(motion){
+      const choices=[null,'idle','walk','type','sit','talk','wave'];
+      if(!choices.includes(motion))return;
+      this.previewMotion=motion;
+      this.render(0);
+    }
     setArtMode(mode){
       if(!scene.setArtMode(mode))return false;
       scene.paintBackground(this.bg.getContext('2d'));
@@ -173,7 +185,7 @@
       const v=this.viewport();
       c.save();c.translate(v.x,v.y);c.scale(v.scale,v.scale);c.imageSmoothingEnabled=false;
       c.drawImage(this.bg,0,0);
-      scene.paintAgents(c,this.agents,this.selected,ts);
+      scene.paintAgents(c,this.agents,this.selected,ts,this.previewMotion,this.reduceMotion);
       c.restore();this.renderMiniMap();
     }
     renderMiniMap(){
