@@ -1,0 +1,48 @@
+{
+  "id": "otaku-br",
+  "nome": "Otaku Multicena",
+  "nome_atual_youtube": "Otaku Multicena",
+  "chave_legada": "br",
+  "idioma": "pt-BR",
+  "modelo_padrao": "camadas-animadas",
+  "modelo_padrao_provisorio": true,
+  "nicho": "anime_original_commentary",
+  "audiencia": "general",
+  "serie_principal": null,
+  "orientacoes_editoriais": [
+    "Preservar identidade de cada personagem de anime e validar composição visual."
+  ],
+  "youtube": {
+    "channel_id": "UCXGYTuBYn-0Ziqin5ajKhOw",
+    "conectado": false,
+    "upload_habilitado": false,
+    "privacidade": "private",
+    "feito_para_criancas": false,
+    "verificar_identidade_oauth": true
+  },
+  "marca": {
+    "status": "active",
+    "observacao": null
+  },
+  "migracao": {
+    "origem_repositorio": "HelioConde/AutoEditorVideo",
+    "commit_origem": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "arquivo_origem": "config/youtube-channel-registry.json",
+    "automacoes_migradas": false
+  },
+  "seo": {
+    "idioma_metadados": "pt-BR",
+    "tags_prioritarias": [
+      "Anime Brasil",
+      "Anime Shorts",
+      "Otaku Multicena",
+      "Anime"
+    ],
+    "hashtags": [
+      "#OtakuMulticena",
+      "#Shorts"
+    ],
+    "aviso_conteudo_original": "Conteúdo independente com comentário, narração, edição e ilustrações geradas por IA. Os animes e personagens pertencem aos respectivos titulares.",
+    "avaliar_conteudo_sintetico_por_video": true
+  }
+}

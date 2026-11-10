@@ -1,0 +1,18 @@
+{
+  "schema": "videoforge/channel-editorial-index/v1",
+  "canal_id": "manu-kids",
+  "origem": {
+    "repositorio": "HelioConde/AutoEditorVideo",
+    "commit": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "indice_original": "canais/manu-kids/conteudos/indice.json"
+  },
+  "manifestos_legados": [
+    {
+      "caminho_original": "conteudos/kids-experimento-12-nichos-20261109.json",
+      "url": "https://github.com/HelioConde/AutoEditorVideo/blob/f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210/conteudos/kids-experimento-12-nichos-20261109.json",
+      "executavel_no_videoforge": false
+    }
+  ],
+  "producao_automatica_habilitada": false,
+  "nota": "Indices e manifestos originais sao apenas referencias, nao jobs de geracao ou upload."
+}

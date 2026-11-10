@@ -1,0 +1,48 @@
+{
+  "id": "otaku-en",
+  "nome": "Otaku Reframe",
+  "nome_atual_youtube": "Otaku Reframe",
+  "chave_legada": "en",
+  "idioma": "en-US",
+  "modelo_padrao": "imagem-estatica",
+  "modelo_padrao_provisorio": true,
+  "nicho": "english_anime_commentary",
+  "audiencia": "general",
+  "serie_principal": null,
+  "orientacoes_editoriais": [
+    "Manter título, narração e roteiros em inglês; revisar continuidade visual."
+  ],
+  "youtube": {
+    "channel_id": "UCBoNbQjaMYdpJqPLRZAFkvQ",
+    "conectado": false,
+    "upload_habilitado": false,
+    "privacidade": "private",
+    "feito_para_criancas": false,
+    "verificar_identidade_oauth": true
+  },
+  "marca": {
+    "status": "active",
+    "observacao": null
+  },
+  "migracao": {
+    "origem_repositorio": "HelioConde/AutoEditorVideo",
+    "commit_origem": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "arquivo_origem": "config/youtube-channel-registry.json",
+    "automacoes_migradas": false
+  },
+  "seo": {
+    "idioma_metadados": "en",
+    "tags_prioritarias": [
+      "Anime Shorts",
+      "Otaku Reframe",
+      "Anime Explained",
+      "Anime Analysis"
+    ],
+    "hashtags": [
+      "#OtakuReframe",
+      "#Shorts"
+    ],
+    "aviso_conteudo_original": "Independent anime commentary featuring original narration, editing and AI-generated illustrations. Series and characters belong to their respective rights holders.",
+    "avaliar_conteudo_sintetico_por_video": true
+  }
+}

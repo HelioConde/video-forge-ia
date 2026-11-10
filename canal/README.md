@@ -1,24 +1,25 @@
-# Canais
+# Canais do VideoForge AI
 
-Esta pasta guarda **um diretório por canal**. O primeiro é `exemplo` (não está ligado a uma conta real do YouTube).
+Cinco canais catalogados do AutoEditorVideo, com isolamento por pasta, regras editoriais e modelo de produção inicial por canal.
 
-```text
-canal/
-├── README.md
-└── exemplo/
-    ├── canal.json                 # preferências e modelo padrão deste canal
-    └── videos/
-        └── teste-10s/
-            └── video.json        # roteiro, cenas e modelo opcional do vídeo
-```
+| Canal | Pasta | Chave antiga | Modelo padrão inicial | Idioma |
+| --- | --- | --- | --- | --- |
+| Otaku Multicena | [`otaku-br/`](otaku-br/README.md) | `br` | `camadas-animadas` | `pt-BR` |
+| Otaku Reframe | [`otaku-en/`](otaku-en/README.md) | `en` | `imagem-estatica` | `en-US` |
+| Conde Games | [`gamer/`](gamer/README.md) | `games` | `imagem-estatica` | `pt-BR` |
+| Emanuelly Kids | [`manu-kids/`](manu-kids/README.md) | `kids` | `camadas-animadas` | `pt-BR` |
+| Alchemy Lab | [`alchemy-lab/`](alchemy-lab/README.md) | `alchemy` | `imagem-estatica` | `pt-BR` |
 
-## Regra de herança do modelo
+Cada canal contém `canal.json`, `README.md`, `conteudos/indice.json` e `videos/README.md`. Alguns terão `arquivo-editorial/` para materiais históricos, que **não** podem ser executados diretamente.
 
-- Um canal escolhe o seu `modelo_padrao` em `canal/<id>/canal.json`.
-- Cada vídeo pode usar `"modelo": "outro-modelo"` em `video.json` para substituir o padrão.
-- Os modelos disponíveis ficam em `modelos/<id>/modelo.json`. Alterar a escolha de um vídeo não altera os demais.
-- Se o modelo selecionado não existir, a validação falha. Não há fallback silencioso para um modelo errado.
+**Modelos padrão são provisórios** e podem ser trocados por canal ou sobrescritos em cada `video.json`. As receitas compartilhadas ficam em [`modelos/`](../modelos/README.md).
 
-Para adicionar outro canal, copie a pasta `exemplo`, altere seu `id` e suas configurações. Para adicionar um vídeo, crie `videos/<id>/video.json` no canal correspondente.
+## Proteções obrigatórias
 
-**A pasta `canal/` guarda configurações e roteiros.** Arquivos MP4, áudio e imagens gerados devem ficar em `output/` (ignorada pelo Git), evitando o crescimento do repositório.
+- Os cinco uploads estão desabilitados (`conectado=false`, `upload_habilitado=false`, `privacidade=private`).
+- Não copiamos tokens, configurações OAuth, nomes de segredos nem workflows de publicação antigos.
+- O ID público do YouTube serve apenas para mapear e verificar identidade; não estabelece acesso à conta.
+- Os índices são referências editoriais, e os manifestos antigos não são executados pelo novo sistema.
+- O AutoEditorVideo não é modificado pela migração.
+
+Veja [o relatório de migração](../docs/MIGRACAO_AUTOEDITORVIDEO.md).

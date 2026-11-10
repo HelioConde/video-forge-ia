@@ -1,0 +1,37 @@
+{
+  "id": "gamer",
+  "nome": "Conde Games",
+  "nome_atual_youtube": "Hélio Conde",
+  "chave_legada": "games",
+  "idioma": "pt-BR",
+  "modelo_padrao": "imagem-estatica",
+  "modelo_padrao_provisorio": true,
+  "nicho": "gaming_news_nostalgia_curiosities_ai_generated_illustrations_no_gameplay",
+  "audiencia": "general",
+  "serie_principal": null,
+  "orientacoes_editoriais": [
+    "NO recorded or downloaded gameplay. Use only original AI-generated images/scenes as visual illustration.",
+    "Never portray AI imagery as authentic gameplay, tests, screenshots or official footage; describe them as illustrations.",
+    "Replace playthrough/test challenges with hypotheses, curiosity, explanation and current game news after fact-checking.",
+    "Use three formats: Você Sabia?, Você Lembra?, Jogos em Alta.",
+    "Do not route Fofinhos/Kids, anime or Alchemy uploads here."
+  ],
+  "youtube": {
+    "channel_id": "UCg77gYc1_wkHuL07XPtKcow",
+    "conectado": false,
+    "upload_habilitado": false,
+    "privacidade": "private",
+    "feito_para_criancas": false,
+    "verificar_identidade_oauth": true
+  },
+  "marca": {
+    "status": "proposed_not_renamed_on_youtube",
+    "observacao": "Conde Games was proposed for this existing channel; do not rename YouTube account automatically."
+  },
+  "migracao": {
+    "origem_repositorio": "HelioConde/AutoEditorVideo",
+    "commit_origem": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "arquivo_origem": "config/youtube-channel-registry.json",
+    "automacoes_migradas": false
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "alchemy-lab",
+  "nome": "Alchemy Lab",
+  "nome_atual_youtube": "Alchemy Flames",
+  "chave_legada": "alchemy",
+  "idioma": "pt-BR",
+  "modelo_padrao": "imagem-estatica",
+  "modelo_padrao_provisorio": true,
+  "nicho": "ai_education_practical_experiments_and_automation",
+  "audiencia": "general",
+  "serie_principal": null,
+  "orientacoes_editoriais": [
+    "Use original AI-generated illustrations and scenes; they are not screenshots or proof of tests.",
+    "Do not say Testei/Comparei/Conseguiu when no test was executed; only claim verified features, names and dates.",
+    "Use three formats: Você Sabia?, IA Sob a Lupa, IA na Prática (illustrated conceptual tutorial).",
+    "Do not mass-produce low-value repetitive Shorts; each narrative must have original educational value.",
+    "Declare realistic synthetic media when YouTube requires it; keep secrets, credentials and private images out of videos/repo/logs."
+  ],
+  "youtube": {
+    "channel_id": "UCCTYFE5Cmz2aYZ37cJQ-wcg",
+    "conectado": false,
+    "upload_habilitado": false,
+    "privacidade": "private",
+    "feito_para_criancas": false,
+    "verificar_identidade_oauth": true
+  },
+  "marca": {
+    "status": "planned_rename_not_applied",
+    "observacao": "Change of channel brand on YouTube is a separate authorized action; registration only."
+  },
+  "migracao": {
+    "origem_repositorio": "HelioConde/AutoEditorVideo",
+    "commit_origem": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "arquivo_origem": "config/youtube-channel-registry.json",
+    "automacoes_migradas": false
+  }
+}

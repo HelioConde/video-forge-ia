@@ -1,0 +1,35 @@
+{
+  "id": "manu-kids",
+  "nome": "Emanuelly Kids",
+  "nome_atual_youtube": "Emanuelly Kids",
+  "chave_legada": "kids",
+  "idioma": "pt-BR",
+  "modelo_padrao": "camadas-animadas",
+  "modelo_padrao_provisorio": true,
+  "nicho": "fofinhos_original_childrens_animation",
+  "audiencia": "children",
+  "serie_principal": "Fofinhos",
+  "orientacoes_editoriais": [
+    "Declare content directed to children as made for kids",
+    "No engagement manipulation, child personal information or comments CTAs",
+    "Require rights clearance for music and use of private reference images"
+  ],
+  "youtube": {
+    "channel_id": "UCxEzVW2Uy44OUVurTQSg_Eg",
+    "conectado": false,
+    "upload_habilitado": false,
+    "privacidade": "private",
+    "feito_para_criancas": true,
+    "verificar_identidade_oauth": true
+  },
+  "marca": {
+    "status": "current_youtube_title",
+    "observacao": "Fofinhos is the series title. The channel currently displays Emanuelly Kids."
+  },
+  "migracao": {
+    "origem_repositorio": "HelioConde/AutoEditorVideo",
+    "commit_origem": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "arquivo_origem": "config/youtube-channel-registry.json",
+    "automacoes_migradas": false
+  }
+}

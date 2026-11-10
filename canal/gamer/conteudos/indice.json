@@ -1,0 +1,18 @@
+{
+  "schema": "videoforge/channel-editorial-index/v1",
+  "canal_id": "gamer",
+  "origem": {
+    "repositorio": "HelioConde/AutoEditorVideo",
+    "commit": "f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210",
+    "indice_original": "canais/gamer/conteudos/indice.json"
+  },
+  "manifestos_legados": [
+    {
+      "caminho_original": "conteudos/gamer-v2-http400-fix-launch-20261108.json",
+      "url": "https://github.com/HelioConde/AutoEditorVideo/blob/f87d9f6a9dbcd7340b5ec9973d573fd2fddc5210/conteudos/gamer-v2-http400-fix-launch-20261108.json",
+      "executavel_no_videoforge": false
+    }
+  ],
+  "producao_automatica_habilitada": false,
+  "nota": "Indices e manifestos originais sao apenas referencias, nao jobs de geracao ou upload."
+}
