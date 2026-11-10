@@ -1,0 +1,45 @@
+name: PixelLab - Planejar animacoes da produtora
+
+# Inventário somente GET. Nenhuma geração paga.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-production-plan.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-personagens
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Conferir cadastro, delegação e catálogo
+        run: |
+          python -m unittest discover -s tests -v
+          python -m videoforge.production.dispatcher --demand exemplos/demanda-equipe.json --output output/demand-plan.json
+      - name: Comparar catálogo com animações atuais sem cobrar
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
+        run: python -m videoforge.pixellab.production_animations --mode plan --max-new 8
+      - name: Salvar relatórios saneados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: producer-plan-${{ github.run_id }}
+          path: |
+            output/pixellab-production/report.json
+            output/demand-plan.json
+          retention-days: 7
+          if-no-files-found: warn
