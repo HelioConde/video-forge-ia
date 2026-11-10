@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ID = re.compile(r"^[a-z][a-z0-9-]{0,39}$")
 DIRECTIONS = ("south", "south-east", "east", "north-east", "north",
               "north-west", "west", "south-west")
-OPERATIONS = ("plan", "create", "animate", "create-and-animate", "ensure-and-animate", "export")
+OPERATIONS = ("plan", "create", "animate", "state", "create-and-animate", "ensure-and-animate", "export")
 
 
 def load_profile(slug: str, *, root: Path = ROOT) -> dict:
@@ -45,6 +45,12 @@ def load_profile(slug: str, *, root: Path = ROOT) -> dict:
     for name, caption in motions.items():
         if not ID.fullmatch(name) or not isinstance(caption, str) or not 1 <= len(caption) <= 500:
             raise ValueError("Animação inválida no perfil.")
+    states = data.get("states", {})
+    if not isinstance(states, dict) or not states:
+        raise ValueError("Perfil sem estados de pose.")
+    for name, caption in states.items():
+        if not ID.fullmatch(name) or not isinstance(caption, str) or not 1 <= len(caption) <= 1000:
+            raise ValueError("Estado inválido no perfil.")
     return data
 
 
@@ -151,6 +157,22 @@ def generate(profile: dict, slug: str, client: PixelLabClient,
     return character_id
 
 
+def create_state(client: PixelLabClient, character_id: str, profile: dict, state_name: str,
+                 folder: Path, info: dict) -> str:
+    response = client.state(
+        character_id, name=state_name, description=profile["states"][state_name]
+    )
+    new_id = parse_character_id(response["character_id"])
+    job_id = parse_character_id(response["background_job_id"])
+    info.update({"status": "state_pending", "base_character_id": character_id,
+                 "character_id": new_id, "state_job_id": job_id, "state": state_name})
+    write_manifest(folder, info)
+    client.poll([job_id])
+    info["status"] = "state_created"
+    write_manifest(folder, info)
+    return new_id
+
+
 def animate(client: PixelLabClient, character_id: str, profile: dict, motion: str,
             direction: str, folder: Path, info: dict) -> None:
     response = client.animate(
@@ -180,13 +202,15 @@ def export(client: PixelLabClient, character_id: str, folder: Path,
 
 
 def run(operation: str, slug: str, motion: str, direction: str, *,
-        execute: bool = False, character_id: str = "", output: Path | None = None,
+        state_name: str = "sitting", execute: bool = False, character_id: str = "", output: Path | None = None,
         root: Path = ROOT, client: PixelLabClient | None = None) -> dict:
     if operation not in OPERATIONS or direction not in DIRECTIONS:
         raise ValueError("Operação ou direção inválida.")
     profile = load_profile(slug, root=root)
     if motion not in profile["motions"]:
         raise ValueError("Movimento não definido em personagens/" + slug + "/profile.json.")
+    if state_name not in profile["states"]:
+        raise ValueError("Estado de pose não definido no perfil.")
     current = parse_character_id(character_id) if character_id else None
     folder = output if output is not None else root / "output" / "pixellab" / slug
     info = plan(slug, profile, operation, motion, direction, character_id=current)
@@ -199,9 +223,9 @@ def run(operation: str, slug: str, motion: str, direction: str, *,
         client = PixelLabClient(token)
     # Em repo público não persista character_id nos arquivos Git versionados.
     # Sem segredo configurado, tenta descobrir uma única base correspondente na conta.
-    if operation in ("animate", "export", "ensure-and-animate") and current is None:
+    if operation in ("animate", "state", "export", "ensure-and-animate") and current is None:
         current = discover_existing(client, profile)
-    if operation in ("animate", "export") and current is None:
+    if operation in ("animate", "state", "export") and current is None:
         raise PixelLabError(
             "Nenhum personagem reutilizável encontrado. Configure PIXELLAB_CHARACTER_ID "
             "ou escolha create-and-animate para gerar uma nova base."
@@ -220,6 +244,9 @@ def run(operation: str, slug: str, motion: str, direction: str, *,
     elif operation == "animate":
         client.character(current)
         animate(client, current, profile, motion, direction, folder, info)
+    elif operation == "state":
+        client.character(current)
+        current = create_state(client, current, profile, state_name, folder, info)
     elif operation == "export":
         client.character(current)
     export(client, current, folder, info)
@@ -232,13 +259,14 @@ def main() -> None:
     parser.add_argument("--character", default="alex")
     parser.add_argument("--motion", default="idle")
     parser.add_argument("--direction", choices=DIRECTIONS, default="south")
+    parser.add_argument("--state", default="sitting")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--execute", action="store_true",
                         help="Autoriza chamadas pagas; exige PIXELLAB_API_TOKEN")
     args = parser.parse_args()
     try:
         info = run(args.operation, args.character, args.motion, args.direction,
-                   execute=args.execute,
+                   state_name=args.state, execute=args.execute,
                    character_id=os.environ.get("PIXELLAB_CHARACTER_ID", ""),
                    output=args.output)
     except (PixelLabError, ValueError, KeyError, FileNotFoundError, json.JSONDecodeError) as exc:

@@ -5,6 +5,12 @@
   "size": 64,
   "view": "low top-down",
   "reference_file": null,
+  "states": {
+    "sitting": "Sitting on an office chair with knees bent, feet naturally positioned, same original face, hairstyle, mustard-yellow hoodie, cargo trousers and shoes, no new accessories.",
+    "typing": "Sitting at a desk and typing with both hands, maintain original character proportions and appearance, no computer or desk added to the sprite.",
+    "thinking": "Standing thoughtfully with one hand on the chin, same original clothing and hair, neutral focused expression.",
+    "waving": "Standing and waving with right arm raised, unchanged body proportions and original accessories."
+  },
   "motions": {
     "idle": "Subtle idle breathing, relaxed posture, blinking naturally, seamless four-frame loop, keep clothing, proportions and colours unchanged.",
     "walk": "Walking in place at a comfortable pace, alternating legs and arms, seamless four-frame loop, preserve clothing and silhouette.",

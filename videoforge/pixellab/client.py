@@ -103,6 +103,16 @@ class PixelLabClient:
         """Inventário de conta; seleção automática apenas quando não é ambígua."""
         return self._request("GET", "/characters")
 
+    def state(self, character_id: str, *, name: str, description: str):
+        """Variação de pose: aplica a mesma mudança em todas as direções."""
+        return self._request("POST", "/create-character-state", {
+            "character_id": character_id,
+            "edit_description": description,
+            "state_name": name,
+            "use_color_palette_from_reference": True,
+            "no_background": True,
+        })
+
     def character(self, character_id: str):
         return self._request("GET", f"/characters/{character_id}")
 

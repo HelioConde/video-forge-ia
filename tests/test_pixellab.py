@@ -20,6 +20,10 @@ class StubAPI:
         self.events.append("create")
         return {"character_id": ID_A, "background_job_id": ID_B}
 
+    def state(self, *args, **kwargs):
+        self.events.append("state")
+        return {"character_id": ID_B, "background_job_id": ID_C}
+
     def animate(self, *args, **kwargs):
         self.events.append("animate")
         return {"background_job_ids": [ID_C], "animation_group_id": ID_B}
@@ -86,6 +90,16 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(api.events.count("poll"), 2)
             self.assertEqual(api.events.count("download"), 2)
             self.assertTrue((Path(td) / "spritesheet.zip").exists())
+
+    def test_new_state_reuses_base_and_palette(self):
+        with tempfile.TemporaryDirectory() as td:
+            api = StubAPI()
+            result = run("state", "alex", "idle", "south", state_name="sitting",
+                         execute=True, character_id=ID_A, output=Path(td), client=api)
+            self.assertIn("state", api.events)
+            self.assertNotIn("create", api.events)
+            self.assertEqual(result["character_id"], ID_B)
+            self.assertEqual(result["status"], "completed")
 
     def test_ensure_reuses_existing_character(self):
         with tempfile.TemporaryDirectory() as td:

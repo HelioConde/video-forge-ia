@@ -13,6 +13,7 @@ on:
           - plan
           - create
           - animate
+          - state
           - create-and-animate
           - ensure-and-animate
           - export
@@ -49,6 +50,16 @@ on:
           - north-west
           - west
           - south-west
+      estado:
+        description: "Novo estado/pose do personagem base"
+        type: choice
+        required: true
+        default: sitting
+        options:
+          - sitting
+          - typing
+          - thinking
+          - waving
       confirmar_custo:
         description: "Autorizo cobranças da API PixelLab nesta execução"
         type: boolean
@@ -100,10 +111,11 @@ jobs:
           MOVEMENT: ${{ inputs.movimento }}
           DIRECTION: ${{ inputs.direcao }}
           OPERATION: ${{ inputs.operacao }}
+          STATE: ${{ inputs.estado }}
         run: |
           python -m videoforge.pixellab.cli --execute \
             --operation "$OPERATION" --character "$CHAR" \
-            --motion "$MOVEMENT" --direction "$DIRECTION"
+            --motion "$MOVEMENT" --direction "$DIRECTION" --state "$STATE"
       - name: Resultado do processamento
         if: always()
         uses: actions/upload-artifact@v4
