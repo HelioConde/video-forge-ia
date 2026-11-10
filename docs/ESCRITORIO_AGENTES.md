@@ -6,6 +6,7 @@ Visualizar os agentes do VideoForge AI como trabalhadores em um escritório, com
 
 ## Arquitetura
 
+- **`agentes/equipe.json`**: cadastro central de oito agentes, etapas, dependências e habilitação (atualmente todos desabilitados).
 - **`site/index.html`**: composição da página responsiva.
 - **`site/styles.css`**: cenário e personagens originais feitos com CSS.
 - **`site/app.js`**: seleção de agentes/canais, indicadores e leitura do snapshot.

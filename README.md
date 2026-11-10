@@ -56,7 +56,7 @@ As orientações operacionais para agentes de IA e colaboradores estão em [AGEN
 
 ## Escritório virtual de agentes (GitHub Pages)
 
-Foi criado um painel visual com oito funções, cinco canais, filtros e indicadores. Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação usa um workflow **manual** e exige habilitar GitHub Pages nas configurações do repositório.
+Foi criado um painel visual com oito funções, cinco canais, filtros e indicadores. Os oito papéis e suas dependências ficam centralizados em [agentes/equipe.json](agentes/equipe.json). Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação usa um workflow **manual** e exige habilitar GitHub Pages nas configurações do repositório.
 
 Veja [site/README.md](site/README.md) e [docs/ESCRITORIO_AGENTES.md](docs/ESCRITORIO_AGENTES.md). **Não confundir a página visual com agentes já executando tarefas.**
 
