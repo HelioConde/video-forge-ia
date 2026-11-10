@@ -127,3 +127,9 @@ Cadeira e armário são recebidos na pasta `objects/production/` com arquivos PN
 ### Correções das animações por profissão
 
 O botão 🎬 ativa prévia visual dos oito papéis; o backend não é afetado e os status continuam sendo exibidos com o valor real. O botão de conversar com colega leva dois agents à sala criativa e alterna fala/escuta por sprites já importados. O teste de layout impede personagens sobre as janelas e etiquetas invadindo as fileiras.
+
+## Caminhada fluida no Pixel Studio
+
+O motor agora usa os sprites existentes de `walk`, mas redesenha a posição a **30 FPS durante trajetos** (em vez de 10 FPS) e reduz a velocidade de 160 para 112 pixels de mundo por segundo. A fase da passada é individual e avança por 14 px percorridos, independentemente do relógio global; curvas de corredor são arredondadas com pontos de Bézier, e a direção final permanece ao parar. Fora de rotas, a taxa de renderização continua reduzida, respeitando `prefers-reduced-motion`.
+
+Isso suaviza a **movimentação do Canvas**, não aumenta o número de quadros pintados no PNG original (quatro). Nenhum crédito PixelLab é usado. O passeio continua uma prévia visual, não execução real de agents.
