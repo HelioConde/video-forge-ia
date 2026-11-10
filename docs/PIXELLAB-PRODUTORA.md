@@ -23,3 +23,9 @@ O usuário autorizou a criação de **todas as animações listadas e necessári
 - O PixelLab persiste os frames; o GitHub guarda apenas relatórios saneados por sete dias. **Novos atlases não são importados automaticamente para o Pages**, pois precisam de revisão visual de qualidade.
 - Objetos independentes (como cadeira girando e armário) e sequências compostas serão implementados em outras rotas/workflows. O motor de personagens não deve fingir que criou esses recursos.
 - Os custos são variáveis. A referência pública informa que v3 com quatro frames e 64×64 custa aproximadamente USD 0,0129 por direção; essa referência **não** é uma garantia de preço ou teto de faturamento. <https://www.pixellab.ai/pixellab-api>.
+
+## Importação dos sprites novos para o repositório
+
+Depois da conclusão bem-sucedida de `pixellab-production-continue.yml`, o workflow `pixellab-production-import.yml` baixa por GET o ZIP do personagem, valida a origem e a presença dos **145 pares movimento/direção** e converte os frames em 122 atlases `site/assets/pixellab/agents/alex/production/<motion>.png` com manifesto de hashes e dimensões. Não transfere o ZIP nem metadados privados para o Git.
+
+Esse workflow falha se qualquer frame estiver ausente/vazio e **não comita atlas parciais**. Publicar os PNGs no repositório não muda automaticamente o comportamento dos agentes; adicionar uma animação ao Canvas depende da interação e dos estados de UI.
