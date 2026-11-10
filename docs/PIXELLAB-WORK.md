@@ -57,13 +57,13 @@ a execução para antes de cobrar.
 Planejar:
 
 ~~~bash
-gh workflow run pixellab-work.yml --ref main -f modo=planejar -f movimento=todos -f max_novas=4
+gh workflow run pixellab-work.yml --repo HelioConde/video-forte-ia --ref main -f modo=planejar -f movimento=todos -f max_novas=4
 ~~~
 
 Gerar até quatro novas direções, depois de verificar o plano:
 
 ~~~bash
-gh workflow run pixellab-work.yml --ref main -f modo=gerar -f movimento=todos -f max_novas=4 -f confirmar_custo=true -f artefatos_publicos=true
+gh workflow run pixellab-work.yml --repo HelioConde/video-forte-ia --ref main -f modo=gerar -f movimento=todos -f max_novas=4 -f confirmar_custo=true -f artefatos_publicos=true
 ~~~
 
 Comando local de inspeção (em checkout autorizado, com os dois secrets no ambiente):
@@ -91,3 +91,25 @@ Não enviar tokens, UUIDs, prompts pessoais ou URLs de mídia nos resumos públi
 O fluxo **não** edita o site do escritório nem publica vídeos no YouTube.
 
 Referência: https://api.pixellab.ai/v2/docs
+
+## Instrução pronta para o ChatGPT Work
+
+O usuário pode passar esta tarefa ao Work:
+
+> Abra o repositório HelioConde/video-forte-ia. Siga AGENTS.md e docs/PIXELLAB-WORK.md.
+> Primeiro confira o Secret PIXELLAB_CHARACTER_ID e o personagem base correto
+> (ID já fornecido na conversa), usando a interface do GitHub em modo Work.
+> Nunca divulgue token nem UUID nos logs, código ou comentários públicos.
+> Inicie o workflow pixellab-work.yml em modo planejar. Leia o relatório e
+> confirme quais das 48 combinações de seis movimentos e oito direções
+> existem. Somente então, com a autorização de custo já dada pelo usuário e
+> mantendo o limite de até oito POSTs pagos por rodada, execute o workflow
+> em modo gerar para produzir direções realmente faltantes.
+> Aguarde cada rodada terminar e revalide o inventário antes da próxima.
+> Em erros, 409 ou timeout, pare e investigue, sem repetir cobranças cegamente.
+> Por padrão não exporte ZIPs públicos. Se precisar baixar spritesheets,
+> habilite exportar_zips apenas após confirmar a exposição pública.
+> Não recrie o personagem original, não altere poses existentes e não publique no YouTube.
+> Informe quantas animações já existiam, quantas foram criadas e o link de cada Action.
+> Para poses/estados (sitting, typing, thinking, waving), use o workflow individual
+> pixellab-character.yml somente após checar se já existem na conta.
