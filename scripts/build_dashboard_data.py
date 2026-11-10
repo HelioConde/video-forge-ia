@@ -7,16 +7,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TEAM = [
-    ("diretor", "Direção", "Coordenação e prioridades"),
-    ("roteirista", "Roteirista", "Roteiros e planejamento"),
-    ("artista", "Artista visual", "Cenários e personagens"),
-    ("animador", "Animador", "Movimentação por camadas"),
-    ("narrador", "Narrador", "Narração e mixagem"),
-    ("editor", "Editor", "Edição e renderização"),
-    ("revisor", "Revisor", "Controle de qualidade"),
-    ("publicador", "Publicador", "Upload e agendamento"),
-]
 STATES = {"nao_conectado", "aguardando", "trabalhando", "revisao", "concluido", "erro"}
 
 
@@ -39,17 +29,24 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
             "modelo": text(config.get("modelo_padrao"), 60),
         })
 
+    roster = json.loads((root / "agentes/equipe.json").read_text(encoding="utf-8"))
+    team = roster.get("agentes")
+    if not isinstance(team, list) or not team:
+        raise ValueError("Cadastro de agentes inválido")
+    ids = [a["id"] for a in team]
+    if len(ids) != len(set(ids)):
+        raise ValueError("IDs duplicados de agente")
     agents = [{
-        "id": aid, "nome": name, "funcao": role,
+        "id": a["id"], "nome": text(a.get("nome")), "funcao": text(a.get("funcao")),
         "status": "nao_conectado",
         "tarefa": "Aguardando conexão com a produção real", "canal": None
-    } for aid, name, role in TEAM]
+    } for a in team]
 
     if events is not None:
         raw = json.loads(events.read_text(encoding="utf-8"))
         if not isinstance(raw, dict) or not isinstance(raw.get("agents"), list):
             raise ValueError("Relatório de agentes inválido")
-        known_agents = {row[0] for row in TEAM}
+        known_agents = set(ids)
         known_channels = {row["id"] for row in channels}
         updates = {}
         for event in raw["agents"]:

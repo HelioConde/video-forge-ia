@@ -1,0 +1,111 @@
+{
+  "schema": "videoforge/agent-roster/v1",
+  "descricao": "Perfis planejados. Cadastrar um agente nao habilita sua execucao.",
+  "agentes": [
+    {
+      "id": "diretor",
+      "nome": "Direção",
+      "funcao": "Coordenação e prioridades",
+      "depende_de": [],
+      "saidas": [
+        "plano_de_producao"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "roteirista",
+      "nome": "Roteirista",
+      "funcao": "Roteiros e planejamento",
+      "depende_de": [
+        "diretor"
+      ],
+      "saidas": [
+        "roteiro",
+        "storyboard"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "artista",
+      "nome": "Artista visual",
+      "funcao": "Cenários e personagens",
+      "depende_de": [
+        "roteirista"
+      ],
+      "saidas": [
+        "referencias",
+        "camadas_visuais"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "animador",
+      "nome": "Animador",
+      "funcao": "Movimentação por camadas",
+      "depende_de": [
+        "artista"
+      ],
+      "saidas": [
+        "animacoes"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "narrador",
+      "nome": "Narrador",
+      "funcao": "Narração e mixagem",
+      "depende_de": [
+        "roteirista"
+      ],
+      "saidas": [
+        "audio"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "editor",
+      "nome": "Editor",
+      "funcao": "Edição e renderização",
+      "depende_de": [
+        "animador",
+        "narrador"
+      ],
+      "saidas": [
+        "video_mp4"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "revisor",
+      "nome": "Revisor",
+      "funcao": "Controle de qualidade",
+      "depende_de": [
+        "editor"
+      ],
+      "saidas": [
+        "relatorio_qa"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "publicador",
+      "nome": "Publicador",
+      "funcao": "Upload e agendamento",
+      "depende_de": [
+        "revisor"
+      ],
+      "saidas": [
+        "status_publicacao"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    }
+  ]
+}
