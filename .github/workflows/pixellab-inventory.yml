@@ -1,0 +1,31 @@
+name: PixelLab - Inventario de animacoes existentes
+
+# Read-only audit. Não gera nenhum personagem ou animação.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-inventory.yml"
+      - "videoforge/pixellab/inventory.py"
+      - "tests/test_pixellab_inventory.py"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar leitura de inventario offline
+        run: python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Consultar a conta e listar animacoes existentes (GET apenas)
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_CHARACTER_ID: ${{ secrets.PIXELLAB_CHARACTER_ID }}
+        run: python -m videoforge.pixellab.inventory
