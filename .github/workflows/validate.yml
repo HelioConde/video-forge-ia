@@ -20,6 +20,8 @@ jobs:
           python-version: '3.12'
       - name: Executar testes
         run: python -m unittest discover -s tests -v
+      - name: Testar comando PixelLab em dry-run
+        run: python -m videoforge.pixellab.cli --operation plan --character alex --motion idle --direction south --output /tmp/videoforge-pixellab-plan
       - name: Validar JavaScript do painel
         run: |
           node --check site/app.js
