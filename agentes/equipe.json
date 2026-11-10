@@ -1,6 +1,6 @@
 {
-  "schema": "videoforge/agent-roster/v1",
-  "descricao": "Perfis planejados. Cadastrar um agente nao habilita sua execucao.",
+  "schema": "videoforge/agent-roster/v2",
+  "descricao": "Oito funções visuais existentes e departamentos planejados. Nenhum especialista está conectado à IA automaticamente; gerente é humano.",
   "agentes": [
     {
       "id": "diretor",
@@ -107,5 +107,190 @@
       "modelo_ia": null,
       "habilitado": false
     }
-  ]
+  ],
+  "manager": {
+    "role": "gerente_geral",
+    "kind": "human",
+    "permissions": [
+      "criar_demanda",
+      "priorizar",
+      "aprovar",
+      "cancelar",
+      "autorizar_publicacao",
+      "definir_orcamento"
+    ]
+  },
+  "departamentos": [
+    {
+      "id": "direcao",
+      "name": "Direção e gestão",
+      "lead": "diretor",
+      "specialists": [
+        [
+          "gerente-producao",
+          "Gerente de produção",
+          "priorização, recursos e bloqueios"
+        ],
+        [
+          "coordenador-pautas",
+          "Coordenador de pautas",
+          "briefings e distribuição de tarefas"
+        ],
+        [
+          "analista-producao",
+          "Analista de produção",
+          "métricas e controle de produtividade"
+        ]
+      ]
+    },
+    {
+      "id": "editorial",
+      "name": "Editorial e pesquisa",
+      "lead": "roteirista",
+      "specialists": [
+        [
+          "pesquisador",
+          "Pesquisador de tendências",
+          "temas e fontes"
+        ],
+        [
+          "estrategista-canais",
+          "Estrategista de canais",
+          "segmentação e voz de marca"
+        ],
+        [
+          "roteirista-cenas",
+          "Roteirista de cenas",
+          "estrutura por cenas"
+        ],
+        [
+          "revisor-narrativa",
+          "Revisor de narrativa",
+          "fatos, coerência e continuidade"
+        ],
+        [
+          "titulo",
+          "Especialista em títulos",
+          "opções e testes de título"
+        ],
+        [
+          "descricao",
+          "Especialista em descrição",
+          "descrições e capítulos"
+        ],
+        [
+          "tags-seo",
+          "Especialista em tags e SEO",
+          "keywords e metadados"
+        ]
+      ]
+    },
+    {
+      "id": "criacao",
+      "name": "Arte e design",
+      "lead": "artista",
+      "specialists": [
+        [
+          "personagens",
+          "Designer de personagens",
+          "modelos e consistência"
+        ],
+        [
+          "cenarios",
+          "Criador de cenários",
+          "backgrounds e ambientes"
+        ],
+        [
+          "ilustrador",
+          "Ilustrador",
+          "camadas e adereços"
+        ],
+        [
+          "thumbnail",
+          "Designer de thumbnails",
+          "arte de capa e legibilidade"
+        ],
+        [
+          "storyboard",
+          "Artista de storyboard",
+          "planos e enquadramentos"
+        ]
+      ]
+    },
+    {
+      "id": "audiovisual",
+      "name": "Produção audiovisual",
+      "lead": "editor",
+      "specialists": [
+        [
+          "voz",
+          "Dublador e narrador",
+          "vozes e pronunciamento"
+        ],
+        [
+          "audio",
+          "Técnico de áudio",
+          "limpeza e mixagem"
+        ],
+        [
+          "animacao",
+          "Animador de cenas",
+          "movimentos e sincronismo"
+        ],
+        [
+          "montagem",
+          "Montador",
+          "edição e ritmo"
+        ],
+        [
+          "legendas",
+          "Especialista em legendas",
+          "sincronia e acessibilidade"
+        ],
+        [
+          "render",
+          "Técnico de render",
+          "exportação e codecs"
+        ]
+      ]
+    },
+    {
+      "id": "qualidade",
+      "name": "Qualidade e distribuição",
+      "lead": "revisor",
+      "specialists": [
+        [
+          "revisor-visual",
+          "Revisor visual",
+          "fidelidade de personagens e imagens"
+        ],
+        [
+          "revisor-conteudo",
+          "Revisor de conteúdo",
+          "políticas, direitos e qualidade"
+        ],
+        [
+          "qa-tecnico",
+          "QA técnico",
+          "duração, áudio, formato e upload"
+        ],
+        [
+          "publicacao",
+          "Especialista de publicação",
+          "upload sob aprovação do gerente"
+        ],
+        [
+          "agendamento",
+          "Agendador",
+          "janelas e fila editorial"
+        ],
+        [
+          "analista-audiencia",
+          "Analista de audiência",
+          "CTR, retenção e ações futuras"
+        ]
+      ]
+    }
+  ],
+  "specialists_enabled": false
 }

@@ -1,0 +1,27 @@
+# VideoForge AI — estrutura de produtora e delegação
+
+## Gerente e equipe
+
+O proprietário é o **gerente geral humano**. Envia uma demanda por vídeo/canal e aprova decisões críticas. O **diretor** distribui trabalhos a líderes dos departamentos Editorial, Criação, Audiovisual e Qualidade/Distribuição. Cada líder possui uma lista de especialistas lógicos, que só se tornam executores quando forem ligados a conectores autorizados.
+
+O arquivo `agentes/equipe.json` mantém as oito funções visuais atuais para preservar os postos do escritório, e passa a ter `manager` e `departamentos` para uma equipe escalável. Os especialistas não substituem os agentes do Canvas, nem são apresentados como IA online. É proibido anunciar progresso de geração sem um executor real e evidência de saída.
+
+## Exemplo de demanda
+
+Um pedido do gerente inclui canal, tema, público, duração e modo de publicação. O motor `videoforge/production/dispatcher.py` produz o **grafo de subtarefas**:
+
+- Pesquisa/briefing → roteiro.
+- Com roteiro pronto: **título, descrição, tags, thumbnail, storyboard e narração** podem ser delegados a especialistas diferentes.
+- Storyboard → imagens → animação; roteiro → legendas; edição depende de animação, áudio e legendas.
+- QA depende de edição, capa e metadados.
+- Aprovação gerencial depende de QA; envio só pode ser habilitado por autorização de publicação fora do planejador.
+
+## Estados e evidências
+
+`blocked` = faltam dependências; `ready` = pode começar; `in_progress` = execução conectada demonstrável; `done` = resultado verificado; `failed` = bloqueio. Um artefato de saída deve existir antes de concluir um trabalho, não basta um texto do agente dizendo 'pronto'. Uma revisão negativa reabre exclusivamente os componentes dependentes. Publicação e despesas pagas só acontecem por workflows com limites e aprovação.
+
+O `dispatcher.py` do estágio atual **não executa IAs, renderiza vídeo ou faz upload**: sua primeira entrega é um planejamento determinístico verificável e testável, para permitir a adição posterior de executores por especialidade.
+
+## Integração com animações do escritório
+
+A hierarquia também define quem conversa com quem, que sala usar e como visualizá-lo. O sistema de eventos do backend será a origem de estados reais; o Canvas poderá representar reuniões/entregas com sprites novos quando existirem, mantendo demonstrativos visuais separados. Novos agentes visuais serão adicionados por expansão de layout, não por duplicar avatars e inventar tarefas.
