@@ -62,7 +62,7 @@ Veja [site/README.md](site/README.md) e [docs/ESCRITORIO_AGENTES.md](docs/ESCRIT
 
 ## Geração de personagens com PixelLab
 
-O [workflow PixelLab](.github/workflows/pixellab-character.yml) permite planejar gratuitamente, criar um personagem em oito direções, animar movimentos e exportar spritesheets. Já existe o [perfil Alex](personagens/alex/profile.json). O programa pode reconhecer um personagem previamente criado em sua conta, quando não houver ambiguidade.
+O [workflow PixelLab](.github/workflows/pixellab-character.yml) permite planejar gratuitamente, criar um personagem em oito direções, animar movimentos, produzir estados/poses como sentado ou digitando e exportar spritesheets. Já existe o [perfil Alex](personagens/alex/profile.json). O programa pode reconhecer um personagem previamente criado em sua conta, quando não houver ambiguidade.
 
 A API precisa de `PIXELLAB_API_TOKEN` cadastrado em GitHub Secrets. No repositório público, as chamadas pagas e a exportação de ZIPs requerem autorizações explícitas. **Nenhuma geração paga foi executada apenas com a instalação do código.**
 
