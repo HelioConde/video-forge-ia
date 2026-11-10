@@ -11,15 +11,16 @@ python -m http.server 8000 --directory site
 
 Abra `http://localhost:8000` para visualizar os oito agentes e cinco canais.
 
-## Publicação manual do GitHub Pages
+## Publicação automática do GitHub Pages
 
 1. Em **Settings → Pages → Build and deployment**, configure **Source: GitHub Actions**.
 2. Verifique se sua conta GitHub permite publicar Pages de um repositório privado.
 3. Revise a visibilidade da página e os dados que ficarão públicos.
-4. Execute **Actions → VideoForge AI - Escritorio de Agentes (Pages) → Run workflow**.
-5. Depois do deploy, consulte a URL indicada em **Settings → Pages**.
+4. O workflow **VideoForge AI - Escritorio de Agentes (Pages)** inicia automaticamente a cada alteração relevante na branch `main` (interface, agentes, canais, exportador ou testes).
+5. Para republicar sem mudanças, use **Actions → VideoForge AI - Escritorio de Agentes (Pages) → Run workflow**.
+6. Após o primeiro deploy bem-sucedido, consulte a URL indicada em **Settings → Pages**.
 
-A publicação está **deliberadamente limitada a `workflow_dispatch`**. Não ocorre automaticamente ao fazer push, evitando expor informação de um repositório privado sem revisão.
+A publicação é automática em commits relevantes para o painel e também pode ser iniciada manualmente. **O usuário já escolheu GitHub Actions como fonte do Pages.** Como sites Pages podem ser públicos, mantenha somente nomes de canais e funções públicas no snapshot.
 
 ## Limitações atuais
 
@@ -43,4 +44,4 @@ IDs: `diretor`, `roteirista`, `artista`, `animador`, `narrador`, `editor`, `revi
 
 Esse relatório precisa ser criado por jobs reais e revisado para evitar vazamento de informações, não por simulação de atividade. A execução manual atual **não** incorpora nenhum arquivo de eventos.
 
-**Segurança:** o site GitHub Pages pode ficar público mesmo com código em repositório privado. Nomes públicos dos canais e as funções da equipe podem ser vistos por visitantes. Não publique até estar confortável com essa exposição.
+**Segurança:** o site GitHub Pages pode ficar público mesmo com código em repositório privado. Nomes públicos dos canais e as funções da equipe podem ser vistos por visitantes. A publicação automática assume que a exposição de nomes públicos de canais e funções da equipe foi autorizada; nunca adicionar dados privados ao exportador.

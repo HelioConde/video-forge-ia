@@ -56,7 +56,7 @@ As orientações operacionais para agentes de IA e colaboradores estão em [AGEN
 
 ## Escritório virtual de agentes (GitHub Pages)
 
-Foi criado um painel visual com oito funções, cinco canais, filtros e indicadores. Os oito papéis e suas dependências ficam centralizados em [agentes/equipe.json](agentes/equipe.json). Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação usa um workflow **manual** e exige habilitar GitHub Pages nas configurações do repositório.
+Foi criado um painel visual com oito funções, cinco canais, filtros e indicadores. Os oito papéis e suas dependências ficam centralizados em [agentes/equipe.json](agentes/equipe.json). Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação é **automática quando o painel, agentes, canais ou testes relacionados mudarem na branch `main`**; também aceita execução manual. O GitHub Pages precisa estar configurado com a opção GitHub Actions.
 
 Veja [site/README.md](site/README.md) e [docs/ESCRITORIO_AGENTES.md](docs/ESCRITORIO_AGENTES.md). **Não confundir a página visual com agentes já executando tarefas.**
 
@@ -83,3 +83,7 @@ A ação **Actions > Validar VideoForge AI** também roda os testes e salva o st
 Não adicione chaves de API, tokens OAuth nem mídias privadas no Git. Armazene credenciais em GitHub Actions Secrets; use limites de custo e prevenção contra duplicatas.
 
 **Nome do produto:** VideoForge AI. **Nome atual do repositório:** `video-forte-ia`.
+
+## Regra permanente de entrega e publicação do painel
+
+Sempre que modificar a interface do escritório, os agentes ou as configurações de canais que o painel utiliza, **não concluir a tarefa apenas com os arquivos no repositório**: executar a validação, permitir o deploy automático do Pages, conferir o resultado da execução e informar o link publicado quando confirmado. Se a publicação falhar ou depender de acesso/configuração indisponível, informar claramente o bloqueio e oferecer o próximo passo. Nunca afirmar que a página está online sem evidência do GitHub.

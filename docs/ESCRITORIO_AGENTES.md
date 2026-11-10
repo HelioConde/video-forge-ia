@@ -12,7 +12,7 @@ Visualizar os agentes do VideoForge AI como trabalhadores em um escritório, com
 - **`site/app.js`**: seleção de agentes/canais, indicadores e leitura do snapshot.
 - **`site/data/status.json`**: dados mínimos, publicáveis. O arquivo incluído no Git é apenas um snapshot inicial com agentes não conectados.
 - **`scripts/build_dashboard_data.py`**: prepara snapshot a partir de `canal/*/canal.json`, exportando somente campos não sensíveis.
-- **`.github/workflows/pages.yml`**: testa e publica, apenas por acionamento manual.
+- **`.github/workflows/pages.yml`**: testa e publica automaticamente mudanças relevantes da branch `main`, com opção de acionamento manual.
 - **`tests/test_dashboard.py`**: valida canais, segurança básica e dados de agentes.
 
 A página **não é o próprio orquestrador**. O backend real poderá emitir eventos de progresso verificados; os dados públicos serão regenerados e enviados ao Pages por deploy. O refresh no navegador só consulta o arquivo estático mais recente.
@@ -49,3 +49,11 @@ Esses projetos dependem de processos locais/servidores para os agentes. Não for
 - A URL do site não é considerada ativa até o GitHub reportar deploy bem-sucedido.
 
 Veja [o guia local e a ativação do Pages](../site/README.md).
+
+## Política permanente de publicação
+
+- Os arquivos do escritório e seus dados públicos são publicados automaticamente pelo workflow `.github/workflows/pages.yml` em alterações relevantes na branch `main`.
+- O workflow também aceita `workflow_dispatch` para republicação.
+- Antes de declarar a publicação concluída, conferir o estado do Actions e a URL de Pages fornecida pelo GitHub; se houver falha, investigar.
+- O site Pages pode ser publicamente acessível mesmo que o repositório seja privado. Manter a saída do exportador saneada.
+- **Publicar o painel não é autorizar upload de vídeos** nem executar IAs reais.
