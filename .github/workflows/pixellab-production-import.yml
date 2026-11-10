@@ -63,21 +63,15 @@ jobs:
         env:
           PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
           PIXELLAB_TARGET_FINGERPRINT: "9708e3207969cd208f819d20d74960fa07d88b7df17470da4c7d303f0fd08a45"
-        run: |
-          python - <<'PY'
-          import os
-          from pathlib import Path
-          from videoforge.pixellab.client import PixelLabClient
-          from videoforge.pixellab.launch import resolve_target
-          client=PixelLabClient(os.environ["PIXELLAB_API_TOKEN"])
-          character=resolve_target(client,os.environ["PIXELLAB_TARGET_FINGERPRINT"])
-          dest=Path("/tmp/character-frames.zip")
-          dest.write_bytes(client.download(character,spritesheet=False))
-          print("ZIP do Alex exportado temporariamente (somente GET).")
-          PY
-      - name: Montar todos os movimentos completos do Alex, preservando anteriores
+        run: python scripts/export_pixellab_ready.py --source /tmp/character-frames.zip
+      - name: Montar os movimentos completos do Alex, preservando anteriores
         if: ${{ env.RECEBER_ALEX == 'true' }}
-        run: python scripts/import_pixellab_production.py --source /tmp/character-frames.zip
+        run: |
+          if [ -f /tmp/character-frames.zip ]; then
+            python scripts/import_pixellab_production.py --source /tmp/character-frames.zip
+          else
+            echo "PixelLab está processando o personagem; importação adiada com segurança."
+          fi
       - name: Receber spritesheets de cadeira e armário do PixelLab
         if: ${{ env.RECEBER_OBJETOS == 'true' }}
         env:
