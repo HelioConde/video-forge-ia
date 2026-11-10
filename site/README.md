@@ -50,7 +50,8 @@ Esse relatório precisa ser criado por jobs reais e revisado para evitar vazamen
 
 - `index.html`: barra compacta e Canvas ocupando todo o espaço restante, com controles sobrepostos.
 - `styles.css`: adapta o HUD, botões e painel flutuante a desktop e celular.
-- `office-renderer.js`: renderizador Canvas 2D original, com cenário, oito personagens, móveis e mapa navegável.
+- `office-art.js`: arte Canvas 2D original — cenário, iluminação, mobiliário, objetos de cada profissão e oito personagens diferentes.
+- `office-renderer.js`: motor de viewport, zoom/arraste, minimapa, hit-testing e desenho da arte no Canvas.
 - `app.js`: busca o snapshot público, atualiza indicadores, gerencia seleção e inspector.
 - `data/status.json`: estado mínimo exportado do backend.
 
@@ -63,3 +64,11 @@ Toda a arte é programática e própria. Não importa bibliotecas nem assets do 
 - **Seleção pela lista:** ao tocar em um funcionário, a câmera foca o respectivo posto no celular.
 - **Centralização:** use o botão ⌖ para voltar ao enquadramento original.
 - **Arte aprimorada:** tapetes, placas de postos, avisos de planejamento e console gráfico de edição são desenhados no próprio Canvas.
+
+## Pixel Studio v3
+
+A versão atual reorganiza o cenário em três ambientes, com piso texturizado, móveis desenhados em Canvas, janelas, plantas, iluminação de teto, salas de criação e edição e personagens com roupas e ferramentas próprias.
+
+O minimapa fica **recolhido no celular** para não encobrir os trabalhadores. Toque em "Minimapa" para expandi-lo. O status dos agentes continua baseado exclusivamente no snapshot gerado pelo backend, sem simulação de tarefas executadas.
+
+A arquitetura visual separa **arte** (`office-art.js`) de **interação** (`office-renderer.js`). Qualquer nova personalização deve respeitar essa divisão e a regra permanente de organização do repositório.

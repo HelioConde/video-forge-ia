@@ -8,7 +8,8 @@ Visualizar os agentes do VideoForge AI como trabalhadores em um escritório, com
 
 - **`agentes/equipe.json`**: cadastro central de oito agentes, etapas, dependências e habilitação (atualmente todos desabilitados).
 - **`site/index.html`**: estrutura da página em viewport inteiro, controles sobrepostos e painel lateral.
-- **`site/office-renderer.js`**: motor Canvas 2D original com sala, móveis, sprites, seleção, zoom e arraste; sem imagens de terceiros.
+- **`site/office-art.js`**: arte original do estúdio em Canvas 2D, com oito personagens personalizados, mesas e salas de criação/edição.
+- **`site/office-renderer.js`**: motor Canvas 2D para viewport, zoom, toque, seleção, minimapa e renderização.
 - **`site/styles.css`**: layout full-viewport com HUD e painel flutuantes, responsivo para mobile.
 - **`site/app.js`**: coordenação de UI, zoom/fullscreen, lista de agentes/canais e leitura do snapshot.
 - **`site/data/status.json`**: dados mínimos, publicáveis. O arquivo incluído no Git é apenas um snapshot inicial com agentes não conectados.
@@ -84,3 +85,9 @@ A revisão por capturas locais em 1440 × 900 e 393 × 852 identificou duas falh
 **Correções aplicadas:** zoom inicial adaptativo no celular para preencher a altura do escritório; foco em estação ao selecioná-la na lista; minimapa clicável com indicação do viewport; tapetes individuais, placas numeradas e detalhes decorativos nas salas. A tela pode ser arrastada e ampliada; botão ⌖ retorna ao enquadramento inicial. O painel lateral não consome a área central quando está fechado.
 
 Os screenshots de inspeção são renderizações locais do desenho em desenvolvimento. Uma publicação do Pages confirmada pelo GitHub valida deploy, não significa que os agentes executem IA.
+
+## Pixel Studio v3 — revisão visual
+
+A nova implementação separa a cena em `site/office-art.js` e o motor em `site/office-renderer.js`. Foi avaliada por capturas locais em 1440×900 e 393×852, incluindo seleção de funcionários no desktop e celular. O escritório agora usa tapetes compartilhados, piso com textura, ferramentas por profissão, sala de criação e estúdio audiovisual. O minimapa é recolhido por padrão em telas estreitas, preservando a visualização dos funcionários.
+
+O Pages permanece uma visualização **estática**: a animação decorativa não implica execução de agentes, e a única fonte de atividade real são os eventos do backend. Os scripts têm validação `node --check` nos workflows e a publicação é automática quando a interface muda.

@@ -97,3 +97,15 @@ Automatizar: pauta > roteiro > planejamento de cenas > geração de imagens e ca
 - O protótipo **não gera imagens, áudio ou MP4 e não realiza uploads**.
 - Credenciais devem ficar em Actions Secrets, nunca em `canal/` ou `modelos/`.
 - Testar em privado primeiro, impedir uploads repetidos, validar qualidade e controlar custo das APIs.
+
+## Estrutura do escritório Pixel Studio
+
+O frontend estático é organizado em `site/`:
+
+- `office-art.js`: desenho original do estúdio e dos personagens, com dados de posição reutilizados pela interação.
+- `office-renderer.js`: engine Canvas 2D, câmera, zoom, gestos de toque, hit-testing e minimapa.
+- `app.js`: seleção, detalhes dos agentes/canais e consumo seguro do snapshot de status.
+- `styles.css` e `index.html`: disposição responsiva, HUD e painéis.
+- `data/status.json`: snapshot público gerado pelo backend, sem credenciais.
+
+Os arquivos de arte não executam serviços de IA. A publicação da interface ocorre por GitHub Pages Actions e é independente da publicação de vídeos no YouTube.

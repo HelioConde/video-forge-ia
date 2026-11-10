@@ -56,7 +56,7 @@ As orientações operacionais para agentes de IA e colaboradores estão em [AGEN
 
 ## Escritório virtual de agentes (GitHub Pages)
 
-O escritório foi redesenhado em **Canvas 2D de tela inteira**, com pixel-art original, oito funcionários, cinco canais, zoom/arraste, seleção direta e inspector flutuante para celular e desktop. Os oito papéis e suas dependências ficam centralizados em [agentes/equipe.json](agentes/equipe.json). Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação é **automática quando o painel, agentes, canais ou testes relacionados mudarem na branch `main`**; também aceita execução manual. O GitHub Pages precisa estar configurado com a opção GitHub Actions.
+O escritório **Pixel Studio v3** usa Canvas 2D em tela inteira, com pixel-art original, oito funcionários personalizados, sala criativa, estúdio audiovisual e cinco canais. Oferece zoom/arraste, seleção direta, minimapa recolhível no celular e painel flutuante. Os oito papéis e suas dependências ficam centralizados em [agentes/equipe.json](agentes/equipe.json). Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação é **automática quando o painel, agentes, canais ou testes relacionados mudarem na branch `main`**; também aceita execução manual. O GitHub Pages precisa estar configurado com a opção GitHub Actions.
 
 Veja [site/README.md](site/README.md) e [docs/ESCRITORIO_AGENTES.md](docs/ESCRITORIO_AGENTES.md). **Não confundir a página visual com agentes já executando tarefas.**
 
