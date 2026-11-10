@@ -561,80 +561,698 @@
       "height": 88,
       "sha256": "f57858d4dbeb3fe62137acfe45982854b8c87193b37c121087ab6d11ffc6ff94",
       "category": "trabalho"
+    },
+    "grab_mug": {
+      "file": "grab_mug.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "38917f7607e496d68b41b5d7fb3058e8d102f6e6e352d6b45d3c7f8ed326b37a",
+      "category": "cafe"
+    },
+    "place_mug_machine": {
+      "file": "place_mug_machine.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8416a28a879d95ae724c2284f0ccb57d2f258720b5daec6664752e786ac93454",
+      "category": "cafe"
+    },
+    "make_coffee": {
+      "file": "make_coffee.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "92583b83de9d2042ac45cc96bb8a8f49683d40b60407ce4bff87d6558c18a561",
+      "category": "cafe"
+    },
+    "pick_up_coffee": {
+      "file": "pick_up_coffee.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "40617868e92f90e09ad88e875b1a3ac010ec38a2876346d8ccdae17c43d8741b",
+      "category": "cafe"
+    },
+    "carry_mug": {
+      "file": "carry_mug.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "d12cd995ab66d79bea647a467ab83056e7ea54de18c0cba97e04f26030247478",
+      "category": "cafe"
+    },
+    "sip_coffee": {
+      "file": "sip_coffee.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "12a304741f768650e9e5dac3653baea603b5b25b82d8639b7fa498ce993d1bcd",
+      "category": "cafe"
+    },
+    "coffee_chat": {
+      "file": "coffee_chat.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ff6827684161f1dffdc9b5d01f1706304bb1146e90f1cad2d2b91d58103c05ad",
+      "category": "cafe"
+    },
+    "sit_with_coffee": {
+      "file": "sit_with_coffee.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "b28719b5c4d04cfb69f0da567e5f030eacd24077a15c21622215b663116b5346",
+      "category": "cafe"
+    },
+    "eat_snack": {
+      "file": "eat_snack.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "e7170aed370f6df245e502e5d7d8a963d3a2f1af34d31e2790a94cfb46856ed1",
+      "category": "cafe"
+    },
+    "wash_mug": {
+      "file": "wash_mug.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "37703676665314aad22ef4fa15bdfb08e82e7dee6e8b6965acf92866b71b0578",
+      "category": "cafe"
+    },
+    "return_mug": {
+      "file": "return_mug.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "71624592bf9942df636e8234dc25dcc68d16c26c1e7ae88077b03f2a64586a77",
+      "category": "cafe"
+    },
+    "grab_cup": {
+      "file": "grab_cup.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "e20dd13032ec3740e57f860f9d95035d0c4a03a4f54a3f08a53b147f6e37e6f0",
+      "category": "agua"
+    },
+    "fill_water": {
+      "file": "fill_water.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "9be7e3b33e560625654bf26852b6001bb9881dee45cf0ada43292dfa3feba86c",
+      "category": "agua"
+    },
+    "drink_water": {
+      "file": "drink_water.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "ca10c15266f6277c00e24896d32392d35204a81f518257a30bf3086e2ccae735",
+      "category": "agua"
+    },
+    "refill_water": {
+      "file": "refill_water.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "39f6600955a60dcd3e7ae599204440d04d0fcc5557468a974552fc09c2e27560",
+      "category": "agua"
+    },
+    "discard_cup": {
+      "file": "discard_cup.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a25a30c3ff72ae44cf44de2888a1a6a50a8c300c812e4f5133d8c440a2855534",
+      "category": "agua"
+    },
+    "sit_on_sofa": {
+      "file": "sit_on_sofa.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "8405ce83ca26b1492b1a61d865c1299ed3e573e240ee27b099edc835fce4bfb8",
+      "category": "jogos"
+    },
+    "grab_controller": {
+      "file": "grab_controller.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "39024781154746ab5efea528d90a6358242b715bb557d9064ae03d8af89ed31e",
+      "category": "jogos"
+    },
+    "play_gamepad": {
+      "file": "play_gamepad.png",
+      "directions": [
+        "south",
+        "north"
+      ],
+      "width": 352,
+      "height": 176,
+      "sha256": "e72fe286ca683a7934430f96a69aeecbfe3611920f485e8a9194d88a41bc2e92",
+      "category": "jogos"
+    },
+    "game_focus": {
+      "file": "game_focus.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "5b61b954919d0113d9ccb8ce731f8ac31309e6c69d2a19889cc0cb2020a79f13",
+      "category": "jogos"
+    },
+    "game_victory": {
+      "file": "game_victory.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ebf7bf65d76e4b7661451fed423f75390718cbdd6fd38bae9a5efb9a8166d052",
+      "category": "jogos"
+    },
+    "game_defeat": {
+      "file": "game_defeat.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "f53a9d78883e1a1d504c4154606154cbce4e1cece4e0d50eed49b148de14e69d",
+      "category": "jogos"
+    },
+    "watch_friend_play": {
+      "file": "watch_friend_play.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "76bc9951c9dfe3c2aa01908efe3542d58286f2d784cb269ef8285284b77dd16c",
+      "category": "jogos"
+    },
+    "play_arcade": {
+      "file": "play_arcade.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "aa9c95030f7c21af56ede04c567fda8810b5f2cc7703ad39d49faf87f7e664f1",
+      "category": "jogos"
+    },
+    "play_pool": {
+      "file": "play_pool.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "75982982a8a2dac923313b112bcd4833e38915a24b90cf5f360966516db3069c",
+      "category": "jogos"
+    },
+    "play_cards": {
+      "file": "play_cards.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ea6421f9c655ab167e9273d89311a15c03fc1488c03a443ccb6e3a8f78473d41",
+      "category": "jogos"
+    },
+    "play_boardgame": {
+      "file": "play_boardgame.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "065da71fcf1c1007e74e8acbd7906a37a460d906b86bf0ff91f68ba6b3254a13",
+      "category": "jogos"
+    },
+    "leave_controller": {
+      "file": "leave_controller.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "7e80caa8c547f9980df6d211a53954bb66d77397d2ef74994bea93695f8e485e",
+      "category": "jogos"
+    },
+    "stretch_arms": {
+      "file": "stretch_arms.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "481def85d7fe1358a98e9d54b447226a6cf8320f64aa603dfdbce4180eb147b4",
+      "category": "descanso"
+    },
+    "stretch_back": {
+      "file": "stretch_back.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "507939a642e2e71314de917d5edc30cee5d149a6ed21f019374daee3a11268f5",
+      "category": "descanso"
+    },
+    "yawn": {
+      "file": "yawn.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "5114a53fa46836764ba2a731f4cc0530c9a8ec6de8499b7cc20258671d92584a",
+      "category": "descanso"
+    },
+    "rub_eyes": {
+      "file": "rub_eyes.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "3fff043a5f7c06cc05df3245bcc808fca0484153c57dd9e7c9379fc4a85b2a71",
+      "category": "descanso"
+    },
+    "check_phone": {
+      "file": "check_phone.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "b4ff0a507ee837307dce638591271968a5c64a5584a395e9adea9048cbe0a370",
+      "category": "descanso"
+    },
+    "phone_call": {
+      "file": "phone_call.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "68ba97f7a727a4a7461feb510f4e77ca23a06a2f2f843af46d89881a65dd505b",
+      "category": "descanso"
+    },
+    "sit_relaxed": {
+      "file": "sit_relaxed.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "12e289703aa0d3054a279164e06214e5f5f58d6e357c74a087c86cdf7d5913a0",
+      "category": "descanso"
+    },
+    "rest_on_sofa": {
+      "file": "rest_on_sofa.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "394f2cc52117fb0c925fbc392a6080ecd65a70070c426f0cdd1963b8463003a8",
+      "category": "descanso"
+    },
+    "listen_music": {
+      "file": "listen_music.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "b67a1165914fa910deeea4069d9be1b57600eb7d4a5b88c580456e38e6cf0f64",
+      "category": "descanso"
+    },
+    "dance": {
+      "file": "dance.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "3ac2d63f6c1640074114405b4ef8a1ca3a10f207965c51b964d2ee80596a280e",
+      "category": "descanso"
+    },
+    "read_book": {
+      "file": "read_book.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "7b9a46115d4db801fc9b6d5931bec78f77ad027c9f4bd66b3b6443ae33e5a7d6",
+      "category": "descanso"
+    },
+    "look_window": {
+      "file": "look_window.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "50463ae48ec67cdc82eba5307a221b3b1288cf8a9deed64d2a72087db2e7a9b9",
+      "category": "descanso"
+    },
+    "take_photo": {
+      "file": "take_photo.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "04206143f1cb4bc1d57f71f555d3f250adc013769da1257a245141682cfec4f7",
+      "category": "descanso"
+    },
+    "open_restroom_door": {
+      "file": "open_restroom_door.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "7e512a570220dff321739d9036d6ccc69660aaa898501a5a3dc1fe21dbb7eb6a",
+      "category": "banheiro"
+    },
+    "wash_hands": {
+      "file": "wash_hands.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8ef2e921a636e15d2c07133dd5d234c87694b6f5d084357208d703a96d5473ec",
+      "category": "banheiro"
+    },
+    "dry_hands": {
+      "file": "dry_hands.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8c4649f63177f63cd3156701f0e8cacf68d120df55cf85881faf67550e220e84",
+      "category": "banheiro"
+    },
+    "use_mirror": {
+      "file": "use_mirror.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a711d32c1ec2f5d19ed9df64958a817eaec37af7b62a6fac0391db3409ca9f56",
+      "category": "banheiro"
+    },
+    "close_restroom_door": {
+      "file": "close_restroom_door.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8c17874b885c32a07743717ec57481dd279907f9d7fbe5eb3cde2da7b7fec6f5",
+      "category": "banheiro"
+    },
+    "smile": {
+      "file": "smile.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "6b78e536305c4196757f1916c40a3b9957fc48b100a5898a0080020953af862e",
+      "category": "emocoes"
+    },
+    "laugh": {
+      "file": "laugh.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "e366bb00965b5f70b7f0b96bf22189373264ed13f40042ec159e44b7742d6499",
+      "category": "emocoes"
+    },
+    "surprised": {
+      "file": "surprised.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "3f6932ececa2d3ea8e6ca47f766d7bd773e3ec7c853360ca52619d1e3b849772",
+      "category": "emocoes"
+    },
+    "confused": {
+      "file": "confused.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "311273201793dc17b88381a723e8d707a81871d6a777b7735a8b9e1e76c019de",
+      "category": "emocoes"
+    },
+    "thinking": {
+      "file": "thinking.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "078a03c827fd0d1d9fcba448111d4b35e30bf24ea0c6e43198dced46ec91d48b",
+      "category": "emocoes"
+    },
+    "frustrated": {
+      "file": "frustrated.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ba15a79972d5edb575a213e4b4e590ebcc6ee266af0f26c80202ed01d03c4be4",
+      "category": "emocoes"
+    },
+    "tired": {
+      "file": "tired.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8ba348df0028cf8b14a8ae67f63857ccc451f5eb1c41fb8ba5b352fe69203223",
+      "category": "emocoes"
+    },
+    "happy": {
+      "file": "happy.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "8668ec9899d9a34fed8cd365314ffa7a994e5a731d0043f6bfd759c706c48863",
+      "category": "emocoes"
+    },
+    "excited": {
+      "file": "excited.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "fdfa593c0db4c1a8862d74d9e22a555244cecf75bbe9e290f70098d3d646fe08",
+      "category": "emocoes"
+    },
+    "celebrate": {
+      "file": "celebrate.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "07dbf0b2177d11e4d61556e91dad2799a4b379aa9cc5ee4b80eb91e1f9405374",
+      "category": "emocoes"
+    },
+    "applause": {
+      "file": "applause.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "5a3682b0606b4009279de53f7fb187a6ccff12e7ec6249199bf8b0f8d847f38b",
+      "category": "emocoes"
+    },
+    "agree": {
+      "file": "agree.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "f79d0cc123a1adb0a087f09b1b1450927c0dbec65442d496fc40d9551ea2cb2b",
+      "category": "emocoes"
+    },
+    "disagree": {
+      "file": "disagree.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "023fe419beacb378a818a4f662014b6bdb95167dc78e91fa95726aee13c5cfed",
+      "category": "emocoes"
+    },
+    "ask_help_gesture": {
+      "file": "ask_help_gesture.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "3be86c7ed651dc46ed92eac61c0987b331dbb3dd17ac48b5bd3b95b84a819cac",
+      "category": "emocoes"
+    },
+    "open_door": {
+      "file": "open_door.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "ff02a65b79e8828fc990f3d8cae07033db86306018186d29fe86b79aa8a19306",
+      "category": "ambiente"
+    },
+    "switch_light": {
+      "file": "switch_light.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "a0835c7b3f7f273952e81feecf2a30a8b7edc2e61d8c1d4852d3b41aaa5bcce9",
+      "category": "ambiente"
+    },
+    "turn_on_pc": {
+      "file": "turn_on_pc.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "786a5c06c7ed1cf3a1723e4263f7fff6935b39ee30fdc08087778252c2f2a2ec",
+      "category": "ambiente"
+    },
+    "open_drawer": {
+      "file": "open_drawer.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "7a06140ba8887bc7be00f19da60ead93f6a85ca17ba43397a1a73d78fe180d50",
+      "category": "ambiente"
+    },
+    "take_book": {
+      "file": "take_book.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "f2bdd2b2ef4a0f2c2cccc1977abe6e721779dcef0529563a28cb24cdec55d227",
+      "category": "ambiente"
+    },
+    "use_printer": {
+      "file": "use_printer.png",
+      "directions": [
+        "north"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "3f7c77f32fc6e7c166742b023659e359f54dc98517de5a661bbbdfe17dbf717d",
+      "category": "ambiente"
+    },
+    "throw_trash": {
+      "file": "throw_trash.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "909cad44721348b61ae77c9c571c871e9ea2bb3df987bbd9c6c3c95999742512",
+      "category": "ambiente"
+    },
+    "remote_control": {
+      "file": "remote_control.png",
+      "directions": [
+        "south"
+      ],
+      "width": 352,
+      "height": 88,
+      "sha256": "f4b15f66c94e089a350bb366a712ed6f8d272daeacb08f511f971dcfd236619b",
+      "category": "ambiente"
     }
   },
-  "availableMotionCount": 54,
-  "pendingMotionCount": 68,
-  "pendingMotions": [
-    "grab_mug",
-    "place_mug_machine",
-    "make_coffee",
-    "pick_up_coffee",
-    "carry_mug",
-    "sip_coffee",
-    "coffee_chat",
-    "sit_with_coffee",
-    "eat_snack",
-    "wash_mug",
-    "return_mug",
-    "grab_cup",
-    "fill_water",
-    "drink_water",
-    "refill_water",
-    "discard_cup",
-    "sit_on_sofa",
-    "grab_controller",
-    "play_gamepad",
-    "game_focus",
-    "game_victory",
-    "game_defeat",
-    "watch_friend_play",
-    "play_arcade",
-    "play_pool",
-    "play_cards",
-    "play_boardgame",
-    "leave_controller",
-    "stretch_arms",
-    "stretch_back",
-    "yawn",
-    "rub_eyes",
-    "check_phone",
-    "phone_call",
-    "sit_relaxed",
-    "rest_on_sofa",
-    "listen_music",
-    "dance",
-    "read_book",
-    "look_window",
-    "take_photo",
-    "open_restroom_door",
-    "wash_hands",
-    "dry_hands",
-    "use_mirror",
-    "close_restroom_door",
-    "smile",
-    "laugh",
-    "surprised",
-    "confused",
-    "thinking",
-    "frustrated",
-    "tired",
-    "happy",
-    "excited",
-    "celebrate",
-    "applause",
-    "agree",
-    "disagree",
-    "ask_help_gesture",
-    "open_door",
-    "switch_light",
-    "turn_on_pc",
-    "open_drawer",
-    "take_book",
-    "use_printer",
-    "throw_trash",
-    "remote_control"
-  ],
-  "availableDirectionCount": 70,
-  "status": "partial"
+  "availableMotionCount": 122,
+  "pendingMotionCount": 0,
+  "pendingMotions": [],
+  "availableDirectionCount": 145,
+  "status": "complete"
 }
