@@ -1,0 +1,55 @@
+{
+  "schema": "videoforge/pixellab-agent-atlas/v1",
+  "character": "alex",
+  "frameWidth": 88,
+  "frameHeight": 88,
+  "frames": 4,
+  "directions": [
+    "south",
+    "south-east",
+    "east",
+    "north-east",
+    "north",
+    "north-west",
+    "west",
+    "south-west"
+  ],
+  "motions": {
+    "idle": {
+      "file": "idle.png",
+      "sha256": "30c785ce882c72a3f1d5161abea1c55590b5e51f7f3cb577588efdf1e37c2a88",
+      "width": 352,
+      "height": 704
+    },
+    "walk": {
+      "file": "walk.png",
+      "sha256": "383c384caae7be0b1237170c14e10fad97e041ff3f0bf70a660d52f2c45e1be7",
+      "width": 352,
+      "height": 704
+    },
+    "type": {
+      "file": "type.png",
+      "sha256": "16a880d833c287ba19a412c29b93b4db571045dcb06966461354a6285f39eeea",
+      "width": 352,
+      "height": 704
+    },
+    "sit": {
+      "file": "sit.png",
+      "sha256": "e6366c4cae1efee62592b591e4bc6b8646072c3642ddc00a772ff5b4513b9d35",
+      "width": 352,
+      "height": 704
+    },
+    "talk": {
+      "file": "talk.png",
+      "sha256": "800c2d710480c2c591654945e2ea5e2babe65d941efbf6e9fe7a9a1c6b4dd468",
+      "width": 352,
+      "height": 704
+    },
+    "wave": {
+      "file": "wave.png",
+      "sha256": "d3a643e50e4470496a50896b61ec2b97d67b207fd997326c0d99d0de2b64661f",
+      "width": 352,
+      "height": 704
+    }
+  }
+}
