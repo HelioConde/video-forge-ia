@@ -95,7 +95,7 @@ jobs:
         if: ${{ inputs.operacao != 'plan' && inputs.confirmar_custo && inputs.artefatos_publicos }}
         env:
           PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
-          PIXELLAB_CHARACTER_ID: ${{ inputs.personagem }}ACTER_ID
+          PIXELLAB_CHARACTER_ID: ${{ secrets.PIXELLAB_CHARACTER_ID }}
           CHAR: ${{ inputs.personagem }}
           MOVEMENT: ${{ inputs.movimento }}
           DIRECTION: ${{ inputs.direcao }}
