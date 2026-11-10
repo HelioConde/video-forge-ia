@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from urllib.parse import urlencode
 
 
 API_ROOT = "https://api.pixellab.ai/v2"
@@ -27,12 +28,19 @@ class PixelLabClient:
         self.token = token.strip()
         self.timeout = timeout
 
-    def _request(self, method: str, path: str, payload: dict | None = None, *, binary: bool = False):
+    def _request(self, method: str, path: str, payload: dict | None = None, *,
+                 binary: bool = False, query: dict[str, int] | None = None):
         if not path.startswith("/") or "//" in path or ".." in path or "?" in path:
             raise ValueError("Caminho de API inválido")
+        if query is not None:
+            if method != "GET" or not isinstance(query, dict) or set(query) - {"limit", "offset"}:
+                raise ValueError("Consulta de API inválida")
+            if not all(type(v) is int and 0 <= v <= 1000 for v in query.values()):
+                raise ValueError("Paginação fora dos limites permitidos")
         body = None if payload is None else json.dumps(payload).encode("utf-8")
+        url = API_ROOT + path + ("?" + urlencode(query) if query else "")
         req = Request(
-            API_ROOT + path,
+            url,
             data=body,
             method=method,
             headers={
