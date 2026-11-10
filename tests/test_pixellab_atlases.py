@@ -34,7 +34,7 @@ class PublicAtlasTests(unittest.TestCase):
                 details = manifest["motions"][motion]
                 self.assertEqual(details["file"], motion + ".png")
                 data = (ASSETS / details["file"]).read_bytes()
-                self.assertEqual(data[:8], b"\\x89PNG\\r\\n\\x1a\\n")
+                self.assertEqual(data[:8], b"\x89PNG\r\n\x1a\n")
                 dimensions = struct.unpack(">II", data[16:24])
                 self.assertEqual(dimensions, (352, 704))
                 self.assertEqual((details["width"], details["height"]), dimensions)
