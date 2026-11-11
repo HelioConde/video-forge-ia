@@ -10,7 +10,8 @@
     narrador:{label:"Narrador",work:["narrate","listen_recording","adjust_microphone","sing_seated"],demo:["narrate","listen_recording","sing_seated","adjust_microphone"],fallback:"talk"},
     editor:{label:"Editor",work:["edit_video","subtitle_edit","keyboard_shortcuts","mouse_click"],demo:["edit_video","subtitle_edit","keyboard_shortcuts","listen_focus"],fallback:"type"},
     revisor:{label:"Revisor",work:["qa_inspection","read_document","inspect_script","think_response"],demo:["qa_inspection","read_document","think_response","listen_focus"],fallback:"talk"},
-    publicador:{label:"Publicador",work:["keyboard_shortcuts","mouse_click","qa_inspection","keyboard_type"],demo:["keyboard_shortcuts","mouse_click","qa_inspection","talk_serious"],fallback:"type"}
+    publicador:{label:"Publicador",work:["keyboard_shortcuts","mouse_click","qa_inspection","keyboard_type"],demo:["keyboard_shortcuts","mouse_click","qa_inspection","talk_serious"],fallback:"type"},
+    subgerente:{label:"Subgerente",work:["qa_inspection","read_document","write_notes","talk_explain"],demo:["read_document","think_response","talk_explain","write_notes"],fallback:"talk"}
   });
   const ORDER=Object.keys(PROFILES);
   // Cada especialidade expõe sua galeria, sem executar IA nem simular tarefas reais.
@@ -22,7 +23,8 @@
     narrador:["trabalho","conversa","cafe","agua","banheiro"],
     editor:["trabalho","jogos","cadeira","emocoes","ambiente"],
     revisor:["trabalho","conversa","banheiro","agua","descanso"],
-    publicador:["ambiente","jogos","trabalho","cafe","emocoes","banheiro"]
+    publicador:["ambiente","jogos","trabalho","cafe","emocoes","banheiro"],
+    subgerente:["trabalho","conversa","emocoes","agua","descanso"]
   });
   const STATION_DEMO=new Set(["emocoes","descanso"]);
   const ACTIVE=new Set(["trabalhando","revisao"]);
