@@ -1,6 +1,6 @@
 {
   "schema": "videoforge/agent-roster/v2",
-  "descricao": "Oito funções visuais existentes e departamentos planejados. Nenhum especialista está conectado à IA automaticamente; gerente é humano.",
+  "descricao": "Nove funções visuais, incluindo um Subgerente responsável por ranking auditável. Especialistas permanecem planejados; nenhum executor IA ativado automaticamente.",
   "agentes": [
     {
       "id": "diretor",
@@ -103,6 +103,20 @@
       ],
       "saidas": [
         "status_publicacao"
+      ],
+      "modelo_ia": null,
+      "habilitado": false
+    },
+    {
+      "id": "subgerente",
+      "nome": "Subgerente",
+      "funcao": "Avaliação justa da equipe, ranking de pontos e planos de melhoria",
+      "depende_de": [],
+      "reporta_para": "gerente_geral",
+      "saidas": [
+        "ranking_funcionarios",
+        "feedback_individual",
+        "planos_de_melhoria"
       ],
       "modelo_ia": null,
       "habilitado": false
@@ -319,5 +333,24 @@
       ]
     }
   ],
-  "specialists_enabled": false
+  "specialists_enabled": false,
+  "subgerente": {
+    "id": "subgerente",
+    "kind": "agent_role",
+    "status": "not_connected",
+    "reports_to": "gerente_geral",
+    "evaluates": [
+      "agentes_visuais",
+      "especialistas",
+      "gerentes_canais"
+    ],
+    "excludes": [
+      "subgerente",
+      "gerente_geral"
+    ],
+    "approval_rule": "independent_qa_only",
+    "points_policy": "videoforge/submanager-ranking/v1",
+    "can_modify_agent_code": false,
+    "can_publish": false
+  }
 }
