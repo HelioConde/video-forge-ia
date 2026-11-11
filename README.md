@@ -177,3 +177,25 @@ O novo gerador `videoforge/pixellab/agency_scene.py` aceita a imagem de referên
 ## PixelLab — sede única integrada ao Canvas
 
 O panorama real `site/assets/pixellab/scenes/agencia-unificada.png` foi gerado pela API PixelLab v2 (workflow #43039103117) e importado com hash/dimensões verificados. O Canvas utiliza essa imagem como planta **contínua de um único escritório**, com oito agentes animados, rótulos, minimapa e rotas configuradas em `site/office-map.js`. Permanecem disponíveis os assets anteriores para fallback; a mudança de cenário não executa agentes nem altera publicação dos vídeos. Mais detalhes em `site/README.md` e `docs/ESCRITORIO_AGENTES.md`.
+
+## Codex Proxy no backend — 22 rotas preparadas
+
+O VideoForge já dispõe do cliente de integração [Codex Proxy](videoforge/proxy/client.py)
+com todas as 22 rotas do servidor Go fixado e suporte a texto, Responses,
+ferramentas, imagens (geração e edições), Anthropic, streaming, catálogo de
+modelos, múltiplas contas e administração. A integração **não consome IA
+automaticamente**: os agentes continuam sem executor habilitado no Pages.
+O planejamento do gerente agora anexa as capacidades de backend às 18
+entregas, sem executar chamadas.
+
+- **Testar sem credenciais:** `python -m unittest discover -s tests -p 'test_proxy_client.py' -v`
+- **Inspecionar capacidades offline:** `python -m videoforge.proxy.cli --action catalog`
+- **GitHub Actions:** `VideoForge - Codex Proxy backend` (modo offline,
+  servidor Go com conta vazia e chave sintética; diagnóstico privado
+  opt-in somente após proteger o Environment `proxy-runtime`).
+- **Manual completo:** [docs/CODEX_PROXY.md](docs/CODEX_PROXY.md)
+
+O GitHub Pages é estático e **não recebe tokens OAuth, API key nem acesso
+direto ao proxy**. Chat em tempo real exige backend protegido com TLS; execução
+por workflow pode ser feita sem hospedagem contínua, após configurar os
+Secrets no novo repositório e implementar um executor autorizado com orçamento.
