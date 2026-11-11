@@ -9,6 +9,11 @@ class DashboardTests(unittest.TestCase):
         snapshot = make_snapshot()
         self.assertEqual(len(snapshot["canais"]), 5)
         self.assertEqual(len(snapshot["agentes"]), 8)
+        self.assertEqual(len({c["gerente"]["id"] for c in snapshot["canais"]}), 5)
+        self.assertTrue(all(c["gerente"]["status"] == "nao_conectado" for c in snapshot["canais"]))
+        self.assertTrue(all(c["gerente"]["regra_antirrepeticao"] for c in snapshot["canais"]))
+        self.assertEqual(next(c["gerente"]["nome"] for c in snapshot["canais"]
+                              if c["id"] == "otaku-br"), "Gerente Otaku Multicena")
         self.assertEqual(len(snapshot["organizacao"]["departamentos"]), 5)
         self.assertEqual(snapshot["organizacao"]["especialistas_planejados"], 27)
         self.assertEqual(snapshot["organizacao"]["modelo"], "planejado_sem_ia")

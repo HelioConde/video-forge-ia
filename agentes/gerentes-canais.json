@@ -1,0 +1,88 @@
+{
+  "schema": "videoforge/channel-managers/v1",
+  "mode": "autonomous_research_planning_with_approval",
+  "channel_managers": [
+    {
+      "id": "gerente-canal-otaku-br",
+      "channel": "otaku-br",
+      "name": "Gerente Otaku Multicena",
+      "youtube_channel_id": "UCXGYTuBYn-0Ziqin5ajKhOw",
+      "paused_animes": [
+        "Death Note"
+      ],
+      "goal": "original anime commentary; video ideas ranked by channel's own YouTube metrics",
+      "autonomy": [
+        "analyse_metrics",
+        "research_topics",
+        "choose_candidate",
+        "delegate_workers",
+        "review_experiments"
+      ],
+      "release_policy": "manager_review_then_human_publish_approval"
+    },
+    {
+      "id": "gerente-canal-otaku-en",
+      "channel": "otaku-en",
+      "name": "Gerente Otaku Reframe",
+      "youtube_channel_id": "UCBoNbQjaMYdpJqPLRZAFkvQ",
+      "paused_animes": [],
+      "goal": "English-language anime commentary",
+      "autonomy": [
+        "analyse_metrics",
+        "research_topics",
+        "choose_candidate",
+        "delegate_workers",
+        "review_experiments"
+      ],
+      "release_policy": "manager_review_then_human_publish_approval"
+    },
+    {
+      "id": "gerente-canal-gamer",
+      "channel": "gamer",
+      "name": "Gerente Gamer",
+      "youtube_channel_id": "UCg77gYc1_wkHuL07XPtKcow",
+      "paused_animes": [],
+      "goal": "games commentary and original illustrations",
+      "autonomy": [
+        "analyse_metrics",
+        "research_topics",
+        "choose_candidate",
+        "delegate_workers",
+        "review_experiments"
+      ],
+      "release_policy": "manager_review_then_human_publish_approval"
+    },
+    {
+      "id": "gerente-canal-manu-kids",
+      "channel": "manu-kids",
+      "name": "Gerente Manu Kids",
+      "youtube_channel_id": "UCxEzVW2Uy44OUVurTQSg_Eg",
+      "paused_animes": [],
+      "goal": "age-appropriate kids originals, child audience and policy reviews",
+      "autonomy": [
+        "analyse_metrics",
+        "research_topics",
+        "choose_candidate",
+        "delegate_workers",
+        "review_experiments"
+      ],
+      "release_policy": "manager_review_then_human_publish_approval"
+    },
+    {
+      "id": "gerente-canal-alchemy-lab",
+      "channel": "alchemy-lab",
+      "name": "Gerente Alchemy Lab",
+      "youtube_channel_id": "UCCTYFE5Cmz2aYZ37cJQ-wcg",
+      "paused_animes": [],
+      "goal": "original visual storytelling and experiments",
+      "autonomy": [
+        "analyse_metrics",
+        "research_topics",
+        "choose_candidate",
+        "delegate_workers",
+        "review_experiments"
+      ],
+      "release_policy": "manager_review_then_human_publish_approval"
+    }
+  ]
+}

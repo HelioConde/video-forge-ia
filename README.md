@@ -199,3 +199,23 @@ O GitHub Pages é estático e **não recebe tokens OAuth, API key nem acesso
 direto ao proxy**. Chat em tempo real exige backend protegido com TLS; execução
 por workflow pode ser feita sem hospedagem contínua, após configurar os
 Secrets no novo repositório e implementar um executor autorizado com orçamento.
+
+## Gerentes independentes por canal — Otaku Multicena como piloto
+
+Os cinco canais possuem agora **um gerente editorial próprio**, com identidade YouTube,
+política e registro de pautas separados. O piloto é `gerente-canal-otaku-br`.
+Uma coleta *somente leitura* da YouTube Data API e Analytics pode analisar
+views, tempo assistido, duração e retenção do próprio canal, além do inventário
+integral dos uploads. A seleção editorial pontua **duração, anime e gênero**
+somente com evidência, e bloqueia tópicos semelhantes aos já publicados ou
+reservados. O Codex Proxy pode propor novas hipóteses após autorização, mas
+não é fonte de métricas inventadas.
+
+O gerente distribui uma pauta original aos 18 especialistas: roteiro,
+narração, título baseado no roteiro, descrição, tags, artes, edição e QA.
+Publicação, gastos e execução real continuam **desabilitados** nesta etapa.
+Os cinco gerentes já aparecem na aba Canais do escritório como **não conectados**,
+porque ainda não foi autorizada uma sessão OAuth/Analytics no novo repositório.
+
+[Manual e limites reais](docs/GERENTES-CANAIS.md).
+[Teste/read-only no GitHub Actions](.github/workflows/channel-manager-analysis.yml).

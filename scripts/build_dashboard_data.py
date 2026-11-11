@@ -29,6 +29,37 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
             "modelo": text(config.get("modelo_padrao"), 60),
         })
 
+    # Cada canal tem UM gerente editorial próprio. A presença no cadastro
+    # não significa autenticação com o YouTube ou trabalho real executado.
+    registry = json.loads((root / "agentes/gerentes-canais.json").read_text(encoding="utf-8"))
+    if registry.get("schema") != "videoforge/channel-managers/v1":
+        raise ValueError("Registro de gerentes incompatível")
+    manager_rows = registry.get("channel_managers")
+    if not isinstance(manager_rows, list):
+        raise ValueError("Registro de gerentes inválido")
+    assigned = {}
+    for mgr in manager_rows:
+        if not isinstance(mgr, dict) or not mgr.get("channel") or mgr["channel"] in assigned:
+            raise ValueError("Gerente repetido ou inválido")
+        assigned[mgr["channel"]] = mgr
+    if set(assigned) != {c["id"] for c in channels}:
+        raise ValueError("Cada canal deve ter exatamente um gerente")
+    for item in channels:
+        mgr = assigned[item["id"]]
+        youtube_config = json.loads(
+            (root / "canal" / item["id"] / "canal.json").read_text(encoding="utf-8")
+        ).get("youtube", {})
+        if mgr.get("youtube_channel_id") != youtube_config.get("channel_id"):
+            raise ValueError("Gerente vinculado a outro canal")
+        item["gerente"] = {
+            "id": text(mgr["id"], 75),
+            "nome": text(mgr.get("name"), 90),
+            "status": "nao_conectado",
+            "funcao": "Pesquisa e estratégia editorial do próprio canal",
+            "regra_antirrepeticao": True,
+            "youtube_analytics": "nao_conectado",
+        }
+
     roster = json.loads((root / "agentes/equipe.json").read_text(encoding="utf-8"))
     team = roster.get("agentes")
     if not isinstance(team, list) or not team:
