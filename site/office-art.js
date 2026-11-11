@@ -206,7 +206,7 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const direction=position?.direction||(i<4?'south':'north');
   // O passo acompanha a distância percorrida por este agente; outros gestos mantêm o relógio normal.
   const frame=reduceMotion?0:
-              position?.moving&&Number.isInteger(position.frame)?
+              position&&Number.isInteger(position.frame)?
                 position.frame:Math.floor((t||0)/180)%4;
   const x=position?.x??stations[i][0],y=position?.y??stations[i][1]+111;
   const size=72;
@@ -215,6 +215,14 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
     const fallback=agent.status==='trabalhando'&&!roleDemo?motionForAgent(agent):'idle';
     if(!animator.draw(c,fallback,direction,frame,x,y,size))return false;
   }
+  // Identidade de cargo sem alterar o sprite base aprovado do Alex.
+  const colors=['#d8b979','#98b9dc','#a7d5af','#dbb2d8',
+                '#f0a990','#91cdc8','#d6cc9a','#b8bcf1'];
+  const symbols=['D','R','A','M','N','E','Q','P'];
+  const bx=Math.round(x+24),by=Math.round(y-36);
+  rect(c,bx,by,19,20,'#142b3a');
+  line(c,bx,by,19,20,colors[i],2);
+  text(c,symbols[i],bx+10,by+14,colors[i],12,'center');
   if(selected){line(c,x-33,y-38,66,76,'#ffe19d',2);star(c,x,y-42,'#f9dd8c');}
   return true;
 }
