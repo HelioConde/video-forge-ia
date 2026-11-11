@@ -6,8 +6,10 @@ exigem chamada explicita. Tokens sao carregados somente no backend.
 """
 from __future__ import annotations
 
+import base64
 import json
 import os
+from pathlib import Path
 from urllib import error, parse, request
 from urllib.parse import urlsplit
 
@@ -195,6 +197,41 @@ class ProxyClient:
         return self._events("POST", "/v1/images/generations", {**body, "stream": True})
     def images_edit_stream(self, body: dict):
         return self._events("POST", "/v1/images/edits", {**body, "stream": True})
+
+    @staticmethod
+    def _local_image_data_url(path: str | Path, *, mask: bool = False) -> str:
+        """Somente arquivo local aprovado; sem baixar URL arbitraria."""
+        f = Path(path)
+        if not f.is_file() or f.is_symlink():
+            raise ProxyError("Referencia local inexistente ou insegura")
+        if f.stat().st_size > 18_000_000:
+            raise ProxyError("Referencia local excede 18MB")
+        blob = f.read_bytes()
+        if blob.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+            mime = "image/png"
+        elif not mask and blob.startswith(b"\\xff\\xd8\\xff"):
+            mime = "image/jpeg"
+        elif not mask and blob.startswith(b"RIFF") and blob[8:12] == b"WEBP":
+            mime = "image/webp"
+        else:
+            raise ProxyError("Formato de referencia invalido")
+        return "data:"+mime+";base64,"+base64.b64encode(blob).decode("ascii")
+
+    def images_edit_files(self, *, prompt: str, images: list[str | Path],
+                          model: str = "gpt-image-2",
+                          mask: str | Path | None = None, **options):
+        """Editar PNG/JPEG/WebP locais via JSON /v1/images/edits (sem multipart)."""
+        if not isinstance(prompt, str) or not prompt.strip() or not 1 <= len(images) <= 8:
+            raise ValueError("Prompt e 1-8 referencias sao obrigatorios")
+        forbidden = {"prompt", "model", "images", "mask", "stream"}
+        if forbidden & set(options):
+            raise ValueError("Opcoes reservadas nao podem ser redefinidas")
+        payload = {"model": model, "prompt": prompt,
+                   "images": [{"image_url": self._local_image_data_url(p)} for p in images],
+                   **options}
+        if mask is not None:
+            payload["mask"] = {"image_url": self._local_image_data_url(mask, mask=True)}
+        return self.images_edit(payload)
 
     # Compatibilidade Anthropic para clientes locais e agentes.
     def messages(self, body: dict):
