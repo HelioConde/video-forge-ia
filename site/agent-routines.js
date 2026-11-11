@@ -90,9 +90,8 @@
     const freeTime={enabled:false,nextAt:0,agentId:null,phase:"idle",returnAt:0,index:0};
     const leisurePlaces=["coffee","water","games","restroom"];
     const choreography=window.VideoForgeInteractions;
-    const knownIds=new Set([
-      "diretor","roteirista","artista","animador","narrador","editor","revisor","publicador"
-    ]);
+    // Derivar nomes da planta para manter trajetos sincronizados com novos postos.
+    const knownIds=new Set(window.VideoForgeOfficeMap.stations.map(p=>p.id));
     function home(id) {
       const names=[...knownIds],i=names.indexOf(id);
       if(i<0||!slots[i])return null;
