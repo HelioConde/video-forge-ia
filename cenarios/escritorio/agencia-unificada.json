@@ -1,0 +1,21 @@
+{
+  "project": "videoforge-pixel-studio",
+  "scene": "agencia-unificada",
+  "version": 1,
+  "provider": "pixellab",
+  "endpoint": "/generate-image-v2",
+  "reference": "cenarios/escritorio/referencias/agencia-unificada.png",
+  "reference_sha256": "a6db5a37bb24f3926873eec4c8598eee08dd9ea77a6747a1ee35b4cd941815a6",
+  "reference_size": {
+    "width": 128,
+    "height": 72
+  },
+  "image_size": {
+    "width": 688,
+    "height": 384
+  },
+  "output": "output/pixellab-agency/scene.png",
+  "description": "A SINGLE continuous spacious headquarters floor plan for an indie AI video production agency, seamless warm oak wooden floors across all workspaces, unified exterior walls and entrance, deep navy teal walls, cyan and brass accents, cosy highly detailed cohesive 16-bit pixel art game environment, low top-down 3/4 perspective, large windows on the same north wall, central doors on the south wall, subtle open partitions and walking corridors. Upper left production: four small worker desks with computers for director, writer, reviewer and publisher. Upper centre creative department: two workstations for visual artist and animator. Upper right audio and edit lab: microphone booth, recording desk, film editing monitors and speakers. Lower centre is a central shared oval conference table with chairs. Lower right is a connected kitchenette with coffee machine and water cooler, a cozy games lounge with foosball and retro arcade, small restroom with a door. Tropical potted plants, framed storyboards, wall banners, bookshelves, warm lamps, elegant orderly composition, true crisp pixel edges. IMPORTANT: exactly one building and one continuous floor, not separate room images or disconnected buildings. All chairs clear for later animated staff overlays. Background scenery only. No humans, no characters, no worker sprites, no interface, no HUD, no minimap, no labels, no letters, no text, no watermarks.",
+  "usage_description": "Visual reference for one continuous agency building, shared floor plan, warm wood, teal navy pixel art palette. Preserve a clear empty desk/chair layout; do not copy interface text or characters.",
+  "style_description": "Crisp high-quality cosy 16-bit pixel art, single cohesive top-down game map. Teal/navy and walnut floor, soft amber lights, plants and clean room geometry."
+}
