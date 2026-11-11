@@ -1,0 +1,76 @@
+name: PixelLab - Gerar agencia unificada (referencia visual)
+
+# Geração paga nunca é disparada por push ou cron.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "plan (sem cobrança) ou generate (1 POST PixelLab)"
+        type: choice
+        options: [plan, generate]
+        default: plan
+        required: true
+      confirm_cost:
+        description: "Autorizo o consumo de créditos PixelLab para 1 imagem"
+        type: boolean
+        default: false
+        required: true
+      confirm_public_artifact:
+        description: "Autorizo publicar prévia PNG como artifact por 7 dias"
+        type: boolean
+        default: false
+        required: true
+  push:
+    branches: [feature/pixellab-agencia-unificada]
+    paths:
+      - "videoforge/pixellab/agency_scene.py"
+      - "cenarios/escritorio/agencia-unificada.json"
+      - "cenarios/escritorio/referencias/agencia-unificada.png"
+      - "tests/test_pixellab_agency.py"
+      - ".github/workflows/pixellab-agency-scene.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-agency-generation
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validar gerador, payload, referência e limites
+        run: |
+          python -m unittest discover -s tests -p 'test_pixellab_agency.py' -v
+          python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+      - name: Validar o plano gratuitamente
+        run: python -m videoforge.pixellab.agency_scene --mode plan
+      - name: Barrar geração sem confirmação explícita
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'generate' }}
+        env:
+          CONFIRM_COST: ${{ inputs.confirm_cost }}
+          CONFIRM_PUBLIC: ${{ inputs.confirm_public_artifact }}
+        run: |
+          test "$CONFIRM_COST" = "true" || { echo "Não autorizado: custo"; exit 1; }
+          test "$CONFIRM_PUBLIC" = "true" || { echo "Não autorizado: artifact"; exit 1; }
+      - name: Gerar UMA prévia no PixelLab usando referência real
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'generate' && inputs.confirm_cost && inputs.confirm_public_artifact }}
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_SCENE_AUTHORIZED: "true"
+          PIXELLAB_SCENE_PUBLIC_ARTIFACT: "true"
+        run: python -m videoforge.pixellab.agency_scene --mode generate
+      - name: Salvar relatório e prévia para aprovação (sem URLs/IDs privados)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-agencia-unificada-${{ github.run_id }}
+          path: output/pixellab-agency/
+          retention-days: 7
+          if-no-files-found: warn
