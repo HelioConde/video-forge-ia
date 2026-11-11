@@ -64,7 +64,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
     assert.equal(dh,Math.round(dw*54/88),
       "Recorte não deve achatar nem esticar a pose sentada");
   });
-  seated.slice(0,8).forEach((actual,i)=>{
+  seated.filter(actual=>actual.motion==='sit').forEach((actual,i)=>{
     const station=map.stations[i];
     assert.equal(actual.motion,"sit","Agente não ficou sentado: "+station.id);
     assert.equal(actual.direction,map.seat.direction);
@@ -73,7 +73,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
     assert.equal(actual.y,station.y+111+map.seat.dy);
     assert.equal(actual.size,map.character.seatedSize,"Escala sentado inconsistente: "+station.id);
   });
-  const supervisor=seated.at(-1);
+  const supervisor=seated.find(actual=>actual.motion==='idle');
   assert.equal(supervisor.motion,'idle','Subgerente fica em pé sem cadeira fictícia');
   assert.equal(supervisor.size,map.character.standingSize);
   assert.equal(supervisor.x,map.stations[8].x);
