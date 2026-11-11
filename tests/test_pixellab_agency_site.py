@@ -31,7 +31,7 @@ class PixelLabAgencyIntegrationTest(unittest.TestCase):
         routing=(ROOT/"site/agent-routines.js").read_text(encoding="utf-8")
         layout=(ROOT/"site/office-map.js").read_text(encoding="utf-8")
         self.assertIn("navigation=Object.freeze",layout)
-        self.assertIn("hallY=454",layout)
+        self.assertIn("hallY:454",layout)
         self.assertIn("window.VideoForgeOfficeMap?.navigation",routing)
         self.assertIn('production:{',layout)
         self.assertIn("meetings=Object.freeze",layout)
