@@ -29,3 +29,16 @@ A hierarquia também define quem conversa com quem, que sala usar e como visuali
 ## Abrir uma demanda no GitHub
 
 No workflow `VideoForge - Receber demanda do gerente` (`.github/workflows/production-request.yml`), o proprietário informa ID, canal, tema e duração. O Actions valida a demanda e gera `demanda.json` e `plano.json` como artefatos, com 18 entregas delegadas e dependências. **Este workflow não chama IA nem publica vídeos**. No futuro, cada especialidade terá um executor que só trabalhará com credenciais próprias e limites de orçamento.
+
+## Mudança de direção: um gerente editorial para cada canal
+
+A direção artística/produção mantém seus 18 especialistas, mas não escolhe
+pautas para todos os canais de modo uniforme. São cinco agentes gerentes,
+um por canal, com autonomia de pesquisa, hipóteses editoriais e delegação
+isolada. Para o Otaku Multicena: inventário de todos os vídeos do canal
++ Analytics em janelas comparáveis → detecção de temas já usados →
+ranking de duração/gênero/anime → proposta de pauta inédita →
+roteiro → narração, título, descrição, tags, arte, edição e QA.
+A decisão é acompanhada de evidências e pode ser recusada por falta de
+amostras. `docs/GERENTES-CANAIS.md` detalha o piloto e os bloqueios.
+A integração real de IA e o upload permanecem desabilitados nesta entrega.
