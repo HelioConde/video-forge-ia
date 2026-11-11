@@ -30,9 +30,9 @@ const canvas={
 const agents=map.stations.map((p,i)=>({
   id:p.id,nome:"Agente "+i,status:"nao_conectado"
 }));
-function paint({selected=null,previewMotion=null,routines=null,roleDemo=false}={}){
+function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,agentsList=agents}={}){
   draws.length=0;
-  art.paintAgents(canvas,agents,selected,1000,previewMotion,false,routines,roleDemo);
+  art.paintAgents(canvas,agentsList,selected,1000,previewMotion,false,routines,roleDemo);
   return draws.slice();
 }
 (async()=>{
@@ -62,12 +62,12 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false}={
   // A caminhada mantém coordenadas, direção e frame; não senta no corredor.
   const walking={moving:true,target:"coffee",motion:"walk",direction:"west",
                  frame:6,x:600,y:460};
-  let rendered=paint({routines:{poseFor:id=>id==="diretor"?walking:null}});
+  let rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?walking:null}});
   assert.deepEqual(rendered[0],{motion:"walk",direction:"west",frame:6,x:600,y:460,size:72});
   assert.equal(rendered[1].motion,"sit");
 
   // A pausa no café é em pé, não sentado na cadeira do escritório.
-  rendered=paint({routines:{poseFor:id=>id==="diretor"?{
+  rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?{
     moving:false,target:"coffee",motion:"idle",direction:"south",
     frame:0,x:857,y:572
   }:null}});
@@ -76,7 +76,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false}={
 
   // Voltando para casa, o sprite encaixa de novo na cadeira.
   const station=map.stations[0];
-  rendered=paint({routines:{poseFor:id=>id==="diretor"?{
+  rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?{
     moving:false,target:"home",motion:"sit",direction:"south",frame:0,
     x:station.x,y:station.y+111
   }:null}});
@@ -86,7 +86,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false}={
   assert.equal(rendered[0].y,station.y+121);
 
   // A prévia manual de outra animação não deve ser bloqueada.
-  rendered=paint({selected:"diretor",previewMotion:"wave"});
+  rendered=paint({selected:"diretor",previewMotion:"wave",agentsList:[agents[0]]});
   assert.equal(rendered[0].motion,"wave");
   assert.equal(rendered[0].y,station.y+111);
 
