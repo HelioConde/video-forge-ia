@@ -66,6 +66,20 @@ jobs:
           )
           PY
           python -m videoforge.production.dispatcher --demand output/gerente/demanda.json --output output/gerente/plano.json
+      - name: Vincular os 18 cargos aos recursos do Codex Proxy (somente plano)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from videoforge.proxy.roles import plan_bindings
+          root=Path("output/gerente")
+          plan=json.loads((root/"plano.json").read_text(encoding="utf-8"))
+          bindings=plan_bindings(plan)
+          (root/"proxy-tarefas.json").write_text(
+              json.dumps(bindings,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8"
+          )
+          print("PROXY_STAGE_BINDINGS_READY_18_ZERO_API_CALLS")
+          PY
       - name: Relatório da delegação (sem execução ou publicação)
         run: |
           python - <<'PY'
@@ -75,7 +89,8 @@ jobs:
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as fp:
               fp.write("## Demanda recebida — planejamento de equipe\n\n")
               fp.write(f"**Canal:** {d['demand']['canal']} · **Tarefas:** {len(d['tasks'])}\n\n")
-              fp.write("Nenhum agente IA executado, nenhum vídeo publicado.\n")
+              fp.write("Tarefas relacionadas aos recursos do Codex Proxy (somente plano).\\n\\n")
+              fp.write("Nenhum agente IA executado, nenhuma chave lida, nenhum vídeo publicado.\\n")
           PY
       - name: Salvar demanda e plano
         uses: actions/upload-artifact@v4
