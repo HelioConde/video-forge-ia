@@ -207,9 +207,9 @@ class ProxyClient:
         if f.stat().st_size > 18_000_000:
             raise ProxyError("Referencia local excede 18MB")
         blob = f.read_bytes()
-        if blob.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+        if blob.startswith(b"\x89PNG\r\n\x1a\n"):
             mime = "image/png"
-        elif not mask and blob.startswith(b"\\xff\\xd8\\xff"):
+        elif not mask and blob.startswith(b"\xff\xd8\xff"):
             mime = "image/jpeg"
         elif not mask and blob.startswith(b"RIFF") and blob[8:12] == b"WEBP":
             mime = "image/webp"
