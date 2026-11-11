@@ -114,6 +114,29 @@ class ProxyTests(unittest.TestCase):
         self.call(lambda:self.client.messages(payload), "/v1/messages", "POST",payload,anthropic=True)
         self.call(lambda:self.client.count_tokens(payload), "/v1/messages/count_tokens", "POST",payload,anthropic=True)
 
+    def test_image_files_are_local_data_urls_not_public_links(self):
+        with tempfile.TemporaryDirectory() as folder:
+            source = Path(folder) / "reference.png"
+            data = bytes.fromhex("89504e470d0a1a0a") + b"private-test-bytes"
+            source.write_bytes(data)
+            self.client.images_edit_files(
+                prompt="Edit approved test art", images=[source],
+                mask=source, size="1024x1024", n=1,
+            )
+            req, _ = self.backend.requests[-1]
+            self.assertEqual(req.full_url, "http://127.0.0.1:8080/v1/images/edits")
+            payload = json.loads(req.data)
+            self.assertEqual(payload["size"], "1024x1024")
+            self.assertTrue(payload["images"][0]["image_url"].startswith(
+                "data:image/png;base64,"))
+            self.assertEqual(payload["mask"]["image_url"],
+                             payload["images"][0]["image_url"])
+            source.write_text("not an image", encoding="utf-8")
+            with self.assertRaises(ProxyError):
+                self.client.images_edit_files(prompt="test", images=[source])
+            with self.assertRaises(ValueError):
+                self.client.images_edit_files(prompt="test", images=[])
+
     def test_sse_streams_and_no_creds_leak(self):
         self.backend.reply=b'event: message\ndata: {"delta":"a"}\n\ndata: [DONE]\n\n'
         items = list(self.client.chat_stream({"model":"gpt-6-astra"}))
