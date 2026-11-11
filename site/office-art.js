@@ -47,99 +47,175 @@ function sprite(c,key,x,y,w,h){
 }
 function pixelBase(c){
   const map=window.VideoForgeOfficeMap;
-  const R=map?.rooms;
-  // Estrutura em seis áreas conectadas visualmente: 3 salas aprovadas,
-  // copa/jogos/WC ilustrativos. Sem objetos falsamente "conectados".
-  rect(c,0,0,SW,SH,'#102231');
+  const R=map.rooms;
+  // Uma única agência: estrutura externa compartilhada, piso contínuo,
+  // divisórias baixas e estações dentro do mesmo andar.
+  rect(c,0,0,SW,SH,'#102331');
   for(let y=0;y<SH;y+=32)for(let x=0;x<SW;x+=32)
-    rect(c,x,y,31,31,(x/32+y/32)%2?'#162d3c':'#193345');
-  rect(c,24,104,1232,684,'#263f4d');
-  line(c,24,104,1232,684,'#6f8e91',3);
-  rect(c,39,122,1201,48,'#152e3c');
-  rect(c,42,170,1195,4,'#62b8a6');
-  text(c,'VIDEOFORGE  /  PIXEL STUDIO',58,152,'#d4f7df',17);
-  text(c,'6 ÁREAS · 3 SALAS PRONTAS · 3 EM PRÉVIA',1215,151,'#e3d2a6',12,'right');
+    rect(c,x,y,31,31,(x/32+y/32)%2?'#152b39':'#1a3441');
+  rect(c,21,96,1238,704,'#0c1b27');
+  rect(c,27,102,1226,688,'#314f58');
+  line(c,27,102,1226,688,'#789b9c',4);
+  rect(c,39,119,1203,53,'#173440');
+  rect(c,40,169,1200,5,'#79c7ae');
+  text(c,'VIDEOFORGE  /  AGÊNCIA CRIATIVA',59,150,'#e2f7da',18);
+  text(c,'UM ANDAR  ·  UMA EQUIPE  ·  8 POSTOS',1215,148,'#ecd2a2',12,'right');
 
-  // Corredores com continuidade entre as salas; os trajetos de demo
-  // partem do escritório e seguem pela circulação inferior.
-  rect(c,60,713,1158,31,'#344d53');
-  for(let x=73;x<1200;x+=56)rect(c,x,724,28,3,'#55746d');
-  rect(c,595,292,38,419,'#344c55');
-  for(let y=315;y<690;y+=58)rect(c,611,y,5,28,'#698d85');
-  rect(c,618,713,18,31,'#7d9d90');
-  rect(c,60,746,1158,6,'#102d3a');
-
-  // PixelLab: cenas principais já aprovadas, mantendo proporção nativa.
-  sprite(c,'main',79,194,512,512);
-  sprite(c,'creative',655,196,256,256);
-  sprite(c,'media',954,196,256,256);
-  for(const [center,title] of [[490,'01  PRODUÇÃO'],[783,'02  SALA CRIATIVA'],[1082,'03  LABORATÓRIO']]){
-    const font=title.includes('SALA')?12:14;
-    text(c,title,center,190,'#ecdfbe',font,'center');
-  }
-  // Objetos de produção integrados ao ambiente, e não expostos em um catálogo.
-  sprite(c,'desk',658,320,81,81);
-  sprite(c,'audio',965,363,72,72);
-  sprite(c,'editing',1063,350,103,87);
-
-  function floorRoom(id,wall,floor){
-    const p=R[id];
-    rect(c,p.x-3,p.y-4,p.w+6,p.h+7,'#142b37');
-    rect(c,p.x,p.y,p.w,p.h,wall);
-    rect(c,p.x+7,p.y+32,p.w-14,p.h-43,floor);
-    for(let yy=p.y+40;yy<p.y+p.h-17;yy+=16){
-      rect(c,p.x+8,yy,p.w-16,2,'#7b76684b');
-      for(let xx=p.x+11+((yy/16|0)%2)*18;xx<p.x+p.w-17;xx+=44)
-        rect(c,xx,yy+3,2,12,'#a0b39b22');
+  // O piso atravessa todos os setores, inclusive copa e descanso.
+  rect(c,49,181,1181,562,'#b78a5e');
+  for(let y=258;y<734;y+=23){
+    rect(c,52,y,1174,2,(Math.floor(y/23)%2)?'#986b50':'#d6a475');
+    const offset=(Math.floor(y/23)%2)*61;
+    for(let x=53+offset;x<1225;x+=123){
+      rect(c,x,y+2,2,20,'#926b52');
+      if((x+y)%5===0)rect(c,x+36,y+13,31,2,'#cca077');
     }
-    rect(c,p.x+3,p.y+2,p.w-6,29,'#274757');
-    rect(c,p.x+3,p.y+31,p.w-6,3,'#9eae93');
-    line(c,p.x,p.y,p.w,p.h,'#6b9692',2);
-    text(c,p.label,p.x+12,p.y+21,'#e1f0d6',id==='restroom'?13:12);
-    text(c,'PRÉVIA',p.x+p.w-11,p.y+21,'#e6c891',9,'right');
-    // Portas voltadas ao corredor inferior e marca de entrada.
-    rect(c,p.x+p.w/2-22,p.y+p.h-8,44,9,'#344d53');
-    rect(c,p.x+p.w/2-12,p.y+p.h-4,24,4,'#dfc58d');
   }
-  floorRoom('breakroom','#334d4d','#8e7862');
-  floorRoom('games','#354b5b','#806c68');
-  floorRoom('restroom','#34515a','#758d8a');
+  // Luz natural compartilhada: a parede de cima é contínua.
+  rect(c,49,183,1181,79,'#274e55');
+  rect(c,49,247,1181,14,'#1c3944');
+  rect(c,49,259,1181,5,'#88aa9a');
+  for(const x of [170,365,692,986,1146]){
+    const w=x===1146?67:110;
+    rect(c,x-3,194,w+6,45,'#142a39');
+    rect(c,x+2,198,w-4,34,'#659ea0');
+    rect(c,x+6,200,w-12,13,'#b2d9cb');
+    rect(c,x+6,213,w-12,15,'#86b9b3');
+    rect(c,x+w/2-4,198,7,34,'#284c57');
+    rect(c,x,231,w,6,'#c39b73');
+  }
+  // Identidade da agência, não seis fachadas independentes.
+  rect(c,461,194,195,47,'#1b3544');
+  line(c,461,194,195,47,'#76b4a5',3);
+  text(c,'V  /  VIDEOFORGE',558,213,'#e4eccc',14,'center');
+  text(c,'PIXEL PRODUCTION',558,229,'#9dcdc0',10,'center');
 
-  // Copa: máquina, bancada, canecas, planta e bebedouro.
-  sprite(c,'plant',649,521,54,54);
-  rect(c,681,539,77,38,'#4f5b62');line(c,681,539,77,38,'#b8beac',2);
-  rect(c,692,544,29,28,'#1a313c');rect(c,697,548,19,11,'#7dd3ba');
-  rect(c,701,568,10,3,'#f1cc89');rect(c,727,550,16,14,'#e8d7b6');
-  rect(c,734,548,5,5,'#e8d7b6');rect(c,691,578,63,7,'#d1b08d');
-  rect(c,679,585,80,5,'#674d45');
-  sprite(c,'chair',756,584,60,60);
-  sprite(c,'bookshelf',791,525,69,70);
-  rect(c,854,542,33,50,'#385665');line(c,854,542,33,50,'#aec2b4',2);
-  rect(c,860,548,22,13,'#97d4df');rect(c,866,561,11,5,'#d8e6dd');
-  rect(c,865,572,13,13,'#d3b27c');
-  text(c,'CAFÉ',709,665,'#fff0ce',11,'center');
-  text(c,'ÁGUA',855,665,'#fff0ce',11,'center');
+  // Tapetes e iluminação indicam departamentos, mas não isolam salas.
+  function areaRug(x,y,w,h,base,trim){
+    rect(c,x+5,y+6,w,h,'#513f383f');
+    rect(c,x,y,w,h,base);
+    line(c,x+7,y+7,w-14,h-14,trim,3);
+    for(let xx=x+24;xx<x+w-18;xx+=45)
+      rect(c,xx,y+14,2,h-28,'#ffffff0b');
+  }
+  areaRug(86,274,501,418,'#ad805f','#d3a47c');
+  areaRug(655,278,258,174,'#ab8268','#d6b68b');
+  areaRug(950,278,256,174,'#ad8269','#dab78c');
+  areaRug(656,518,543,171,'#ae8a6e','#d8b896');
 
-  // Descanso e jogos: telas, controle e sofá no mesmo plano.
-  rect(c,941,540,52,38,'#1c3444');line(c,941,540,52,38,'#8bc2b6',3);
-  rect(c,950,548,34,22,'#3a7f90');rect(c,957,554,20,7,'#b6dfbb');
-  rect(c,940,583,57,10,'#9f806b');
-  rect(c,942,597,56,24,'#42546d');rect(c,947,604,46,7,'#6888a0');
-  rect(c,974,614,17,9,'#ddc69d');rect(c,980,617,3,3,'#303d48');
-  rect(c,1035,548,28,52,'#3d4c62');line(c,1035,548,28,52,'#a4beb3',2);
-  rect(c,1040,556,19,18,'#579da4');rect(c,1043,578,13,7,'#d4ad83');
-  text(c,'JOGOS',995,666,'#f3e1c8',11,'center');
+  // Divisórias internas curtas e envidraçadas, com vãos sempre abertos.
+  function partition(x,y,h){
+    rect(c,x,y,8,h,'#27434a');
+    rect(c,x+2,y+6,4,h-12,'#71a69a');
+    rect(c,x-4,y,16,6,'#b2d0b8');
+    rect(c,x-4,y+h-6,16,6,'#b2d0b8');
+  }
+  partition(614,268,121);
+  partition(927,268,107);
+  rect(c,606,393,17,10,'#d2b083');
+  rect(c,920,380,16,10,'#d2b083');
 
-  // WC é somente fachada e área de demonstração; não simular privacidade.
-  rect(c,1113,539,70,76,'#244455');line(c,1113,539,70,76,'#83b9b0',3);
-  rect(c,1121,547,54,63,'#496f76');rect(c,1164,575,5,7,'#f0d49c');
-  rect(c,1098,557,14,36,'#a0b7ae');rect(c,1099,566,13,9,'#d0e5df');
-  text(c,'WC',1152,669,'#f2dfcb',12,'center');
+  // Eixo de circulação: liga produção, criação, edição e convivência.
+  rect(c,599,404,39,309,'#c49b73');
+  for(let y=422;y<709;y+=49)rect(c,614,y,6,22,'#e8cda0');
+  rect(c,639,468,579,33,'#c29c78');
+  for(let x=657;x<1202;x+=59)rect(c,x,485,30,3,'#dec196');
+  rect(c,71,700,1142,24,'#bd9774');
+  for(let x=86;x<1190;x+=74)rect(c,x,713,32,3,'#e0be93');
 
-  // Status espacial, não uma promessa de IA em execução.
-  rect(c,635,765,586,18,'#162e3b');
-  text(c,'● ÁREAS DE PAUSA EM PRÉVIA VISUAL  ·  AGENTES SEM EXECUTOR CONTINUAM OFFLINE',
-       649,778,'#a4d2bf',9);
+  // Placas na mesma parede, indicando setores de uma agência.
+  function sign(x,y,w,index,label,accent){
+    rect(c,x+3,y+3,w,28,'#243741');
+    rect(c,x,y,w,27,'#1b3641');
+    rect(c,x,y,5,27,accent);
+    text(c,index+'  '+label,x+13,y+18,'#f5e6cc',12);
+  }
+  sign(89,265,255,'01','PRODUÇÃO & DIREÇÃO','#e4c58c');
+  sign(661,265,252,'02','CRIAÇÃO VISUAL','#8dd4ac');
+  sign(953,265,251,'03','ÁUDIO & EDIÇÃO','#a4c6ed');
+
+  // Mesas dos oito agentes preservam a posição de seus sprites e placas.
+  const departments=map.stations;
+  departments.forEach((place,i)=>{
+    const x=place.x,y=place.y;
+    const w=place.room==='production'?104:94;
+    sprite(c,'desk',x-w/2,y+42,w,79);
+    sprite(c,'chair',x-25,y+91,50,49);
+    if(place.room==='production'){
+      rect(c,x-46,y+43,13,5,'#d9bf95');
+    }
+  });
+
+  // Elementos de trabalho compartilhados, sem formar "outra agência".
+  sprite(c,'plant',72,314,58,67);
+  sprite(c,'plant',549,613,51,63);
+  sprite(c,'bookshelf',79,385,74,91);
+  sprite(c,'editing',1022,287,83,68);
+  sprite(c,'audio',1157,301,48,49);
+  rect(c,668,396,232,35,'#65534b');
+  rect(c,675,392,217,19,'#d5ae7c');
+  rect(c,694,395,30,9,'#8cb6a6');
+  rect(c,738,395,30,9,'#dfc89b');
+  rect(c,782,395,30,9,'#a3c5ca');
+  text(c,'MESA COLABORATIVA',784,440,'#f3ddba',11,'center');
+
+  // Uma única área de convivência com copa, jogos e sanitário internos.
+  rect(c,655,508,545,28,'#254652');
+  rect(c,655,508,5,28,'#91d0aa');
+  text(c,'CONVIVÊNCIA  /  CAFÉ  ·  JOGOS  ·  APOIO',673,528,'#f4e7ce',12);
+  // Copa e água: balcão e objetos diretamente sobre o piso comum.
+  sprite(c,'plant',658,561,48,55);
+  rect(c,694,552,69,39,'#4b5659');
+  rect(c,699,552,65,7,'#e1c39c');
+  rect(c,707,558,30,24,'#1c3745');
+  rect(c,711,562,22,11,'#81d7b6');
+  rect(c,739,561,13,12,'#f5e1bd');
+  rect(c,744,558,5,4,'#f5e1bd');
+  sprite(c,'bookshelf',777,552,63,70);
+  rect(c,852,552,33,50,'#395965');
+  line(c,852,552,33,50,'#b3cbb6',2);
+  rect(c,858,558,21,15,'#94d1dc');
+  rect(c,864,580,10,15,'#d4b77b');
+  text(c,'CAFÉ',709,670,'#fff0d0',12,'center');
+  text(c,'ÁGUA',857,670,'#fff0d0',12,'center');
+
+  // Salão de jogos sem moldura de sala separada.
+  rect(c,905,543,3,128,'#8c6d60');
+  rect(c,915,544,94,59,'#253d4c');
+  line(c,915,544,94,59,'#9dc9b5',3);
+  rect(c,923,552,78,40,'#305d6d');
+  rect(c,934,558,55,18,'#62aeb3');
+  rect(c,952,579,19,5,'#f2cf98');
+  rect(c,924,607,77,17,'#53546c');
+  rect(c,932,613,62,5,'#8b91a8');
+  sprite(c,'chair',1008,587,54,56);
+  text(c,'JOGOS',977,670,'#fff0d0',12,'center');
+
+  // WC é uma dependência interna com privacidade, não um edifício isolado.
+  rect(c,1084,543,6,142,'#33555d');
+  rect(c,1090,543,112,6,'#33555d');
+  rect(c,1197,543,5,145,'#33555d');
+  rect(c,1095,551,95,83,'#52777a');
+  rect(c,1101,555,82,72,'#294956');
+  line(c,1101,555,82,72,'#87b7ae',2);
+  rect(c,1170,587,5,7,'#f3d4a1');
+  rect(c,1106,641,79,4,'#e4c69e');
+  text(c,'WC',1143,670,'#fff0d0',12,'center');
+
+  // Mobiliário discreto e perímetro ÚNICO: nenhuma caixa ao redor de setores.
+  for(const [x,y] of [[73,661],[1187,318],[641,636]]){
+    sprite(c,'plant',x,y,43,46);
+  }
+  rect(c,49,730,1181,13,'#334e55');
+  rect(c,49,743,1181,8,'#86a39a');
+  rect(c,41,180,9,571,'#213c48');
+  rect(c,1230,180,10,571,'#213c48');
+  rect(c,40,751,1201,8,'#172f3c');
+  line(c,40,180,1200,579,'#709a94',3);
+
+  rect(c,538,765,682,18,'#17313b');
+  text(c,'● ESPAÇOS DE PAUSA EM PRÉVIA VISUAL  ·  STATUS REAL VIA BACKEND',
+       552,778,'#b6dfc6',10);
 }
 function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function line(c,x,y,w,h,col,t=2){c.lineWidth=t;c.strokeStyle=col;c.strokeRect(Math.round(x)+.5,Math.round(y)+.5,w,h);}
