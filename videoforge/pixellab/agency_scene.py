@@ -60,7 +60,7 @@ def reference_bytes(plan: dict) -> bytes:
 
 def make_payload(plan: dict, image: bytes) -> dict:
     size = plan["reference_size"]
-    ref = {"image": {"base64": "data:image/png;base64," + base64.b64encode(image).decode("ascii")},
+    ref = {"image": {"type": "base64", "format": "png", "base64": base64.b64encode(image).decode("ascii")},
            "size": size}
     return {"description": plan["description"],
             "image_size": plan["image_size"],
