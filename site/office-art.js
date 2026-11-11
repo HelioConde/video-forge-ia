@@ -73,7 +73,7 @@ function pixelBase(c){
   sprite(c,'main',79,194,512,512);
   sprite(c,'creative',655,196,256,256);
   sprite(c,'media',954,196,256,256);
-  for(const [center,title] of [[335,'01  PRODUÇÃO'],[783,'02  SALA CRIATIVA'],[1082,'03  LABORATÓRIO']]){
+  for(const [center,title] of [[490,'01  PRODUÇÃO'],[783,'02  SALA CRIATIVA'],[1082,'03  LABORATÓRIO']]){
     const font=title.includes('SALA')?12:14;
     text(c,title,center,190,'#ecdfbe',font,'center');
   }
