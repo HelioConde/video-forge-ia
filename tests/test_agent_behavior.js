@@ -7,7 +7,8 @@ global.window={};
 require("../site/agent-behavior.js");
 const model=window.VideoForgeBehaviors;
 const available=new Set(Object.keys(manifest.motions));
-assert.equal(model.roles.length,8);
+assert.equal(model.roles.length,9);
+assert(model.profile('subgerente').work.includes('qa_inspection'));
 for(const role of model.roles){
   const profile=model.profile(role);
   assert(profile);
