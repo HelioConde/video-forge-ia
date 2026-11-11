@@ -120,6 +120,20 @@
       detail.append(make("div","detail-kicker","AGENTE SELECIONADO"),make("div","detail-title",a.nome),make("div","detail-status","● "+label(a.status)),make("p","detail-text",a.tarefa||"Nenhuma tarefa informada"));
       const channel=snap.canais.find(c=>c.id===a.canal);
       detail.append(make("div","detail-footnote","Canal: "+(channel?channel.nome:"Não atribuído")));
+      if(a.conexao){
+        const diagnostics=make("div","organization-overview");
+        diagnostics.append(make("strong","","DIAGNÓSTICO DA IA"));
+        const model=a.conexao.modelo_definido?"Modelo cadastrado":"Modelo não definido";
+        const executor=a.conexao.executor_habilitado?"Executor habilitado":"Executor desabilitado";
+        diagnostics.append(make("p","",model+" · "+executor));
+        if(a.conexao.dependencias?.length)
+          diagnostics.append(make("small","","Depende de: "+a.conexao.dependencias.join(", ")));
+        if(!a.conexao.eventos_observados){
+          diagnostics.append(make("small","",
+            "Sem atividade comprovada. As animações são prévias, não trabalho de IA."));
+        }
+        detail.append(diagnostics);
+      }
       const organization=snap.organizacao;
       if(organization?.modelo==="planejado_sem_ia"){
         const info=make("div","organization-overview");
