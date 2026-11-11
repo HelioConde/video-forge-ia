@@ -189,3 +189,7 @@ Ao executar um passeio, o agente muda para `walk` sem deslocamento artificial de
 ### Escala e seleção no panorama unificado
 
 Após revisão da proporção dos personagens com o escritório, a escala PixelLab usa **88 px sentados** e **84 px em movimento/prévia**, com ajuste vertical do assento de **+14 px**. As configurações ficam centralizadas em `site/office-map.js` (`seat` e `character`), e o Canvas preserva bordas nítidas sem interpolação. Em `site/office-art.js`, os distintivos, moldura de seleção e placas foram reposicionados para não encobrir o sprite maior. O hit-testing em `site/office-renderer.js` considera o novo centro do personagem sentado; rotas e status do backend não foram alterados. Teste: `node tests/test_agent_seating.js`.
+
+### Pose sentada verdadeira (correção visual)
+
+A simples animação `sit` na direção `north` não mostra o personagem sentado: no último quadro, ele permanece com as pernas esticadas. O projeto agora reutiliza **`agents/alex/production/sit_down.png`, quadro 3 da direção north**, que inclui cadeira e a pose corretamente sentada. O sprite é pré-carregado junto com o cenário, e o Canvas desenha o recorte estático em todas as oito mesas; não é necessário aguardar catálogo profissional nem realizar chamadas pagas ao PixelLab. O movimento `walk` e as atividades nas áreas comuns continuam usando o animador normal. O teste `tests/test_agent_seating.js` verifica o recorte (264,88,88,88), a escala e o comportamento de caminhada. Esta correção preserva as posições `seat`, o hit-testing e o estado real de IA.
