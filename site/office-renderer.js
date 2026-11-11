@@ -199,9 +199,16 @@
         let best=null,bestDistance=Infinity;
         for(let i=0;i<this.agents.length;i++){
           const [sx,sy]=slots[i],pos=this.routines.poseFor(this.agents[i].id,performance.now());
-          const dx=p.x-(pos?.x??sx),dy=p.y-(pos?.y??sy+111);
+          const atDesk=!pos||(!pos.moving&&pos.target==='home'&&pos.motion==='sit');
+          const seat=window.VideoForgeOfficeMap.seat;
+          const centerX=(pos?.x??sx)+(atDesk?seat.dx:0);
+          const centerY=(pos?.y??sy+111)+(atDesk?seat.dy:0);
+          const dx=p.x-centerX,dy=p.y-centerY;
           const distance=Math.hypot(dx,dy);
-          if(Math.abs(dx)<=68&&Math.abs(dy)<=67&&distance<bestDistance){
+          // Atingir os sprites ampliados sem depender de uma caixa antiga de 72px.
+          const halfSize=(atDesk?window.VideoForgeOfficeMap.character.seatedSize:
+                           window.VideoForgeOfficeMap.character.standingSize)/2;
+          if(Math.abs(dx)<=halfSize+28&&Math.abs(dy)<=halfSize+28&&distance<bestDistance){
             best=this.agents[i].id;bestDistance=distance;
           }
         }

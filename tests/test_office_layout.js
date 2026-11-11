@@ -22,7 +22,11 @@ for(const item of map.stations){
   assert(y-36>=r.y+75,"Agente sobre a parede: "+item.id);
   assert(y+67<r.y+r.h-5,"Rótulo para fora da sala: "+item.id);
 }
-assert(source.includes("statusBar(c,x,y+(artMode==='pixellab'?54:62)"));
+assert(source.includes("const labelOffset=artMode==='pixellab'?window.VideoForgeOfficeMap.character.labelOffset:62;"));
+assert(source.includes("statusBar(c,x,y+labelOffset"));
+assert.equal(map.character.seatedSize,88);
+assert.equal(map.character.standingSize,84);
+assert.equal(map.character.labelOffset,70);
 assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P']"));
 console.log("OFFICE_ROLES_OK: 4 na Produção, 2 na Criação, 2 no Laboratório");
 
