@@ -16,6 +16,7 @@ from videoforge.channel_agents.dedup import assert_unique, DuplicateTopic
 from videoforge.channel_agents.strategy import analyse_performance, select_idea
 from videoforge.channel_agents.manager import build_editorial_plan, channel_policy
 from videoforge.channel_agents.reserve import reserve_topic, TopicReservationError
+from videoforge.channel_agents.feedback import evaluate_uploaded_video
 from videoforge.channel_agents.ideation import (
     propose_candidates, EditorialIdeationError,
 )
@@ -243,6 +244,16 @@ class EditorialTests(TestCase):
             with self.assertRaises(DuplicateTopic):
                 reserve_topic(candidate=candidate(), inventory=self.inventory,
                               ledger_path=path, persist_approved=True)
+
+    def test_feedback_only_comparable_peers_no_causal_claim(self):
+        result = evaluate_uploaded_video(self.inventory, video_id="C")
+        self.assertEqual(result["status"],"observed")
+        self.assertFalse(result["causal_claim"])
+        self.assertTrue(result["no_repeat_topic"])
+        self.assertIn(result["next_experiment"],
+                      ("test_new_original_angle","test_hook_and_pacing"))
+        with self.assertRaises(ValueError):
+            evaluate_uploaded_video(self.inventory,video_id="not-owned-video")
 
     def test_insufficient_metrics_does_not_pick_best(self):
         no_metrics=snapshot([{"id":"1","title":"A","metrics":None}])
