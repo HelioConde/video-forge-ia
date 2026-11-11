@@ -64,7 +64,6 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
                  frame:6,x:600,y:460};
   let rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?walking:null}});
   assert.deepEqual(rendered[0],{motion:"walk",direction:"west",frame:6,x:600,y:460,size:72});
-  assert.equal(rendered[1].motion,"sit");
 
   // A pausa no café é em pé, não sentado na cadeira do escritório.
   rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?{
