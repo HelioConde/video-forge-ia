@@ -102,7 +102,7 @@
   }
   function channelCard(c){const b=make("button","channel-item");b.type="button";
     const portrait=make("span","avatar-box","▶");portrait.setAttribute("aria-hidden","true");
-    const body=make("span","channel-item-main");body.append(make("strong","",c.nome),make("small","",c.idioma+" · "+c.modelo));
+    const body=make("span","channel-item-main");body.append(make("strong","",c.nome),make("small","",c.gerente?.nome||"Gerente não cadastrado"));
     b.append(portrait,body);b.addEventListener("click",()=>{state.selectedChannel=c.id;renderPanel();});b.classList.toggle("active",state.selectedChannel===c.id);return b;
   }
   function renderPanel(){
@@ -270,7 +270,7 @@
         detail.append(section);
       }
     }else{const c=snap.canais.find(c=>c.id===state.selectedChannel)||snap.canais[0];if(!c)return;
-      detail.append(make("div","detail-kicker","CANAL REGISTRADO"),make("div","detail-title",c.nome),make("div","detail-status",c.idioma+" · "+c.modelo),make("p","detail-text","O painel não publica vídeos. Este canal ainda não está conectado a um executor de IA."));
+      detail.append(make("div","detail-kicker","GERENTE EDITORIAL DO CANAL"),make("div","detail-title",c.nome),make("div","detail-status",(c.gerente?.nome||"Gerente não cadastrado")+" · "+label(c.gerente?.status)),make("p","detail-text","O gerente pesquisa métricas, escolhe pautas inéditas e delega roteiro, narração, título, descrição, tags e edição. YouTube Analytics: não conectado nesta interface; nenhuma produção foi iniciada."),make("small","preview-note","REGRA FIXA: não repetir conteúdo; sem publicação automática."));
     }
   }
   function render(){
