@@ -15,6 +15,7 @@ from videoforge.channel_agents.youtube import (
 from videoforge.channel_agents.dedup import assert_unique, DuplicateTopic
 from videoforge.channel_agents.strategy import analyse_performance, select_idea
 from videoforge.channel_agents.manager import build_editorial_plan, channel_policy
+from videoforge.channel_agents.reserve import reserve_topic, TopicReservationError
 from videoforge.channel_agents.ideation import (
     propose_candidates, EditorialIdeationError,
 )
@@ -227,6 +228,21 @@ class EditorialTests(TestCase):
         self.assertFalse(result["publish_enabled"])
         self.assertTrue(all(x["channel_scope"]=="otaku-br" for x in result["tasks"]))
         self.assertEqual(channel_policy("otaku-br")["youtube_channel_id"],CHANNEL)
+
+    def test_atomic_reservation_blocks_repeated_topic(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "reservas.json"
+            path.write_text(json.dumps(self.reservas), encoding="utf-8")
+            with self.assertRaises(TopicReservationError):
+                reserve_topic(candidate=candidate(), inventory=self.inventory,
+                              ledger_path=path, persist_approved=False)
+            saved = reserve_topic(candidate=candidate(), inventory=self.inventory,
+                                  ledger_path=path, persist_approved=True)
+            self.assertEqual(saved["status"], "reserved")
+            self.assertEqual(len(json.loads(path.read_text())["entries"]), 1)
+            with self.assertRaises(DuplicateTopic):
+                reserve_topic(candidate=candidate(), inventory=self.inventory,
+                              ledger_path=path, persist_approved=True)
 
     def test_insufficient_metrics_does_not_pick_best(self):
         no_metrics=snapshot([{"id":"1","title":"A","metrics":None}])
