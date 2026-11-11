@@ -12,6 +12,8 @@ for(const [id,dest] of Object.entries(map.destinations)){
   assert(dest.x>room.x+20&&dest.x<room.x+room.w-20,"Destino fora da sala x: "+id);
   assert(dest.y>room.y+35&&dest.y<room.y+room.h-15,"Destino fora da sala y: "+id);
 }
+assert.equal(map.stations.length,8);
+assert.equal(new Set(map.stations.map(p=>p.room)).size,3);
 assert.equal(map.meetings.length,2);
 assert.notEqual(map.meetings[0].x,map.meetings[1].x);
 console.log("OFFICE_MAP_OK: rotas e destinos correspondem às salas do cenário");

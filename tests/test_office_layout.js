@@ -1,26 +1,27 @@
-/* Testa assentos do cenário: nenhum agent na faixa de janelas/fora da sala. */
+/* Postos por setor, rótulos íntegros e sem duplicar agentes. */
 "use strict";
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
+global.window={};
+require("../site/office-map.js");
+const map=window.VideoForgeOfficeMap;
 const source=fs.readFileSync("site/office-art.js","utf8");
-const match=source.match(/const pixelStations=(\[\[.*?\]\]);/);
-assert(match,"O cenário precisa declarar suas âncoras PixelLab");
-const places=JSON.parse(match[1]);
-assert.equal(places.length,8);
-assert.equal(new Set(places.map(p=>p.join(","))).size,8,"Dois agents dividem a mesma cadeira");
-const xLeft=79,xRight=591,top=194,bottom=706;
-for(const [index,p] of places.entries()){
-  const [x,y]=p,at=y+111;
-  assert(x>=(xLeft+36)&&x<=(xRight-36),"Personagem fora da sala "+index);
-  assert(at-36>=top+85,"Personagem invadindo janelas "+index);
-  assert(at+67<=bottom+1,"Placa do personagem excede sala "+index);
-  if(index<2)assert(at>=325,"Primeira fila deve estar próxima às cadeiras");
+assert(source.includes("const pixelStations=window.VideoForgeOfficeMap.stations.map"));
+const ids=["diretor","roteirista","artista","animador","narrador",
+           "editor","revisor","publicador"];
+assert.deepEqual(map.stations.map(p=>p.id),ids);
+assert.equal(map.stations.length,8);
+assert.equal(new Set(map.stations.map(p=>p.x+","+p.y)).size,8);
+const expected={diretor:"production",roteirista:"production",
+  artista:"creative",animador:"creative",narrador:"media",editor:"media",
+  revisor:"production",publicador:"production"};
+for(const item of map.stations){
+  assert.equal(item.room,expected[item.id]);
+  const r=map.rooms[item.room],x=item.x,y=item.y+111;
+  assert(x>=r.x+58&&x<=r.x+r.w-58,"Placa lateral sai da sala: "+item.id);
+  assert(y-36>=r.y+75,"Agente sobre a parede: "+item.id);
+  assert(y+67<r.y+r.h-5,"Rótulo para fora da sala: "+item.id);
 }
-assert(source.includes("statusBar(c,x,y+(artMode==='pixellab'?54:62)"),"Rótulos compactos não aplicados");
-console.log("ESTACOES_PIXELLAB_OK: oito cadeiras, placas dentro da sala e sem agentes nas janelas");
-
-assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P']"),
-  "Faltam marcadores dos 8 cargos na arte PixelLab");
-assert(source.includes("const map=window.VideoForgeOfficeMap"),
-  "Os ambientes devem usar a mesma configuração do roteador");
-console.log("ROLE_MARKERS_OK: identificação visual dos oito agentes");
+assert(source.includes("statusBar(c,x,y+(artMode==='pixellab'?54:62)"));
+assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P']"));
+console.log("OFFICE_ROLES_OK: 4 na Produção, 2 na Criação, 2 no Laboratório");

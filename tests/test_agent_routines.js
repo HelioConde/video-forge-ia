@@ -164,3 +164,16 @@ context.travel("editor","coffee",1000);
 context.travel("editor","home",1500);
 assert.equal(context.poseFor("editor",20000).motion,"sit");
 console.log("INTERACOES_ROUTINES_OK: café, água, jogos, banheiro e cadeira com sequências reais");
+
+const distributed=mod.create(window.VideoForgeOfficeMap.stations.map(p=>[p.x,p.y]));
+const roles=["artista","animador","narrador","editor"];
+for(const role of roles){
+  assert(distributed.travel(role,"coffee",2000));
+  const first=distributed.poseFor(role,2000);
+  assert.equal(first.motion,"walk");
+  assert(distributed.poseFor(role,40000).moving===false);
+  assert(distributed.travel(role,"home",40000));
+  const back=distributed.poseFor(role,100000);
+  assert.equal(back.motion,"sit");
+}
+console.log("ROUTING_MULTIROOM_OK: funcionários percorrem corredores ao voltar aos postos");

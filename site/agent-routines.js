@@ -49,24 +49,30 @@
     return cleanPoints(result);
   }
   function travelRoute(from,to,home=false) {
-    // Acesso pelo corredor central entre as mesas, sem atravessar os
-    // outros agentes nas cadeiras. Rotas permanecem demonstrativas.
-    const corridorY=724,aisleX=328,doorX=615;
-    const points=home?[
-      {x:from.x,y:from.y},
-      {x:from.x,y:corridorY},
-      {x:doorX,y:corridorY},
-      {x:aisleX,y:corridorY},
-      {x:aisleX,y:to.y},
-      {x:to.x,y:to.y}
-    ]:[
-      {x:from.x,y:from.y},
-      {x:aisleX,y:from.y},
-      {x:aisleX,y:corridorY},
-      {x:doorX,y:corridorY},
-      {x:to.x,y:corridorY},
-      {x:to.x,y:to.y}
-    ];
+    // Percursos por portas/corredores: funcionários da sala criativa e
+    // laboratório não atravessam as mesas da Produção no caminho.
+    const aisle=328, corridor=724, eastDoor=630, upperHall=472;
+    function exit(p) {
+      if(p.x<620&&p.y<706)
+        return [{x:aisle,y:p.y},{x:aisle,y:corridor},{x:615,y:corridor}];
+      if(p.y<460)
+        return [{x:p.x,y:upperHall},{x:eastDoor,y:upperHall},{x:eastDoor,y:corridor}];
+      return [{x:p.x,y:corridor},{x:eastDoor,y:corridor}];
+    }
+    function entry(p) {
+      if(p.x<620&&p.y<706)
+        return [{x:615,y:corridor},{x:aisle,y:corridor},{x:aisle,y:p.y}];
+      if(p.y<460)
+        return [{x:eastDoor,y:corridor},{x:eastDoor,y:upperHall},{x:p.x,y:upperHall}];
+      return [{x:p.x,y:corridor}];
+    }
+    // Manter acesso direto apenas entre agentes que já estão na mesma sala.
+    const sameTopRoom=from.y<460&&to.y<460&&
+      ((from.x>=655&&from.x<920&&to.x>=655&&to.x<920)||
+       (from.x>=954&&to.x>=954));
+    const points=sameTopRoom?
+      [{x:from.x,y:from.y},{x:to.x,y:to.y}]:
+      [{x:from.x,y:from.y},...exit(from),...entry(to),{x:to.x,y:to.y}];
     return softenCorners(points);
   }
   function interpolate(points,distance) {

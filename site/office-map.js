@@ -10,6 +10,18 @@
     games:{x:912,y:488,w:170,h:216,label:"SALA DE JOGOS",status:"preview"},
     restroom:{x:1088,y:488,w:127,h:216,label:"WC",status:"preview"}
   });
+  // Postos ligados aos cargos cadastrados em agentes/equipe.json (mesma ordem).
+  // y é a âncora da cena; o centro visual do personagem usa y+111.
+  const stations=Object.freeze([
+    {id:"diretor",x:218,y:219,room:"production"},
+    {id:"roteirista",x:438,y:219,room:"production"},
+    {id:"artista",x:721,y:246,room:"creative"},
+    {id:"animador",x:851,y:246,room:"creative"},
+    {id:"narrador",x:1019,y:247,room:"media"},
+    {id:"editor",x:1144,y:247,room:"media"},
+    {id:"revisor",x:218,y:425,room:"production"},
+    {id:"publicador",x:438,y:425,room:"production"}
+  ]);
   const destinations=Object.freeze({
     coffee:Object.freeze({x:704,y:614,label:"Máquina de café (prévia)",room:"breakroom"}),
     water:Object.freeze({x:854,y:614,label:"Bebedouro (prévia)",room:"breakroom"}),
@@ -17,5 +29,5 @@
     restroom:Object.freeze({x:1152,y:630,label:"Entrada do banheiro (prévia)",room:"restroom"})
   });
   const meetings=Object.freeze([{x:729,y:369},{x:834,y:369}]);
-  window.VideoForgeOfficeMap=Object.freeze({rooms,destinations,meetings});
+  window.VideoForgeOfficeMap=Object.freeze({rooms,stations,destinations,meetings});
 })();
