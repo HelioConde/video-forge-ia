@@ -73,6 +73,7 @@ def analyse_performance(snapshot: dict) -> dict:
     groups: dict[str, list] = {}
     for video_id, p in scored:
         groups.setdefault(p["duration_bucket"], []).append((video_id, p))
+    baseline = median(p["views"] for _, p in scored)
     evidence = []
     for key, rows in groups.items():
         average_views = sum(p["views"] for _, p in rows) / len(rows)
@@ -86,7 +87,7 @@ def analyse_performance(snapshot: dict) -> dict:
             "median_views": round(median(p["views"] for _, p in rows), 1),
             "median_retention_pct": round(retention * 100, 1),
             "median_watch_fraction": round(watch, 3),
-            "score": round((.45 * min(average_views / 1000, 3)
+            "score": round((.45 * min(average_views / max(baseline, 1), 3)
                             + .35 * retention + .20 * watch) * weight, 4),
             "median_duration_seconds": int(median(p["duration_seconds"] for _, p in rows)),
         })
@@ -101,6 +102,38 @@ def analyse_performance(snapshot: dict) -> dict:
         ),
         "duration_evidence": ranked, "confidence": confidence,
     }
+
+
+def _candidate_performance(candidate: dict, inventory: dict) -> dict:
+    """Sinais observados, não previsões: anime e gênero identificados em títulos."""
+    anime = norm(candidate.get("anime", ""))
+    genre = norm(candidate.get("genero", ""))
+    data = []
+    for video in inventory["videos"]:
+        metric = _performance(video)
+        if not metric:
+            continue
+        title = norm(video.get("title", ""))
+        if anime and (" " + anime + " ") in (" " + title + " "):
+            data.append(("anime", metric))
+        if genre and (" " + genre + " ") in (" " + title + " "):
+            data.append(("genre", metric))
+    total = [_performance(video) for video in inventory["videos"]]
+    baseline = median([row["views"] for row in total if row] or [1])
+    result = {}
+    for kind in ("anime", "genre"):
+        found = [row for category, row in data if category == kind]
+        if len(found) >= 2:
+            result[kind] = {
+                "samples": len(found),
+                "relative_median_views": round(min(median(
+                    row["views"] for row in found) / max(baseline, 1), 3), 3),
+                "median_retention_pct": round(median(
+                    row["retention"] for row in found) * 100, 1),
+            }
+        else:
+            result[kind] = {"samples": len(found), "insufficient_evidence": True}
+    return result
 
 
 def select_idea(*, snapshot: dict, reservations: dict, candidates: list[dict],
@@ -148,11 +181,16 @@ def select_idea(*, snapshot: dict, reservations: dict, candidates: list[dict],
         # A adequação de duração usa somente medianas de grupos com >= 3 amostras.
         match = duration_bucket(length) == perf["best_duration_bucket"]
         fit = (2 if match else 0) if perf["best_duration_bucket"] else 0
+        channel_fit = _candidate_performance(candidate, snapshot)
+        anime = channel_fit["anime"].get("relative_median_views")
+        genre_score = channel_fit["genre"].get("relative_median_views")
+        # Pelo menos dois exemplos por anime/gênero; não inferir o sucesso de 1 vídeo.
+        genre_bonus = min(1.25, genre_score * 0.45) if genre_score else 0
+        anime_bonus = min(1.75, anime * 0.7) if anime else 0
         source_signal = candidate["evidence"].get("strength", "unknown")
-        # Um hype externo é hipótese, não prova de performance do canal.
         credibility = 1 if source_signal == "documented" else 0
-        allowed.append((fit + credibility,
-                        editorial_fingerprint(candidate), candidate))
+        allowed.append((round(fit + genre_bonus + anime_bonus + credibility, 4),
+                        editorial_fingerprint(candidate), candidate, channel_fit))
     allowed.sort(key=lambda item: (-item[0], item[1]))
     if not allowed:
         return {"schema": "videoforge/channel-idea/v1", "status": "no_unique_candidate",
@@ -160,6 +198,7 @@ def select_idea(*, snapshot: dict, reservations: dict, candidates: list[dict],
                 "rejections": rejected, "metrics": perf, "selected": None,
                 "production_enabled": False}
     selected = dict(allowed[0][2])
+    fit_evidence = allowed[0][3]
     return {
         "schema": "videoforge/channel-idea/v1",
         "status": "proposed_for_review",
@@ -170,6 +209,7 @@ def select_idea(*, snapshot: dict, reservations: dict, candidates: list[dict],
             "youtube_window": snapshot.get("window"),
             "duration_rationale": perf,
             "source": selected.get("evidence"),
+            "channel_signals": fit_evidence,
             "novelty": "heuristic_precheck_only_requires_editorial_review",
         },
         "candidates_approved": len(allowed),
