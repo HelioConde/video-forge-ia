@@ -9,6 +9,7 @@ const stations=classicStations.map(p=>p.slice());
 let artMode='classic',spritesReady=false;
 const spriteImages={};
 const SPRITE_PATHS={
+  agency:'scenes/agencia-unificada.png',
   main:'scenes/main-office.png',
   creative:'scenes/creative-room.png',
   media:'scenes/media-lab.png',
@@ -45,7 +46,42 @@ function sprite(c,key,x,y,w,h){
   const img=spriteImages[key];
   if(img)c.drawImage(img,Math.round(x),Math.round(y),Math.round(w),Math.round(h));
 }
+// Cenário principal gerado pelo PixelLab v2 (execução GitHub #43039103117).
+// O crop elimina o fundo externo do PNG e ocupa a mesma área do mundo Canvas.
+// Personagens, nomes, seleção e indicadores são desenhados DEPOIS desta imagem.
+function pixelAgency(c){
+  const image=spriteImages.agency;
+  const geometry=window.VideoForgeOfficeMap.scene;
+  const src=geometry.source,dst=geometry.target;
+  rect(c,0,0,SW,SH,'#102030');
+  c.save();
+  c.imageSmoothingEnabled=false;
+  c.drawImage(image,src.x,src.y,src.w,src.h,dst.x,dst.y,dst.w,dst.h);
+  c.restore();
+  // Placas legíveis ficam no Canvas: não dependem do modelo gerar texto.
+  const sections=[
+    [177,244,265,'01  PRODUÇÃO'],
+    [538,244,262,'02  SALA CRIATIVA'],
+    [924,244,278,'03  ÁUDIO & EDIÇÃO'],
+    [531,440,263,'REUNIÃO / COLABORAÇÃO'],
+    [819,481,149,'COPA & ÁGUA'],
+    [980,481,139,'SALA DE JOGOS'],
+    [1132,481,86,'WC']
+  ];
+  for(const [x,y,w,name] of sections){
+    rect(c,x+2,y+3,w,26,'#102632');
+    rect(c,x,y,w,25,'#1a3743');
+    rect(c,x,y,4,25,'#8fceb1');
+    text(c,name,x+11,y+17,'#f2e3cb',name.length>20?11:12);
+  }
+  // Aviso factual, separado da arte de cenário.
+  rect(c,536,771,686,18,'#152d3c');
+  text(c,'● ARTE PIXELLAB  ·  1 AGÊNCIA  ·  STATUS DE IA VERIFICADO NO BACKEND',
+       547,784,'#b6dfc6',10);
+}
+
 function pixelBase(c){
+  if(spriteImages.agency){pixelAgency(c);return;}
   const map=window.VideoForgeOfficeMap;
   // Uma única agência: estrutura externa compartilhada, piso contínuo,
   // divisórias baixas e estações dentro do mesmo andar.
