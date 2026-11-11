@@ -1,0 +1,49 @@
+name: PixelLab - Agencia unificada - execucao unica autorizada
+
+# O usuario autorizou gerar as imagens necessarias em 11/11/2026.
+# Execucao ligada exclusivamente ao commit que instala este arquivo.
+# Re-run nao repete o POST pago (run_attempt == 1). Sem cron ou dispatch.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pixellab-agency-generate-once.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixellab-agency-generation
+  cancel-in-progress: false
+
+jobs:
+  generate-once:
+    if: ${{ github.run_attempt == 1 && github.event.head_commit.message == 'chore(pixelart): executar uma geracao autorizada da agencia 2026-11-11' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Preparar testes
+        run: python -m pip install "Pillow>=10,<13"
+      - name: Verificar plano, referencia e protecoes sem usar creditos
+        run: |
+          python -m unittest discover -s tests -p 'test_pixellab_agency.py' -v
+          python -m unittest discover -s tests -p 'test_pixellab*.py' -v
+          python -m videoforge.pixellab.agency_scene --mode plan
+      - name: Gerar uma unica imagem com a API PixelLab
+        env:
+          PIXELLAB_API_TOKEN: ${{ secrets.PIXELLAB_API_TOKEN }}
+          PIXELLAB_SCENE_AUTHORIZED: "true"
+          PIXELLAB_SCENE_PUBLIC_ARTIFACT: "true"
+        run: python -m videoforge.pixellab.agency_scene --mode generate
+      - name: Salvar PNG e relatorio apenas como artifact temporario
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixellab-agency-once-${{ github.run_id }}
+          path: output/pixellab-agency/
+          retention-days: 7
+          if-no-files-found: warn
