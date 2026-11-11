@@ -163,3 +163,11 @@ Os oito agentes do cadastro em `agentes/equipe.json` seguem sem `modelo_ia` e co
 ### Distribuição dos funcionários nas salas
 
 As oito âncoras PixelLab foram centralizadas em `site/office-map.js` (não duplicar no renderer): **Direção, Roteirista, Revisor e Publicador em Produção; Artista e Animador na Sala Criativa; Narrador e Editor no Laboratório**. Cada rótulo permanece dentro do cômodo. `site/agent-routines.js` usa o corredor inferior e a passagem superior, em vez de atravessar mesas da Produção ao sair das salas à direita. A prévia continua desacoplada do backend: ninguém é registrado como trabalhando sem evento verificável.
+
+## Agência única — layout integrado (11/11/2026)
+
+A vista principal agora desenha **uma única agência de produção** no `site/office-art.js`. O andar tem um perímetro comum, mesma textura de piso em todos os departamentos, circulação horizontal e vertical e divisórias internas curtas; os setores de Produção/Direção, Criação Visual e Áudio/Edição são identificados por placas e tapetes em vez de fachadas de salas independentes. Copa, água, jogos e WC continuam no mesmo piso como instalações de apoio, três delas em prévia visual.
+
+A mudança preserva os oito postos/âncoras de `site/office-map.js`, as rotas e o hit-testing. As três imagens completas de quartos PixelLab continuam no catálogo de assets e não são apagadas, porém **não são mais usadas como blocos de construção**. Os objetos transparentes (mesas, cadeira, planta, estante, mixer e tela) são posicionados diretamente no cenário; se algum não estiver disponível, as mesas têm fallback desenhado por Canvas. Ambos os modos de avatar (clássico e PixelLab) utilizam o **mesmo mapa unificado**. O botão ▦ alterna os avatares; ele não alterna para prédios independentes.
+
+O desenho continua sendo apenas uma representação da agência. Nenhum departamento é marcado como operante, nenhum vídeo é enviado e nenhuma chamada paga ao PixelLab ocorre por esta mudança. A validação está em `tests/test_office_layout.js` e no workflow de Pages.
