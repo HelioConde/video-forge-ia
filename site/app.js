@@ -51,7 +51,7 @@
     const active=office.getArtMode()==='pixellab';
     artBtn.setAttribute('aria-pressed',String(active));
     artBtn.classList.toggle('active',active);
-    artBtn.title=active?'Voltar ao cenário original':'Ativar cenários e objetos PixelLab';
+    artBtn.title=active?'Usar avatares clássicos na agência integrada':'Usar avatares PixelLab na agência integrada';
     artBtn.setAttribute('aria-label',artBtn.title);
     artBtn.textContent=active?'▦':'✦';
   }
