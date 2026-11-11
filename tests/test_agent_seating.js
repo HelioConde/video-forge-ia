@@ -48,6 +48,8 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   assert.equal(await art.loadSprites(),true);
   assert.equal(art.setArtMode("pixellab"),true);
   assert.equal(art.slots.length,8);
+  assert.equal(map.seat.dy,0,"A cadeira da animação não deve projetar para o corredor");
+  assert.equal(map.character.labelOffset,60,"Nome deve acompanhar o encaixe da cadeira");
 
   // Nenhum agente deve continuar em pé ao carregar o escritório.
   const seated=paint();
