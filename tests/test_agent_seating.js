@@ -6,12 +6,14 @@ global.window={};
 require("../site/office-map.js");
 const map=window.VideoForgeOfficeMap;
 const draws=[];
+const seatedCrops=[];
+let animatorReady=true;
 global.Image=class {
   constructor(){this.naturalWidth=96;this.naturalHeight=96;}
   set src(value){this._src=value;queueMicrotask(()=>this.onload?.());}
 };
 window.VideoForgeAnimator={
-  ready:()=>true,
+  ready:()=>animatorReady,
   productionMotions:()=>[],
   frameCount:name=>name==="walk"?8:4,
   drawProduction:()=>false,
@@ -25,7 +27,14 @@ require("../site/office-art.js");
 const art=window.VideoForgeArt;
 const canvas={
   fillRect(){},strokeRect(){},fillText(){},beginPath(){},ellipse(){},
-  fill(){},save(){},restore(){},translate(){},scale(){},drawImage(){}
+  fill(){},save(){},restore(){},translate(){},scale(){},
+  drawImage(image,sx,sy,sw,sh,dx,dy,dw,dh){
+    if(!String(image?._src).endsWith("/sit_down.png"))return;
+    seatedCrops.push({sx,sy,sw,sh,dx,dy,dw,dh});
+    // Normalizar o recorte PixelLab para comparar com movimentos do animator.
+    draws.push({motion:"sit",direction:"north",frame:3,
+                x:dx+dw/2,y:dy+dh/2,size:dw});
+  }
 };
 const agents=map.stations.map((p,i)=>({
   id:p.id,nome:"Agente "+i,status:"nao_conectado"
@@ -43,6 +52,10 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   // Nenhum agente deve continuar em pé ao carregar o escritório.
   const seated=paint();
   assert.equal(seated.length,8);
+  assert.equal(seatedCrops.length,8,"Todos devem usar o atlas com cadeira real");
+  seatedCrops.forEach(({sx,sy,sw,sh})=>
+    assert.deepEqual([sx,sy,sw,sh],[264,88,88,88],
+      "Quadro correto de sit_down north #3 não utilizado"));
   seated.forEach((actual,i)=>{
     const station=map.stations[i];
     assert.equal(actual.motion,"sit","Agente não ficou sentado: "+station.id);
@@ -59,6 +72,12 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   assert.equal(paint()[1].motion,"sit");
   agents[0].status="nao_conectado";
   agents[1].status="nao_conectado";
+
+  // A imagem sentada é renderizada independentemente do atlas de walk
+  // e do carregamento assíncrono de todas as animações opcionais.
+  animatorReady=false;
+  assert.equal(paint().length,8);
+  animatorReady=true;
 
   // A caminhada mantém coordenadas, direção e frame; não senta no corredor.
   const walking={moving:true,target:"coffee",motion:"walk",direction:"west",
