@@ -10,6 +10,7 @@ let artMode='classic',spritesReady=false;
 const spriteImages={};
 const SPRITE_PATHS={
   agency:'scenes/agencia-unificada.png',
+  seated:'agents/alex/production/sit_down.png',
   main:'scenes/main-office.png',
   creative:'scenes/creative-room.png',
   media:'scenes/media-lab.png',
@@ -314,9 +315,11 @@ function motionForAgent(agent){
 }
 function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotion,roleDemo){
   const animator=window.VideoForgeAnimator;
-  if(artMode!=='pixellab'||!spritesReady||!animator?.ready())return false;
+  if(artMode!=='pixellab'||!spritesReady)return false;
+  const animatorReady=Boolean(animator?.ready());
+  if(!animatorReady&&!spriteImages.seated)return false;
   const behavior=window.VideoForgeBehaviors;
-  const library=animator.productionMotions();
+  const library=animator?.productionMotions?.()||[];
   const known=new Set(library.map(x=>x.name));
   const chosen=behavior?.choose(agent,t,roleDemo,name=>known.has(name),library);
 
@@ -349,15 +352,29 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const character=window.VideoForgeOfficeMap.character;
   const size=seated?character.seatedSize:character.standingSize;
 
-  if(!animator.drawProduction(c,motion,direction,frame,x,y,size) &&
-     !animator.draw(c,motion,direction,frame,x,y,size)){
-    // Animação contextual ainda não exportada? Voltar ao sprite sentado
-    // quando estiver no posto; fora dele, manter idle em pé.
-    const fallback=atDesk?'sit':'idle';
-    const fallbackDirection=atDesk?seat.direction:direction;
-    const fallbackFrame=atDesk?Math.max(0,(animator.frameCount?.('sit')??4)-1):frame;
-    if(!animator.draw(c,fallback,fallbackDirection,fallbackFrame,x,y,size))return false;
+  // O atlas 'sit' visto de costas deixa as pernas esticadas: parece em pé.
+  // O QUARTO quadro de 'sit_down' direção north contém a cadeira e a
+  // pose realmente sentada. Usar este recorte estático sem downloads extras,
+  // mesmo antes do animator terminar de carregar as animações dinâmicas.
+  let drawn=false;
+  if(seated&&spriteImages.seated){
+    c.imageSmoothingEnabled=false;
+    c.drawImage(spriteImages.seated,3*88,1*88,88,88,
+                Math.round(x-size/2),Math.round(y-size/2),size,size);
+    drawn=true;
   }
+  if(!drawn&&animatorReady){
+    drawn=animator.drawProduction(c,motion,direction,frame,x,y,size)||
+          animator.draw(c,motion,direction,frame,x,y,size);
+    if(!drawn){
+      // Durante o movimento, ainda respeitar a posição e o sprite original.
+      const fallback=atDesk?'sit':'idle';
+      const fallbackDirection=atDesk?seat.direction:direction;
+      const fallbackFrame=atDesk?Math.max(0,(animator.frameCount?.('sit')??4)-1):frame;
+      drawn=animator.draw(c,fallback,fallbackDirection,fallbackFrame,x,y,size);
+    }
+  }
+  if(!drawn)return false;
   // Marcador profissional e seleção não mudam estado real do backend.
   const colors=['#d8b979','#98b9dc','#a7d5af','#dbb2d8',
                 '#f0a990','#91cdc8','#d6cc9a','#b8bcf1'];
