@@ -46,47 +46,100 @@ function sprite(c,key,x,y,w,h){
   if(img)c.drawImage(img,Math.round(x),Math.round(y),Math.round(w),Math.round(h));
 }
 function pixelBase(c){
-  rect(c,0,0,SW,SH,'#152331');
+  const map=window.VideoForgeOfficeMap;
+  const R=map?.rooms;
+  // Estrutura em seis áreas conectadas visualmente: 3 salas aprovadas,
+  // copa/jogos/WC ilustrativos. Sem objetos falsamente "conectados".
+  rect(c,0,0,SW,SH,'#102231');
   for(let y=0;y<SH;y+=32)for(let x=0;x<SW;x+=32)
-    if((x/32+y/32)%2===0)rect(c,x,y,32,32,'#192c3a');
-  rect(c,25,113,1226,675,'#233747');
-  line(c,25,113,1226,675,'#587380',4);
-  rect(c,45,137,1183,35,'#122434');
-  text(c,'PIXEL STUDIO  /  VIDEOFORGE AI',66,160,'#b9e6d1',15);
-  text(c,'3 SALAS   +   6 OBJETOS',1200,159,'#d6c79d',12,'right');
-  // As cenas PixelLab são top-down: preservar a proporção nativa e pixels nítidos.
+    rect(c,x,y,31,31,(x/32+y/32)%2?'#162d3c':'#193345');
+  rect(c,24,104,1232,684,'#263f4d');
+  line(c,24,104,1232,684,'#6f8e91',3);
+  rect(c,39,122,1201,48,'#152e3c');
+  rect(c,42,170,1195,4,'#62b8a6');
+  text(c,'VIDEOFORGE  /  PIXEL STUDIO',58,152,'#d4f7df',17);
+  text(c,'6 ÁREAS · 3 SALAS PRONTAS · 3 EM PRÉVIA',1215,151,'#e3d2a6',12,'right');
+
+  // Corredores com continuidade entre as salas; os trajetos de demo
+  // partem do escritório e seguem pela circulação inferior.
+  rect(c,60,713,1158,31,'#344d53');
+  for(let x=73;x<1200;x+=56)rect(c,x,724,28,3,'#55746d');
+  rect(c,595,292,38,419,'#344c55');
+  for(let y=315;y<690;y+=58)rect(c,611,y,5,28,'#698d85');
+  rect(c,618,713,18,31,'#7d9d90');
+  rect(c,60,746,1158,6,'#102d3a');
+
+  // PixelLab: cenas principais já aprovadas, mantendo proporção nativa.
   sprite(c,'main',79,194,512,512);
   sprite(c,'creative',655,196,256,256);
   sprite(c,'media',954,196,256,256);
-  text(c,'PRODUÇÃO',337,190,'#e7dbc5',15,'center');
-  text(c,'SALA CRIATIVA',783,190,'#e7dbc5',13,'center');
-  text(c,'LABORATÓRIO',1082,190,'#e7dbc5',13,'center');
-  rect(c,631,479,595,267,'#253b49');
-  line(c,631,479,595,267,'#678383',3);
-  text(c,'OBJETOS / MOBILIÁRIO',651,503,'#bce6d0',14);
-  // Sprites transparentes, reutilizáveis e sem fundo pintado por cima do cenário.
-  sprite(c,'desk',650,519,128,128);
-  sprite(c,'chair',793,549,84,84);
-  sprite(c,'plant',898,539,86,86);
-  sprite(c,'bookshelf',1001,513,124,124);
-  sprite(c,'audio',720,637,118,100);
-  sprite(c,'editing',920,638,128,101);
-  text(c,'DESK',713,661,'#d0d9cc',10,'center');
-  text(c,'CHAIR',831,658,'#d0d9cc',10,'center');
-  text(c,'PLANT',940,658,'#d0d9cc',10,'center');
-  text(c,'SHELF',1060,658,'#d0d9cc',10,'center');
-  text(c,'AUDIO',774,748,'#d0d9cc',10,'center');
-  text(c,'EDITING',984,754,'#d0d9cc',10,'center');
-  // Marcadores de destinos futuros, não móveis PixelLab concluídos.
-  const stations=[
-    [668,585,'CAFÉ'],[859,582,'ÁGUA'],[1082,671,'JOGOS*'],[1130,548,'WC*']
-  ];
-  stations.forEach(([x,y,label])=>{
-    rect(c,x,y,94,21,'#213d48');
-    line(c,x,y,94,21,'#a2c8ae',1);
-    text(c,label,x+47,y+14,'#d7edce',11,'center');
-  });
-  text(c,'* ÁREAS PLANEJADAS / ROTAS EM PRÉVIA',1212,780,'#9cbdc5',11,'right');
+  for(const [center,title] of [[335,'01  PRODUÇÃO'],[783,'02  SALA CRIATIVA'],[1082,'03  LABORATÓRIO']]){
+    const font=title.includes('SALA')?12:14;
+    text(c,title,center,190,'#ecdfbe',font,'center');
+  }
+  // Objetos de produção integrados ao ambiente, e não expostos em um catálogo.
+  sprite(c,'desk',658,320,81,81);
+  sprite(c,'audio',965,363,72,72);
+  sprite(c,'editing',1063,350,103,87);
+
+  function floorRoom(id,wall,floor){
+    const p=R[id];
+    rect(c,p.x-3,p.y-4,p.w+6,p.h+7,'#142b37');
+    rect(c,p.x,p.y,p.w,p.h,wall);
+    rect(c,p.x+7,p.y+32,p.w-14,p.h-43,floor);
+    for(let yy=p.y+40;yy<p.y+p.h-17;yy+=16){
+      rect(c,p.x+8,yy,p.w-16,2,'#7b76684b');
+      for(let xx=p.x+11+((yy/16|0)%2)*18;xx<p.x+p.w-17;xx+=44)
+        rect(c,xx,yy+3,2,12,'#a0b39b22');
+    }
+    rect(c,p.x+3,p.y+2,p.w-6,29,'#274757');
+    rect(c,p.x+3,p.y+31,p.w-6,3,'#9eae93');
+    line(c,p.x,p.y,p.w,p.h,'#6b9692',2);
+    text(c,p.label,p.x+12,p.y+21,'#e1f0d6',id==='restroom'?13:12);
+    text(c,'PRÉVIA',p.x+p.w-11,p.y+21,'#e6c891',9,'right');
+    // Portas voltadas ao corredor inferior e marca de entrada.
+    rect(c,p.x+p.w/2-22,p.y+p.h-8,44,9,'#344d53');
+    rect(c,p.x+p.w/2-12,p.y+p.h-4,24,4,'#dfc58d');
+  }
+  floorRoom('breakroom','#334d4d','#8e7862');
+  floorRoom('games','#354b5b','#806c68');
+  floorRoom('restroom','#34515a','#758d8a');
+
+  // Copa: máquina, bancada, canecas, planta e bebedouro.
+  sprite(c,'plant',649,521,54,54);
+  rect(c,681,539,77,38,'#4f5b62');line(c,681,539,77,38,'#b8beac',2);
+  rect(c,692,544,29,28,'#1a313c');rect(c,697,548,19,11,'#7dd3ba');
+  rect(c,701,568,10,3,'#f1cc89');rect(c,727,550,16,14,'#e8d7b6');
+  rect(c,734,548,5,5,'#e8d7b6');rect(c,691,578,63,7,'#d1b08d');
+  rect(c,679,585,80,5,'#674d45');
+  sprite(c,'chair',756,584,60,60);
+  sprite(c,'bookshelf',791,525,69,70);
+  rect(c,854,542,33,50,'#385665');line(c,854,542,33,50,'#aec2b4',2);
+  rect(c,860,548,22,13,'#97d4df');rect(c,866,561,11,5,'#d8e6dd');
+  rect(c,865,572,13,13,'#d3b27c');
+  text(c,'CAFÉ',709,665,'#fff0ce',11,'center');
+  text(c,'ÁGUA',855,665,'#fff0ce',11,'center');
+
+  // Descanso e jogos: telas, controle e sofá no mesmo plano.
+  rect(c,941,540,52,38,'#1c3444');line(c,941,540,52,38,'#8bc2b6',3);
+  rect(c,950,548,34,22,'#3a7f90');rect(c,957,554,20,7,'#b6dfbb');
+  rect(c,940,583,57,10,'#9f806b');
+  rect(c,942,597,56,24,'#42546d');rect(c,947,604,46,7,'#6888a0');
+  rect(c,974,614,17,9,'#ddc69d');rect(c,980,617,3,3,'#303d48');
+  rect(c,1035,548,28,52,'#3d4c62');line(c,1035,548,28,52,'#a4beb3',2);
+  rect(c,1040,556,19,18,'#579da4');rect(c,1043,578,13,7,'#d4ad83');
+  text(c,'JOGOS',995,666,'#f3e1c8',11,'center');
+
+  // WC é somente fachada e área de demonstração; não simular privacidade.
+  rect(c,1113,539,70,76,'#244455');line(c,1113,539,70,76,'#83b9b0',3);
+  rect(c,1121,547,54,63,'#496f76');rect(c,1164,575,5,7,'#f0d49c');
+  rect(c,1098,557,14,36,'#a0b7ae');rect(c,1099,566,13,9,'#d0e5df');
+  text(c,'WC',1152,669,'#f2dfcb',12,'center');
+
+  // Status espacial, não uma promessa de IA em execução.
+  rect(c,635,765,586,18,'#162e3b');
+  text(c,'● ÁREAS DE PAUSA EM PRÉVIA VISUAL  ·  AGENTES SEM EXECUTOR CONTINUAM OFFLINE',
+       649,778,'#a4d2bf',9);
 }
 function rect(c,x,y,w,h,col){c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));}
 function line(c,x,y,w,h,col,t=2){c.lineWidth=t;c.strokeStyle=col;c.strokeRect(Math.round(x)+.5,Math.round(y)+.5,w,h);}
