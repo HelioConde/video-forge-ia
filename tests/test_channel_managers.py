@@ -245,6 +245,26 @@ class EditorialTests(TestCase):
                 reserve_topic(candidate=candidate(), inventory=self.inventory,
                               ledger_path=path, persist_approved=True)
 
+    def test_manager_prioritizes_anime_supported_by_own_channel(self):
+        self.inventory = snapshot([
+            upload("N1", "Naruto um conflito explicado", 7000),
+            upload("N2", "Naruto historia de um personagem", 6200),
+            upload("B1", "Bleach historia de um personagem", 650),
+            upload("B2", "Bleach noticia curta", 550),
+            upload("A1", "Fullmetal Alchemist comparativo", 800),
+            upload("A2", "Dragon Ball curiosidade", 600),
+        ])
+        one = candidate(anime="Naruto",subject="rumos do protagonista",
+                        angle="interpretação do encerramento",
+                        title="As escolhas pouco comentadas do protagonista")
+        two = candidate(anime="Bleach",subject="uma nova relação",
+                        angle="história e significado",
+                        title="Por que uma relação muda todo o arco")
+        result=select_idea(snapshot=self.inventory,reservations=self.reservas,
+                           candidates=[two,one],channel_policy=self.policy)
+        self.assertEqual(result["selected"]["anime"],"Naruto")
+        self.assertEqual(result["evidence"]["channel_signals"]["anime"]["samples"],2)
+
     def test_feedback_only_comparable_peers_no_causal_claim(self):
         result = evaluate_uploaded_video(self.inventory, video_id="C")
         self.assertEqual(result["status"],"observed")
