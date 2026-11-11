@@ -8,15 +8,20 @@ const map=window.VideoForgeOfficeMap;
 const source=fs.readFileSync("site/office-art.js","utf8");
 assert(source.includes("const pixelStations=window.VideoForgeOfficeMap.stations.map"));
 const ids=["diretor","roteirista","artista","animador","narrador",
-           "editor","revisor","publicador"];
+           "editor","revisor","publicador","subgerente"];
 assert.deepEqual(map.stations.map(p=>p.id),ids);
-assert.equal(map.stations.length,8);
-assert.equal(new Set(map.stations.map(p=>p.x+","+p.y)).size,8);
+assert.equal(map.stations.length,9);
+assert.equal(new Set(map.stations.map(p=>p.x+","+p.y)).size,9);
 const expected={diretor:"production",roteirista:"production",
   artista:"creative",animador:"creative",narrador:"media",editor:"media",
-  revisor:"production",publicador:"production"};
+  revisor:"production",publicador:"production",subgerente:"creative"};
 for(const item of map.stations){
   assert.equal(item.room,expected[item.id]);
+  if(item.standing){
+    assert.equal(item.id,'subgerente');
+    assert(item.x>=0&&item.x<=1280&&item.y+111<=820);
+    continue;
+  }
   const r=map.rooms[item.room],x=item.x,y=item.y+111;
   assert(x>=r.x+58&&x<=r.x+r.w-58,"Placa lateral sai da sala: "+item.id);
   assert(y-36>=r.y+75,"Agente sobre a parede: "+item.id);
@@ -28,8 +33,8 @@ assert.equal(map.character.seatedSize,88);
 assert.equal(map.character.standingSize,84);
 assert.equal(map.character.labelOffset,60);
 assert.equal(map.seat.dy,0,"As cadeiras devem ficar alinhadas à mesa PixelLab");
-assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P']"));
-console.log("OFFICE_ROLES_OK: 4 na Produção, 2 na Criação, 2 no Laboratório");
+assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P','S']"));
+console.log("OFFICE_ROLES_OK: 8 postos sentados + 1 Subgerente de supervisao em pe");
 
 // Contrato visual: as imagens completas de salas permanecem como assets,
 // mas não podem mais dividir a agência em construções separadas.
