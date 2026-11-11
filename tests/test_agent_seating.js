@@ -50,6 +50,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
     assert.equal(actual.frame,3,"Não repetir animação de levantar e sentar");
     assert.equal(actual.x,station.x+map.seat.dx);
     assert.equal(actual.y,station.y+111+map.seat.dy);
+    assert.equal(actual.size,map.character.seatedSize,"Escala sentado inconsistente: "+station.id);
   });
   // Status de backend não muda a postura de quem está à mesa.
   agents[0].status="trabalhando";
@@ -63,7 +64,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   const walking={moving:true,target:"coffee",motion:"walk",direction:"west",
                  frame:6,x:600,y:460};
   let rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?walking:null}});
-  assert.deepEqual(rendered[0],{motion:"walk",direction:"west",frame:6,x:600,y:460,size:72});
+  assert.deepEqual(rendered[0],{motion:"walk",direction:"west",frame:6,x:600,y:460,size:84});
 
   // A pausa no café é em pé, não sentado na cadeira do escritório.
   rendered=paint({agentsList:[agents[0]],routines:{poseFor:id=>id==="diretor"?{
@@ -72,6 +73,7 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   }:null}});
   assert.equal(rendered[0].motion,"idle");
   assert.equal(rendered[0].y,572);
+  assert.equal(rendered[0].size,map.character.standingSize);
 
   // Voltando para casa, o sprite encaixa de novo na cadeira.
   const station=map.stations[0];
@@ -82,12 +84,14 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   assert.equal(rendered[0].motion,"sit");
   assert.equal(rendered[0].direction,"north");
   assert.equal(rendered[0].frame,3);
-  assert.equal(rendered[0].y,station.y+121);
+  assert.equal(rendered[0].y,station.y+111+map.seat.dy);
+  assert.equal(rendered[0].size,map.character.seatedSize);
 
   // A prévia manual de outra animação não deve ser bloqueada.
   rendered=paint({selected:"diretor",previewMotion:"wave",agentsList:[agents[0]]});
   assert.equal(rendered[0].motion,"wave");
   assert.equal(rendered[0].y,station.y+111);
+  assert.equal(rendered[0].size,map.character.standingSize);
 
   console.log("AGENT_SEATING_OK: 8 sentados, walk preservado, pausa e retorno corretos");
 })().catch(error=>{console.error(error);process.exitCode=1;});
