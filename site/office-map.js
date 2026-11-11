@@ -21,9 +21,11 @@
   });
   // A imagem contém os assentos: usar a mesma correção para os oito agentes.
   // O ajuste é aplicado apenas no desenho de 'sit', não às rotas de caminhada.
-  const seat=Object.freeze({dx:0,dy:14,direction:"north"});
+  // A cadeira integrada ao sprite sit_down ficava 14 px adiante da cadeira do cenário.
+  // O novo encaixe aproxima o personagem do monitor sem alterar os pontos de rota.
+  const seat=Object.freeze({dx:0,dy:0,direction:"north"});
   // Escala única para a equipe; amplia o atlas sem redesenhar sprites PixelLab.
-  const character=Object.freeze({seatedSize:88,standingSize:84,labelOffset:70});
+  const character=Object.freeze({seatedSize:88,standingSize:84,labelOffset:60});
   const stations=Object.freeze([
     {id:"diretor",x:255,y:254,room:"production"},
     {id:"roteirista",x:394,y:254,room:"production"},
