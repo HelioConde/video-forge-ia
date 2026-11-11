@@ -4,10 +4,10 @@
   "use strict";
 
   const DESTINATIONS=window.VideoForgeOfficeMap?.destinations||Object.freeze({
-    coffee:{x:704,y:614,label:"Máquina de café (prévia)"},
-    water:{x:854,y:614,label:"Bebedouro (prévia)"},
-    games:{x:998,y:644,label:"Sala de jogos (prévia)"},
-    restroom:{x:1152,y:630,label:"Entrada do banheiro (prévia)"}
+    coffee:{x:857,y:572,label:"Máquina de café (prévia)"},
+    water:{x:916,y:572,label:"Bebedouro (prévia)"},
+    games:{x:1052,y:598,label:"Sala de jogos (prévia)"},
+    restroom:{x:1167,y:579,label:"Entrada do banheiro (prévia)"}
   });
   const HEADINGS = ["east","south-east","south","south-west",
                     "west","north-west","north","north-east"];
@@ -49,32 +49,26 @@
     return cleanPoints(result);
   }
   function travelRoute(from,to,home=false) {
-    // Percursos por portas/corredores: funcionários da sala criativa e
-    // laboratório não atravessam as mesas da Produção no caminho.
-    const aisle=328, corridor=724, eastDoor=630, upperHall=472;
-    function exit(p) {
-      if(p.x<620&&p.y<706)
-        return [{x:aisle,y:p.y},{x:aisle,y:corridor},{x:615,y:corridor}];
-      if(p.y<460)
-        return [{x:p.x,y:upperHall},{x:eastDoor,y:upperHall},{x:eastDoor,y:corridor}];
-      return [{x:p.x,y:corridor},{x:eastDoor,y:corridor}];
-    }
-    function entry(p) {
-      if(p.x<620&&p.y<706)
-        return [{x:615,y:corridor},{x:aisle,y:corridor},{x:aisle,y:p.y}];
-      if(p.y<460)
-        return [{x:eastDoor,y:corridor},{x:eastDoor,y:upperHall},{x:p.x,y:upperHall}];
-      return [{x:p.x,y:corridor}];
-    }
-    // Manter acesso direto apenas entre agentes que já estão na mesma sala.
-    const sameTopRoom=from.y<460&&to.y<460&&
-      ((from.x>=655&&from.x<920&&to.x>=655&&to.x<920)||
-       (from.x>=954&&to.x>=954));
-    const points=sameTopRoom?
-      [{x:from.x,y:from.y},{x:to.x,y:to.y}]:
-      [{x:from.x,y:from.y},...exit(from),...entry(to),{x:to.x,y:to.y}];
-    return softenCorners(points);
+    // Corredor transversal real da agência PixelLab: não atravessar
+    // as quatro mesas de Produção nem a mesa de reunião central.
+    // Retorno reutiliza o mesmo eixo de circulação em sentido inverso.
+    const hallY=window.VideoForgeOfficeMap?.navigation?.hallY??454;
+    const westAisleX=window.VideoForgeOfficeMap?.navigation?.westAisleX??446;
+    // Quem parte de Produção faz um pequeno desvio lateral antes de
+    // entrar no corredor. Os outros setores seguem pelos seus próprios vãos.
+    const exitX=from.x<westAisleX?Math.min(from.x+50,westAisleX):from.x;
+    const entryX=to.x<westAisleX?Math.min(to.x+50,westAisleX):to.x;
+    const route=[
+      {x:from.x,y:from.y},
+      {x:exitX,y:from.y},
+      {x:exitX,y:hallY},
+      {x:entryX,y:hallY},
+      {x:entryX,y:to.y},
+      {x:to.x,y:to.y}
+    ];
+    return softenCorners(route);
   }
+
   function interpolate(points,distance) {
     for(let i=1;i<points.length;i++) {
       const prev=points[i-1],next=points[i];
@@ -156,7 +150,7 @@
     function meet(a,b,now=0){
       if(a===b||!knownIds.has(a)||!knownIds.has(b)||meeting||state.has(a)||state.has(b))return false;
       // Mesas de reunião distintas: dois sprites nunca ocupam o mesmo ponto.
-      const destinations=window.VideoForgeOfficeMap?.meetings||[{x:729,y:369},{x:834,y:369}];
+      const destinations=window.VideoForgeOfficeMap?.meetings||[{x:591,y:457},{x:710,y:457}];
       const pairs=[[a,destinations[0]],[b,destinations[1]]];
       const routes=pairs.map(([id,to])=>{
         const from=home(id);
@@ -169,7 +163,7 @@
       const begin=now+travelMs+300;
       meeting={a,b,begin,end:begin+12000};
       routes.forEach(({id,points})=>{
-        state.set(id,{start:now,target:"meeting",label:"Conversa na sala criativa (prévia)",
+        state.set(id,{start:now,target:"meeting",label:"Conversa na área de colaboração (prévia)",
                       points,distance:routeDistance(points)});
       });
       if(freeTime.enabled)setFreeTimeDemo(false,now);
@@ -277,7 +271,7 @@
       const pose=poseFor(id,now);
       if(!pose)return "Na mesa (sem demonstração)";
       if(meeting&&(id===meeting.a||id===meeting.b))
-        return pose.moving?"Indo à sala criativa (prévia)":"Conversa e escuta alternadas (prévia)";
+        return pose.moving?"Indo à área de colaboração (prévia)":"Conversa e escuta alternadas (prévia)";
       return pose.moving?"Caminhando para: "+pose.label:
              pose.actionLabel||("No destino: "+pose.label+" · demonstração visual");
     }
