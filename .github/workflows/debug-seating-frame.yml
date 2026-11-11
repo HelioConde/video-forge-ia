@@ -55,6 +55,17 @@ jobs:
                   board.paste(tile,(x,y),tile)
                   bd.text((x,y-18),f"{motion} {direction} #{frame}",fill=(255,255,255))
           board.save(dest/"production-poses.png")
+          # Previa estatico da composicao original do Canvas, sem navegador nem API.
+          background=Image.open("site/assets/pixellab/scenes/agencia-unificada.png").convert("RGBA")
+          office=Image.new("RGBA",(1280,820),(16,32,48,255))
+          crop=background.crop((96,54,96+492,54+285)).resize((1188,660),Image.Resampling.NEAREST)
+          office.alpha_composite(crop,(46,110))
+          sit=Image.open(base/"production"/"sit_down.png").convert("RGBA")
+          chair_pose=sit.crop((3*88,88,4*88,2*88))
+          for x,y in [(255,254),(394,254),(592,254),(739,254),(1007,254),(1124,254),(255,449),(384,449)]:
+              center_y=y+111+14
+              office.alpha_composite(chair_pose,(x-44,center_y-44))
+          office.convert("RGB").save(dest/"office-seated-preview.png")
           print("SEATED_POSE_INSPECTION_READY")
           PY
       - uses: actions/upload-artifact@v4
