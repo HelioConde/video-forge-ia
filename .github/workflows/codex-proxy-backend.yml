@@ -1,0 +1,178 @@
+name: VideoForge - Codex Proxy backend (testes e diagnostico seguro)
+
+on:
+  push:
+    paths:
+      - 'videoforge/proxy/**'
+      - 'tests/test_proxy_client.py'
+      - '.github/workflows/codex-proxy-backend.yml'
+  pull_request:
+    paths:
+      - 'videoforge/proxy/**'
+      - 'tests/test_proxy_client.py'
+      - '.github/workflows/codex-proxy-backend.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'offline: zero segredos; private-readonly: exige Environment protegido'
+        type: choice
+        required: true
+        default: offline
+        options: [offline, private-readonly]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: videoforge-codex-proxy-${{ github.ref }}-${{ github.event_name }}
+  # Evita consumir minutos Go em testes de branches substituidas; preserva execucao manual protegida.
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
+jobs:
+  unit-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verificar todas as rotas e guardas sem rede
+        run: python -m unittest discover -s tests -p 'test_proxy_client.py' -v
+      - name: Catalogar capacidades SEM rede ou credenciais
+        run: python -m videoforge.proxy.cli --action catalog > /tmp/vf-capabilities.json
+      - name: Conferir esquema do catalogo, sem publicar dados privados
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/vf-capabilities.json",encoding="utf-8"))
+          assert len(p["endpoints"])==22 and p["active_connection"] is False
+          print("PASS_PROXY_22_ENDPOINTS_OFFLINE")
+          PY
+
+  native-synthetic:
+    needs: unit-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    env:
+      PROXY_API_KEY: 'videoforge-synthetic-smoke-not-real-key-123456789'
+      DEBUG_LOG_PAYLOADS: 'false'
+      GIN_MODE: release
+      PORT: '8080'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testar upstream fixado e compilar proxy nativo
+        working-directory: upstream-codex-proxy
+        run: |
+          go test ./...
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/codex-proxy" ./cmd/api
+      - name: Subir proxy vazio e verificar rotas sem gerar imagem
+        env:
+          DATA_DIR: ${{ runner.temp }}/vf-codex-proxy-synthetic
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -m 700 "$DATA_DIR"
+          "$RUNNER_TEMP/codex-proxy" > "$RUNNER_TEMP/codex-proxy-smoke.log" 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; rm -rf -- "$DATA_DIR"; rm -f -- "$RUNNER_TEMP/codex-proxy-smoke.log"' EXIT
+          python - <<'PY'
+          import time
+          from videoforge.proxy import ProxyClient,ProxyError
+          proxy=ProxyClient(timeout=3)
+          for _ in range(40):
+              try:
+                  if proxy.health_live()["status"]=="ok":break
+              except ProxyError:
+                  time.sleep(.25)
+          else: raise SystemExit("NATIVE_PROXY_NOT_READY")
+          assert proxy.health()["status"]=="ok"
+          assert proxy.accounts()["accounts"]==[]
+          assert isinstance(proxy.models().get("data",[]),list)
+          assert proxy.rotation_get()["strategy"] in ("least_used","round_robin","sticky")
+          print("PASS_GO_NATIVE_PROXY_AUTH_AND_READONLY")
+          PY
+          python -m videoforge.proxy.cli --action probe
+          echo 'ZERO_REAL_OAUTH_ZERO_GENERATIONS_ZERO_YOUTUBE_UPLOADS'
+
+  private-readonly:
+    # Nunca executar com secrets em pull_request, push ou dispatch sem opt-in.
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      inputs.mode == 'private-readonly'
+    needs: [unit-contract, native-synthetic]
+    environment: proxy-runtime
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    env:
+      DEBUG_LOG_PAYLOADS: 'false'
+      GIN_MODE: release
+      PORT: '8080'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compilar Go ANTES de carregar segredos
+        working-directory: upstream-codex-proxy
+        run: CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/codex-proxy-private" ./cmd/api
+      - name: Verificar estado da conta em runner privado (somente leitura)
+        shell: bash
+        env:
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
+        run: |
+          set -euo pipefail
+          umask 077
+          state_dir="$RUNNER_TEMP/vf-codex-proxy-private"
+          proxy_pid=''
+          cleanup() {
+            if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
+            rm -rf -- "$state_dir"
+            rm -f -- "$RUNNER_TEMP/vf-proxy-private.log"
+          }
+          trap cleanup EXIT
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.proxy.private_state import stage_private_state
+          directory=Path(os.environ["RUNNER_TEMP"])/"vf-codex-proxy-private"
+          n=stage_private_state(os.environ.get("PROXY_ACCOUNTS_JSON",""),directory)
+          print("PRIVATE_RECORDS_STAGED_"+str(n))
+          PY
+          unset PROXY_ACCOUNTS_JSON
+          DATA_DIR="$state_dir" "$RUNNER_TEMP/codex-proxy-private" >"$RUNNER_TEMP/vf-proxy-private.log" 2>&1 &
+          proxy_pid=$!
+          python -m videoforge.proxy.cli --action probe
+          echo 'READONLY_COMPLETE_NO_IMAGES_NO_UPLOAD_NO_ARTIFACT'
