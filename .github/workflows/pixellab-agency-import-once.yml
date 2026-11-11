@@ -17,7 +17,8 @@ concurrency:
 
 jobs:
   import:
-    if: ${{ github.run_attempt == 1 && github.event.head_commit.message == 'chore(pixellab): importar cenario unico aprovado da execucao 43039103117' }}
+    if: >-
+      ${{ github.run_attempt == 1 && github.event.head_commit.message == 'chore(pixellab): importar cenario unico aprovado tentativa2' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
