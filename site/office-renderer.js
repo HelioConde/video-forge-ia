@@ -199,7 +199,8 @@
         let best=null,bestDistance=Infinity;
         for(let i=0;i<this.agents.length;i++){
           const [sx,sy]=slots[i],pos=this.routines.poseFor(this.agents[i].id,performance.now());
-          const atDesk=!pos||(!pos.moving&&pos.target==='home'&&pos.motion==='sit');
+          const atDesk=!window.VideoForgeOfficeMap.stations[i]?.standing&&
+            (!pos||(!pos.moving&&pos.target==='home'&&pos.motion==='sit'));
           const seat=window.VideoForgeOfficeMap.seat;
           const centerX=(pos?.x??sx)+(atDesk?seat.dx:0);
           const centerY=(pos?.y??sy+111)+(atDesk?seat.dy:0);
