@@ -12,7 +12,9 @@ for(const [id,dest] of Object.entries(map.destinations)){
   assert(dest.x>room.x+20&&dest.x<room.x+room.w-20,"Destino fora da sala x: "+id);
   assert(dest.y>room.y+35&&dest.y<room.y+room.h-15,"Destino fora da sala y: "+id);
 }
-assert.equal(map.stations.length,8);
+assert.equal(map.stations.length,9);
+assert.equal(map.stations.filter(p=>p.standing).length,1);
+assert.equal(map.stations.at(-1).id,'subgerente');
 assert.equal(new Set(map.stations.map(p=>p.room)).size,3);
 assert.equal(map.meetings.length,2);
 assert.notEqual(map.meetings[0].x,map.meetings[1].x);
