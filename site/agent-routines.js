@@ -3,11 +3,11 @@
 (() => {
   "use strict";
 
-  const DESTINATIONS = Object.freeze({
-    coffee: { x:704, y:614, label:"Ponto do café" },
-    water: { x:893, y:607, label:"Bebedouro (marcação)" },
-    games: { x:1148, y:696, label:"Jogos (área experimental)" },
-    restroom: { x:1183, y:573, label:"Entrada do banheiro (marcação)" }
+  const DESTINATIONS=window.VideoForgeOfficeMap?.destinations||Object.freeze({
+    coffee:{x:704,y:614,label:"Máquina de café (prévia)"},
+    water:{x:854,y:614,label:"Bebedouro (prévia)"},
+    games:{x:998,y:644,label:"Sala de jogos (prévia)"},
+    restroom:{x:1152,y:630,label:"Entrada do banheiro (prévia)"}
   });
   const HEADINGS = ["east","south-east","south","south-west",
                     "west","north-west","north","north-east"];
@@ -150,7 +150,7 @@
     function meet(a,b,now=0){
       if(a===b||!knownIds.has(a)||!knownIds.has(b)||meeting||state.has(a)||state.has(b))return false;
       // Mesas de reunião distintas: dois sprites nunca ocupam o mesmo ponto.
-      const destinations=[{x:729,y:369},{x:834,y:369}];
+      const destinations=window.VideoForgeOfficeMap?.meetings||[{x:729,y:369},{x:834,y:369}];
       const pairs=[[a,destinations[0]],[b,destinations[1]]];
       const routes=pairs.map(([id,to])=>{
         const from=home(id);

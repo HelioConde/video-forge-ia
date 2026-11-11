@@ -2,6 +2,7 @@
 "use strict";
 const assert=require("node:assert/strict");
 global.window={};
+require("../site/office-map.js");
 require("../site/agent-interactions.js");
 require("../site/agent-routines.js");
 const mod=window.VideoForgeRoutines;
