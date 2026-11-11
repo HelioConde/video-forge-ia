@@ -319,21 +319,45 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const library=animator.productionMotions();
   const known=new Set(library.map(x=>x.name));
   const chosen=behavior?.choose(agent,t,roleDemo,name=>known.has(name),library);
-  const motion=position?.moving?'walk':position?position.motion:
-               selected&&previewMotion?previewMotion:chosen||motionForAgent(agent);
-  const direction=position?.direction||(i<4?'south':'north');
-  // O passo acompanha a distância percorrida por este agente; outros gestos mantêm o relógio normal.
-  const frame=reduceMotion?0:
+
+  // Sem uma rota ativa, o agente fica SENTADO no posto, mesmo desconectado.
+  // Uma demonstração solicitada ou o retorno à cadeira pode exibir gestos;
+  // trajetos e interações fora da mesa nunca são transformados em 'sit'.
+  const atDesk=!position||(!position.moving&&position.target==='home');
+  const arriving=atDesk&&position?.actionLabel&&position.motion!=='sit';
+  const explicitPreview=selected&&previewMotion;
+  const motion=position?.moving?'walk':
+               position&&!atDesk?position.motion:
+               arriving?position.motion:
+               explicitPreview?previewMotion:
+               roleDemo?(chosen||motionForAgent(agent)):'sit';
+
+  // As mesas do panorama PixelLab ficam ao norte dos agentes.
+  // Segurar o último frame de sit evita ficar levantando/sentando em loop.
+  const seated=atDesk&&motion==='sit';
+  const seat=window.VideoForgeOfficeMap?.seat||{dx:0,dy:0,direction:'north'};
+  const direction=seated?seat.direction:
+                  position?.direction||(i<4?'south':'north');
+  const frame=seated?Math.max(0,(animator.frameCount?.('sit')??4)-1):
+              reduceMotion?0:
               position&&Number.isInteger(position.frame)?
                 position.frame:Math.floor((t||0)/180)%4;
-  const x=position?.x??stations[i][0],y=position?.y??stations[i][1]+111;
+  const baseX=position?.x??stations[i][0];
+  const baseY=position?.y??stations[i][1]+111;
+  const x=baseX+(seated?seat.dx:0);
+  const y=baseY+(seated?seat.dy:0);
   const size=72;
+
   if(!animator.drawProduction(c,motion,direction,frame,x,y,size) &&
      !animator.draw(c,motion,direction,frame,x,y,size)){
-    const fallback=agent.status==='trabalhando'&&!roleDemo?motionForAgent(agent):'idle';
-    if(!animator.draw(c,fallback,direction,frame,x,y,size))return false;
+    // Animação contextual ainda não exportada? Voltar ao sprite sentado
+    // quando estiver no posto; fora dele, manter idle em pé.
+    const fallback=atDesk?'sit':'idle';
+    const fallbackDirection=atDesk?seat.direction:direction;
+    const fallbackFrame=atDesk?Math.max(0,(animator.frameCount?.('sit')??4)-1):frame;
+    if(!animator.draw(c,fallback,fallbackDirection,fallbackFrame,x,y,size))return false;
   }
-  // Identidade de cargo sem alterar o sprite base aprovado do Alex.
+  // Marcador profissional e seleção não mudam estado real do backend.
   const colors=['#d8b979','#98b9dc','#a7d5af','#dbb2d8',
                 '#f0a990','#91cdc8','#d6cc9a','#b8bcf1'];
   const symbols=['D','R','A','M','N','E','Q','P'];
@@ -344,6 +368,7 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   if(selected){line(c,x-33,y-38,66,76,'#ffe19d',2);star(c,x,y-42,'#f9dd8c');}
   return true;
 }
+
 window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode:()=>artMode,
   spritesAvailable:()=>spritesReady,
   paintBackground:c=>pixelBase(c),

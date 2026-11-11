@@ -19,7 +19,9 @@
     games:{x:974,y:484,w:145,h:208,label:"SALA DE JOGOS",status:"preview"},
     restroom:{x:1120,y:484,w:109,h:208,label:"WC",status:"preview"}
   });
-  // A imagem já contém oito mesas e cadeiras; sobrepor somente agentes.
+  // A imagem contém os assentos: usar a mesma correção para os oito agentes.
+  // O ajuste é aplicado apenas no desenho de 'sit', não às rotas de caminhada.
+  const seat=Object.freeze({dx:0,dy:10,direction:"north"});
   const stations=Object.freeze([
     {id:"diretor",x:255,y:254,room:"production"},
     {id:"roteirista",x:394,y:254,room:"production"},
@@ -39,5 +41,5 @@
   // Conversas no corredor, à frente da mesa colaborativa.
   const meetings=Object.freeze([{x:591,y:457},{x:710,y:457}]);
   const navigation=Object.freeze({hallY:454,westAisleX:446});
-  window.VideoForgeOfficeMap=Object.freeze({scene,rooms,stations,destinations,meetings,navigation});
+  window.VideoForgeOfficeMap=Object.freeze({scene,rooms,stations,seat,destinations,meetings,navigation});
 })();
