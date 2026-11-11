@@ -18,3 +18,9 @@ for(const [index,p] of places.entries()){
 }
 assert(source.includes("statusBar(c,x,y+(artMode==='pixellab'?54:62)"),"Rótulos compactos não aplicados");
 console.log("ESTACOES_PIXELLAB_OK: oito cadeiras, placas dentro da sala e sem agentes nas janelas");
+
+assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P']"),
+  "Faltam marcadores dos 8 cargos na arte PixelLab");
+assert(source.includes("const map=window.VideoForgeOfficeMap"),
+  "Os ambientes devem usar a mesma configuração do roteador");
+console.log("ROLE_MARKERS_OK: identificação visual dos oito agentes");

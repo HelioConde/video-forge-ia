@@ -21,6 +21,7 @@ class OfficeUITests(unittest.TestCase):
         self.assertTrue(any(tag=="canvas" and attrs.get("id")=="officeMiniMap" for tag,attrs in parser.tags))
         self.assertTrue(any(tag=="script" and attrs.get("src")=="./office-art.js" for tag,attrs in parser.tags))
         self.assertTrue(any(tag=="script" and attrs.get("src")=="./office-renderer.js" for tag,attrs in parser.tags))
+        self.assertTrue(any(tag=="script" and attrs.get("src")=="./office-map.js" for tag,attrs in parser.tags))
         self.assertLess(document.index('./office-art.js'),document.index('./office-renderer.js'))
         self.assertTrue(any(tag=="script" and attrs.get("src")=="./app.js" for tag,attrs in parser.tags))
 
