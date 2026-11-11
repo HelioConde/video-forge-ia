@@ -1,0 +1,48 @@
+name: Debug PixelLab sit frames - inspection only
+on:
+  push:
+    branches:
+      - fix/seated-pose-sprite-alignment
+    paths:
+      - ".github/workflows/debug-seating-frame.yml"
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install "Pillow>=10,<13"
+      - name: Montar comparacao das poses reais - sem chamar API
+        run: |
+          python - <<'PY'
+          from PIL import Image,ImageDraw
+          from pathlib import Path
+          base=Path("site/assets/pixellab/agents/alex")
+          dest=Path("output/sit-debug")
+          dest.mkdir(parents=True,exist_ok=True)
+          directions={"south":0,"north":4,"east":2,"west":6}
+          motions=["sit","idle"]
+          canvas=Image.new("RGB",(4*176,8*196),(38,49,61))
+          d=ImageDraw.Draw(canvas)
+          for motion_idx,motion in enumerate(motions):
+              src=Image.open(base/(motion+".png")).convert("RGBA")
+              for dir_idx,(direction,row) in enumerate(directions.items()):
+                  for frame in range(4):
+                      tile=src.crop((frame*88,row*88,(frame+1)*88,(row+1)*88))
+                      tile=tile.resize((160,160),Image.Resampling.NEAREST)
+                      x=frame*176+8;y=(motion_idx*4+dir_idx)*196+22
+                      canvas.paste(tile,(x,y),tile)
+                      d.text((x,y-18),f"{motion} {direction} #{frame}",fill=(255,255,255))
+          canvas.save(dest/"poses.png")
+          print("SEATED_POSE_INSPECTION_READY")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seated-poses-review
+          path: output/sit-debug/poses.png
+          retention-days: 2
