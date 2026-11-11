@@ -21,7 +21,9 @@
   });
   // A imagem contém os assentos: usar a mesma correção para os oito agentes.
   // O ajuste é aplicado apenas no desenho de 'sit', não às rotas de caminhada.
-  const seat=Object.freeze({dx:0,dy:10,direction:"north"});
+  const seat=Object.freeze({dx:0,dy:14,direction:"north"});
+  // Escala única para a equipe; amplia o atlas sem redesenhar sprites PixelLab.
+  const character=Object.freeze({seatedSize:88,standingSize:84,labelOffset:70});
   const stations=Object.freeze([
     {id:"diretor",x:255,y:254,room:"production"},
     {id:"roteirista",x:394,y:254,room:"production"},
@@ -41,5 +43,5 @@
   // Conversas no corredor, à frente da mesa colaborativa.
   const meetings=Object.freeze([{x:591,y:457},{x:710,y:457}]);
   const navigation=Object.freeze({hallY:454,westAisleX:446});
-  window.VideoForgeOfficeMap=Object.freeze({scene,rooms,stations,seat,destinations,meetings,navigation});
+  window.VideoForgeOfficeMap=Object.freeze({scene,rooms,stations,seat,character,destinations,meetings,navigation});
 })();
