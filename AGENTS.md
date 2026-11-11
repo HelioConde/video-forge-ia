@@ -123,3 +123,23 @@ Os oito agentes do cadastro em `agentes/equipe.json` seguem sem `modelo_ia` e co
 ### Distribuição dos funcionários nas salas
 
 As oito âncoras PixelLab foram centralizadas em `site/office-map.js` (não duplicar no renderer): **Direção, Roteirista, Revisor e Publicador em Produção; Artista e Animador na Sala Criativa; Narrador e Editor no Laboratório**. Cada rótulo permanece dentro do cômodo. `site/agent-routines.js` usa o corredor inferior e a passagem superior, em vez de atravessar mesas da Produção ao sair das salas à direita. A prévia continua desacoplada do backend: ninguém é registrado como trabalhando sem evento verificável.
+
+## Codex Proxy — integração backend segura
+
+O proxy independente em Go tem 22 rotas, expostas pelo cliente
+`videoforge/proxy/client.py`; o mapping dos 18 cargos fica em
+`videoforge/proxy/roles.py`. Consulte `docs/CODEX_PROXY.md`.
+**Nunca** colocar `PROXY_API_KEY`, `PROXY_ACCOUNTS_JSON`, tokens OAuth,
+URLs autenticadas, respostas privadas ou estado de conta no `site/`, dados
+do Pages, artefatos públicos, logs ou commits. Não copiar secretos
+do AutoEditorVideo sem autorização específica; repositórios GitHub
+possuem Secrets independentes.
+
+Workflow automático/testes: somente servidor de demonstração vazio e
+chave sintética. A restauração de contas privadas só é permitida mediante
+`workflow_dispatch` manual em `main` e Environment `proxy-runtime`
+protegido. Diagnóstico privado é read-only; não marca agentes trabalhando
+nem libera IA, geração de imagens, gastos ou publicação. Toda execução
+produtiva futura exige orçamento real de requisições, retry e idempotência,
+aprovação do gerente, evidência de artefato, sanitização da telemetria e
+separação de renderização/publicação.
