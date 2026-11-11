@@ -173,3 +173,7 @@ Os oito agentes do cadastro em `agentes/equipe.json` seguem sem `modelo_ia` e co
 ## Agência unificada gerada com o PixelLab
 
 O novo gerador `videoforge/pixellab/agency_scene.py` aceita a imagem de referência reduzida do cenário aprovado e solicita **uma imagem ampla 688×384** via `/generate-image-v2` no PixelLab. Há uma ação dedicada [PixelLab — Gerar agência unificada](.github/workflows/pixellab-agency-scene.yml) com `plan` (gratuito) e `generate` (manual e sujeito a confirmação explícita de créditos e visibilidade dos artifacts). A cena produzida **não é publicada automaticamente**: é necessário baixar o PNG, revisá-lo, depois integrar a arte e recalibrar os oito postos, rotas e minimapa. O site atual permanece intacto até isso acontecer. [Guia completo](docs/PIXELLAB-AGENCIA-UNIFICADA.md).
+
+## PixelLab — sede única integrada ao Canvas
+
+O panorama real `site/assets/pixellab/scenes/agencia-unificada.png` foi gerado pela API PixelLab v2 (workflow #43039103117) e importado com hash/dimensões verificados. O Canvas utiliza essa imagem como planta **contínua de um único escritório**, com oito agentes animados, rótulos, minimapa e rotas configuradas em `site/office-map.js`. Permanecem disponíveis os assets anteriores para fallback; a mudança de cenário não executa agentes nem altera publicação dos vídeos. Mais detalhes em `site/README.md` e `docs/ESCRITORIO_AGENTES.md`.
