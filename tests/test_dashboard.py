@@ -8,7 +8,10 @@ class DashboardTests(unittest.TestCase):
     def test_safe_config_only_snapshot(self):
         snapshot = make_snapshot()
         self.assertEqual(len(snapshot["canais"]), 5)
-        self.assertEqual(len(snapshot["agentes"]), 8)
+        self.assertEqual(len(snapshot["agentes"]), 9)
+        self.assertEqual(snapshot["agentes"][-1]["id"], "subgerente")
+        self.assertEqual(snapshot["ranking_funcionarios"]["status"], "awaiting_verified_evidence")
+        self.assertEqual(snapshot["ranking_funcionarios"]["ranking"], [])
         self.assertEqual(len({c["gerente"]["id"] for c in snapshot["canais"]}), 5)
         self.assertTrue(all(c["gerente"]["status"] == "nao_conectado" for c in snapshot["canais"]))
         self.assertTrue(all(c["gerente"]["regra_antirrepeticao"] for c in snapshot["canais"]))
