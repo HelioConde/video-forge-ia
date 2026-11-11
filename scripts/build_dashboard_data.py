@@ -36,11 +36,52 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
     ids = [a["id"] for a in team]
     if len(ids) != len(set(ids)):
         raise ValueError("IDs duplicados de agente")
-    agents = [{
-        "id": a["id"], "nome": text(a.get("nome")), "funcao": text(a.get("funcao")),
-        "status": "nao_conectado",
-        "tarefa": "Aguardando conexão com a produção real", "canal": None
-    } for a in team]
+    # Diagnóstico seguro de integração, sem revelar modelos, tokens ou chaves.
+    # "habilitado" apenas no cadastro NÃO significa agente IA em execução.
+    known_ids = set(ids)
+    for member in team:
+        dependencies = member.get("depende_de", [])
+        if (not isinstance(dependencies, list)
+            or len(dependencies) != len(set(dependencies))
+            or any(dep not in known_ids or dep == member["id"] for dep in dependencies)):
+            raise ValueError("Dependências de agentes inválidas.")
+    graph = {member["id"]: member["depende_de"] for member in team}
+    visiting, visited = set(), set()
+    def check_dependencies(aid: str) -> None:
+        if aid in visiting:
+            raise ValueError("Ciclo de dependências entre agentes.")
+        if aid in visited:
+            return
+        visiting.add(aid)
+        for dep in graph[aid]:
+            check_dependencies(dep)
+        visiting.remove(aid)
+        visited.add(aid)
+    for aid in ids:
+        check_dependencies(aid)
+
+    agents = []
+    for member in team:
+        enabled = member.get("habilitado") is True
+        model_defined = isinstance(member.get("modelo_ia"), str) and bool(member["modelo_ia"].strip())
+        blockers = []
+        if not model_defined:
+            blockers.append("Modelo de IA não definido")
+        if not enabled:
+            blockers.append("Executor desabilitado no cadastro")
+        blockers.append("Sem telemetria de execução comprovada")
+        agents.append({
+            "id": member["id"], "nome": text(member.get("nome")),
+            "funcao": text(member.get("funcao")), "status": "nao_conectado",
+            "tarefa": "Aguardando conexão com a produção real", "canal": None,
+            "conexao": {
+                "modelo_definido": model_defined,
+                "executor_habilitado": enabled,
+                "eventos_observados": False,
+                "dependencias": member["depende_de"],
+                "pendencias": blockers,
+            },
+        })
 
     departments = roster.get("departamentos", [])
     if not isinstance(departments, list):
@@ -78,7 +119,19 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
             updates[aid] = {"status": status, "canal": canal, "tarefa": text(event.get("tarefa"))}
         for agent in agents:
             if agent["id"] in updates:
-                agent.update(updates[agent["id"]])
+                update = updates[agent["id"]]
+                # Um evento enviado por engano não liga uma IA desabilitada.
+                if update["status"] in {"trabalhando", "revisao", "concluido"} and not (
+                    agent["conexao"]["executor_habilitado"] and agent["conexao"]["modelo_definido"]
+                ):
+                    raise ValueError("Evento de execução para agente IA não configurado.")
+                agent.update(update)
+                if update["status"] != "nao_conectado":
+                    agent["conexao"]["eventos_observados"] = True
+                    agent["conexao"]["pendencias"] = [
+                        x for x in agent["conexao"]["pendencias"]
+                        if x != "Sem telemetria de execução comprovada"
+                    ]
 
     return {
         "schema": "videoforge/agent-office/v1",
