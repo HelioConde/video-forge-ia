@@ -1,6 +1,6 @@
 /* VIDEOFORGE AI — handmade pixel-art scene. Original artwork. */
 const SW=1280, SH=820;
-const classicStations=[[174,295],[346,295],[518,295],[690,295],[174,528],[346,528],[518,528],[690,528]];
+const classicStations=window.VideoForgeOfficeMap.stations.map(p=>[p.x,p.y]);
 // Os pontos são âncoras das cadeiras do cenário 512x512, não das janelas.
 // O render usa y+111; manter sprites e placas dentro da sala de produção.
 const pixelStations=window.VideoForgeOfficeMap.stations.map(p=>[p.x,p.y]);
@@ -47,7 +47,6 @@ function sprite(c,key,x,y,w,h){
 }
 function pixelBase(c){
   const map=window.VideoForgeOfficeMap;
-  const R=map.rooms;
   // Uma única agência: estrutura externa compartilhada, piso contínuo,
   // divisórias baixas e estações dentro do mesmo andar.
   rect(c,0,0,SW,SH,'#102331');
@@ -139,7 +138,14 @@ function pixelBase(c){
   departments.forEach((place,i)=>{
     const x=place.x,y=place.y;
     const w=place.room==='production'?104:94;
-    sprite(c,'desk',x-w/2,y+42,w,79);
+    if(spriteImages.desk) sprite(c,'desk',x-w/2,y+42,w,79);
+    else {
+      rect(c,x-w/2,y+48,w,47,'#78584b');
+      rect(c,x-w/2+4,y+43,w-8,12,'#d1a47e');
+      rect(c,x-22,y+53,44,26,'#213d4e');
+      rect(c,x-18,y+57,36,15,'#4b8590');
+      rect(c,x-13,y+82,30,5,'#384d50');
+    }
     sprite(c,'chair',x-25,y+91,50,49);
     if(place.room==='production'){
       rect(c,x-46,y+43,13,5,'#d9bf95');
@@ -304,7 +310,7 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
 }
 window.VideoForgeArt={W:SW,H:SH,slots:stations,loadSprites,setArtMode,getArtMode:()=>artMode,
   spritesAvailable:()=>spritesReady,
-  paintBackground:c=>(artMode==='pixellab'&&spritesReady?pixelBase(c):officeBase(c)),
+  paintBackground:c=>pixelBase(c),
   paintAgents:function(c,agents,selected,t,previewMotion=null,reduceMotion=false,routines=null,roleDemo=false){
     const entries=agents.map((a,i)=>{
       const pos=artMode==='pixellab'&&routines?routines.poseFor(a.id,t):null;
