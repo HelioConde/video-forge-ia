@@ -1,0 +1,7 @@
+{
+  "schema": "videoforge/channel-topic-reservations/v1",
+  "channel_id": "UCXGYTuBYn-0Ziqin5ajKhOw",
+  "channel": "otaku-br",
+  "entries": [],
+  "note": "Empty starter ledger only. To prevent repeats, fetch complete existing YouTube upload inventory AND persist future reservations before generating. A plan artifact alone is not a reservation."
+}
