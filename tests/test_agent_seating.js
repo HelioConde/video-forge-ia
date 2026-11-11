@@ -32,8 +32,10 @@ const canvas={
     if(!String(image?._src).endsWith("/sit_down.png"))return;
     seatedCrops.push({sx,sy,sw,sh,dx,dy,dw,dh});
     // Normalizar o recorte PixelLab para comparar com movimentos do animator.
+    // O quadro é cortado só embaixo; o centro lógico ainda é o do
+    // sprite 88×88, não o centro do recorte parcial.
     draws.push({motion:"sit",direction:"north",frame:3,
-                x:dx+dw/2,y:dy+dh/2,size:dw});
+                x:dx+dw/2,y:dy+dw/2,size:dw});
   }
 };
 const agents=map.stations.map((p,i)=>({
@@ -55,9 +57,12 @@ function paint({selected=null,previewMotion=null,routines=null,roleDemo=false,ag
   const seated=paint();
   assert.equal(seated.length,8);
   assert.equal(seatedCrops.length,8,"Todos devem usar o atlas com cadeira real");
-  seatedCrops.forEach(({sx,sy,sw,sh})=>
-    assert.deepEqual([sx,sy,sw,sh],[264,88,88,88],
-      "Quadro correto de sit_down north #3 não utilizado"));
+  seatedCrops.forEach(({sx,sy,sw,sh,dw,dh})=>{
+    assert.deepEqual([sx,sy,sw,sh],[264,88,88,54],
+      "Recorte deve mostrar só o personagem, sem a cadeira duplicada");
+    assert.equal(dh,Math.round(dw*54/88),
+      "Recorte não deve achatar nem esticar a pose sentada");
+  });
   seated.forEach((actual,i)=>{
     const station=map.stations[i];
     assert.equal(actual.motion,"sit","Agente não ficou sentado: "+station.id);

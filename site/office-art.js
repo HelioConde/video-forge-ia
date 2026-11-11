@@ -352,15 +352,18 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   const character=window.VideoForgeOfficeMap.character;
   const size=seated?character.seatedSize:character.standingSize;
 
-  // O atlas 'sit' visto de costas deixa as pernas esticadas: parece em pé.
-  // O QUARTO quadro de 'sit_down' direção north contém a cadeira e a
-  // pose realmente sentada. Usar este recorte estático sem downloads extras,
-  // mesmo antes do animator terminar de carregar as animações dinâmicas.
+  // 'sit_down' (north, quadro 3) contém a pose correta, mas também
+  // desenha uma cadeira. A sede PixelLab já tem cadeiras próprias:
+  // exibir só os 54 pixels superiores (cabeça, tronco e braços) do quadro,
+  // deixando o assento e a base originais do cenário visíveis embaixo.
+  // Manter a mesma origem/escala evita que o tronco "salte" ao sentar.
   let drawn=false;
   if(seated&&spriteImages.seated){
+    const visibleHeight=54,frameSize=88;
     c.imageSmoothingEnabled=false;
-    c.drawImage(spriteImages.seated,3*88,1*88,88,88,
-                Math.round(x-size/2),Math.round(y-size/2),size,size);
+    c.drawImage(spriteImages.seated,3*frameSize,1*frameSize,frameSize,visibleHeight,
+                Math.round(x-size/2),Math.round(y-size/2),
+                size,Math.round(size*visibleHeight/frameSize));
     drawn=true;
   }
   if(!drawn&&animatorReady){
