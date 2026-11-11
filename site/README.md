@@ -197,3 +197,7 @@ A simples animação `sit` na direção `north` não mostra o personagem sentado
 ### Calibração final da cadeira (11/11/2026)
 
 A captura aproximada mostrou o sprite `sit_down` sentado, mas avançado para o corredor por causa do deslocamento vertical +14 px. Uma comparação em escala 1:1 com o panorama PixelLab confirmou a posição **dy=0**, trazendo a cadeira do sprite para perto do posto de trabalho sem alterar a origem de caminhada ou o `sit_down`. O `labelOffset` foi ajustado de 70 para 60 px para manter as placas próximas aos agentes, preservando seleções e estados reais. Os testes do mapa e de postura verificam a nova calibração.
+
+### Remover cadeira duplicada no Canvas (11/11/2026)
+
+O sprite **`sit_down.png` direção norte, quadro 3**, já inclui uma cadeira desenhada. Como a imagem principal da agência também contém uma cadeira em cada posto, o quadro completo desenhava duas cadeiras sobrepostas (além de uma base extra), visível no close dos agentes Direção e Roteirista. A renderização no `site/office-art.js` agora utiliza **somente os 54 pixels superiores do quadro de 88×88**, mantendo cabeça, tronco e braços e revelando o assento/base que já existem no cenário. As coordenadas, escala 88px, zoom, etiquetas, seleção e rotas permanecem iguais; apenas o trecho visual da cadeira embutida foi omitido. A validação em `tests/test_agent_seating.js` verifica `sx=264, sy=88, sw=88, sh=54` e evita distorcer a altura. Nenhuma API PixelLab foi chamada para a correção.
