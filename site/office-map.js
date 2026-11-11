@@ -23,7 +23,7 @@
   const stations=Object.freeze([
     {id:"diretor",x:255,y:254,room:"production"},
     {id:"roteirista",x:394,y:254,room:"production"},
-    {id:"artista",x:582,y:254,room:"creative"},
+    {id:"artista",x:592,y:254,room:"creative"},
     {id:"animador",x:739,y:254,room:"creative"},
     {id:"narrador",x:1007,y:254,room:"media"},
     {id:"editor",x:1124,y:254,room:"media"},
