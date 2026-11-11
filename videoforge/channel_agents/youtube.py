@@ -223,6 +223,33 @@ class YouTubeReadOnly:
         return {row[0]: dict(zip(expected[1:], row[1:]))
                 for row in rows if isinstance(row, list) and len(row) == len(expected)}
 
+    def trend_signals(self, queries: list[str], *, max_queries: int = 2) -> dict:
+        """Busca pública de referências; não infere retenção ou sucesso do canal."""
+        if not 0 <= len(queries) <= max_queries <= 2:
+            raise ValueError("No máximo duas pesquisas por análise")
+        signals = []
+        for term in queries:
+            if not isinstance(term, str) or not 3 <= len(term.strip()) <= 80:
+                raise ValueError("Termo de pesquisa inválido")
+            data = self._data("search", part="snippet", type="video", q=term,
+                              order="viewCount", maxResults=10, safeSearch="moderate")
+            for row in data.get("items", []):
+                video_id = row.get("id", {}).get("videoId")
+                if not video_id or len(video_id) != 11:
+                    continue
+                snippet = row.get("snippet", {})
+                signals.append({
+                    "youtube_video_id": video_id,
+                    "title": snippet.get("title", "")[:220],
+                    "published_at": snippet.get("publishedAt"),
+                    "query": term,
+                    "source": "youtube-data-v3/search.list",
+                    "private_channel_analytics": False,
+                })
+        return {"schema": "videoforge/trend-signals/v1",
+                "read_only": True, "results": signals,
+                "uses_external_public_metadata_only": True}
+
     def snapshot(self, *, days: int = 90, end_date: date | None = None) -> dict:
         """Coleta histórico de uploads + desempenho recente. SEM cache fictício."""
         if not 7 <= days <= 365:
