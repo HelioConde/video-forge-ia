@@ -39,10 +39,26 @@ jobs:
                       canvas.paste(tile,(x,y),tile)
                       d.text((x,y-18),f"{motion} {direction} #{frame}",fill=(255,255,255))
           canvas.save(dest/"poses.png")
+          import json
+          manifest=json.loads((base/"production"/"manifest.json").read_text())
+          examples=["sit_down","sing_seated","keyboard_shortcuts","sit_on_sofa","lean_back","adjust_chair","keyboard_type"]
+          board=Image.new("RGB",(4*176,len(examples)*196),(38,49,61))
+          bd=ImageDraw.Draw(board)
+          for idx,motion in enumerate(examples):
+              spec=manifest["motions"][motion]
+              src=Image.open(base/"production"/spec["file"]).convert("RGBA")
+              direction="north" if "north" in spec["directions"] else spec["directions"][0]
+              row=spec["directions"].index(direction)
+              for frame in range(4):
+                  tile=src.crop((frame*88,row*88,(frame+1)*88,(row+1)*88)).resize((160,160),Image.Resampling.NEAREST)
+                  x=frame*176+8;y=idx*196+22
+                  board.paste(tile,(x,y),tile)
+                  bd.text((x,y-18),f"{motion} {direction} #{frame}",fill=(255,255,255))
+          board.save(dest/"production-poses.png")
           print("SEATED_POSE_INSPECTION_READY")
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: seated-poses-review
-          path: output/sit-debug/poses.png
+          path: output/sit-debug/
           retention-days: 2
