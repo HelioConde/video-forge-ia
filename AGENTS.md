@@ -143,3 +143,28 @@ nem libera IA, geração de imagens, gastos ou publicação. Toda execução
 produtiva futura exige orçamento real de requisições, retry e idempotência,
 aprovação do gerente, evidência de artefato, sanitização da telemetria e
 separação de renderização/publicação.
+
+## Gerentes editoriais independentes (regra de não repetição)
+
+O novo cadastro `agentes/gerentes-canais.json` atribui exatamente um gerente
+a cada um dos cinco canais. Os 18 especialistas são recursos compartilhados,
+mas as tarefas, credenciais, métricas e reservas são isoladas por `channel`.
+Consultar `docs/GERENTES-CANAIS.md` e os módulos
+`videoforge/channel_agents/` antes de alterar pesquisa editorial.
+
+**REGRA PRINCIPAL: jamais produzir assunto repetido.** Antes de qualquer
+geração, usar inventário COMPLETO de uploads por canal + histórico
+persistente de reservas; rejeitar assunto, abordagem ou título semelhantes,
+inclusive material privado/agendado e tentativas anteriores. Quando o histórico
+estiver incompleto ou houver títulos privados inacessíveis, interromper.
+O lock local `reserve.py` NÃO garante exclusão distribuída entre runners
+efêmeros: configurar persistência/locks atômicos antes da autonomia produtiva.
+Somente humanos aprovam ativação de publicação. Sem OAuth autorizado, o agente
+não deve afirmar métricas, tendências nem que está conectado.
+
+O YouTube Data/Analytics é read-only em `youtube.py`: validar
+`channels.list(mine=true)`, conferir ID exato, escopos OAuth e limites de
+requisições; não imprimir dados privados nem expô-los ao GitHub Pages.
+O `ideation.py` só utiliza Codex Proxy explicitamente autorizado, com
+um chamado por execução, JSON validado e verificação posterior de duplicatas.
+Não copiar Secrets do AutoEditorVideo automaticamente.
