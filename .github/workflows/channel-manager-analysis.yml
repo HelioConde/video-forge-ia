@@ -1,0 +1,117 @@
+name: VideoForge - Gerentes de canais e YouTube Analytics (read-only)
+
+on:
+  push:
+    paths:
+      - 'videoforge/channel_agents/**'
+      - 'agentes/gerentes-canais.json'
+      - 'canal/*/editorial/**'
+      - 'tests/test_channel_managers.py'
+      - '.github/workflows/channel-manager-analysis.yml'
+  pull_request:
+    paths:
+      - 'videoforge/channel_agents/**'
+      - 'agentes/gerentes-canais.json'
+      - 'canal/*/editorial/**'
+      - 'tests/test_channel_managers.py'
+      - '.github/workflows/channel-manager-analysis.yml'
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        description: 'offline ou consulta privada autenticada SOMENTE LEITURA'
+        required: true
+        default: offline
+        options: [offline, youtube-readonly]
+      channel:
+        type: choice
+        description: 'Um gerente e seu canal (sem mistura de credenciais)'
+        default: otaku-br
+        required: true
+        options: [otaku-br, otaku-en, gamer, manu-kids, alchemy-lab]
+      days:
+        type: choice
+        description: 'Janela de métricas'
+        default: '90'
+        options: ['28', '90', '180']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: channel-manager-${{ github.event_name }}-${{ inputs.channel || 'offline' }}
+  cancel-in-progress: false
+
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Contratos de gestores, métricas e antirrepetição, sem rede
+        run: python -m unittest discover -s tests -p 'test_channel_managers.py' -v
+      - name: Garantir cinco gerentes únicos e identidade por canal
+        run: |
+          python - <<'PY'
+          from videoforge.channel_agents.manager import channel_policy
+          channels=["otaku-br","otaku-en","gamer","manu-kids","alchemy-lab"]
+          managers=[channel_policy(c) for c in channels]
+          assert len({x["youtube_channel_id"] for x in managers})==5
+          assert len({x["id"] for x in managers})==5
+          print("CHANNEL_MANAGERS_5_VALIDATED_ZERO_API_CALLS")
+          PY
+
+  youtube-readonly:
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      inputs.mode == 'youtube-readonly'
+    needs: contracts
+    environment: youtube-analytics-readonly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CHANNEL_METRICS_READONLY_AUTHORIZED: 'yes'
+      YOUTUBE_CLIENT_JSON: ${{ secrets.YOUTUBE_CLIENT_JSON }}
+      YOUTUBE_CHANNEL_TOKEN_JSON: ${{ (inputs.channel == 'otaku-br' && secrets.YOUTUBE_OTAKU_BR_TOKEN_JSON) || (inputs.channel == 'otaku-en' && secrets.YOUTUBE_OTAKU_EN_TOKEN_JSON) || (inputs.channel == 'gamer' && secrets.YOUTUBE_GAMER_TOKEN_JSON) || (inputs.channel == 'manu-kids' && secrets.YOUTUBE_MANU_KIDS_TOKEN_JSON) || (inputs.channel == 'alchemy-lab' && secrets.YOUTUBE_ALCHEMY_LAB_TOKEN_JSON) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verificar token OAuth de leitura, canal exato e histórico completo
+        env:
+          TARGET_CHANNEL: ${{ inputs.channel }}
+          METRIC_DAYS: ${{ inputs.days }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          report="$RUNNER_TEMP/channel-manager-report.json"
+          trap 'rm -f -- "$report"' EXIT
+          python -m videoforge.channel_agents.manager \
+            --mode youtube-readonly \
+            --channel "$TARGET_CHANNEL" \
+            --days "$METRIC_DAYS" \
+            --candidates "canal/$TARGET_CHANNEL/editorial/candidatos.json" \
+            --output "$report"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"channel-manager-report.json"
+          j=json.loads(p.read_text())
+          assert j["publish_enabled"] is False
+          assert j["calls_sent"] == 0
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## Gerente do canal — análise somente leitura\n\n")
+              f.write("Identidade OAuth do canal verificada. Histórico inspecionado.\n\n")
+              f.write("Nenhuma imagem, vídeo ou publicação gerada. Métricas detalhadas permanecem privadas no runner.\n")
+          print("YOUTUBE_READONLY_CHANNEL_VERIFIED_NO_UPLOAD")
+          PY
