@@ -25,3 +25,13 @@ for(const item of map.stations){
 assert(source.includes("statusBar(c,x,y+(artMode==='pixellab'?54:62)"));
 assert(source.includes("const symbols=['D','R','A','M','N','E','Q','P']"));
 console.log("OFFICE_ROLES_OK: 4 na Produção, 2 na Criação, 2 no Laboratório");
+
+// Contrato visual: as imagens completas de salas permanecem como assets,
+// mas não podem mais dividir a agência em construções separadas.
+assert(source.includes("paintBackground:c=>pixelBase(c)"));
+assert(source.includes("const classicStations=window.VideoForgeOfficeMap.stations.map"));
+assert(source.includes("UMA EQUIPE"));
+assert(source.includes("areaRug(86,274,501,418"));
+assert(!source.includes("sprite(c,'main',79,194,512,512)"));
+assert(!source.includes("floorRoom('breakroom'"));
+console.log("LAYOUT_UNIFICADO_OK: cenário e avatares compartilham o mesmo andar");
