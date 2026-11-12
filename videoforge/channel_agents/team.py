@@ -238,6 +238,33 @@ def run_team(*, channel: str, snapshot: dict, trends: dict | None = None,
     }
 
 
+# Actual text-model names published by the pinned Codex Proxy at
+# 10/chatgpt-codex-proxy@1da5476 (internal/models/bootstrap.go).
+# Do not infer that an advertised image model supports chat completions.
+EDITORIAL_TEXT_MODEL_PREFERENCE = (
+    "gpt-6.1-sol", "gpt-6-sol", "gpt-6.1-terra", "gpt-6-luna",
+    "gpt-6-astra", "gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna",
+)
+
+
+def select_editorial_model(catalog: object) -> str:
+    """Select from the real private Proxy catalogue, never invent a model.
+
+    A model listed by /v1/models is not proof of quota/eligibility:
+    actual chat call may still fail closed without retrying.
+    """
+    if not isinstance(catalog, dict) or not isinstance(catalog.get("data"), list):
+        raise EditorialTeamError("TEAM_MODEL_CATALOG_INVALID")
+    available = {
+        item["id"] for item in catalog["data"]
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+    for model in EDITORIAL_TEXT_MODEL_PREFERENCE:
+        if model in available:
+            return model
+    raise EditorialTeamError("TEAM_NO_SUPPORTED_EDITORIAL_MODEL")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Equipe escolhe pauta, assistente nao.")
     parser.add_argument("--channel", default="otaku-br")
@@ -264,13 +291,7 @@ def main(argv=None):
         proxy = ProxyClient(timeout=180)
         model = args.model
         if model == "auto":
-            models = proxy.models()
-            available = {x.get("id") for x in models.get("data", [])
-                         if isinstance(x, dict) and isinstance(x.get("id"), str)}
-            model = next((m for m in ("gpt-5.4", "gpt-5.3-codex", "gpt-5.4-mini", "gpt-5.2-codex")
-                          if m in available), None)
-            if not model:
-                raise EditorialTeamError("TEAM_NO_SUPPORTED_EDITORIAL_MODEL")
+            model = select_editorial_model(proxy.models())
         stage = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "videoforge-editorial-stage"
         report = run_team(channel=args.channel, snapshot=snapshot, trends=trends,
                           client=proxy, model=model,
