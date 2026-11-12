@@ -24,6 +24,7 @@ import sys
 from videoforge.generators import build_generator_plan, load_generator
 from videoforge.production.image_policy import validate_generated_visuals
 from videoforge.production.quality_gate import inspect_media
+from videoforge.production.role_events import role_task
 from videoforge.proxy.client import ProxyClient, ProxyError
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -375,20 +376,22 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
     target = motion_root / "public" / "generated" / staging_id
     if target.exists() or target.is_symlink():
         raise AutoEditorBlocked("AUTOEDITOR_STAGE_ALREADY_EXISTS")
-    props = build_remotion_props(manifest, duration, words, staging_id=staging_id)
     target.mkdir(parents=True, exist_ok=False)
     try:
+        props_file = out/"remotion-props.json"
+        with role_task("animador", evidence=(props_file,)):
+            props = build_remotion_props(manifest, duration, words, staging_id=staging_id)
+            props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
+                                  encoding="utf-8")
         shutil.copyfile(audio, target/"voice.mp3")
         for file in images:
             shutil.copyfile(out / file["file"], target / file["file"])
-        props_file = out/"remotion-props.json"
-        props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
-                              encoding="utf-8")
         output = out/"video.mp4"
-        _run(["npm", "run", "render:master", "--", str(output.resolve()),
-              "--props", str(props_file.resolve()), "--concurrency", "2",
-              "--codec", "h264", "--crf", "21"], cwd=motion_root, timeout=3600)
-        media = inspect_media(output)
+        with role_task("editor", evidence=(output,)):
+            _run(["npm", "run", "render:master", "--", str(output.resolve()),
+                  "--props", str(props_file.resolve()), "--concurrency", "2",
+                  "--codec", "h264", "--crf", "21"], cwd=motion_root, timeout=3600)
+            media = inspect_media(output)
     finally:
         shutil.rmtree(target, ignore_errors=True)
     if (media["width"], media["height"]) != (1080, 1920) or not 29 <= media["fps"] <= 31:
@@ -415,25 +418,31 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     if not any(isinstance(x, dict) and x.get("eligible_now") is True for x in records):
         raise AutoEditorBlocked("AUTOEDITOR_PROXY_ACCOUNT_NOT_ELIGIBLE")
     dest.mkdir(parents=True, mode=0o700)
-    base_plan = plan(manifest)
-    (dest/"plano.json").write_text(json.dumps(base_plan, ensure_ascii=False, indent=2)+"\n",
-                                   encoding="utf-8")
-    (dest/"briefing.json").write_text(json.dumps({
-        "channel": manifest["canal"], "video_id": manifest["id"],
-        "title": manifest["titulo"], "description": manifest["descricao"],
-        "status": "prepared_for_review", "upload_enabled": False,
-    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    (dest/"roteiro.json").write_text(json.dumps({
-        "scenes": manifest["cenas"], "originality_not_verified": True,
-        "research_not_verified": True, "approved_for_publish": False,
-    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    (dest/"deduplicacao.json").write_text(json.dumps({
-        "status": "pending_independent_channel_inventory_review",
-        "youtube_history_checked": False, "approved": False,
-    }, indent=2)+"\n", encoding="utf-8")
+    with role_task("diretor", evidence=(dest/"plano.json", dest/"briefing.json")):
+        base_plan = plan(manifest)
+        (dest/"plano.json").write_text(json.dumps(base_plan, ensure_ascii=False, indent=2)+"\n",
+                                       encoding="utf-8")
+        (dest/"briefing.json").write_text(json.dumps({
+            "channel": manifest["canal"], "video_id": manifest["id"],
+            "title": manifest["titulo"], "description": manifest["descricao"],
+            "status": "prepared_for_review", "upload_enabled": False,
+        }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    with role_task("roteirista", evidence=(dest/"roteiro.json", dest/"deduplicacao.json")):
+        # The script comes from the requested manifest. This worker VALIDATES
+        # and records it; it does not autonomously invent a new script.
+        (dest/"roteiro.json").write_text(json.dumps({
+            "scenes": manifest["cenas"], "originality_not_verified": True,
+            "research_not_verified": True, "approved_for_publish": False,
+        }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+        (dest/"deduplicacao.json").write_text(json.dumps({
+            "status": "pending_independent_channel_inventory_review",
+            "youtube_history_checked": False, "approved": False,
+        }, indent=2)+"\n", encoding="utf-8")
     # TTS first, so an incorrectly paced script does not waste image requests.
-    audio, seconds, words = prepare_voice(manifest, dest)
-    images = generate_images(manifest, dest, client, max_calls=max_calls)
+    with role_task("narrador", evidence=(dest/"narracao.mp3", dest/"marcacoes-voz.json")):
+        audio, seconds, words = prepare_voice(manifest, dest)
+    with role_task("artista", evidence=(dest/"imagens.json",)):
+        images = generate_images(manifest, dest, client, max_calls=max_calls)
     (dest/"qa-imagens.json").write_text(json.dumps({
         "status": "source_and_bytes_verified",
         "generator_images": len(images), "fallback": 0,
@@ -451,10 +460,15 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
         "source": "real_edge_tts_word_boundary",
         "captions": props["captions"],
     }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    (dest/"qa-tecnico.json").write_text(json.dumps({
-        "status": "technical_verified", "media": media,
-        "editorial_approved": False, "published": False,
-    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    with role_task("revisor", evidence=(dest/"qa-tecnico.json",)):
+        # This is only an independent TECHNICAL recheck, not editorial approval.
+        checked = inspect_media(dest/"video.mp4")
+        if checked["sha256"] != media["sha256"]:
+            raise AutoEditorBlocked("AUTOEDITOR_TECHNICAL_REVIEW_HASH_MISMATCH")
+        (dest/"qa-tecnico.json").write_text(json.dumps({
+            "status": "technical_verified", "media": checked,
+            "editorial_approved": False, "published": False,
+        }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     (dest/"qa-editorial.json").write_text(json.dumps({
         "status": "pending_independent_human_review",
         "originality_not_verified": True, "rights_not_verified": True,
