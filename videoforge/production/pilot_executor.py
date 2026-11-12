@@ -20,19 +20,7 @@ TOPIC = "O cavaleiro de papel que enfrentou sua propria sombra"
 DURATION = 18
 LIMIT = 4
 BANNED = ("death note", "naruto", "one piece", "dragon ball", "jujutsu kaisen")
-FALLBACK = {
-    "title": "O Cavaleiro de Papel e a Sombra | Fantasia Original",
-    "description": "Uma pequena historia original sobre coragem e um amanhecer impossivel.",
-    "tags": ["anime original", "fantasia", "conto autoral"],
-    "scenes": [
-        {"narration": "Na cidade escura, um cavaleiro nasceu de papel.",
-         "visual_prompt": "Original paper knight overlooking a violet fantasy city at night, cinematic vertical painting, no text"},
-        {"narration": "Sua sombra cresceu, mas ele nao recuou.",
-         "visual_prompt": "Original paper knight facing a huge abstract shadow near a moonlit clock tower, vertical scene, no text"},
-        {"narration": "Ergueu a espada, e a primeira luz apareceu.",
-         "visual_prompt": "Original paper knight with luminous sword at golden dawn, fantasy rooftops, vertical painting, no text"},
-    ],
-}
+SCENE_COUNT = 3
 
 
 class PilotError(ValueError):
@@ -111,8 +99,10 @@ def generate_story(proxy, budget, model):
                 content = content[4:].lstrip()
             content = content.removesuffix(fence).strip()
         return validate_story(json.loads(content)), "codex_proxy"
-    except (ProxyError, PilotError, KeyError, IndexError, TypeError, ValueError):
-        raise PilotError("SCRIPT_GENERATION_UNAVAILABLE_OR_INVALID") from None
+    except ProxyError as exc:
+        raise PilotError("SCRIPT_GENERATOR_UNAVAILABLE_" + str(exc)) from None
+    except (PilotError, KeyError, IndexError, TypeError, ValueError):
+        raise PilotError("SCRIPT_GENERATION_INVALID_NO_FALLBACK") from None
 
 
 def command(argv, *, cwd=None, timeout=180):
@@ -266,7 +256,7 @@ def produce(out: Path, job_id: str, *, max_calls=LIMIT, model="gpt-6.1-sol",
         raise PilotError("OUTPUT_MUST_NOT_EXIST")
     budget = CallBudget(max_calls)
     # Reserve one chat call + a generator call per image; never degrade.
-    if max_calls < 1 + len(FALLBACK["scenes"]):
+    if max_calls < 1 + SCENE_COUNT:
         raise PilotError("BUDGET_REQUIRES_GENERATOR_IMAGES")
     proxy = client or ProxyClient(timeout=240)
     account_data = proxy.accounts()
