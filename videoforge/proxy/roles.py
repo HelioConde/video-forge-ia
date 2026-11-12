@@ -38,6 +38,10 @@ def plan_bindings(plan: dict, *, reference_images: bool = False) -> dict:
             "backend": owner, "capability": endpoint,
             "requires_approval": task_id in {"thumbnail", "visuais", "publicacao"},
             "execution_status": "not_started",
+            "image_source_required": ("generator_only" if task_id in
+                                      {"thumbnail", "visuais"} else None),
+            "assistant_image_generation_permitted": False,
+            "visual_fallback_permitted": False,
         })
     return {
         "schema": "videoforge/proxy-stage-bindings/v1",

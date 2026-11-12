@@ -23,13 +23,15 @@ de 18 entregas e registra arquivos nao vazios para 15 etapas:
 
 1. coordenador-pautas: briefing.json do projeto original
 2. pesquisador: pesquisa.json, classificando roteiro como ficcao sem fatos
-3. roteirista-cenas: roteiro.json; tenta o chat do Codex Proxy, fallback
-   autoral explicitamente identificado caso a chamada falhe
+3. roteirista-cenas: roteiro.json produzido pelo chat do Codex Proxy;
+   se a geração do roteiro falhar, o teste é interrompido (sem roteiro substituto)
 4. titulo, descricao, tags-seo: metadados derivados do roteiro
 5. storyboard: divisao em tres cenas de seis segundos
-6. ilustrador: imagens PNG para tres cenas, ate tres chamadas ao Proxy,
-   fallback ilustrado **local identificado** quando imagem nao esta disponivel
-7. thumbnail: capa PNG produzida localmente sobre imagem da cena
+6. ilustrador: **todas as tres cenas em PNG produzidas obrigatoriamente pelo
+   gerador de imagens integrado ao Codex Proxy**; falha em qualquer uma
+   interrompe a producao, sem desenhar substitutos
+7. thumbnail: recorte e composicao de texto sobre imagem gerada pelo Proxy,
+   sem criar uma ilustracao independente por codigo ou pelo assistente
 8. voz: voz pt-BR via espeak-ng offline (voz robotica de teste)
 9. animacao: movimento real da camera 2D (Ken Burns), nao rigging de personagem
 10. legendas: arquivo SRT
@@ -66,10 +68,36 @@ auditavel do departamento, sem simular trabalhadores online.
 - O servidor utiliza interface nao oficial: chamadas podem falhar ou
   consumir cotas da conta ChatGPT; nao presumir acesso ilimitado.
 - A disponibilidade dos 10 itens do catalogo nao garante acesso ao modelo
-  de texto ou imagem especifico. Falhas usam fallback original local
-  e o resumo do teste informa quantos resultados foram IA.
+  de texto ou imagem especifico. Erros de geracao **interrompem** o video;
+  nao ha substituicao por imagens locais, placeholders nem geracao de
+  imagens pelo assistente. O workflow verifica tres imagens reais do gerador.
 - Voz sintetica robotica e animacao por camera sao temporarios: nao
   afirmar que o video tem a qualidade final exigida para publicacao.
+
+
+## REGRA OBRIGATORIA: imagens geradas somente pelo programa
+
+**O assistente ChatGPT NAO pode desenhar ou gerar imagens de cena em nome
+do pipeline.** Todas as artes narrativas usadas em qualquer video de
+producao devem vir exclusivamente de um **gerador de imagens integrado ao
+VideoForge AI**, com o backend verificando a resposta e o arquivo real.
+
+- Proibidos: Pillow/ImageDraw como origem da arte, desenhos programaticos,
+  imagens improvisadas, placeholders, stock substituto, imagens geradas
+  diretamente nesta conversa e fallback silencioso.
+- Permitidos: corte, redimensionamento, tratamento de imagem, movimento de
+  camera e composicao de titulo em cima de uma imagem ja gerada pelo
+  provedor. Essas operacoes nao podem substituir a arte de uma cena.
+- Ausencia de qualquer imagem gerada => interromper o job com erro,
+  nao renderizar novo MP4, nao publicar, nao inventar que a IA funcionou.
+- O backend privado associa origem e SHA-256 a cada arte; o manifesto
+  sozinho, quando fornecido por um usuario/agent nao verificado, nao
+  comprova a procedencia.
+- A regra nao autoriza tentativas automaticas quando a API responder 429.
+  Antes de novo teste real, verificar se a conta possui cota disponivel.
+
+Fonte de configuracao: `config/production-image-policy.json`.
+Verificacao: `videoforge/production/image_policy.py`.
 
 ## Onde ver o video
 
