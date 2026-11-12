@@ -2,7 +2,7 @@
 
 Este diretório define os **papéis e responsabilidades** dos agentes que aparecerão no escritório do GitHub Pages.
 
-O arquivo [equipe.json](equipe.json) é a fonte de verdade para os oito funcionários do sistema. Cada um possui um ID estável, uma responsabilidade, suas dependências e o tipo de saída esperada.
+O arquivo [equipe.json](equipe.json) é a fonte de verdade para os nove funcionários visuais (incluindo o Subgerente) e as 27 especializações planejadas. Cada um possui um ID estável, uma responsabilidade, suas dependências e o tipo de saída esperada.
 
 ## Fluxo planejado
 
