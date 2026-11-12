@@ -1,6 +1,11 @@
 name: VideoForge - Gerador AutoEditor (plano ou video privado)
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - geradores/autoeditor/gerador.json
+      - geradores/autoeditor/exemplo-manifesto.json
   workflow_dispatch:
     inputs:
       action:
@@ -24,12 +29,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: autoeditor-manual-${{  github.ref }}
+  group: autoeditor-manual-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   plan:
-    if: inputs.action == 'plan'
+    if: github.event_name == 'push' || inputs.action == 'plan'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -42,7 +47,7 @@ jobs:
       - name: Gerar plano sem IA, sem imagens e sem upload
         shell: bash
         env:
-          JOB_MANIFEST: ${{  inputs.manifest }}
+          JOB_MANIFEST: ${{ inputs.manifest || 'geradores/autoeditor/exemplo-manifesto.json' }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -61,7 +66,7 @@ jobs:
           PY
       - uses: actions/upload-artifact@v4
         with:
-          name: autoeditor-plan-${{  github.run_id }}
+          name: autoeditor-plan-${{ github.run_id }}
           path: output/autoeditor-plan.json
           retention-days: 7
           if-no-files-found: error
@@ -118,7 +123,7 @@ jobs:
           sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
           python -m pip install --disable-pip-version-check 'Pillow>=10,<13' 'edge-tts>=7,<9'
           cd autoeditor-source/motion-remotion
-          npm ci --ignore-scripts
+          npm ci
       - name: Validar contratos antes de usar segredos
         shell: bash
         run: |
@@ -134,10 +139,10 @@ jobs:
       - name: Gerar video privado de revisao, sem acesso ao YouTube
         shell: bash
         env:
-          JOB_MANIFEST: ${{  inputs.manifest }}
-          PROXY_API_KEY: ${{  secrets.PROXY_API_KEY }}
-          PROXY_ACCOUNTS_JSON: ${{  secrets.PROXY_ACCOUNTS_JSON }}
-          PILOT_JOB_ID: vf-${{  github.run_id }}
+          JOB_MANIFEST: ${{ inputs.manifest }}
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
+          PILOT_JOB_ID: vf-${{ github.run_id }}
         run: |
           set -euo pipefail
           umask 077
@@ -195,7 +200,7 @@ jobs:
       - name: Verificar MP4, procedencia e bloqueio de upload
         shell: bash
         env:
-          PILOT_JOB_ID: vf-${{  github.run_id }}
+          PILOT_JOB_ID: vf-${{ github.run_id }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -225,14 +230,14 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: autoeditor-preview-${{  github.run_id }}
+          name: autoeditor-preview-${{ github.run_id }}
           path: |
-            output/autoeditor-vf-${{  github.run_id }}/video.mp4
-            output/autoeditor-vf-${{  github.run_id }}/scene-*.png
-            output/autoeditor-vf-${{  github.run_id }}/imagens.json
-            output/autoeditor-vf-${{  github.run_id }}/manifest.json
-            output/autoeditor-vf-${{  github.run_id }}/qa-editorial.json
-            output/autoeditor-vf-${{  github.run_id }}/plano.json
-            output/autoeditor-vf-${{  github.run_id }}/remotion-props.json
+            output/autoeditor-vf-${{ github.run_id }}/video.mp4
+            output/autoeditor-vf-${{ github.run_id }}/scene-*.png
+            output/autoeditor-vf-${{ github.run_id }}/imagens.json
+            output/autoeditor-vf-${{ github.run_id }}/manifest.json
+            output/autoeditor-vf-${{ github.run_id }}/qa-editorial.json
+            output/autoeditor-vf-${{ github.run_id }}/plano.json
+            output/autoeditor-vf-${{ github.run_id }}/remotion-props.json
           retention-days: 7
           if-no-files-found: error
