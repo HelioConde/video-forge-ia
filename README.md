@@ -54,6 +54,12 @@ Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md)
 
 As orientações operacionais para agentes de IA e colaboradores estão em [AGENTS.md](AGENTS.md).
 
+## Delegação de texto para funcionários pelo Proxy
+
+O motor de delegação agora possui `videoforge/production/agent_dispatch.py`: identifica especialistas liberados pelo DAG das 18 tarefas e prepara chamadas de texto pelo Codex Proxy somente em backend privado e explicitamente autorizado. A execução cria reserva exclusiva e rascunho com hash para revisão independente, não marca tarefas como aprovadas, não renderiza mídia nem publica vídeos. O workflow de recebimento de demanda exporta apenas a prévia offline dos especialistas liberados. Não há disparo pago automático.
+
+[Guia de integração de tarefas](docs/AGENT_TEXT_DISPATCH.md).
+
 ## Agentes de IA usam o Codex Proxy
 
 Toda inferência de modelos de IA dos agentes deve passar pelo Codex Proxy privado, incluindo Direção, Subgerente e especialistas. O novo gateway `videoforge/proxy/agent_gateway.py` reconhece os 9 papéis visuais e 27 especialistas definidos em `agentes/equipe.json`, seleciona modelo por papel e permite **uma chamada de texto aprovada por vez**. Não habilita os trabalhadores automaticamente e não executa mídia ou uploads. TTS, render, animação e publicação continuam em seus motores específicos.
