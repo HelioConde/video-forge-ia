@@ -1,0 +1,200 @@
+name: VideoForge - Equipe Otaku decide pauta (somente pesquisa)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [offline, pesquisar-com-agents]
+        default: offline
+        required: true
+      authorize_research:
+        type: boolean
+        default: false
+        required: true
+  push:
+    paths:
+      - config/editorial-team-once-2026-11-12.json
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: editorial-team-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline:
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'offline'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: |
+          python -m unittest discover -s tests -p 'test_editorial_team.py' -v
+          python -m unittest discover -s tests -p 'test_role_events.py' -v
+
+  research:
+    if: >-
+      (
+        (github.event_name == 'workflow_dispatch' &&
+         inputs.mode == 'pesquisar-com-agents' && inputs.authorize_research == true) ||
+        (github.event_name == 'push' &&
+         startsWith(github.event.head_commit.message, 'test(editorial): one-shot authorized Otaku Multicena agent research 2026-11-12'))
+      ) &&
+      github.ref == 'refs/heads/main' && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    environment: proxy-runtime
+    timeout-minutes: 30
+    env:
+      CHANNEL_IDEATION_APPROVED: 'yes'
+      GIN_MODE: release
+      DEBUG_LOG_PAYLOADS: 'false'
+      PORT: '8080'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Verify exact one-shot request
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,subprocess
+          from pathlib import Path
+          path='config/editorial-team-once-2026-11-12.json'
+          changed=subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines()
+          added=subprocess.check_output(['git','diff','--name-only','--diff-filter=A','HEAD^','HEAD'],text=True).splitlines()
+          if changed != [path] or added != [path]:
+              raise SystemExit('TEAM_REQUEST_MUST_ADD_SINGLE_FILE')
+          actual=json.loads(Path(path).read_text(encoding='utf-8'))
+          expected={
+              'schema':'videoforge/one-shot-editorial-research/v1',
+              'request_id':'otaku-multicena-agent-team-2026-11-12',
+              'channel':'otaku-br',
+              'approved_by_owner':True,
+              'youtube_access':'read_only',
+              'max_proxy_chat_calls':1,
+              'images_enabled':False,
+              'video_enabled':False,
+              'youtube_upload_enabled':False,
+              'retry_enabled':False,
+          }
+          if actual!=expected: raise SystemExit('TEAM_REQUEST_INVALID')
+          print('TEAM_OWNER_ONE_SHOT_VALIDATED')
+          PY
+      - uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+      - name: Testar agentes antes de usar segredos
+        run: |
+          python -m unittest discover -s tests -p 'test_editorial_team.py' -v
+          python -m unittest discover -s tests -p 'test_channel_managers.py' -v
+          python -m unittest discover -s tests -p 'test_role_events.py' -v
+      - name: Compilar proxy pinado
+        working-directory: upstream-codex-proxy
+        shell: bash
+        run: |
+          set -euo pipefail
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/videoforge-team-proxy" ./cmd/api
+      - name: Pesquisador IA, gerente e subgerente escolhem e auditam
+        shell: bash
+        env:
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
+          YOUTUBE_CLIENT_JSON: ${{ secrets.YOUTUBE_CLIENT_JSON }}
+          YOUTUBE_CHANNEL_TOKEN_JSON: ${{ secrets.YOUTUBE_OTAKU_BR_TOKEN_JSON }}
+          VF_CHECK_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          umask 077
+          if [[ -z "$YOUTUBE_CLIENT_JSON" || -z "$YOUTUBE_CHANNEL_TOKEN_JSON" ]]; then
+            echo 'TEAM_BLOCKED_YOUTUBE_READONLY_CREDENTIALS_MISSING'
+            exit 1
+          fi
+          if [[ -z "$PROXY_API_KEY" || -z "$PROXY_ACCOUNTS_JSON" ]]; then
+            echo 'TEAM_BLOCKED_PROXY_CREDENTIALS_MISSING'
+            exit 1
+          fi
+          private_dir="$RUNNER_TEMP/video-forge-team-state"
+          proxy_pid=''
+          cleanup() {
+            if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
+            rm -rf -- "$private_dir" "$RUNNER_TEMP/videoforge-editorial-stage"
+            rm -f -- "$RUNNER_TEMP/videoforge-editorial-proxy.log"
+          }
+          trap cleanup EXIT
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.proxy.private_state import stage_private_state
+          stage_private_state(os.environ['PROXY_ACCOUNTS_JSON'],
+              Path(os.environ['RUNNER_TEMP'])/'video-forge-team-state')
+          print('TEAM_PRIVATE_STATE_VALIDATED')
+          PY
+          unset PROXY_ACCOUNTS_JSON
+          env -u VF_CHECK_TOKEN -u YOUTUBE_CLIENT_JSON -u YOUTUBE_CHANNEL_TOKEN_JSON \
+            DATA_DIR="$private_dir" "$RUNNER_TEMP/videoforge-team-proxy" \
+            >"$RUNNER_TEMP/videoforge-editorial-proxy.log" 2>&1 &
+          proxy_pid=$!
+          python - <<'PY'
+          import time
+          from videoforge.proxy.client import ProxyClient,ProxyError
+          proxy=ProxyClient(timeout=3)
+          for _ in range(90):
+              try:
+                  if proxy.health_live().get('status')=='ok':
+                      print('TEAM_PROXY_READY')
+                      break
+              except (ProxyError,ValueError):
+                  pass
+              time.sleep(1)
+          else:
+              raise SystemExit('TEAM_PROXY_NOT_READY')
+          PY
+          mkdir -p output/editorial-team
+          python -m videoforge.channel_agents.team --channel otaku-br \
+            --days 90 --model auto --output output/editorial-team/decisao.json
+      - name: Confirmar pauta escolhida pelos agents e sem publicacao
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          j=json.loads(Path('output/editorial-team/decisao.json').read_text(encoding='utf-8'))
+          assert j['schema']=='videoforge/editorial-team/v1'
+          assert j['channel']=='otaku-br'
+          assert j['decision_authority']=='Gerente Otaku Multicena'
+          assert j['choices_from_assistant']==0
+          assert j['proxy_calls']==1
+          assert j['images_generated']==0 and j['video_generated'] is False
+          assert j['upload_enabled'] is False
+          assert j['chosen_topic'] and j['requires_human_editorial_review']
+          assert j['chosen_topic']['anime'].casefold()!='death note'
+          print('TEAM_DECISION_VERIFIED_NO_IMAGE_NO_VIDEO_NO_UPLOAD')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: otaku-multicena-agents-decisao-${{ github.run_id }}
+          path: output/editorial-team/decisao.json
+          retention-days: 7
+          if-no-files-found: error

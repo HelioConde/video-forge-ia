@@ -29,6 +29,12 @@ ROLES = {
     "animador": "Preparar composicao e camera Remotion",
     "editor": "Renderizar video MP4 com Remotion",
     "revisor": "Verificar MP4 real, formato e integridade",
+    "subgerente": "Auditar decisao editorial com evidencias verificaveis",
+}
+EDITORIAL_ROLES = {
+    "diretor": "O gerente do canal seleciona a pauta com metricas e bloqueios",
+    "roteirista": "O pesquisador com IA investiga e propoe pautas sem escolhê-las",
+    "subgerente": "Audita duplicacoes, pausas e escolha do gerente",
 }
 _SHA = re.compile(r"^[a-f0-9]{40}$")
 _RUN = re.compile(r"^[0-9]{5,22}$")
@@ -69,7 +75,11 @@ def _request(context: dict, method: str, endpoint: str, body: dict) -> dict:
 
 
 class CheckReporter:
-    def __init__(self, env: dict | None = None, *, channel: str | None = None):
+    def __init__(self, env: dict | None = None, *, channel: str | None = None,
+                 workflow_kind: str = "autoeditor"):
+        if workflow_kind not in ("autoeditor", "editorial"):
+            raise StageEvidenceError("TELEMETRY_WORKFLOW_KIND_INVALID")
+        self.workflow_kind = workflow_kind
         self.context = valid_context(env)
         self.channel = channel if isinstance(channel, str) and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", channel) else None
         self.checks: dict[str, int] = {}
@@ -85,7 +95,8 @@ class CheckReporter:
             return None
 
     def start(self, role: str) -> None:
-        if role not in ROLES:
+        valid_roles = EDITORIAL_ROLES if self.workflow_kind == "editorial" else ROLES
+        if role not in valid_roles:
             raise StageEvidenceError("TELEMETRY_UNKNOWN_ROLE")
         if not self.context or not self.channel:
             return
@@ -93,13 +104,16 @@ class CheckReporter:
         payload = {
             "name": PREFIX + role,
             "head_sha": self.context["sha"],
-            "external_id": "vf-autoeditor:" + self.context["run"] + ":" + self.channel + ":" + role,
+            "external_id": "vf-" + self.workflow_kind + ":" + self.context["run"] + ":" + self.channel + ":" + role,
             "details_url": url,
             "status": "in_progress",
             "output": {
                 "title": "Etapa do pipeline em andamento",
-                "summary": ROLES[role] + ". Executor tecnico: AutoEditor. "
-                           "Nao significa agente autonomo de IA.",
+                "summary": valid_roles[role] + (
+                    ". Pesquisa editorial com IA supervisionada, nao publicacao."
+                    if self.workflow_kind == "editorial" else
+                    ". Executor tecnico: AutoEditor. Nao significa agente autonomo de IA."
+                ),
             },
         }
         result = self._emit("POST", "/check-runs", payload)
@@ -115,7 +129,7 @@ class CheckReporter:
             "conclusion": "success" if passed else "failure",
             "output": {
                 "title": "Etapa concluida" if passed else "Etapa interrompida",
-                "summary": ROLES[role] + (". Entrega confirmada no executor."
+                "summary": (EDITORIAL_ROLES if self.workflow_kind == "editorial" else ROLES)[role] + (". Entrega confirmada no executor."
                                           if passed else
                                           ". Etapa falhou; revisar GitHub Actions. "
                                           "Nenhum upload autorizado."),
@@ -130,9 +144,10 @@ def role_task(role: str, *, evidence: tuple[Path, ...] = (), reporter: CheckRepo
     Disabled locally without an authorized Actions token. A completed
     check is recorded ONLY after all expected files exist and are nonempty.
     """
-    if role not in ROLES:
-        raise StageEvidenceError("TELEMETRY_UNKNOWN_ROLE")
     reporter = reporter or CheckReporter()
+    valid_roles = EDITORIAL_ROLES if reporter.workflow_kind == "editorial" else ROLES
+    if role not in valid_roles:
+        raise StageEvidenceError("TELEMETRY_UNKNOWN_ROLE")
     reporter.start(role)
     try:
         yield

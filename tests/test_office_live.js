@@ -61,6 +61,26 @@ const rejected = [
 ];
 assert.equal(live.readEvidence(RUN,rejected).tasks.length,0);
 
+// Editorial research has different evidence and does NOT activate media workers.
+const editorialProof = {
+  id:220,
+  name:live.PREFIX+"subgerente",
+  status:"completed", conclusion:"success",
+  head_sha:SHA, external_id:"vf-editorial:43147397260:otaku-br:subgerente",
+  details_url:"https://github.com/HelioConde/video-forge-ia/actions/runs/43147397260"
+};
+let editorial = live.readEvidence({...RUN,status:"completed"},[editorialProof]);
+assert.equal(editorial.tasks.length,1);
+assert.equal(editorial.tasks[0].kind,"editorial");
+const extended = {...snapshot,agentes:[
+  ...snapshot.agentes.filter(x=>x.id!=="subgerente"),
+  {id:"subgerente",status:"nao_conectado",canal:null}
+]};
+let mergedEditorial = live.merge(extended,editorial);
+assert.equal(mergedEditorial.agentes.find(x=>x.id==="subgerente").status,"concluido");
+assert.match(mergedEditorial.agentes.find(x=>x.id==="subgerente").tarefa,/auditar/i);
+assert.equal(mergedEditorial.agentes.find(x=>x.id==="publicador").status,"nao_conectado");
+
 let count=0;
 async function fakeFetch(url){
   count++;

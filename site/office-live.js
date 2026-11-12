@@ -18,7 +18,13 @@
     artista: "Imagens geradas pela API integrada",
     animador: "Movimentos de câmera e composição preparados",
     editor: "MP4 renderizado com Remotion",
-    revisor: "Verificação técnica do MP4 (não aprovação editorial)"
+    revisor: "Verificação técnica do MP4 (não aprovação editorial)",
+    subgerente: "Auditoria de pautas e critérios da equipe"
+  });
+  const EDITORIAL_ROLES = Object.freeze({
+    diretor: "Gerente: escolher tema por métricas e antirrepetição",
+    roteirista: "Pesquisador IA: descobrir novas pautas",
+    subgerente: "Subgerente: auditar propostas e temas repetidos"
   });
   const ALLOWED_STATUSES = new Set(["queued", "in_progress", "completed"]);
 
@@ -37,12 +43,13 @@
       if (!item || typeof item.name !== "string" || !item.name.startsWith(PREFIX)) continue;
       const role = item.name.slice(PREFIX.length);
       if (!(role in ROLES)) continue;
-      const match = /^vf-autoeditor:([0-9]+):([a-z0-9]+(?:-[a-z0-9]+)*):([a-z]+)$/.exec(item.external_id || "");
-      if (!match || match[1] !== String(run.id) || match[3] !== role) continue;
+      const match = /^vf-(autoeditor|editorial):([0-9]+):([a-z0-9]+(?:-[a-z0-9]+)*):([a-z]+)$/.exec(item.external_id || "");
+      if (!match || match[2] !== String(run.id) || match[4] !== role) continue;
+      if (match[1] === "editorial" && !(role in EDITORIAL_ROLES)) continue;
       if (item.head_sha !== run.head_sha || item.details_url !== runUrl(run.id)) continue;
       if (!["in_progress", "completed"].includes(item.status) || !Number.isSafeInteger(item.id)) continue;
       if (!rows[role] || rows[role].id < item.id) rows[role] = {
-        id: item.id, role, channel: match[2],
+        id: item.id, role, channel: match[3], kind: match[1],
         status: item.status,
         conclusion: item.conclusion === "success" ? "success" :
           item.conclusion === "failure" ? "failure" : null
@@ -73,6 +80,27 @@
     return readEvidence(run, checks && checks.check_runs);
   }
 
+  async function loadLatest(fetchImpl) {
+    const get = fetchImpl || (typeof fetch === "function" && fetch);
+    if (!get) throw new Error("FETCH_UNAVAILABLE");
+    async function read(url) {
+      const response = await get(url, {headers: {Accept: "application/vnd.github+json"}, cache: "no-store"});
+      if (!response.ok) throw new Error("GITHUB_API_HTTP_ERROR");
+      return response.json();
+    }
+    const workflows = ["autoeditor-generator.yml", "editorial-team-research.yml"];
+    const results = await Promise.all(workflows.map(name =>
+      read(API + "/actions/workflows/" + name + "/runs?branch=main&per_page=1")
+    ));
+    const runs = results.map(r => Array.isArray(r.workflow_runs) ? r.workflow_runs[0] : null)
+      .filter(usableRun);
+    if (!runs.length) return null;
+    runs.sort((a,b)=>Date.parse(b.created_at || "")-Date.parse(a.created_at || ""));
+    const run = runs[0];
+    const checks = await read(API + "/commits/" + run.head_sha + "/check-runs?per_page=100");
+    return readEvidence(run, checks && checks.check_runs);
+  }
+
   function merge(snapshot, evidence) {
     if (!snapshot || !Array.isArray(snapshot.agentes)) throw new Error("INVALID_SNAPSHOT");
     const copy = JSON.parse(JSON.stringify(snapshot));
@@ -88,11 +116,11 @@
       const failed = task.conclusion === "failure" || (task.status === "in_progress" && !active);
       agent.status = active ? "trabalhando" : failed ? "erro" :
         task.conclusion === "success" ? "concluido" : "aguardando";
-      agent.tarefa = ROLES[task.role];
+      agent.tarefa = task.kind === "editorial" ? EDITORIAL_ROLES[task.role] : ROLES[task.role];
       agent.canal = task.channel;
       agent.execucao_pipeline = {
         origem: "github_checks", run_id: evidence.runId,
-        evidence_url: evidence.url, work_type: "pipeline_task_not_autonomous_ai",
+        evidence_url: evidence.url, work_type: task.kind === "editorial" ? "llm_research_or_verified_editorial_decision" : "pipeline_task_not_autonomous_ai",
         concluded: task.status === "completed"
       };
       if (agent.conexao) {
@@ -115,5 +143,5 @@
     copy.tempo_real = false;
     return copy;
   }
-  return {API, PREFIX, ROLES, load, readEvidence, merge};
+  return {API, PREFIX, ROLES, EDITORIAL_ROLES, load, loadLatest, readEvidence, merge};
 });

@@ -54,6 +54,24 @@ Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md)
 
 As orientações operacionais para agentes de IA e colaboradores estão em [AGENTS.md](AGENTS.md).
 
+## Equipe editorial escolhe os temas dos vídeos
+
+O VideoForge AI não recebe um tema pré-selecionado do assistente.
+O **pesquisador IA** gera ideias a partir do Analytics do próprio canal
+e metadados públicos; o **gerente do canal** escolhe a pauta conforme
+métricas, o **subgerente** rejeita repetições e audita a escolha.
+
+O primeiro fluxo é do Otaku Multicena, com *Death Note* pausado e
+regra de não repetir assuntos. Requer histórico completo de uploads,
+OAuth YouTube somente leitura, modelo de texto disponível no Codex Proxy
+e aprovação do trabalho de pesquisa. O resultado é uma **proposta
+para revisão**, nunca geração de vídeo ou publicação automática.
+A equipe emite eventos reais que o escritório pode consultar sem
+expor credenciais.
+
+[Fluxo da equipe](agentes/README.md) ·
+[Workflow de pesquisa](.github/workflows/editorial-team-research.yml).
+
 ## Escritório virtual de agentes (GitHub Pages)
 
 O escritório **Pixel Studio v3** usa Canvas 2D em tela inteira, com pixel-art original, oito funcionários personalizados, sala criativa, estúdio audiovisual e cinco canais. Oferece zoom/arraste, seleção direta, minimapa recolhível no celular e painel flutuante. Os oito papéis e suas dependências ficam centralizados em [agentes/equipe.json](agentes/equipe.json). Os trabalhadores aparecem como **não conectados** até receberem eventos reais do backend. A publicação é **automática quando o painel, agentes, canais ou testes relacionados mudarem na branch `main`**; também aceita execução manual. O GitHub Pages precisa estar configurado com a opção GitHub Actions.
