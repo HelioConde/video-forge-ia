@@ -218,13 +218,20 @@ def _validate_asset(directory: Path, asset: dict, *, transparent: bool) -> None:
             empty = sum(hist[:16])/(CANVAS[0]*CANVAS[1])
             if not .008 <= opaque <= .86 or empty < .09:
                 raise SceneLayerError("LAYERS_ASSET_TRANSPARENCY_INVALID")
+            mask = alpha.point(lambda x: 255 if x > 110 else 0)
+            actual_bbox = list(mask.getbbox() or ())
+            if (asset.get("bbox") != actual_bbox
+                    or abs(asset.get("alpha_coverage", -100) - opaque) > .005):
+                raise SceneLayerError("LAYERS_ASSET_ALPHA_METADATA_MISMATCH")
         elif alpha.getextrema() != (255, 255):
             raise SceneLayerError("LAYERS_BACKGROUND_NOT_OPAQUE")
 
 
 def verify_scene_layers(manifest: dict, directory: Path, doc: dict) -> dict:
     """Verify request provenance/alpha/roles, NOT semantic extraction alignment."""
-    if doc.get("schema") != SCHEMA or doc.get("mode") != MODE:
+    if (doc.get("schema") != SCHEMA or doc.get("mode") != MODE
+            or doc.get("human_visual_review") is not False
+            or doc.get("youtube_upload_approved") is not False):
         raise SceneLayerError("LAYERS_MANIFEST_SCHEMA_INVALID")
     scenes = doc.get("scenes")
     if not isinstance(scenes, list) or len(scenes) != len(manifest["cenas"]):
@@ -239,7 +246,11 @@ def verify_scene_layers(manifest: dict, directory: Path, doc: dict) -> dict:
             raise SceneLayerError("LAYERS_MASTER_DIGEST_MISMATCH")
         elements = plan["characters"] + plan["movable_props"]
         expected_bg = f"scene-{i}/background.png" if elements else f"scene-{i}.png"
-        if row.get("background", {}).get("file") != expected_bg:
+        bg = row.get("background", {})
+        if (bg.get("file") != expected_bg
+                or bg.get("source_master_sha256") != row["master_sha256"]
+                or bg.get("origin") != ("codex_proxy_master_scene_edit"
+                                      if elements else "codex_proxy_master_scene")):
             raise SceneLayerError("LAYERS_BACKGROUND_NOT_FROM_MASTER")
         if elements:
             _validate_asset(directory, row["background"], transparent=False)
@@ -261,7 +272,10 @@ def verify_scene_layers(manifest: dict, directory: Path, doc: dict) -> dict:
                 _validate_asset(directory, asset, transparent=True)
         if row.get("source") != "video_forge_codex_proxy_master_scene":
             raise SceneLayerError("LAYERS_ORIGIN_INVALID")
-    if doc.get("image_requests") != requests - len(scenes):
+    if (doc.get("image_requests") != requests - len(scenes)
+            or doc.get("master_image_requests") != len(scenes)
+            or doc.get("total_image_requests") != requests
+            or requests != count_image_requests(manifest)):
         raise SceneLayerError("LAYERS_REQUEST_COUNT_MISMATCH")
     return {
         "schema": "videoforge/scene-layer-technical-qa/v1",
