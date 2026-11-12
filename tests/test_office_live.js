@@ -78,7 +78,7 @@ const extended = {...snapshot,agentes:[
 ]};
 let mergedEditorial = live.merge(extended,editorial);
 assert.equal(mergedEditorial.agentes.find(x=>x.id==="subgerente").status,"concluido");
-assert.match(mergedEditorial.agentes.find(x=>x.id==="subgerente").tarefa,/Auditoria/);
+assert.match(mergedEditorial.agentes.find(x=>x.id==="subgerente").tarefa,/auditar/i);
 assert.equal(mergedEditorial.agentes.find(x=>x.id==="publicador").status,"nao_conectado");
 
 let count=0;
