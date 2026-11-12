@@ -26,12 +26,14 @@ jobs:
         run: python -m videoforge.pixellab.cli --operation plan --character alex --motion idle --direction south --output /tmp/videoforge-pixellab-plan
       - name: Validar JavaScript do painel
         run: |
+          node --check site/office-live.js
           node --check site/app.js
           node --check site/agent-animator.js
           node --check site/agent-interactions.js
           node --check site/office-map.js
           node --check site/agent-routines.js
           node --check site/agent-behavior.js
+          node tests/test_office_live.js
           node tests/test_agent_behavior.js
           node tests/test_office_map.js
           node tests/test_office_layout.js

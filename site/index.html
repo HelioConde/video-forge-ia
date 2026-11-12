@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#111827">
   <meta name="description" content="VideoForge AI: um escritório de agentes representado em pixel art e Canvas em tela inteira.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'none'">
   <title>VideoForge AI | Pixel Studio</title>
   <link rel="stylesheet" href="./styles.css">
   <script defer src="./office-map.js"></script>
@@ -15,6 +15,7 @@
   <script defer src="./agent-behavior.js"></script>
   <script defer src="./office-art.js"></script>
   <script defer src="./office-renderer.js"></script>
+  <script defer src="./office-live.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body>
@@ -84,7 +85,7 @@
         </div>
         <div id="panelList" class="panel-scroll" aria-live="polite"></div>
         <div id="panelDetails" class="panel-details" aria-live="polite"></div>
-        <div class="panel-footer"><span class="pixel-led muted"></span> Status fornecido pelo último snapshot do backend.</div>
+        <div class="panel-footer"><span class="pixel-led muted"></span> Estados baseados em evidências do GitHub Actions. Trabalho do pipeline não equivale a agentes IA autônomos.</div>
       </aside>
     </main>
   </div>

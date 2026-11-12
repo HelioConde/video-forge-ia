@@ -28,6 +28,7 @@ on:
 
 permissions:
   contents: read
+  checks: write  # somente registros publicos dos trabalhos reais do pipeline
 
 concurrency:
   group: autoeditor-manual-${{ github.ref }}
@@ -181,6 +182,7 @@ jobs:
           PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
           PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
           PILOT_JOB_ID: vf-${{ github.run_id }}
+          VF_CHECK_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           umask 077
@@ -212,7 +214,7 @@ jobs:
           print("AUTOEDITOR_OAUTH_STAGED_PRIVATELY")
           PY
           unset PROXY_ACCOUNTS_JSON
-          DATA_DIR="$private_dir" "$RUNNER_TEMP/videoforge-autoeditor-proxy" \
+          env -u VF_CHECK_TOKEN DATA_DIR="$private_dir" "$RUNNER_TEMP/videoforge-autoeditor-proxy" \
             >"$RUNNER_TEMP/videoforge-autoeditor-proxy.log" 2>&1 &
           proxy_pid=$!
           python - <<'PY'
