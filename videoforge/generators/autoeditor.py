@@ -488,7 +488,8 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
     target.mkdir(parents=True, exist_ok=False)
     try:
         props_file = out/"remotion-props.json"
-        with role_task("animador", evidence=(props_file,), reporter=reporter):
+        with role_task("animador", evidence=(props_file, out/"qa-motion.json"),
+                       reporter=reporter):
             if layer_document is None:
                 raise AutoEditorBlocked("AUTOEDITOR_LAYERS_REQUIRED_FOR_RENDER")
             verify_scene_layers(manifest, out, layer_document)
@@ -496,6 +497,17 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
                                           staging_id=staging_id,
                                           layer_document=layer_document)
             props["motionOverlaySha256"] = motion_overlay_sha
+            (out/"qa-motion.json").write_text(json.dumps({
+                "schema": "videoforge/animated-layers-audit/v1",
+                "motion_overlay_sha256": motion_overlay_sha,
+                "configured_motion_cues": sum(
+                    len(scene["motion_plan"]["cues"]) for scene in manifest["cenas"]),
+                "complete_remotion_layer_graph": True,
+                "animations_executed_before_render": False,
+                "animation_frame_visual_review": False,
+                "human_approval_required": True,
+                "youtube_upload_approved": False,
+            }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
             props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
                                   encoding="utf-8")
         shutil.copyfile(audio, target/"voice.mp3")
@@ -615,7 +627,9 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     (dest/"qa-editorial.json").write_text(json.dumps({
         "status": "pending_independent_human_review",
         "originality_not_verified": True, "rights_not_verified": True,
-        "visual_consistency_not_verified": True, "voice_quality_not_reviewed": True,
+        "visual_consistency_not_verified": True,
+        "motion_contact_and_articulation_not_visually_reviewed": True,
+        "voice_quality_not_reviewed": True,
         "youtube_history_not_reviewed": True, "upload_approved": False,
     }, indent=2)+"\n", encoding="utf-8")
     report = {
