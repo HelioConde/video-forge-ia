@@ -10,6 +10,12 @@ on:
       - "site/index.html"
       - "site/styles.css"
       - ".github/workflows/pixellab-visual.yml"
+  pull_request:
+    paths:
+      - "site/*.js"
+      - "site/index.html"
+      - "site/styles.css"
+      - ".github/workflows/pixellab-visual.yml"
   workflow_dispatch:
 
 permissions:
