@@ -1,0 +1,78 @@
+{
+  "schema": "videoforge/quality-policy/v1",
+  "version": 1,
+  "mode": "quality_before_quantity",
+  "minimum_weighted_score": 80,
+  "max_revisions": 2,
+  "dimensions": {
+    "originalidade": {
+      "weight": 0.2,
+      "min_score": 85,
+      "reviewer": "revisor-conteudo"
+    },
+    "pesquisa_e_fatos": {
+      "weight": 0.12,
+      "min_score": 80,
+      "reviewer": "revisor-conteudo"
+    },
+    "roteiro_e_gancho": {
+      "weight": 0.18,
+      "min_score": 80,
+      "reviewer": "revisor-conteudo"
+    },
+    "narracao": {
+      "weight": 0.12,
+      "min_score": 75,
+      "reviewer": "qa-tecnico"
+    },
+    "consistencia_visual": {
+      "weight": 0.14,
+      "min_score": 80,
+      "reviewer": "revisor-conteudo"
+    },
+    "edicao_e_ritmo": {
+      "weight": 0.12,
+      "min_score": 75,
+      "reviewer": "qa-tecnico"
+    },
+    "titulo_e_thumbnail": {
+      "weight": 0.08,
+      "min_score": 75,
+      "reviewer": "revisor-conteudo"
+    },
+    "qualidade_tecnica": {
+      "weight": 0.04,
+      "min_score": 80,
+      "reviewer": "qa-tecnico"
+    }
+  },
+  "required_checks": [
+    "historico_e_reserva_verificados",
+    "conteudo_original",
+    "fatos_verificados",
+    "direitos_revisados",
+    "sem_falhas_visuais_graves",
+    "voz_compreensivel",
+    "legendas_revisadas",
+    "metadados_fieis",
+    "canal_correto",
+    "divulgacao_ia_avaliada"
+  ],
+  "kids_required_checks": [
+    "politica_infantil_verificada",
+    "classificacao_publico_infantil_revisada"
+  ],
+  "media": {
+    "min_dimension_px": 720,
+    "min_fps": 12,
+    "max_fps": 120,
+    "duration_tolerance_seconds": 12,
+    "duration_tolerance_ratio": 0.15,
+    "min_short_seconds": 90
+  },
+  "publication": {
+    "requires_human_approval": true,
+    "auto_publish_enabled": false
+  },
+  "notes": "Thresholds are local editorial heuristics, not YouTube scoring or guaranteed growth. Reviews require independent trusted backend evidence and local media verification."
+}
