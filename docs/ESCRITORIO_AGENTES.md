@@ -24,6 +24,26 @@ observável somente nas execuções que utilizarem este código novo.
 A API pública pode ter limite de consultas; na falha, a UI retorna
 ao estado de não conectado, sem afirmar execução.
 
+## Fontes externas no painel do canal
+
+O canal `otaku-br` agora mostra um quadro **"PESQUISA RECEBIDA · NÃO É PAUTA
+APROVADA"** dentro da aba Canais. O exportador
+`scripts/build_dashboard_data.py` consulta o pacote mais recente validado
+pela camada `external_research.py` e publica somente nomes de séries,
+trechos resumidos das alegações, perguntas para conferência editorial,
+datas e endereços HTTPS **sem parâmetros/fragmentos**. Não publica o ID
+de canal, histórico privado, Analytics, tokens, prompts ou arquivos privados.
+
+Os cartões têm links externos com `rel=noopener noreferrer`. A interface
+informa que **nenhuma análise de métricas, auditoria ou aprovação ocorreu**
+apenas porque a pesquisa está presente. O total de agentes trabalhando
+permanece derivado apenas de telemetria real dos GitHub Actions.
+
+O HTML usa `textContent` para fatos e perguntas recebidos, nunca HTML
+não confiável. Se um canal não possui pesquisa, exibe aviso explícito.
+O GitHub Pages recompila o snapshot quando o pacote de pesquisa é
+atualizado na branch `main`; o navegador não chama modelos.
+
 ## Objetivo
 
 Visualizar os agentes do VideoForge AI como trabalhadores em um escritório, com seus postos, estado reportado, tarefa e canal. O usuário poderá acompanhar a equipe sem misturar a interface com os processos de produção.
