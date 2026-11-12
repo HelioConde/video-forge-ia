@@ -55,6 +55,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_editorial_handoff.py' -v
           python -m unittest discover -s tests -p 'test_secure_draft.py' -v
+          python -m unittest discover -s tests -p 'test_secure_editorial_report.py' -v
           python -m unittest discover -s tests -p 'test_agent_dispatch.py' -v
           python -m unittest discover -s tests -p 'test_agent_gateway.py' -v
           python -m unittest discover -s tests -p 'test_attempt_claim.py' -v
