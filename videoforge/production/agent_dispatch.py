@@ -92,6 +92,10 @@ def _trusted_task(plan: dict, task_id: str, *, root: Path = ROOT) -> dict:
 
 def plan_text_dispatch(plan: dict, *, root: Path = ROOT) -> dict:
     """List currently ready Proxy text workers without network or credentials."""
+    if not isinstance(plan, dict) or plan.get("schema") != "videoforge/production-delegation/v1":
+        raise DispatchError("DISPATCH_PLAN_INVALID")
+    if not isinstance(plan.get("tasks"), list):
+        raise DispatchError("DISPATCH_TASKS_INVALID")
     selected = []
     for task in plan.get("tasks", []):
         task_id = task.get("id") if isinstance(task, dict) else None
