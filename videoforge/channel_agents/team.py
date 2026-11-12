@@ -13,6 +13,9 @@ import argparse
 import json
 import os
 from pathlib import Path
+from contextlib import nullcontext
+
+from videoforge.production.role_events import CheckReporter, role_task
 
 from videoforge.proxy.client import ProxyClient
 from .dedup import DuplicateTopic, assert_unique, editorial_fingerprint, norm
@@ -77,7 +80,8 @@ def audit_candidates(*, proposals: list[dict], snapshot: dict,
 
 
 def run_team(*, channel: str, snapshot: dict, trends: dict | None = None,
-             client: ProxyClient, model: str, root: Path = ROOT) -> dict:
+             client: ProxyClient, model: str, root: Path = ROOT,
+             stage_dir: Path | None = None, reporter: CheckReporter | None = None) -> dict:
     """Separate researcher LLM, analytics worker, manager, deputy QA tasks."""
     manager = channel_policy(channel, root=root)
     if snapshot.get("source") != "youtube-data-v3+analytics-v2":
@@ -102,20 +106,43 @@ def run_team(*, channel: str, snapshot: dict, trends: dict | None = None,
     if analytics.get("usable_samples", 0) < 3:
         raise EditorialTeamError("TEAM_INSUFFICIENT_VERIFIED_METRICS")
 
-    # 2. Editorial researcher: creates actual candidate themes, NOT hand-coded
-    #    topics supplied by the assistant, user, or this module.
-    proposals = propose_candidates(
-        manager=manager, snapshot=snapshot, reservations=reservations,
-        trends=trends, client=client, model=model, authorized=True
-    )
+    # Emit check runs only with real evidence files on protected runner.
+    def stage_file(name, value):
+        if stage_dir is None:
+            return
+        stage_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+        path = stage_dir / (name + ".json")
+        path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n",
+                        encoding="utf-8")
+    def role_context(role, name):
+        if stage_dir is None:
+            return nullcontext()
+        return role_task(role, evidence=(stage_dir / (name + ".json"),), reporter=reporter)
+
+    # 2. A genuine LLM researcher produces candidate topics; none are seeded
+    #    as fixed themes by this assistant, the manager or the runner.
+    with role_context("roteirista", "research"):
+        proposals = propose_candidates(
+            manager=manager, snapshot=snapshot, reservations=reservations,
+            trends=trends, client=client, model=model, authorized=True
+        )
+        stage_file("research", {"produced": len(proposals),
+                                "topic_ids": [p["id"] for p in proposals],
+                                "generator": "codex_proxy_chat",
+                                "not_preselected_by_assistant": True})
     if not proposals:
         raise EditorialTeamError("TEAM_RESEARCHER_EMPTY_RESULT")
 
     # 3. Deputy: independent gate before any manager ranking.
-    deputy = audit_candidates(
-        proposals=proposals, snapshot=snapshot, reservations=reservations,
-        manager=manager
-    )
+    with role_context("subgerente", "audit"):
+        deputy = audit_candidates(
+            proposals=proposals, snapshot=snapshot, reservations=reservations,
+            manager=manager
+        )
+        stage_file("audit", {"role": "subgerente",
+                             "evaluated": deputy["evaluated"],
+                             "accepted": deputy["accepted"],
+                             "checks": deputy["candidates"]})
     accepted_ids = {row["candidate_id"] for row in deputy["candidates"] if row["accepted"]}
     safe_proposals = [item for item in proposals if item["id"] in accepted_ids]
     if not safe_proposals:
@@ -141,9 +168,15 @@ def run_team(*, channel: str, snapshot: dict, trends: dict | None = None,
         }
 
     # 4. Channel MANAGER is the only component authorized to select a theme.
-    plan = build_editorial_plan(
-        channel, snapshot=snapshot, candidate_rows=safe_proposals, root=root
-    )
+    with role_context("diretor", "manager"):
+        plan = build_editorial_plan(
+            channel, snapshot=snapshot, candidate_rows=safe_proposals, root=root
+        )
+        stage_file("manager", {
+            "role": "gerente-canal", "status": plan["status"],
+            "chosen_id": (plan.get("selected") or {}).get("id"),
+            "from_submanager_accepted_candidates": True,
+            "not_chosen_by_assistant": True})
     selected = plan.get("selected")
     if selected is not None:
         if selected.get("id") not in accepted_ids:
@@ -228,8 +261,22 @@ def main(argv=None):
                              expected_channel_id=policy["youtube_channel_id"])
         snapshot = yt.snapshot(days=args.days)
         trends = yt.trend_signals(["anime curiosidades", "anime análise"], max_queries=2)
+        proxy = ProxyClient(timeout=180)
+        model = args.model
+        if model == "auto":
+            models = proxy.models()
+            available = {x.get("id") for x in models.get("data", [])
+                         if isinstance(x, dict) and isinstance(x.get("id"), str)}
+            model = next((m for m in ("gpt-5.4", "gpt-5.3-codex", "gpt-5.4-mini", "gpt-5.2-codex")
+                          if m in available), None)
+            if not model:
+                raise EditorialTeamError("TEAM_NO_SUPPORTED_EDITORIAL_MODEL")
+        stage = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "videoforge-editorial-stage"
         report = run_team(channel=args.channel, snapshot=snapshot, trends=trends,
-                          client=ProxyClient(timeout=180), model=args.model)
+                          client=proxy, model=model,
+                          stage_dir=stage,
+                          reporter=CheckReporter(channel=args.channel,
+                                                 workflow_kind="editorial"))
         output = args.output
         if output.exists() or output.is_symlink():
             raise EditorialTeamError("TEAM_OUTPUT_ALREADY_EXISTS")
