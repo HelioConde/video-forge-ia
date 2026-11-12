@@ -1,0 +1,12 @@
+{
+  "schema": "videoforge/one-shot-autoeditor-render/v1",
+  "request_id": "autoeditor-consistency-remake-2026-11-12",
+  "manifest": "geradores/autoeditor/exemplo-manifesto.json",
+  "approved_by_owner": true,
+  "max_image_requests": 8,
+  "youtube_upload_enabled": false,
+  "auto_retry_enabled": false,
+  "expected_result": "private_review_artifact",
+  "rerender_source_run_id": 43147397260,
+  "visual_consistency": "canonical_scene_one_image_edit"
+}
