@@ -192,6 +192,9 @@ class TestEditorialTeam(TestCase):
             "CHANNEL_IDEATION_APPROVED": "yes",
             "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
             "GITHUB_REF": "refs/heads/main",
+            "GITHUB_EVENT_NAME": "workflow_dispatch",
+            "GITHUB_ACTOR": "HelioConde",
+            "GITHUB_RUN_ATTEMPT": "1",
         }
         for message, expected in (
             ("TEAM_INSUFFICIENT_VERIFIED_METRICS",
@@ -210,6 +213,30 @@ class TestEditorialTeam(TestCase):
                 self.assertIn(expected, output.getvalue())
                 self.assertNotIn("secret-WOULD", output.getvalue())
 
+    def test_team_main_requires_manual_owner_dispatch_even_with_approval_env(self):
+        import os
+        from videoforge.channel_agents.team import main
+        allowed = {
+            "CHANNEL_IDEATION_APPROVED": "yes",
+            "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
+            "GITHUB_REF": "refs/heads/main",
+            "GITHUB_EVENT_NAME": "workflow_dispatch",
+            "GITHUB_ACTOR": "HelioConde",
+            "GITHUB_RUN_ATTEMPT": "1",
+        }
+        for change in (
+            {"GITHUB_EVENT_NAME": "push"},
+            {"GITHUB_EVENT_NAME": "pull_request"},
+            {"GITHUB_ACTOR": "other-person"},
+            {"GITHUB_RUN_ATTEMPT": "2"},
+        ):
+            with self.subTest(change=change):
+                env = {**allowed, **change}
+                with mock.patch.dict(os.environ, env, clear=True), self.assertRaisesRegex(
+                        SystemExit, "TEAM_PRIVATE_RESEARCH_APPROVAL_REQUIRED"):
+                    main(["--channel", "otaku-br", "--days", "90",
+                          "--model", "auto", "--output", "unused.json"])
+
     def test_researcher_failures_expose_only_fixed_safe_codes(self):
         from contextlib import redirect_stdout
         from io import StringIO
@@ -221,6 +248,9 @@ class TestEditorialTeam(TestCase):
             "CHANNEL_IDEATION_APPROVED": "yes",
             "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
             "GITHUB_REF": "refs/heads/main",
+            "GITHUB_EVENT_NAME": "workflow_dispatch",
+            "GITHUB_ACTOR": "HelioConde",
+            "GITHUB_RUN_ATTEMPT": "1",
         }
         for reason, expected in (
             ("EDITORIAL_PROXY_CALL_FAILED", "EDITORIAL_TEAM_BLOCKED_EDITORIAL_PROXY_CALL_FAILED"),
