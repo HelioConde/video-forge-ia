@@ -42,6 +42,8 @@ jobs:
           python-version: "3.12"
       - name: Testar motor de delegação
         run: python -m unittest discover -s tests -p 'test_delegation.py' -v
+      - name: Testar integracao offline dos especialistas com o Proxy
+        run: python -m unittest discover -s tests -p 'test_agent_dispatch.py' -v
       - name: Receber briefing e distribuir as 18 tarefas
         env:
           VIDEO_ID: ${{ inputs.id }}
@@ -79,6 +81,23 @@ jobs:
               json.dumps(bindings,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8"
           )
           print("PROXY_STAGE_BINDINGS_READY_18_ZERO_API_CALLS")
+          PY
+      - name: Identificar especialistas de texto liberados (sem chamar IA)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from videoforge.production.agent_dispatch import plan_text_dispatch
+          root = Path("output/gerente")
+          plan = json.loads((root/"plano.json").read_text(encoding="utf-8"))
+          result = plan_text_dispatch(plan)
+          (root/"agentes-texto-prontos.json").write_text(
+              json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8"
+          )
+          assert result["proxy_requests_sent"] == 0
+          assert result["mode"] == "planning_only"
+          print("TEXT_AGENT_DISPATCH_PREVIEW_READY_NO_PROXY_CALLS")
           PY
       - name: Preparar checklist de qualidade para QA independente (sem IA)
         run: |

@@ -57,6 +57,10 @@ no GH Checks distinguem LLM pesquisador, decisão por métricas e auditoria.
 
 Qualquer nova inferência de modelo usada por Direção, Subgerente, gerentes e especialistas deve passar por `videoforge/proxy/client.py` e `videoforge/proxy/agent_gateway.py`, nunca por chamadas diretas concorrentes para provedores ou pelo navegador. O gateway descobre papéis em `agentes/equipe.json`, usa modelo configurado por papel e exige autorização explícita por chamada. A configuração do Proxy não habilita automaticamente funcionários, não confere cotas, não gera mídia nem publica vídeos. O runner privado deverá implementar controle agregado de orçamento, idempotência, QA e persistência de evidências antes de ligar a fila. [Documentação](docs/AGENT_PROXY_GATEWAY.md).
 
+## Despacho seguro de tarefas de texto
+
+`videoforge/production/agent_dispatch.py` conecta tarefas textuais do planejador aos especialistas cadastrados e ao `videoforge/proxy/agent_gateway.py`. A listagem e o workflow `production-request.yml` permanecem **offline**. Execuções reais requerem autorização explícita dupla, backend privado, modelo configurado e diretório privado de evidência (0700). Reservar a tarefa com criação exclusiva *antes* da chamada evita novas tentativas automáticas após timeout/cobrança incerta. O rascunho gerado tem status `awaiting_independent_review`, não deve ser contado como `done`, QA aprovado, produtividade pontuada ou progresso público sem revisão verificável. Não permitir que tarefas de texto assumam geração de imagens, TTS, renderização, upload ou aprovação humana. [Detalhes](docs/AGENT_TEXT_DISPATCH.md).
+
 ## Escritório deve refletir trabalho real, nunca simulado
 
 Toda execução real AutoEditor deve registrar no GitHub Checks as tarefas

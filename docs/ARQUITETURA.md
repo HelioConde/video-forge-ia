@@ -1,5 +1,9 @@
 # Arquitetura proposta — VideoForge AI
 
+## Despacho de agentes de texto pelo Codex Proxy
+
+`videoforge/production/agent_dispatch.py` conecta as etapas textuais elegíveis do DAG do `dispatcher.py` aos especialistas do `agentes/equipe.json` por `videoforge/proxy/agent_gateway.py`. A prévia `plan_text_dispatch` não consulta modelos nem cobra cotas. Somente um runner backend confiável com aprovação por execução pode chamar `run_text_draft`, que reserva a tarefa de modo exclusivo e salva um rascunho privado com hash para revisão independente, sem atualizar o DAG como concluído. O workflow `production-request.yml` exibe somente a prévia; publicação e geração paga não são habilitadas. Ver [guia](AGENT_TEXT_DISPATCH.md).
+
 ## Executor AutoEditorVideo: motor técnico reutilizável
 
 O novo perfil `geradores/autoeditor/gerador.json` é genérico e
