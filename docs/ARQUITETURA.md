@@ -40,6 +40,20 @@ exibe os sinais em cartões de fonte, sem marcar nenhum agente como
 bloqueia o build, em vez de exibir fato ou ranking fictício.
 O uso de uma pesquisa pública não resolve HTTP 429 do Codex Proxy.
 
+## Preflight de volume do pesquisador (sem IA)
+
+O `ideation.propose_candidates` monta o pedido ao
+`POST /v1/chat/completions` com até 100 vídeos, 300 reservas e 20 sinais
+externos; projeta apenas métricas numéricas reconhecidas do YouTube,
+eliminando campos inesperados. A revisão de duplicatas e pontuação
+continua usando o snapshot completo no Gerente/Subgerente.
+O corpo JSON UTF-8 é medido **antes** da chamada: acima de 96 KiB,
+retorna `EDITORIAL_PAYLOAD_TOO_LARGE` sem gastar cota, sem reduzir
+silenciosamente o histórico ou expor Analytics nos logs. É proteção
+local contra contexto descontrolado, **não** evidência da origem do
+HTTP 429 ou do limite de tokens do modelo. O 429 segue sem retries.
+Regressões offline: `tests/test_editorial_team.py`.
+
 ## Diagnóstico privado de cota sem chamada generativa
 
 `videoforge/proxy/quota_diagnostic.py` resume a elegibilidade de conta
