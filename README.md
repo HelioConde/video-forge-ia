@@ -30,6 +30,22 @@ o modo `private-quota-live` exige disparo manual protegido e faz no máximo
 que o próximo pedido de IA terá sucesso.
 [Contrato, autorização e resultados](docs/PROXY_QUOTA_DIAGNOSTIC.md).
 
+## Primeiro vídeo real do Otaku Multicena pela equipe
+
+O próximo marco do VideoForge é **um Short original de pelo menos
+90 segundos escolhido pelos agentes e entregue como MP4 para revisão
+humana**, não uma prévia genérica. O novo workflow
+[`otaku-team-video-readiness.yml`](.github/workflows/otaku-team-video-readiness.yml)
+identifica pendências sem utilizar IA nem credenciais.
+Hoje o registro de pautas aprovadas está vazio e o exemplo
+do AutoEditor não é resultado do Gerente/Subgerente; além disso,
+o exemplo prevê **26 chamadas de imagem**, mas o limite
+padrão conservador de render é **12**. O render pago agora só pode
+ser disparado manualmente pelo proprietário e bloqueia orçamento
+insuficiente **antes de carregar segredos**. Não há vídeo novo
+gerado por esta atualização.
+[Plano de entrega do primeiro MP4](docs/PRIMEIRO_VIDEO_OTAKU_EQUIPE.md).
+
 ## Monitoramento automático a cada 30 minutos
 
 O workflow [VideoForge — Monitor de saúde](.github/workflows/videoforge-healthcheck.yml)
