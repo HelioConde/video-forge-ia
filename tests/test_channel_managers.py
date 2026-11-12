@@ -123,12 +123,13 @@ class FakeYouTube:
             return FakeResponse({"columnHeaders":[{"name": h} for h in headers],
                                  "rows":rows})
         if url.path.endswith("/reports"):
-            headers = ["video", "views", "estimatedMinutesWatched",
-                       "averageViewDuration", "averageViewPercentage", "likes"]
+            headers = ["video", "views", "engagedViews", "subscribersGained",
+                       "estimatedMinutesWatched", "averageViewDuration",
+                       "averageViewPercentage", "likes"]
             return FakeResponse({
                 "columnHeaders": [{"name": h} for h in headers],
-                "rows": [["ABCDE12345x", 800, 700, 65, 72.2, 40],
-                         ["FGHIJ67890y", 700, 650, 66, 73.3, 35]],
+                "rows": [["ABCDE12345x", 800, 520, 15, 700, 65, 72.2, 40],
+                         ["FGHIJ67890y", 700, 410, 8, 650, 66, 73.3, 35]],
             })
         if url.path.endswith("/search"):
             return FakeResponse({"items": [{"id":{"videoId":"ttttt123456"},
@@ -150,6 +151,8 @@ class YouTubeTests(TestCase):
         self.assertTrue(report["history_complete"])
         self.assertEqual(report["count"],2)
         self.assertEqual(report["videos"][0]["metrics"]["views"],800)
+        self.assertEqual(report["videos"][0]["metrics"]["engagedViews"],520)
+        self.assertEqual(report["videos"][0]["metrics"]["subscribersGained"],15)
         self.assertEqual(report["videos"][0]["duration_seconds"],90)
         self.assertEqual(report["window"]["start"],"2026-08-12")
         self.assertEqual([x[0] for x in fake.calls],
