@@ -1,0 +1,110 @@
+name: VideoForge - Diagnostico privado de geracao de texto
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - config/pilot-proxy-diagnostic.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: videoforge-one-shot-proxy-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  diagnose-chat:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: proxy-runtime
+    timeout-minutes: 20
+    env:
+      DEBUG_LOG_PAYLOADS: 'false'
+      GIN_MODE: release
+      PORT: '8080'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile proxy without credentials
+        working-directory: upstream-codex-proxy
+        run: CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/vf-proxy-diag" ./cmd/api
+      - name: One small live chat call (no images, no upload, safe error code)
+        shell: bash
+        env:
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
+        run: |
+          set -euo pipefail
+          umask 077
+          state_dir="$RUNNER_TEMP/vf-proxy-diagnostic"
+          proxy_pid=''
+          cleanup() {
+            if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
+            rm -rf -- "$state_dir"
+            rm -f -- "$RUNNER_TEMP/vf-proxy-diag.log"
+          }
+          trap cleanup EXIT
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.proxy.private_state import stage_private_state
+          stage_private_state(os.environ["PROXY_ACCOUNTS_JSON"],
+             Path(os.environ["RUNNER_TEMP"])/"vf-proxy-diagnostic")
+          print("OAUTH_STATE_VALIDATED")
+          PY
+          unset PROXY_ACCOUNTS_JSON
+          DATA_DIR="$state_dir" "$RUNNER_TEMP/vf-proxy-diag" \
+            > "$RUNNER_TEMP/vf-proxy-diag.log" 2>&1 &
+          proxy_pid=$!
+          python - <<'PY'
+          import time
+          from videoforge.proxy.client import ProxyClient, ProxyError
+          p=ProxyClient(timeout=4)
+          for _ in range(40):
+              try:
+                  if p.health_live().get("status")=="ok":
+                      break
+              except ProxyError:
+                  pass
+              time.sleep(.5)
+          else:
+              raise SystemExit("SERVER_NOT_READY")
+          PY
+          python - <<'PY'
+          from videoforge.proxy.client import ProxyClient,ProxyError
+          p=ProxyClient(timeout=90)
+          catalog=p.models()
+          ids=[x.get("id","") for x in catalog.get("data",[]) if isinstance(x,dict)]
+          print("MODEL_ID_LIST", " ".join(ids[:20]))
+          accounts=p.accounts().get("accounts",[])
+          print("ELIGIBLE_ACCOUNTS", sum(x.get("eligible_now") is True for x in accounts))
+          try:
+              result=p.chat({"model":"gpt-6.1-sol","stream":False,
+                "messages":[{"role":"user","content":"Responda somente com a palavra OLA."}]})
+          except ProxyError as exc:
+              # ProxyError carries only safe HTTP status, never upstream error body.
+              print("CHAT_TEST_FAILED", str(exc))
+              raise SystemExit(1)
+          print("CHAT_HTTP_200")
+          print("CHAT_CHOICES_COUNT",len(result.get("choices",[])) if isinstance(result,dict) else -1)
+          choices=result.get("choices",[]) if isinstance(result,dict) else []
+          content=choices[0].get("message",{}).get("content") if choices else None
+          print("CHAT_CONTENT_TYPE",type(content).__name__)
+          print("CHAT_CONTENT_LENGTH",len(content) if isinstance(content,str) else -1)
+          PY
