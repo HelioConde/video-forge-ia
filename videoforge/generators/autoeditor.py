@@ -296,10 +296,13 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
     if len(manifest["cenas"]) > max_calls or not 1 <= max_calls <= MAX_IMAGES:
         raise AutoEditorBlocked("AUTOEDITOR_GENERATION_BUDGET_INSUFFICIENT")
     bible = validate_visual_lock(manifest.get("visual_lock"))
+    # Check every scene for contradictory art direction BEFORE first paid call.
+    instructions = [scene_prompt(scene, bible, first=i == 1)
+                    for i, scene in enumerate(manifest["cenas"], start=1)]
     source_ref = resolve_reference_image(bible, channel=manifest["canal"], root=ROOT)
     files = []
     for i, scene in enumerate(manifest["cenas"], start=1):
-        instruction = scene_prompt(scene, bible, first=i == 1)
+        instruction = instructions[i - 1]
         reference = None
         mode = "canonical_anchor"
         if i == 1 and source_ref is not None:
