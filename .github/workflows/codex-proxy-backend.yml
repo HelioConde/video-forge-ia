@@ -5,22 +5,24 @@ on:
     paths:
       - 'videoforge/proxy/**'
       - 'tests/test_proxy_client.py'
+      - 'tests/test_proxy_quota.py'
       - 'tests/test_agent_gateway.py'
       - '.github/workflows/codex-proxy-backend.yml'
   pull_request:
     paths:
       - 'videoforge/proxy/**'
       - 'tests/test_proxy_client.py'
+      - 'tests/test_proxy_quota.py'
       - 'tests/test_agent_gateway.py'
       - '.github/workflows/codex-proxy-backend.yml'
   workflow_dispatch:
     inputs:
       mode:
-        description: 'offline: zero segredos; private-readonly: exige Environment protegido'
+        description: 'offline: sem segredos; private-readonly: cache; private-quota-live: GET de cota'
         type: choice
         required: true
         default: offline
-        options: [offline, private-readonly]
+        options: [offline, private-readonly, private-quota-live]
 
 permissions:
   contents: read
@@ -43,6 +45,8 @@ jobs:
           python-version: '3.12'
       - name: Verificar todas as rotas e guardas sem rede
         run: python -m unittest discover -s tests -p 'test_proxy_client.py' -v
+      - name: Verificar cotas sem rede nem contas reais
+        run: python -m unittest discover -s tests -p 'test_proxy_quota.py' -v
       - name: Verificar gateway de agentes via proxy SEM rede
         run: python -m unittest discover -s tests -p 'test_agent_gateway.py' -v
       - name: Catalogar capacidades SEM rede ou credenciais
@@ -122,7 +126,8 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' &&
       github.ref == 'refs/heads/main' &&
-      inputs.mode == 'private-readonly'
+      (inputs.mode == 'private-readonly' || inputs.mode == 'private-quota-live') &&
+      github.run_attempt == 1
     needs: [unit-contract, native-synthetic]
     environment: proxy-runtime
     runs-on: ubuntu-24.04
@@ -179,4 +184,12 @@ jobs:
           DATA_DIR="$state_dir" "$RUNNER_TEMP/codex-proxy-private" >"$RUNNER_TEMP/vf-proxy-private.log" 2>&1 &
           proxy_pid=$!
           python -m videoforge.proxy.cli --action probe
-          echo 'READONLY_COMPLETE_NO_IMAGES_NO_UPLOAD_NO_ARTIFACT'
+          # Cached mode: no network usage request. Live mode: exactly one
+          # provider read-only quota GET; no model or media inference.
+          if [[ "${{ inputs.mode }}" == "private-quota-live" ]]; then
+            PROXY_QUOTA_LIVE_APPROVED=yes \
+              python -m videoforge.proxy.cli --action quota --usage-mode live
+          else
+            python -m videoforge.proxy.cli --action quota --usage-mode cached
+          fi
+          echo 'READONLY_COMPLETE_NO_CHAT_NO_IMAGES_NO_UPLOAD_NO_ARTIFACT'
