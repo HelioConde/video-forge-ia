@@ -129,6 +129,15 @@ def attach_quality_report(plan: dict, report: dict, *, media_path: Path,
     from .quality_gate import evaluate_quality, inspect_media
     if plan.get("schema") != "videoforge/production-delegation/v1":
         raise ValueError("Plano incompatível")
+    previous_gate = plan.get("quality_gate", {})
+    if previous_gate.get("status") in (
+        "suspended", "blocked_policy", "ready_for_human_approval"
+    ):
+        raise ValueError("QA finalizado ou suspenso: reabertura exige gerente humano")
+    previous_attempt = previous_gate.get("attempt", 0)
+    if (not isinstance(previous_attempt, int) or
+            report.get("attempt") != previous_attempt + 1):
+        raise ValueError("Tentativas de revisão devem aumentar sequencialmente")
     by_id = {t["id"]: t for t in plan["tasks"]}
     for qa_id in ("qa_tecnico", "qa_conteudo"):
         qa = by_id.get(qa_id, {})
