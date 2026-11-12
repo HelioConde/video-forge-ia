@@ -314,7 +314,9 @@ def main(argv=None):
         # Error class alone hides whether the block is insufficient channel
         # metrics, a missing model or a dedup restriction.
         code = str(exc)
-        if not isinstance(exc, EditorialTeamError) or not (
+        # Both exception classes use local fixed, ASCII-only rejection
+        # codes. Never print upstream Proxy/OAuth/provider messages.
+        if not isinstance(exc, (EditorialTeamError, EditorialIdeationError)) or not (
                 5 <= len(code) <= 90 and
                 all(ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for ch in code)):
             code = type(exc).__name__
