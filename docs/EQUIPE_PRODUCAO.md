@@ -42,3 +42,18 @@ roteiro → narração, título, descrição, tags, arte, edição e QA.
 A decisão é acompanhada de evidências e pode ser recusada por falta de
 amostras. `docs/GERENTES-CANAIS.md` detalha o piloto e os bloqueios.
 A integração real de IA e o upload permanecem desabilitados nesta entrega.
+
+## Subgerente — reconhecimento e evolução do time
+
+A equipe recebe **um novo agente independente chamado Subgerente**,
+responsável por verificar avaliações de QA, atribuir pontos transparentes
+(0–100 por entrega), apresentar rankings por especialidade e encaminhar
+planos individuais de melhoria ao gerente geral. Ele é o **nono agente
+visual** e fica em pé na área colaborativa, reutilizando animações locais.
+
+A pontuação usa média das entregas aprovadas, nunca soma de vídeos ou
+métricas de YouTube. Um membro com menos de três trabalhos de QA possui
+nota indisponível, não zero. Resumos sem artefatos verificáveis e
+autoavaliações são bloqueados. Os funcionários não devem ajustar suas
+próprias notas. O sistema não executa ações de IA automaticamente.
+Ver `docs/SUBGERENTE.md`.
