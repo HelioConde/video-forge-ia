@@ -4,6 +4,17 @@
 
 > **Estado atual:** o pipeline já produziu um MP4 de prévia técnica (18s) no GitHub Actions, mas a geração pelo Proxy falhou por limite HTTP 429; o vídeo anterior usou imagens locais e **não atende à política atual**. A partir desta revisão, a geração de todas as imagens de cena pelo gerador integrado é obrigatória: se falhar, a produção é interrompida. Não há upload automático.
 
+## Diagnóstico de limite HTTP 429 (sem gerar IA)
+
+O Codex Proxy pode aceitar uma conta e listar modelos sem que uma geração
+de texto esteja disponível. O VideoForge agora disponibiliza um diagnóstico
+**somente de leitura** das cotas, no backend privado, com dados agregados e
+sem expor informações da conta. O modo em cache não faz chamadas upstream;
+o modo `private-quota-live` exige disparo manual protegido e faz no máximo
+**um GET de uso**, sem gerar texto, imagens ou vídeos. A resposta não garante
+que o próximo pedido de IA terá sucesso.
+[Contrato, autorização e resultados](docs/PROXY_QUOTA_DIAGNOSTIC.md).
+
 ## Organização do projeto
 
 Os cinco canais do AutoEditorVideo estão separados em pastas independentes. Cada canal possui suas próprias regras editoriais e um modelo padrão, que pode ser substituído individualmente em um vídeo.
