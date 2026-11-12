@@ -84,12 +84,14 @@ assert.equal(mergedEditorial.agentes.find(x=>x.id==="publicador").status,"nao_co
 
 // Independent status telemetry covers stages where the Checks API fails.
 const statusEditor=(id,state="pending",ctx="VideoForge Stage / autoeditor / otaku-br / editor")=>({
-  id, sha:SHA, context:ctx, state,
+  id, context:ctx, state,
+  url:"https://api.github.com/repos/HelioConde/video-forge-ia/statuses/"+SHA,
   target_url:"https://github.com/HelioConde/video-forge-ia/actions/runs/43147397260",
 });
 const statusArtist=statusEditor(222,"pending","VideoForge Stage / autoeditor / otaku-br / artista");
 const statusFallback=live.readEvidence(RUN,[],[statusArtist,statusEditor(223)]);
 assert.equal(statusFallback.tasks.length,2);
+assert.equal(statusFallback.tasks.every(x=>x.origin==="github_commit_status"),true);
 assert.equal(statusFallback.tasks.find(x=>x.role==="editor").status,"in_progress");
 assert.equal(statusFallback.tasks.find(x=>x.role==="artista").origin,"github_commit_status");
 const withEditor={...snapshot,agentes:[...snapshot.agentes,
@@ -112,6 +114,7 @@ assert.notEqual(live.merge(withEditor,stageOld).agentes.find(x=>x.id==="editor")
 // Invalid source, forged URLs, attempted publication and wrong commit are ignored.
 for(const corrupt of [
   {...statusEditor(301),sha:"b".repeat(40)},
+  {...statusEditor(306),url:"https://api.github.com/repos/untrusted/repo/statuses/"+SHA},
   {...statusEditor(302),target_url:"https://evil.example/work"},
   statusEditor(303,"pending","VideoForge Stage / autoeditor / otaku-br / publicador"),
   statusEditor(304,"pending","VideoForge Stage / autoeditor / other-channel / editor"),

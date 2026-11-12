@@ -47,8 +47,13 @@
       const match = /^VideoForge Stage \/ (autoeditor|editorial) \/ ([a-z0-9]+(?:-[a-z0-9]+)*) \/ ([a-z]+)$/.exec(row.context);
       if (!match || !validRoles.includes(match[3]) || match[3] === "publicador") continue;
       if (match[1] === "editorial" && !(match[3] in EDITORIAL_ROLES)) continue;
+      // GitHub's list-commit-statuses response identifies the commit in
+      // status.url rather than a required status.sha field.
+      // Verify exact repository/commit URL; reject a contradictory sha if present.
+      const statusCommitUrl = API + "/statuses/" + run.head_sha;
       if (row.target_url !== runUrl(run.id) ||
-          row.sha !== run.head_sha ||
+          row.url !== statusCommitUrl ||
+          (row.sha !== undefined && row.sha !== run.head_sha) ||
           !Number.isSafeInteger(row.id) || row.id < 1 ||
           !["pending","success","failure"].includes(row.state)) continue;
       const key = match[3];
