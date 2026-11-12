@@ -1,0 +1,117 @@
+{
+  "schema": "videoforge/generator/v1",
+  "id": "autoeditor",
+  "nome": "AutoEditor — gerador modular de vídeos",
+  "descricao": "Pipeline real inspirado no AutoEditorVideo: pauta, roteiro, Edge TTS com WordBoundary, imagens pelo Codex Proxy, cenas dinâmicas Remotion MasterShort, FFprobe e revisão. Independente do nicho.",
+  "status": "ready_for_backend",
+  "execution_enabled": false,
+  "auto_publish_enabled": false,
+  "requires_human_approval": true,
+  "perfil": {
+    "publico": "adaptavel a qualquer canal",
+    "estilo": "editorial configuravel por vídeo; animação de câmera em imagens geradas",
+    "direcao": "reutilizar engine Remotion de AutoEditorVideo, gerar imagens somente pelo provedor integrado, priorizar consistência, narração com marcações reais, QA e aprovação humana; sem upload automático"
+  },
+  "pipeline": [
+    {
+      "id": "pauta",
+      "operation": "editorial-brief",
+      "agent": "coordenador-pautas",
+      "after": [],
+      "output": "briefing.json"
+    },
+    {
+      "id": "anti-duplicacao",
+      "operation": "dedup-check",
+      "agent": "pesquisador",
+      "after": [
+        "pauta"
+      ],
+      "output": "deduplicacao.json"
+    },
+    {
+      "id": "roteiro",
+      "operation": "script",
+      "agent": "roteirista-cenas",
+      "after": [
+        "anti-duplicacao"
+      ],
+      "output": "roteiro.json"
+    },
+    {
+      "id": "storyboard",
+      "operation": "storyboard",
+      "agent": "storyboard",
+      "after": [
+        "roteiro"
+      ],
+      "output": "storyboard.json"
+    },
+    {
+      "id": "narracao",
+      "operation": "narration",
+      "agent": "voz",
+      "after": [
+        "roteiro"
+      ],
+      "output": "narracao.mp3"
+    },
+    {
+      "id": "legendas",
+      "operation": "captions",
+      "agent": "legendas",
+      "after": [
+        "narracao"
+      ],
+      "output": "legendas.json"
+    },
+    {
+      "id": "imagens",
+      "operation": "image-generation",
+      "agent": "ilustrador",
+      "after": [
+        "storyboard",
+        "narracao"
+      ],
+      "output": "imagens.json",
+      "source": "integrated-image-generator"
+    },
+    {
+      "id": "qa-imagens",
+      "operation": "visual-review",
+      "agent": "revisor-visual",
+      "after": [
+        "imagens"
+      ],
+      "output": "qa-imagens.json"
+    },
+    {
+      "id": "edicao",
+      "operation": "render",
+      "agent": "montagem",
+      "after": [
+        "qa-imagens",
+        "legendas"
+      ],
+      "output": "video.mp4"
+    },
+    {
+      "id": "qa-tecnico",
+      "operation": "technical-review",
+      "agent": "qa-tecnico",
+      "after": [
+        "edicao"
+      ],
+      "output": "qa-tecnico.json"
+    },
+    {
+      "id": "qa-editorial",
+      "operation": "quality-review",
+      "agent": "revisor-conteudo",
+      "after": [
+        "qa-tecnico"
+      ],
+      "output": "qa-editorial.json"
+    }
+  ]
+}
