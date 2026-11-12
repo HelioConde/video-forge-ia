@@ -192,8 +192,8 @@ class YouTubeReadOnly:
         return list(metadata.values())
 
     def _analytics(self, *, start_date: date, end_date: date) -> dict[str, dict]:
-        metrics = ("views,estimatedMinutesWatched,averageViewDuration,"
-                   "averageViewPercentage,likes")
+        metrics = ("views,engagedViews,subscribersGained,estimatedMinutesWatched,"
+                   "averageViewDuration,averageViewPercentage,likes")
         rows = []
         offset = 1
         while True:
