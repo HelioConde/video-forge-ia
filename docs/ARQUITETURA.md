@@ -16,6 +16,18 @@ A proteção de dados não equivale a habilitar agentes visuais nem
 desbloqueia o HTTP 429.
 
 
+## Isolamento do ambiente OAuth na triagem de pesquisas
+
+A análise opcional `youtube-readonly` de
+`external-research-validation.yml` utiliza o Environment protegido
+`youtube-analytics-readonly`, **idêntico ao workflow de gerentes**.
+A triagem **não** depende dos Secrets do Codex Proxy em
+`proxy-runtime` e falha antes de solicitar OAuth se estiver sem
+`YOUTUBE_CLIENT_JSON` ou `YOUTUBE_OTAKU_BR_TOKEN_JSON`.
+Somente `workflow_dispatch` explícito na `main`, sem retrigger,
+pode acessar os dados privados; PR e push executam apenas testes.
+O relatório com métricas continua no runner temporário, sem artifact.
+
 ## Exportação segura da fila de pesquisas ao escritório
 
 O `build_dashboard_data.py` projeta o último pacote de pesquisa pública
