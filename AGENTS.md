@@ -1,5 +1,25 @@
 # AGENTS.md — Regras obrigatórias de manutenção do VideoForge AI
 
+## Segurança obrigatória da pesquisa por agentes (12/11/2026)
+
+O workflow `editorial-team-research.yml` só inicia geração mediante
+`workflow_dispatch` manual do proprietário em `main`,
+`authorize_research=true`, Environment protegido e `run_attempt=1`.
+NUNCA reativar pesquisa paga por `push`, nome especial de commit,
+arquivo de one-shot, PR ou `schedule`.
+
+Decisões da equipe podem conter Analytics privados. Nunca subir
+`output/editorial-team/decisao.json` em claro como artifact: cifrar
+usando `videoforge/channel_agents/secure_report.py`,
+AES-256-GCM, mesma chave do briefing e AAD do ID do run. A chave
+deve estar disponível ANTES de chamar o modelo; se faltar, bloquear.
+O workflow `agent-one-briefing.yml` deve validar o run de origem,
+decriptar no runner e exigir reserva/aprovação humana para continuar.
+Testes: `tests/test_secure_editorial_report.py`.
+Nenhuma dessas melhorias autoriza gasto, ignora HTTP 429 ou
+liga personagens sem trabalho comprovado.
+
+
 
 ## Regra 3 obrigatória — animação Remotion real por camada (modelo Fofinho Parte 3)
 
