@@ -67,6 +67,25 @@ def proposals():
 
 
 class TestEditorialTeam(TestCase):
+    def test_ideation_proxy_error_reports_only_local_safe_reason(self):
+        from videoforge.channel_agents.ideation import _safe_proxy_failure
+        from videoforge.proxy.client import ProxyError
+        for input_text, expected in (
+            ("Codex Proxy HTTP 400", "EDITORIAL_PROXY_HTTP_400"),
+            ("Codex Proxy HTTP 401", "EDITORIAL_PROXY_HTTP_401"),
+            ("Codex Proxy HTTP 403", "EDITORIAL_PROXY_HTTP_403"),
+            ("Codex Proxy HTTP 429", "EDITORIAL_PROXY_HTTP_429"),
+            ("Codex Proxy HTTP 502", "EDITORIAL_PROXY_HTTP_502"),
+            ("Codex Proxy HTTP 999", "EDITORIAL_PROXY_HTTP_OTHER"),
+            ("Codex Proxy indisponivel", "EDITORIAL_PROXY_UNAVAILABLE"),
+            ("PROXY_API_KEY ausente ou invalida no backend", "EDITORIAL_PROXY_AUTH_CONFIG_INVALID"),
+            ("token=secret_NEVER_SHOW", "EDITORIAL_PROXY_CALL_FAILED"),
+        ):
+            with self.subTest(expected=expected):
+                code = _safe_proxy_failure(ProxyError(input_text))
+                self.assertEqual(code, expected)
+                self.assertNotIn("secret_", code)
+
     def test_editorial_model_matches_pinned_proxy_catalog(self):
         from videoforge.channel_agents.team import select_editorial_model
         # The pinned upstream bootstrap (2026-11) lists GPT-6.1/6/5.6,
