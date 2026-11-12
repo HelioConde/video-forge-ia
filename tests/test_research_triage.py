@@ -112,6 +112,94 @@ class ResearchTriageTests(TestCase):
             triage_research(research=bad, snapshot=make_snapshot(),
                             policy=self.policy)
 
+    def test_live_readonly_requires_manual_main_dispatch_and_single_attempt(self):
+        import os
+        allowed = {
+            "CHANNEL_METRICS_READONLY_AUTHORIZED": "yes",
+            "GITHUB_EVENT_NAME": "workflow_dispatch",
+            "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
+            "GITHUB_REF": "refs/heads/main",
+            "GITHUB_RUN_ATTEMPT": "1",
+        }
+        for invalid in (
+            {"GITHUB_EVENT_NAME": "push"},
+            {"GITHUB_REF": "refs/heads/feature"},
+            {"GITHUB_RUN_ATTEMPT": "2"},
+            {"CHANNEL_METRICS_READONLY_AUTHORIZED": "no"},
+            {"GITHUB_REPOSITORY": "another/repo"},
+        ):
+            with self.subTest(invalid=invalid), TemporaryDirectory() as temp:
+                with (mock.patch.dict(os.environ, {**allowed, **invalid},
+                                      clear=True),
+                      mock.patch("videoforge.channel_agents.research_triage.latest_research",
+                                 return_value=self.packet),
+                      mock.patch("videoforge.channel_agents.research_triage.oauth_access_token",
+                                 side_effect=AssertionError("No OAuth call allowed"))):
+                    with self.assertRaisesRegex(
+                            SystemExit, "TRIAGE_PRIVATE_READONLY_NOT_AUTHORIZED"):
+                        main(["--channel", "otaku-br", "--mode", "youtube-readonly",
+                              "--output", str(Path(temp) / "private.json")])
+                self.assertFalse((Path(temp) / "private.json").exists())
+
+    def test_live_readonly_uses_verified_channel_inventory_without_models(self):
+        import os
+        allowed = {
+            "CHANNEL_METRICS_READONLY_AUTHORIZED": "yes",
+            "GITHUB_EVENT_NAME": "workflow_dispatch",
+            "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
+            "GITHUB_REF": "refs/heads/main",
+            "GITHUB_RUN_ATTEMPT": "1",
+            "YOUTUBE_CLIENT_JSON": "MOCKED_CLIENT",
+            "YOUTUBE_CHANNEL_TOKEN_JSON": "MOCKED_CHANNEL",
+        }
+        with TemporaryDirectory() as temp:
+            output = Path(temp) / "private.json"
+            with (mock.patch.dict(os.environ, allowed, clear=True),
+                  mock.patch("videoforge.channel_agents.research_triage.latest_research",
+                             return_value=self.packet),
+                  mock.patch("videoforge.channel_agents.research_triage.oauth_access_token",
+                             return_value="SYNTHETIC_OAUTH_TOKEN") as oauth,
+                  mock.patch("videoforge.channel_agents.research_triage.YouTubeReadOnly")
+                  as youtube,
+                  mock.patch("videoforge.proxy.client.ProxyClient",
+                             side_effect=AssertionError("Proxy must not be called"))):
+                youtube.return_value.snapshot.return_value = make_snapshot()
+                status = main(["--channel", "otaku-br", "--mode", "youtube-readonly",
+                               "--days", "90", "--output", str(output)])
+            self.assertEqual(status, 0)
+            oauth.assert_called_once_with("MOCKED_CLIENT", "MOCKED_CHANNEL")
+            youtube.assert_called_once_with(
+                access_token="SYNTHETIC_OAUTH_TOKEN",
+                expected_channel_id=CID)
+            youtube.return_value.snapshot.assert_called_once_with(days=90)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertTrue(report["verified_full_upload_history"])
+            self.assertEqual(report["proxy_calls"], 0)
+            self.assertEqual(report["videos_generated"], 0)
+            self.assertEqual(report["topics_reserved"], 0)
+            self.assertIsNone(report["selected"])
+
+    def test_readonly_workflows_share_the_correct_protected_environment(self):
+        manager = (ROOT / ".github/workflows/channel-manager-analysis.yml"
+                   ).read_text(encoding="utf-8")
+        triage = (ROOT / ".github/workflows/external-research-validation.yml"
+                  ).read_text(encoding="utf-8")
+        expected = "environment: youtube-analytics-readonly"
+        self.assertIn(expected, manager)
+        self.assertIn(expected, triage)
+        self.assertNotIn("environment: proxy-runtime", triage)
+        self.assertIn("github.event_name == 'workflow_dispatch'", triage)
+        self.assertIn("github.run_attempt == 1", triage)
+        self.assertIn("TRIAGE_YOUTUBE_READONLY_CREDENTIALS_MISSING", triage)
+        self.assertIn("secrets.YOUTUBE_CLIENT_JSON", triage)
+        self.assertIn("secrets.YOUTUBE_OTAKU_BR_TOKEN_JSON", triage)
+        for forbidden in ("secrets.PROXY_API_KEY", "secrets.PROXY_ACCOUNTS_JSON",
+                          "actions/upload-artifact", "youtube.upload",
+                          "PROXY_QUOTA_LIVE_APPROVED"):
+            self.assertNotIn(forbidden, triage)
+        # A GitHub Summary should contain newlines, not literal \\n glyphs.
+        self.assertNotIn(r"\\n", triage)
+
     def test_cli_offline_never_contacts_proxy_or_writes_video(self):
         with TemporaryDirectory() as temp:
             inventory = Path(temp) / "inventory.json"
