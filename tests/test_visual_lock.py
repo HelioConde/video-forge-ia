@@ -30,7 +30,7 @@ def png_bytes(idx: int) -> bytes:
     im = Image.new("RGB", (720, 1280), (30 + idx, 35, 60 + idx))
     draw = ImageDraw.Draw(im)
     for n in range(25):
-        draw.rectangle((n * 13, n * 27, 300 + idx + n, 600 + n),
+        draw.rectangle((n * 13, n * 27, 300 + idx + n, 950 + n),
                        outline=(150 + idx, 80 + n, 30 + idx), width=3)
     file = io.BytesIO()
     im.save(file, format="PNG")
