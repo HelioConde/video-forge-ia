@@ -35,7 +35,9 @@ concurrency:
 
 jobs:
   plan:
-    if: inputs.action == 'plan' || (github.event_name == 'push' && github.event.head_commit.message != 'test(autoeditor): one-shot user-authorized render 2026-11-12')
+    if: >-
+      inputs.action == 'plan' ||
+      (github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'test(autoeditor): one-shot user-authorized render 2026-11-12'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
