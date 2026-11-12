@@ -6,6 +6,8 @@
   "idioma": "en-US",
   "modelo_padrao": "imagem-estatica",
   "modelo_padrao_provisorio": true,
+  "gerador_padrao": "anime",
+  "gerador_padrao_provisorio": true,
   "nicho": "english_anime_commentary",
   "audiencia": "general",
   "serie_principal": null,
