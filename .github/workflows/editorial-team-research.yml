@@ -21,7 +21,7 @@ permissions:
   checks: write
 
 concurrency:
-  group: editorial-team-${{ github.ref }
+  group: editorial-team-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -117,11 +117,11 @@ jobs:
       - name: Pesquisador IA, gerente e subgerente escolhem e auditam
         shell: bash
         env:
-          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }
-          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }
-          YOUTUBE_CLIENT_JSON: ${{ secrets.YOUTUBE_CLIENT_JSON }
-          YOUTUBE_CHANNEL_TOKEN_JSON: ${{ secrets.YOUTUBE_OTAKU_BR_TOKEN_JSON }
-          VF_CHECK_TOKEN: ${{ github.token }
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
+          YOUTUBE_CLIENT_JSON: ${{ secrets.YOUTUBE_CLIENT_JSON }}
+          YOUTUBE_CHANNEL_TOKEN_JSON: ${{ secrets.YOUTUBE_OTAKU_BR_TOKEN_JSON }}
+          VF_CHECK_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           umask 077
@@ -194,7 +194,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: otaku-multicena-agents-decisao-${{ github.run_id }
+          name: otaku-multicena-agents-decisao-${{ github.run_id }}
           path: output/editorial-team/decisao.json
           retention-days: 7
           if-no-files-found: error
