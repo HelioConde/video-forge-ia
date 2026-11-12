@@ -111,6 +111,25 @@
             "description": "Porta de metal enferrujada que a pesquisadora abre ao entrar na torre"
           }
         ]
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": [
+          {
+            "id": "porta-da-torre",
+            "motion": "sway",
+            "start": 0.2,
+            "end": 0.83,
+            "distance": 12
+          },
+          {
+            "id": "pesquisadora",
+            "motion": "idle",
+            "start": 0.15,
+            "end": 0.9,
+            "distance": 6
+          }
+        ]
       }
     },
     {
