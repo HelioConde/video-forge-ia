@@ -36,7 +36,33 @@
       typeof run.head_sha === "string" && /^[a-f0-9]{40}$/.test(run.head_sha) &&
       ALLOWED_STATUSES.has(run.status) && (run.event === "push" || run.event === "workflow_dispatch");
   }
-  function readEvidence(run, checkRuns) {
+  const STATUS_PREFIX = "VideoForge Stage / ";
+  function readStatusEvidence(run, statuses) {
+    if (!usableRun(run)) return [];
+    const result = new Map();
+    const validRoles = Object.keys(ROLES);
+    for (const row of Array.isArray(statuses) ? statuses : []) {
+      if (!row || typeof row.context !== "string" || !row.context.startsWith(STATUS_PREFIX))
+        continue;
+      const match = /^VideoForge Stage \/ (autoeditor|editorial) \/ ([a-z0-9]+(?:-[a-z0-9]+)*) \/ ([a-z]+)$/.exec(row.context);
+      if (!match || !validRoles.includes(match[3]) || match[3] === "publicador") continue;
+      if (match[1] === "editorial" && !(match[3] in EDITORIAL_ROLES)) continue;
+      if (row.target_url !== runUrl(run.id) ||
+          row.sha !== run.head_sha ||
+          !Number.isSafeInteger(row.id) || row.id < 1 ||
+          !["pending","success","failure"].includes(row.state)) continue;
+      const key = match[3];
+      if (!result.has(key)) result.set(key, {
+        id: row.id, role: key, channel: match[2], kind: match[1],
+        status: row.state === "pending" ? "in_progress" : "completed",
+        conclusion: row.state === "pending" ? null : row.state,
+        origin: "github_commit_status"
+      });
+    }
+    return [...result.values()];
+  }
+
+  function readEvidence(run, checkRuns, statuses = []) {
     if (!usableRun(run)) return null;
     const rows = {};
     for (const item of Array.isArray(checkRuns) ? checkRuns : []) {
@@ -52,8 +78,17 @@
         id: item.id, role, channel: match[3], kind: match[1],
         status: item.status,
         conclusion: item.conclusion === "success" ? "success" :
-          item.conclusion === "failure" ? "failure" : null
+          item.conclusion === "failure" ? "failure" : null, origin: "github_checks"
       };
+    }
+    for (const alternative of readStatusEvidence(run, statuses)) {
+      const current = rows[alternative.role];
+      // The authenticated status fallback is needed when Checks are missing
+      // or still show "in_progress" after the same stage finished.
+      if (!current || (current.status === "in_progress" &&
+                       alternative.status === "completed")) {
+        rows[alternative.role] = alternative;
+      }
     }
     return {
       runId: run.id,
@@ -76,8 +111,11 @@
     const runs = await read(API + "/actions/workflows/autoeditor-generator.yml/runs?branch=main&per_page=1");
     const run = runs && Array.isArray(runs.workflow_runs) ? runs.workflow_runs[0] : null;
     if (!usableRun(run)) return null;
-    const checks = await read(API + "/commits/" + run.head_sha + "/check-runs?per_page=100");
-    return readEvidence(run, checks && checks.check_runs);
+    const [checks, statuses] = await Promise.all([
+      read(API + "/commits/" + run.head_sha + "/check-runs?per_page=100").catch(() => null),
+      read(API + "/commits/" + run.head_sha + "/statuses?per_page=100").catch(() => [])
+    ]);
+    return readEvidence(run, checks && checks.check_runs, statuses);
   }
 
   async function loadLatest(fetchImpl) {
@@ -97,8 +135,11 @@
     if (!runs.length) return null;
     runs.sort((a,b)=>Date.parse(b.created_at || "")-Date.parse(a.created_at || ""));
     const run = runs[0];
-    const checks = await read(API + "/commits/" + run.head_sha + "/check-runs?per_page=100");
-    return readEvidence(run, checks && checks.check_runs);
+    const [checks, statuses] = await Promise.all([
+      read(API + "/commits/" + run.head_sha + "/check-runs?per_page=100").catch(() => null),
+      read(API + "/commits/" + run.head_sha + "/statuses?per_page=100").catch(() => [])
+    ]);
+    return readEvidence(run, checks && checks.check_runs, statuses);
   }
 
   function merge(snapshot, evidence) {
@@ -119,7 +160,7 @@
       agent.tarefa = task.kind === "editorial" ? EDITORIAL_ROLES[task.role] : ROLES[task.role];
       agent.canal = task.channel;
       agent.execucao_pipeline = {
-        origem: "github_checks", run_id: evidence.runId,
+        origem: task.origin || "github_checks", run_id: evidence.runId,
         evidence_url: evidence.url, work_type: task.kind === "editorial" ? "llm_research_or_verified_editorial_decision" : "pipeline_task_not_autonomous_ai",
         concluded: task.status === "completed"
       };
@@ -143,5 +184,5 @@
     copy.tempo_real = false;
     return copy;
   }
-  return {API, PREFIX, ROLES, EDITORIAL_ROLES, load, loadLatest, readEvidence, merge};
+  return {API, PREFIX, ROLES, EDITORIAL_ROLES, load, loadLatest, readEvidence, readStatusEvidence, merge};
 });
