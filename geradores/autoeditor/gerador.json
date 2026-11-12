@@ -9,8 +9,8 @@
   "requires_human_approval": true,
   "perfil": {
     "publico": "adaptavel a qualquer canal",
-    "estilo": "editorial configuravel por vídeo; animação de câmera em imagens geradas",
-    "direcao": "reutilizar engine Remotion de AutoEditorVideo, gerar imagens somente pelo provedor integrado, priorizar consistência, narração com marcações reais, QA e aprovação humana; sem upload automático"
+    "estilo": "estilo por vídeo, imagem mestre e camadas RGBA derivadas da mesma cena; animação de câmera e personagem com QA",
+    "direcao": "arte só pelo Codex Proxy no VideoForge; cena mestre, fundo sem personagem, camadas RGBA transparentes de personagens e props móveis; animador compõe camadas no Remotion, revisor visual confere transparência e pede inspeção estética independente; sem upload automático"
   },
   "pipeline": [
     {
@@ -77,21 +77,48 @@
       "source": "integrated-image-generator"
     },
     {
+      "id": "decomposicao",
+      "operation": "layer-extraction",
+      "agent": "ilustrador",
+      "after": [
+        "imagens"
+      ],
+      "output": "scene-layers.json"
+    },
+    {
+      "id": "qa-camadas",
+      "operation": "layer-technical-review",
+      "agent": "revisor-visual",
+      "after": [
+        "decomposicao"
+      ],
+      "output": "qa-camadas.json"
+    },
+    {
       "id": "qa-imagens",
       "operation": "visual-review",
       "agent": "revisor-visual",
       "after": [
-        "imagens"
+        "qa-camadas"
       ],
       "output": "qa-imagens.json"
+    },
+    {
+      "id": "animacao",
+      "operation": "animation-composition",
+      "agent": "animacao",
+      "after": [
+        "qa-imagens",
+        "legendas"
+      ],
+      "output": "remotion-props.json"
     },
     {
       "id": "edicao",
       "operation": "render",
       "agent": "montagem",
       "after": [
-        "qa-imagens",
-        "legendas"
+        "animacao"
       ],
       "output": "video.mp4"
     },

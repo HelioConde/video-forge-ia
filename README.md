@@ -125,6 +125,13 @@ Durante uma produção, o painel do VideoForge deve mostrar quem está trabalhan
 
 O GitHub Pages mostra um snapshot e consulta execuções públicas do GitHub Actions. Uma execução de renderização pode estar em andamento mesmo que os agentes autônomos continuem **não conectados** e não haja Check Run específico para cada funcionário. Nesse caso, o painel informa **PIPELINE EM EXECUÇÃO**, mantendo a contagem real de agentes com atividade comprovada em zero; não transforma o render em prova de autonomia. O botão GitHub Actions abre o repositório correto.
 
+
+## Regra 2 — fundos, personagens e objetos separados automaticamente
+
+Após a geração de cada **cena-mãe** pelo Artista do VideoForge, o sistema envia aquela mesma cena à edição de imagens do Codex Proxy para criar um **fundo limpo**, uma camada **PNG RGBA transparente por personagem** e camadas PNG RGBA dos **objetos móveis** declarados pelo Storyboard. A composição do Remotion passa a usar fundos reais com personagens e objetos em layers independentes, não a mesma imagem duplicada. O Revisor valida integridade, proveniência e transparência antes da montagem, mas não declara alinhamento artístico nem QA humano concluídos.
+
+O planejamento calcula **todas** as chamadas de imagem antes da execução e requer orçamento explicitamente aprovado. No exemplo atual: 8 cenas-mãe + 8 fundos + 8 personagens + 2 props = **26 chamadas**. Nenhum novo gasto ou upload foi acionado por esta alteração. O fluxo de papéis (Artista → Revisor → Animador → Editor → Revisor) é testado e auditável. [Especificação completa](docs/CAMADAS_CENA_MESTRE.md).
+
 ## Consistência visual — responsabilidade dos agentes VideoForge
 
 O VideoForge recebe uma imagem de referência aprovada ou, se não houver, **gera a primeira imagem sozinho via Codex Proxy**. As cenas restantes são editadas a partir dessa mesma imagem. O ilustrador deve obedecer à bíblia visual do próprio vídeo; o revisor visual compara as cenas e só uma inspeção independente pode confirmar que a aparência ficou consistente. O chat **não gera** imagens, personagens ou capas de substituição. Chamadas de imagem sem referência após a cena 1 são proibidas. A verificação de origem/hash não equivale à aprovação de qualidade; o MP4 pode ser uma prévia privada, mas não um vídeo aprovado para publicação. [Regras do gerador](geradores/autoeditor/README.md).

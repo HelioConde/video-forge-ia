@@ -26,6 +26,11 @@ on:
         required: true
         default: false
         type: boolean
+      max_image_calls:
+        description: "Limite total APROVADO: cenas-mãe + fundos + personagens + props (1-48)"
+        required: true
+        default: 12
+        type: number
 
 permissions:
   contents: read
@@ -177,6 +182,7 @@ jobs:
           set -euo pipefail
           python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
           python -m unittest discover -s tests -p 'test_visual_lock.py' -v
+          python -m unittest discover -s tests -p 'test_scene_layers.py' -v
           python -m unittest discover -s tests -p 'test_generator_registry.py' -v
       - name: Compilar o proxy Go sem segredos
         working-directory: upstream-codex-proxy
@@ -192,7 +198,7 @@ jobs:
           PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
           PILOT_JOB_ID: vf-${{ github.run_id }}
           VF_CHECK_TOKEN: ${{ github.token }}
-          IMAGE_CALL_LIMIT: ${{ github.event_name == 'push' && '8' || '12' }}
+          IMAGE_CALL_LIMIT: ${{ github.event_name == 'push' && '8' || inputs.max_image_calls }}
         run: |
           set -euo pipefail
           umask 077
@@ -218,7 +224,12 @@ jobs:
           if path.is_symlink() or not path.is_file():
               raise SystemExit("AUTOEDITOR_MANIFEST_UNSAFE")
           p=plan(load_manifest(path))
-          assert p["planned_image_calls"] <= 12 and p["youtube_uploaded"] is False
+          expected=int(os.environ["IMAGE_CALL_LIMIT"])
+          if not (1 <= expected <= 48 and
+                  p["planned_image_calls"] <= expected and
+                  p["youtube_uploaded"] is False):
+              raise SystemExit("AUTOEDITOR_LAYER_IMAGE_BUDGET_NOT_AUTHORIZED")
+          print("AUTOEDITOR_LAYER_REQUESTS_PLANNED_"+str(p["planned_image_calls"]))
           stage_private_state(os.environ["PROXY_ACCOUNTS_JSON"],
                Path(os.environ["RUNNER_TEMP"])/"videoforge-autoeditor-private")
           print("AUTOEDITOR_OAUTH_STAGED_PRIVATELY")
@@ -274,6 +285,15 @@ jobs:
           qa=json.loads((root/"qa-imagens.json").read_text(encoding="utf-8"))
           assert qa["publication_blocked_pending_independent_visual_review"] is True
 
+          from videoforge.production.scene_layers import verify_scene_layers
+          full=load_manifest(manifest_path)
+          layer_doc=json.loads((root/"scene-layers.json").read_text(encoding="utf-8"))
+          layer_qa=verify_scene_layers(full, root, layer_doc)
+          assert layer_qa["true_png_transparency_verified"] is True
+          assert layer_qa["subject_alignment_verified"] is False
+          assert layer_qa["approved_for_youtube"] is False
+          assert report["layer_image_requests"] == layer_doc["image_requests"]
+          assert report["image_requests"] == layer_doc["total_image_requests"]
           assert report["generated_images"] == len(images["assets"]) >= 3
           assert report["fallback_images"] == 0
           assert report["human_approved"] is False
@@ -284,7 +304,7 @@ jobs:
           assert 90 <= media["duration_seconds"] <= 180.5
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
               f.write("## AutoEditor - video de revisao\n\n")
-              f.write(f"Imagens geradas: {len(images['assets'])}; fallback zero.\n\n")
+              f.write(f"Cenas-mãe: {len(images['assets'])}; edições RGBA: {layer_doc['image_requests']}; fallback zero.\n\n")
               f.write(f"MP4: {media['duration_seconds']}s, 1080x1920, hash confirmado.\n\n")
               f.write("QA editorial pendente. Nenhum envio ao YouTube.\n")
           print("AUTOEDITOR_REAL_VIDEO_VERIFIED_NO_YOUTUBE")
@@ -297,6 +317,9 @@ jobs:
           path: |
             output/autoeditor-vf-${{ github.run_id }}/video.mp4
             output/autoeditor-vf-${{ github.run_id }}/scene-*.png
+            output/autoeditor-vf-${{ github.run_id }}/scene-*/**
+            output/autoeditor-vf-${{ github.run_id }}/scene-layers.json
+            output/autoeditor-vf-${{ github.run_id }}/qa-camadas.json
             output/autoeditor-vf-${{ github.run_id }}/imagens.json
             output/autoeditor-vf-${{ github.run_id }}/manifest.json
             output/autoeditor-vf-${{ github.run_id }}/qa-editorial.json
