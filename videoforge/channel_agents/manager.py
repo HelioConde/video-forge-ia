@@ -131,7 +131,7 @@ def main(argv=None) -> int:
         if (os.getenv("CHANNEL_METRICS_READONLY_AUTHORIZED") != "yes"
                 or os.getenv("GITHUB_EVENT_NAME") != "workflow_dispatch"
                 or os.getenv("GITHUB_REF") != "refs/heads/main"
-                or os.getenv("GITHUB_REPOSITORY") != "HelioConde/video-forte-ia"):
+                or os.getenv("GITHUB_REPOSITORY") != "HelioConde/video-forge-ia"):
             raise SystemExit("READONLY_WORKFLOW_AUTHORIZATION_REQUIRED")
         try:
             access = oauth_access_token(os.getenv("YOUTUBE_CLIENT_JSON", ""),
