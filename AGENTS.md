@@ -57,6 +57,19 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 
 **Critério de conclusão:** a tarefa deve funcionar e a aplicação deve continuar organizada, compreensível e sustentável para a próxima modificação.
 
+## Triagem de pesquisa externa sem IA
+
+O ChatGPT pode registrar fontes e perguntas de pesquisa documentadas em
+`canal/<id>/editorial/pesquisas/YYYY-MM-DD.json`. O VideoForge valida
+essa entrada e, quando houver execução explicitamente autorizada,
+`research_triage.py` pode cruzar **palavras-chave de série** com o
+inventário completo e dados de leitura do YouTube, sem chamar o Proxy.
+É uma verificação de cobertura literal, não uma seleção de pauta nem
+prova de crescimento, antirrepetição temática ou agente de IA trabalhando.
+Nunca exibir Analytics privados em logs/Pages, nem executar este modo
+automaticamente em push/PR. O relatório da triagem privada é temporário
+e não publicável. Consultar `docs/PESQUISA_EXTERNA_VIDEOFORGE.md`.
+
 ## Decisão editorial obrigatoriamente pertence à equipe
 
 O assistente nesta conversa pode solicitar a pesquisa, fornecer
