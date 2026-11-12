@@ -1,0 +1,479 @@
+"""Operational AutoEditorVideo-derived renderer for VideoForge AI.
+
+Reuses the *real* AutoEditorVideo Remotion MasterShort engine from a pinned
+checkout, Edge Neural TTS WordBoundary timing, and the VideoForge Codex Proxy.
+Never imports YouTube OAuth/uploaders. Does NOT generate placeholder artwork.
+Planning is always offline; production requires explicit local approval.
+"""
+from __future__ import annotations
+
+import argparse
+import asyncio
+import base64
+from hashlib import sha256
+import io
+import json
+import math
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+
+from videoforge.generators import build_generator_plan, load_generator
+from videoforge.production.image_policy import validate_generated_visuals
+from videoforge.production.quality_gate import inspect_media
+from videoforge.proxy.client import ProxyClient, ProxyError
+
+ROOT = Path(__file__).resolve().parents[2]
+FPS = 30
+MIN_SHORT_SECONDS = 90
+MAX_SHORT_SECONDS = 180
+MAX_IMAGES = 12
+IMAGE_MODEL = "gpt-image-2"
+AUTOEDITOR_COMMIT = "ec85db5bc74455122e4501aba05bd2dd3fd0df2c"
+ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+VOICE = re.compile(r"^[a-z]{2}-[A-Z]{2}-[A-Za-z0-9]+Neural$")
+
+
+class AutoEditorBlocked(ValueError):
+    """Non-secret deterministic production error."""
+
+
+def _check_id(value: object, kind: str) -> str:
+    if not isinstance(value, str) or len(value) > 70 or not ID.fullmatch(value):
+        raise AutoEditorBlocked(f"INVALID_{kind}_ID")
+    return value
+
+
+def _check_text(value: object, label: str, maximum: int) -> str:
+    if not isinstance(value, str) or not value.strip() or len(value) > maximum:
+        raise AutoEditorBlocked(f"INVALID_{label}")
+    if any(ord(x) < 32 and x not in "\n\t" for x in value):
+        raise AutoEditorBlocked(f"INVALID_{label}_CONTROL_CHARACTER")
+    return " ".join(value.strip().split())
+
+
+def _words(value: str) -> int:
+    return len(re.findall(r"\w+", value, flags=re.UNICODE))
+
+
+def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
+    """Any channel can opt in. No scripts, paths, image bytes or API keys in JSON."""
+    if not isinstance(raw, dict) or raw.get("schema") != "videoforge/autoeditor-job/v1":
+        raise AutoEditorBlocked("AUTOEDITOR_MANIFEST_SCHEMA_INVALID")
+    channel_id = _check_id(raw.get("canal"), "CHANNEL")
+    video_id = _check_id(raw.get("id"), "VIDEO")
+    channel_file = Path(root) / "canal" / channel_id / "canal.json"
+    if channel_file.is_symlink() or not channel_file.is_file():
+        raise AutoEditorBlocked("AUTOEDITOR_CHANNEL_NOT_REGISTERED")
+    try:
+        channel = json.loads(channel_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        raise AutoEditorBlocked("AUTOEDITOR_CHANNEL_CONFIG_INVALID") from None
+    if channel.get("id") != channel_id:
+        raise AutoEditorBlocked("AUTOEDITOR_CHANNEL_ID_MISMATCH")
+    title = _check_text(raw.get("titulo"), "TITLE", 140)
+    description = _check_text(raw.get("descricao"), "DESCRIPTION", 2000)
+    lang = raw.get("idioma")
+    if lang not in ("pt-BR", "en-US"):
+        raise AutoEditorBlocked("AUTOEDITOR_LANGUAGE_NOT_SUPPORTED")
+    if lang != channel.get("idioma"):
+        raise AutoEditorBlocked("AUTOEDITOR_CHANNEL_LANGUAGE_MISMATCH")
+    voice = raw.get("voz", "pt-BR-AntonioNeural" if lang == "pt-BR"
+                    else "en-US-AndrewNeural")
+    if not isinstance(voice, str) or not VOICE.fullmatch(voice) or not voice.startswith(lang+"-"):
+        raise AutoEditorBlocked("AUTOEDITOR_VOICE_INVALID")
+    if raw.get("formato") != "short-90s":
+        raise AutoEditorBlocked("AUTOEDITOR_ONLY_90S_SHORTS_IMPLEMENTED")
+    if raw.get("upload_habilitado") is not False:
+        raise AutoEditorBlocked("AUTOEDITOR_UPLOAD_MUST_BE_DISABLED")
+    if raw.get("aprovacao_humana_obrigatoria") is not True:
+        raise AutoEditorBlocked("AUTOEDITOR_HUMAN_QA_REQUIRED")
+    if raw.get("origem_imagens") != "integrated-image-generator":
+        raise AutoEditorBlocked("AUTOEDITOR_GENERATOR_IMAGES_REQUIRED")
+    if raw.get("modelo_imagem", IMAGE_MODEL) != IMAGE_MODEL:
+        raise AutoEditorBlocked("AUTOEDITOR_IMAGE_MODEL_NOT_APPROVED")
+    if channel.get("audiencia") == "children" and raw.get("feito_para_criancas") is not True:
+        raise AutoEditorBlocked("AUTOEDITOR_KIDS_CLASSIFICATION_REQUIRED")
+    if channel.get("audiencia") != "children" and raw.get("feito_para_criancas") is True:
+        raise AutoEditorBlocked("AUTOEDITOR_KIDS_CHANNEL_MISMATCH")
+    scenes = raw.get("cenas")
+    if not isinstance(scenes, list) or not 3 <= len(scenes) <= MAX_IMAGES:
+        raise AutoEditorBlocked("AUTOEDITOR_SCENE_COUNT_INVALID")
+    output_scenes = []
+    seen = set()
+    for i, item in enumerate(scenes, start=1):
+        if not isinstance(item, dict):
+            raise AutoEditorBlocked("AUTOEDITOR_SCENE_INVALID")
+        scene_id = _check_id(item.get("id"), "SCENE")
+        if scene_id in seen:
+            raise AutoEditorBlocked("AUTOEDITOR_DUPLICATED_SCENE_ID")
+        seen.add(scene_id)
+        output_scenes.append({
+            "id": scene_id,
+            "narracao": _check_text(item.get("narracao"), "SCENE_NARRATION", 900),
+            "prompt_imagem": _check_text(item.get("prompt_imagem"), "IMAGE_PROMPT", 1200),
+            "papel": _check_text(item.get("papel", "detail"), "SCENE_ROLE", 60),
+        })
+    if _words(" ".join(s["narracao"] for s in output_scenes)) < 130:
+        raise AutoEditorBlocked("AUTOEDITOR_SCRIPT_TOO_SHORT_FOR_90_SECONDS")
+    result = {
+        "schema": raw["schema"], "canal": channel_id, "id": video_id,
+        "titulo": title, "descricao": description, "idioma": lang, "voz": voice,
+        "formato": "short-90s", "upload_habilitado": False,
+        "aprovacao_humana_obrigatoria": True,
+        "feito_para_criancas": channel.get("audiencia") == "children",
+        "origem_imagens": "integrated-image-generator",
+        "modelo_imagem": IMAGE_MODEL, "cenas": output_scenes,
+    }
+    return result
+
+
+def load_manifest(path: str | Path, *, root: Path = ROOT) -> dict:
+    """Read user editorial plan, not arbitrary executable pipeline."""
+    path = Path(path)
+    if path.is_symlink() or not path.is_file():
+        raise AutoEditorBlocked("AUTOEDITOR_JOB_FILE_MISSING")
+    if path.stat().st_size > 250_000:
+        raise AutoEditorBlocked("AUTOEDITOR_JOB_FILE_TOO_LARGE")
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, UnicodeError):
+        raise AutoEditorBlocked("AUTOEDITOR_JOB_FILE_INVALID") from None
+    return validate_manifest(data, root=root)
+
+
+def plan(manifest: dict, *, root: Path = ROOT) -> dict:
+    definition = load_generator("autoeditor", root=root)
+    graph = build_generator_plan(definition, root=root)
+    return {
+        **graph, "schema": "videoforge/autoeditor-production-plan/v1",
+        "channel": manifest["canal"], "video_id": manifest["id"],
+        "format": manifest["formato"], "image_model": IMAGE_MODEL,
+        "planned_image_calls": len(manifest["cenas"]),
+        "expected_duration_seconds": MIN_SHORT_SECONDS,
+        "voice_engine": "Edge TTS WordBoundary",
+        "renderer": "AutoEditorVideo/motion-remotion/ArquivoOtakuMaster",
+        "upstream_commit": AUTOEDITOR_COMMIT,
+        "actual_images_generated": 0, "youtube_uploaded": False,
+        "note": "Plan only: no API request, TTS, MP4 or upload.",
+    }
+
+
+def _run(args: list[str], *, cwd: Path | None = None, timeout: int = 90):
+    try:
+        res = subprocess.run(args, cwd=cwd, capture_output=True,
+                             timeout=timeout, check=False)
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired):
+        raise AutoEditorBlocked("AUTOEDITOR_MEDIA_TOOL_FAILED_OR_TIMEOUT") from None
+    if res.returncode:
+        # No subprocess stdout/stderr printed; can contain remote credentials.
+        raise AutoEditorBlocked("AUTOEDITOR_MEDIA_STEP_FAILED")
+    return res
+
+
+async def _edge_audio(script: str, voice: str) -> tuple[bytes, list[dict]]:
+    import edge_tts  # installed only on the explicit private render runner
+    stream = edge_tts.Communicate(script, voice, boundary="WordBoundary")
+    chunks, words = bytearray(), []
+    async for event in stream.stream():
+        if event.get("type") == "audio":
+            chunks.extend(event.get("data", b""))
+            if len(chunks) > 40_000_000:
+                raise AutoEditorBlocked("AUTOEDITOR_AUDIO_EXCEEDS_LIMIT")
+        elif event.get("type") == "WordBoundary":
+            start = float(event.get("offset", 0)) / 10_000_000
+            end = start + float(event.get("duration", 0)) / 10_000_000
+            label = str(event.get("text", "")).strip()
+            if end > start >= 0 and label:
+                words.append({"start": start, "end": end, "text": label})
+    if len(chunks) < 1000 or len(words) < 90:
+        raise AutoEditorBlocked("AUTOEDITOR_NO_REAL_TTS_WORD_MARKERS")
+    return bytes(chunks), words
+
+
+def prepare_voice(manifest: dict, out: Path) -> tuple[Path, float, list[dict]]:
+    script = " ".join(x["narracao"] for x in manifest["cenas"])
+    try:
+        audio, words = asyncio.run(_edge_audio(script, manifest["voz"]))
+    except AutoEditorBlocked:
+        raise
+    except Exception:
+        # edge_tts remote details must not be printed into public logs.
+        raise AutoEditorBlocked("AUTOEDITOR_EDGE_TTS_UNAVAILABLE") from None
+    voice = out / "narracao.mp3"
+    voice.write_bytes(audio)
+    stdout = _run(["ffprobe", "-v", "error", "-show_entries", "format=duration",
+                   "-of", "default=nokey=1:noprint_wrappers=1", str(voice)]).stdout
+    try:
+        duration = float(stdout.strip())
+    except (ValueError, OverflowError):
+        raise AutoEditorBlocked("AUTOEDITOR_TTS_DURATION_INVALID") from None
+    if not math.isfinite(duration) or not MIN_SHORT_SECONDS <= duration <= MAX_SHORT_SECONDS:
+        raise AutoEditorBlocked("AUTOEDITOR_TTS_NOT_90S_TO_180S")
+    if words[-1]["end"] > duration + 1.5:
+        raise AutoEditorBlocked("AUTOEDITOR_MARKERS_EXCEED_AUDIO_DURATION")
+    (out / "marcacoes-voz.json").write_text(json.dumps({
+        "source": "real_edge_tts_word_boundary",
+        "voice": manifest["voz"], "words": words,
+        "script_sha256": sha256(script.encode("utf-8")).hexdigest()
+    }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return voice, duration, words
+
+
+def real_timing(manifest: dict, words: list[dict], duration: float) -> tuple[list[int], list[dict]]:
+    """Map scene splits proportionally to actual word markers, like AutoEditor."""
+    if not words or not MIN_SHORT_SECONDS <= duration <= MAX_SHORT_SECONDS:
+        raise AutoEditorBlocked("AUTOEDITOR_TIMING_SOURCE_MISSING")
+    last, total_frames = -1, round(duration * FPS)
+    for word in words:
+        if not isinstance(word, dict) or not 0 <= word["start"] < word["end"] <= duration + 1.5:
+            raise AutoEditorBlocked("AUTOEDITOR_INVALID_TTS_WORD_MARKER")
+        if word["start"] < last:
+            raise AutoEditorBlocked("AUTOEDITOR_UNSORTED_TTS_WORD_MARKERS")
+        last = word["start"]
+    lens = [_words(x["narracao"]) for x in manifest["cenas"]]
+    total = sum(lens)
+    boundaries = [0]
+    running = 0
+    for length in lens[:-1]:
+        running += length
+        at = min(len(words)-1, round(running * len(words) / total))
+        boundaries.append(round(float(words[at]["start"]) * FPS))
+    boundaries.append(total_frames)
+    if any(b-a < FPS for a,b in zip(boundaries, boundaries[1:])):
+        raise AutoEditorBlocked("AUTOEDITOR_SCENE_TIMES_TOO_SHORT")
+    captions = []
+    current = []
+    for word in words:
+        start = max(0, round(word["start"]*FPS))
+        end = min(total_frames, max(start+1, round(word["end"]*FPS)))
+        if start >= total_frames:
+            continue
+        if current and (len(current) >= 3
+                        or start - current[0]["startFrame"] > round(1.4 * FPS)):
+            captions.append({
+                "startFrame": current[0]["startFrame"],
+                "endFrame": max(x["endFrame"] for x in current),
+                "text": " ".join(x["text"] for x in current),
+                "words": current,
+            })
+            current = []
+        current.append({"startFrame": start, "endFrame": end,
+                        "text": word["text"]})
+    if current:
+        captions.append({
+            "startFrame": current[0]["startFrame"],
+            "endFrame": max(x["endFrame"] for x in current),
+            "text": " ".join(x["text"] for x in current),
+            "words": current,
+        })
+    if len(captions) < 25:
+        raise AutoEditorBlocked("AUTOEDITOR_REAL_CAPTIONS_INCOMPLETE")
+    return boundaries, captions
+
+
+def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
+                    max_calls: int) -> list[dict]:
+    """No assistant-made art, no local fallback, no retries on HTTP 429."""
+    from PIL import Image, ImageOps
+    if len(manifest["cenas"]) > max_calls or not 1 <= max_calls <= MAX_IMAGES:
+        raise AutoEditorBlocked("AUTOEDITOR_GENERATION_BUDGET_INSUFFICIENT")
+    files = []
+    for i, scene in enumerate(manifest["cenas"], start=1):
+        try:
+            result = proxy.images_generate({
+                "model": IMAGE_MODEL, "n": 1,
+                "prompt": scene["prompt_imagem"] +
+                " Cinematic original illustrated video frame, vertical composition, "
+                "consistent character appearance, no watermark, no text."
+            })
+        except ProxyError as exc:
+            raise AutoEditorBlocked("AUTOEDITOR_IMAGE_PROVIDER_" + str(exc)) from None
+        try:
+            data = result["data"][0]
+            encoded = data.get("b64_json") or data.get("image_base64")
+            if not isinstance(encoded, str) or len(encoded) > 26_000_000:
+                raise ValueError()
+            if encoded.startswith("data:image/"):
+                encoded = encoded.split(",", 1)[1]
+            raw = base64.b64decode(encoded, validate=True)
+            if not 1000 < len(raw) < 18_000_000:
+                raise ValueError()
+            with __import__("PIL.Image", fromlist=["open"]).open(io.BytesIO(raw)) as image:
+                image.load()
+                if image.format not in ("PNG", "JPEG", "WEBP") or image.width < 512 or image.height < 768:
+                    raise ValueError()
+                im = ImageOps.fit(image.convert("RGB"), (720, 1280),
+                                  method=Image.Resampling.LANCZOS)
+            name = f"scene-{i}.png"
+            im.save(out / name, format="PNG")
+        except (ValueError, TypeError, KeyError, IndexError, AttributeError, OSError):
+            raise AutoEditorBlocked("AUTOEDITOR_PROVIDER_IMAGE_INVALID") from None
+        files.append({
+            "scene": i, "file": name, "origin": "codex_proxy_image",
+            "generated_by": "video_forge_image_generator",
+            "output_sha256": sha256((out / name).read_bytes()).hexdigest(),
+        })
+    validate_generated_visuals(files, out, expected_count=len(manifest["cenas"]))
+    (out / "imagens.json").write_text(json.dumps({
+        "schema": "videoforge/generator-only-scenes/v1",
+        "provider": "codex_proxy_image",
+        "model": IMAGE_MODEL, "assets": files, "fallback_count": 0,
+    }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return files
+
+
+def build_remotion_props(manifest: dict, duration: float, words: list[dict],
+                        *, staging_id: str) -> dict:
+    staging_id = _check_id(staging_id, "STAGING")
+    cuts, captions = real_timing(manifest, words, duration)
+    scenes = []
+    for i, (scene, start, end) in enumerate(zip(manifest["cenas"], cuts, cuts[1:]), 1):
+        src = f"generated/{staging_id}/scene-{i}.png"
+        scenes.append({
+            "id": scene["id"], "subject": "personagens",
+            "startFrame": start, "endFrame": end,
+            "background": src, "foreground": src,
+            "renderMode": "master_static",
+            "beatRole": "hook" if i == 1 else ("answer" if i == len(cuts)-1 else "detail"),
+            "shotType": ("close", "wide", "medium", "detail")[i % 4],
+            "transitionStyle": "hard" if i == 1 else "crossfade",
+        })
+    return {
+        "id": manifest["id"], "durationFrames": cuts[-1],
+        "audio": f"generated/{staging_id}/voice.mp3",
+        "scenes": scenes, "captions": captions, "hook": manifest["titulo"][:70],
+        "animationMode": "cinematica",
+        "characterPreset": "equilibrado",
+        "visualProfile": "original", "editorialProfile": "autoeditor-videoforge",
+        "soundCues": [],
+    }
+
+
+def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
+                   audio: Path, images: list[dict], duration: float,
+                   words: list[dict], job_id: str) -> dict:
+    """Run actual AutoEditorVideo MasterShort. Never invoke its upload scripts."""
+    motion_root = Path(motion_root).resolve()
+    if not (motion_root/"package.json").is_file() or not (motion_root/"src/master-short.tsx").is_file():
+        raise AutoEditorBlocked("AUTOEDITOR_REMOTION_SOURCE_MISSING")
+    if not (motion_root/"node_modules/.bin/remotion").is_file():
+        raise AutoEditorBlocked("AUTOEDITOR_REMOTION_NOT_INSTALLED")
+    staging_id = "vf-autoeditor-" + _check_id(job_id, "JOB")
+    target = motion_root / "public" / "generated" / staging_id
+    if target.exists() or target.is_symlink():
+        raise AutoEditorBlocked("AUTOEDITOR_STAGE_ALREADY_EXISTS")
+    props = build_remotion_props(manifest, duration, words, staging_id=staging_id)
+    target.mkdir(parents=True, exist_ok=False)
+    try:
+        shutil.copyfile(audio, target/"voice.mp3")
+        for file in images:
+            shutil.copyfile(out / file["file"], target / file["file"])
+        props_file = out/"remotion-props.json"
+        props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
+                              encoding="utf-8")
+        output = out/"video.mp4"
+        _run(["npm", "run", "render:master", "--", str(output.resolve()),
+              "--props", str(props_file.resolve()), "--concurrency", "2",
+              "--codec", "h264", "--crf", "21"], cwd=motion_root, timeout=3600)
+        media = inspect_media(output)
+    finally:
+        shutil.rmtree(target, ignore_errors=True)
+    if (media["width"], media["height"]) != (1080, 1920) or not 29 <= media["fps"] <= 31:
+        raise AutoEditorBlocked("AUTOEDITOR_OUTPUT_FORMAT_INVALID")
+    if abs(media["duration_seconds"]-duration) > 2.0:
+        raise AutoEditorBlocked("AUTOEDITOR_OUTPUT_VOICE_TIMING_MISMATCH")
+    return media
+
+
+def produce(manifest: dict, *, destination: Path, motion_root: Path,
+            job_id: str, max_calls: int, proxy=None) -> dict:
+    """Explicit opt-in produces review artifact, never uploads to YouTube."""
+    if os.getenv("VIDEOFORGE_AUTOEDITOR_RENDER_AUTHORIZED") != "yes":
+        raise AutoEditorBlocked("AUTOEDITOR_EXPLICIT_RENDER_APPROVAL_REQUIRED")
+    _check_id(job_id, "JOB")
+    dest = Path(destination).resolve()
+    if dest.exists():
+        raise AutoEditorBlocked("AUTOEDITOR_OUTPUT_DIRECTORY_EXISTS")
+    if not 1 <= max_calls <= MAX_IMAGES or len(manifest["cenas"]) > max_calls:
+        raise AutoEditorBlocked("AUTOEDITOR_IMAGE_BUDGET_INVALID")
+    client = proxy or ProxyClient(timeout=240)
+    accounts = client.accounts()
+    records = accounts.get("accounts", []) if isinstance(accounts, dict) else []
+    if not any(isinstance(x, dict) and x.get("eligible_now") is True for x in records):
+        raise AutoEditorBlocked("AUTOEDITOR_PROXY_ACCOUNT_NOT_ELIGIBLE")
+    dest.mkdir(parents=True, mode=0o700)
+    base_plan = plan(manifest)
+    (dest/"plano.json").write_text(json.dumps(base_plan, ensure_ascii=False, indent=2)+"\n",
+                                   encoding="utf-8")
+    # TTS first, so an incorrectly paced script does not waste image requests.
+    audio, seconds, words = prepare_voice(manifest, dest)
+    images = generate_images(manifest, dest, client, max_calls=max_calls)
+    media = render_remotion(manifest, dest, motion_root=motion_root, audio=audio,
+                           images=images, duration=seconds, words=words, job_id=job_id)
+    (dest/"qa-editorial.json").write_text(json.dumps({
+        "status": "pending_independent_human_review",
+        "originality_not_verified": True, "rights_not_verified": True,
+        "visual_consistency_not_verified": True, "voice_quality_not_reviewed": True,
+        "youtube_history_not_reviewed": True, "upload_approved": False,
+    }, indent=2)+"\n", encoding="utf-8")
+    report = {
+        "schema": "videoforge/autoeditor-render/v1",
+        "status": "rendered_pending_editorial_approval",
+        "job_id": job_id, "channel": manifest["canal"], "video_id": manifest["id"],
+        "source_renderer": "AutoEditorVideo/Remotion/ArquivoOtakuMaster",
+        "source_commit": AUTOEDITOR_COMMIT,
+        "voice_source": "edge_tts_real_word_boundary",
+        "image_source": "codex_proxy_image",
+        "generated_images": len(images), "image_requests": len(images),
+        "fallback_images": 0, "media": media,
+        "human_approved": False, "youtube_uploaded": False,
+        "limitation": "MasterShort camera motion; no verified character rigging",
+    }
+    (dest/"manifest.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",
+                                      encoding="utf-8")
+    return report
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="AutoEditorVideo engine (private only)")
+    parser.add_argument("--action", choices=("plan", "produce"), default="plan")
+    parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--motion-root", type=Path)
+    parser.add_argument("--job-id", default="autoeditor-preview")
+    parser.add_argument("--max-image-calls", type=int, default=MAX_IMAGES)
+    args = parser.parse_args(argv)
+    try:
+        m = load_manifest(args.manifest)
+        if args.action == "plan":
+            obj = plan(m)
+            output = args.output
+            if output.exists():
+                raise AutoEditorBlocked("AUTOEDITOR_PLAN_OUTPUT_EXISTS")
+            output.parent.mkdir(parents=True,exist_ok=True)
+            output.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+"\n",
+                              encoding="utf-8")
+            print("AUTOEDITOR_PLAN_ONLY_NO_GENERATION_NO_UPLOAD")
+        else:
+            if args.motion_root is None:
+                raise AutoEditorBlocked("AUTOEDITOR_SOURCE_REQUIRED")
+            obj = produce(m, destination=args.output, motion_root=args.motion_root,
+                          job_id=args.job_id, max_calls=args.max_image_calls)
+            print("AUTOEDITOR_VIDEO_GENERATED_WITH_REAL_PROXY_IMAGES")
+            print("AUTOEDITOR_IMAGES_" + str(obj["generated_images"]))
+            print("AUTOEDITOR_VIDEO_SHA256_" + obj["media"]["sha256"])
+            print("AUTOEDITOR_NO_YOUTUBE_UPLOAD_PENDING_QA")
+        return 0
+    except (AutoEditorBlocked, ProxyError, ValueError) as exc:
+        # Never include untrusted remote exception contents.
+        message = str(exc) if isinstance(exc, AutoEditorBlocked) else "AUTOEDITOR_DEPENDENCY_UNAVAILABLE"
+        print("AUTOEDITOR_BLOCKED_" + message, file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
