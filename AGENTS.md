@@ -29,6 +29,30 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 
 **Critério de conclusão:** a tarefa deve funcionar e a aplicação deve continuar organizada, compreensível e sustentável para a próxima modificação.
 
+## Decisão editorial obrigatoriamente pertence à equipe
+
+O assistente nesta conversa pode solicitar a pesquisa, fornecer
+ferramentas e verificar evidências, **mas não deve escolher o tema do
+vídeo no lugar dos agentes**. O time de um canal decide na seguinte
+ordem: análise das métricas reais e inventário completo -> pesquisador
+IA propõe várias ideias -> Subgerente bloqueia animes pausados, temas
+repetidos e títulos semelhantes -> Gerente do canal ranqueia candidatas
+com métricas verificáveis -> Subgerente audita a seleção e cria
+evidência para revisão humana.
+
+`videoforge/channel_agents/team.py` coordena os papéis; o pesquisador
+usa `ideation.propose_candidates` exclusivamente no backend privado.
+`strategy.select_idea` implementa a escolha do gerente. Nunca
+codificar o anime ou tema vencedor no workflow, nem forjar trabalho
+de IA: se os segredos OAuth ou o Proxy estiverem indisponíveis,
+falhar e declarar bloqueio, não inventar uma decisão da equipe.
+
+Relatório só apresenta proposta e plano; exige revisão editorial,
+reserva antirrepetição antes da produção e aprovação humana para publicar.
+O piloto é `otaku-br`; NÃO publicar, gerar imagens nem vídeos quando a
+demanda for apenas descobrir a melhor pauta. Os registros de pesquisa
+no GH Checks distinguem LLM pesquisador, decisão por métricas e auditoria.
+
 ## Escritório deve refletir trabalho real, nunca simulado
 
 Toda execução real AutoEditor deve registrar no GitHub Checks as tarefas
