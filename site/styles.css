@@ -163,3 +163,37 @@
   .mini-panel[data-collapsed="true"] #officeMiniMap,
   .mini-panel[data-collapsed="true"] .mini-hint{display:none}
 }
+
+
+/* Pesquisa externa no painel do canal: fontes, não tarefas executadas. */
+.research-queue{
+  margin-top:14px;padding:12px;border:1px solid #587b87;border-radius:6px;
+  background:#192f40;
+}
+.research-queue-title{
+  display:block;font:800 10px/1.5 ui-monospace,Consolas,monospace;
+  letter-spacing:.025em;color:#e3d59b;
+}
+.research-queue .detail-text{font-size:11px;line-height:1.55;margin:8px 0}
+.research-source{
+  margin-top:11px;padding:11px 10px;border:1px solid #43616f;
+  background:#213a4a;border-radius:5px;
+}
+.research-source-title{
+  font-size:12px;line-height:1.4;color:#d5f3dd;display:block;
+}
+.research-source-note,.research-source-question{
+  font:500 11px/1.6 ui-sans-serif,system-ui,sans-serif;
+  margin:7px 0;color:#dae7e4;overflow-wrap:anywhere;
+}
+.research-source-question{color:#b7cfc5}
+.research-source-link{
+  display:block;margin-top:10px;font:700 10px/1.55 ui-monospace,Consolas,monospace;
+  color:#9be0f0;text-decoration:underline;text-underline-offset:3px;
+  overflow-wrap:anywhere;
+}
+.research-source-link:focus-visible{outline:2px solid #b7f0de}
+@media(max-width:600px){
+  .research-queue{padding:9px}
+  .research-source{padding:9px}
+}

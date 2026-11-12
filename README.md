@@ -68,6 +68,16 @@ O motor de delegação agora possui `videoforge/production/agent_dispatch.py`: i
 
 [Guia de integração de tarefas](docs/AGENT_TEXT_DISPATCH.md).
 
+## Fila de pesquisas no escritório
+
+Na aba **Canais → Otaku Multicena**, o escritório público lista os
+sinais de pesquisa recebidos do ChatGPT com fonte, data e pergunta para
+conferência. O exportador valida o pacote, saneia URLs e remove
+parâmetros; **não** publica métricas YouTube nem declara tema aprovado.
+A presença de fontes não transforma avatares em agentes IA trabalhando.
+[Contrato visual](docs/ESCRITORIO_AGENTES.md) ·
+[Fluxo de pesquisa](docs/PESQUISA_EXTERNA_VIDEOFORGE.md).
+
 ## Pesquisa externa verificada para o VideoForge (ChatGPT)
 
 ChatGPT pode entregar **fontes públicas e fatos datados** em

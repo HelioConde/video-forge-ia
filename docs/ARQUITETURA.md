@@ -1,5 +1,17 @@
 # Arquitetura proposta — VideoForge AI
 
+## Exportação segura da fila de pesquisas ao escritório
+
+O `build_dashboard_data.py` projeta o último pacote de pesquisa pública
+validado para `canais[].pesquisa_externa`: apenas fontes e perguntas
+editoriais, sem identificador YouTube, métricas de desempenho, OAuth,
+indicadores de popularidade ou aprovações falsas. URLs são saneadas antes
+da publicação, com parâmetros removidos. A aba Canais do escritório
+exibe os sinais em cartões de fonte, sem marcar nenhum agente como
+`trabalhando`. Sem pacote validado, não há fila; uma entrada inválida
+bloqueia o build, em vez de exibir fato ou ranking fictício.
+O uso de uma pesquisa pública não resolve HTTP 429 do Codex Proxy.
+
 ## Entrada de inteligência editorial externa
 
 O assistente pesquisa fatos públicos e documenta fontes em JSONs datados dentro

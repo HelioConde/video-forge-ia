@@ -29,6 +29,45 @@ class DashboardTests(unittest.TestCase):
         for sensitive in ("oauth_token", "refresh_token", "client_secret", "youtube_channel_id", "ucctyfe"):
             self.assertNotIn(sensitive, content)
 
+    def test_external_research_is_visible_as_unapproved_context(self):
+        snapshot = make_snapshot()
+        otaku = next(c for c in snapshot["canais"] if c["id"] == "otaku-br")
+        research = otaku["pesquisa_externa"]
+        self.assertEqual(research["estado"],
+                         "contexto_aguardando_checagem_e_metricas")
+        self.assertEqual(research["data_pesquisa"], "2026-11-12")
+        self.assertEqual(len(research["sinais"]), 3)
+        self.assertFalse(research["pauta_escolhida"])
+        self.assertFalse(research["aprovado_por_subgerente"])
+        self.assertTrue(all(s["estado"] == "aguardando_checagem"
+                            and s["url"].startswith("https://")
+                            for s in research["sinais"]))
+        self.assertTrue(all("pesquisa_externa" not in c
+                            for c in snapshot["canais"] if c["id"] != "otaku-br"))
+        serialized = json.dumps(snapshot).lower()
+        for forbidden in ("ucxgytubyn", "refresh_token", "client_secret",
+                          "proxy_accounts_json", "access_token"):
+            self.assertNotIn(forbidden, serialized)
+
+    def test_external_research_public_export_strips_url_query_secrets(self):
+        from unittest import mock
+        from videoforge.channel_agents.external_research import latest_research
+        from scripts.build_dashboard_data import ROOT
+        packet = latest_research(root=ROOT, channel="otaku-br",
+                                 channel_id="UCXGYTuBYn-0Ziqin5ajKhOw")
+        assert packet is not None
+        altered = json.loads(json.dumps(packet))
+        altered["signals"][0]["source"]["url"] += "?access_token=PRIVATE_TEST"
+        def source_for_channel(*, channel, **_):
+            return altered if channel == "otaku-br" else None
+        with mock.patch("scripts.build_dashboard_data.latest_research",
+                        side_effect=source_for_channel):
+            snapshot = make_snapshot()
+        rendered = json.dumps(snapshot)
+        self.assertNotIn("PRIVATE_TEST", rendered)
+        self.assertNotIn("access_token=", rendered)
+        self.assertIn("jojo-portal.com/en/anime/sbr/news/", rendered)
+
     def test_accepts_only_known_agents_and_channels(self):
         with tempfile.TemporaryDirectory() as folder:
             p = Path(folder) / "events.json"
