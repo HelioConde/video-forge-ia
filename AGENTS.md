@@ -243,6 +243,20 @@ humana são obrigatórios antes de publicar. Consultar
 
 As pastas de canais reais são `otaku-br`, `otaku-en`, `gamer`, `manu-kids` e `alchemy-lab` dentro de `canal/`. A pasta fictícia `exemplo` foi removida. Não tratar `arquivo-editorial/` ou `conteudos/indice.json` como fila de produção. Não transportar workflows, segredos ou tokens do AutoEditorVideo. Consultar `docs/MIGRACAO_AUTOEDITORVIDEO.md` antes de modificar a migração.
 
+## Segregação OAuth da triagem de fontes externas
+
+`.github/workflows/external-research-validation.yml`, quando usado com
+`mode=youtube-readonly`, deve acessar **somente** o Environment
+`youtube-analytics-readonly` e os Secrets OAuth do canal Otaku Multicena,
+como em `channel-manager-analysis.yml`. Não requisitar nem transferir
+Secrets de `proxy-runtime` para essa triagem. Bloquear credenciais
+ausentes antes de qualquer chamada YouTube, exigir
+`workflow_dispatch` protegido em `main` com `run_attempt=1`,
+apagar relatório local ao sair e nunca publicar Analytics, títulos
+privados ou credenciais em logs, artifact ou Pages.
+Os testes de `tests/test_research_triage.py` validam também o
+contrato YAML e uma execução simulada do modo privado sem rede.
+
 ## Mostrar pesquisas recebidas sem fingir trabalho dos agentes
 
 Ao atualizar a fila `canal/<id>/editorial/pesquisas/`, o exportador

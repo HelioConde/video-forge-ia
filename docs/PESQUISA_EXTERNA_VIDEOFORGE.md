@@ -76,9 +76,15 @@ O workflow `.github/workflows/external-research-validation.yml` oferece:
 
 - Em `push`/`pull_request`: validação offline do contrato e testes.
 - Em disparo manual na `main`, modo `youtube-readonly`: usa as
-  credenciais protegidas do ambiente `proxy-runtime`, consulta a API de
+  credenciais protegidas do ambiente `youtube-analytics-readonly`, consulta a API de
   leitura do YouTube e analisa o histórico completo para o canal
   `otaku-br`. Nunca inicializa Codex Proxy, TTS, imagem, render ou uploader.
+  O Environment corresponde ao workflow oficial de Analytics do canal;
+  `proxy-runtime` é reservado ao backend Codex Proxy e não é usado na
+  triagem. Se o Secret de leitura estiver ausente, a execução para com um
+  código seguro antes de qualquer OAuth/Analytics. Os dois workflows
+  permanecem protegidos e exigem disparo manual na branch `main`.
+
 - O relatório completo com dados do canal permanece **somente no runner**,
   e é eliminado ao terminar; não há upload de artifact e as métricas
   privadas não são incluídas no log nem no GitHub Pages.

@@ -106,6 +106,15 @@ O motor de delegação agora possui `videoforge/production/agent_dispatch.py`: i
 
 [Guia de integração de tarefas](docs/AGENT_TEXT_DISPATCH.md).
 
+## Análise privada das fontes do Otaku
+
+A triagem de pesquisas com histórico e Analytics reais do YouTube
+é **somente leitura**, manual e protegida no Environment
+`youtube-analytics-readonly` — não usa credenciais do Codex Proxy.
+A verificação offline permanece automática em PR/push; a verificação
+privada só ocorre em `workflow_dispatch` autorizado na `main`.
+[Procedimento e limites](docs/PESQUISA_EXTERNA_VIDEOFORGE.md).
+
 ## Fila de pesquisas no escritório
 
 Na aba **Canais → Otaku Multicena**, o escritório público lista os

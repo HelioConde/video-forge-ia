@@ -72,7 +72,9 @@ jobs:
       inputs.mode == 'youtube-readonly'
     needs: validate-research
     runs-on: ubuntu-24.04
-    environment: proxy-runtime
+    # Identical protected read-only environment as channel-manager-analysis.yml.
+    # Never use proxy-runtime for a YouTube-only task.
+    environment: youtube-analytics-readonly
     timeout-minutes: 15
     env:
       CHANNEL_METRICS_READONLY_AUTHORIZED: 'yes'
@@ -92,6 +94,10 @@ jobs:
           umask 077
           report="$RUNNER_TEMP/vf-external-triage.json"
           trap 'rm -f -- "$report"' EXIT
+          if [[ -z "${YOUTUBE_CLIENT_JSON:-}" || -z "${YOUTUBE_CHANNEL_TOKEN_JSON:-}" ]]; then
+            echo 'TRIAGE_YOUTUBE_READONLY_CREDENTIALS_MISSING'
+            exit 1
+          fi
           python -m videoforge.channel_agents.research_triage \
             --channel otaku-br \
             --mode youtube-readonly \
@@ -107,10 +113,10 @@ jobs:
           assert j["proxy_calls"] == 0 and j["candidates_created"] == 0
           assert j["selected"] is None and not j["publish_enabled"]
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
-              f.write("## Pesquisa externa — triagem somente leitura\\n\\n")
-              f.write("Histórico completo e identidade do canal conferidos.\\n\\n")
-              f.write("Sinais com fonte avaliados: " + str(len(j["signals"])) + ".\\n\\n")
-              f.write("Nenhuma métrica privada ou título foi publicado.\\n\\n")
-              f.write("Nenhum tema escolhido, nenhuma IA chamada, nenhum vídeo enviado.\\n")
+              f.write("## Pesquisa externa — triagem somente leitura\n\n")
+              f.write("Histórico completo e identidade do canal conferidos.\n\n")
+              f.write("Sinais com fonte avaliados: " + str(len(j["signals"])) + ".\n\n")
+              f.write("Nenhuma métrica privada ou título foi publicado.\n\n")
+              f.write("Nenhum tema escolhido, nenhuma IA chamada, nenhum vídeo enviado.\n")
           print("TRIAGE_NO_PROXY_NO_TOPICS_NO_UPLOADS")
           PY
