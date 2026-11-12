@@ -31,6 +31,25 @@ Os primeiros perfis (anime, kids, dorama) são **contratos planejados**, não ex
 - Autorização explícita e limites de recursos antes de chamadas pagas.
 - Credenciais somente no backend protegido, jamais em `geradores/` ou GitHub Pages.
 
+## Gerador AutoEditor (motor audiovisual real)
+
+O catálogo agora inclui `autoeditor` como **motor modular reutilizável**.
+Diferentemente dos perfis declarativos Anime/Kids/Dorama, ele possui
+`videoforge/generators/autoeditor.py`, um executor privado opt-in que
+recebe um manifesto editorial preparado pelos agentes, usa Edge TTS real
+com WordBoundary, cria todas as imagens pelo Codex Proxy e renderiza com
+o **Remotion MasterShort original** de `HelioConde/AutoEditorVideo`,
+fixado por commit. O vídeo gerado continua pendente de revisão humana
+e não realiza upload no YouTube.
+
+Para evitar misturar nichos, a decisão editorial permanece nos
+geradores especializados; `autoeditor` oferece um **motor de produção**
+alternativo que qualquer canal pode selecionar por vídeo.
+Planejamento sem custo e render protegido manualmente no workflow
+`.github/workflows/autoeditor-generator.yml`.
+
+[Manual de uso do Gerador AutoEditor](autoeditor/README.md).
+
 ## Perfis iniciais de exemplo
 
 - **Anime:** pesquisa e roteiro, cenas ilustradas, narração, montagem e revisão.

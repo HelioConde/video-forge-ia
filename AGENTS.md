@@ -29,6 +29,29 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 
 **Critério de conclusão:** a tarefa deve funcionar e a aplicação deve continuar organizada, compreensível e sustentável para a próxima modificação.
 
+## Motor AutoEditorVideo dentro do VideoForge
+
+O gerador `autoeditor` reutiliza somente o motor audiovisual
+**Remotion MasterShort do repositório AutoEditorVideo fixado por SHA**,
+narração Edge TTS WordBoundary, geração visual Codex Proxy e FFprobe.
+É um backend técnico reutilizável para vários canais, não um novo
+gerador separado para cada gênero; scripts editoriais são responsabilidade
+dos agentes e gerentes do VideoForge.
+
+Nunca importar ou disparar os uploaders legados, lotes diários,
+publicadores ou rotinas históricas de manutenção do AutoEditorVideo.
+`videoforge/generators/autoeditor.py` deve continuar independente de
+credenciais YouTube. Somente render manual com autorização explícita,
+Environment protegido `proxy-runtime`, sem repetições automáticas,
+sem bypass de HTTP 429 e sem artes locais/assistente.
+
+Se o TTS, as marcações, uma imagem de cena, o motor Remotion ou FFprobe
+falharem, interromper a produção **sem gerar MP4 substituto**, sem
+declarar QA editorial aprovado e sem upload. Manter roteiro, imagens
+e backend separados das credenciais. Os testes offline em
+`tests/test_autoeditor_generator.py` são obrigatórios.
+Consultar [geradores/autoeditor/README.md](geradores/autoeditor/README.md).
+
 ## Arquitetura aberta para qualquer gerador de vídeo
 
 Não manter uma lista fixa de geradores por gênero em código. Geradores

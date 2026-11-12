@@ -1,0 +1,65 @@
+{
+  "schema": "videoforge/autoeditor-job/v1",
+  "canal": "otaku-br",
+  "id": "autoeditor-roteiro-original",
+  "titulo": "O mistério da torre que parava o tempo",
+  "descricao": "Uma história original de mistério e esperança, em cenas ilustradas pelo gerador de imagens integrado do VideoForge AI.",
+  "idioma": "pt-BR",
+  "voz": "pt-BR-AntonioNeural",
+  "formato": "short-90s",
+  "feito_para_criancas": false,
+  "modelo_imagem": "gpt-image-2",
+  "origem_imagens": "integrated-image-generator",
+  "aprovacao_humana_obrigatoria": true,
+  "upload_habilitado": false,
+  "cenas": [
+    {
+      "id": "cena-1",
+      "papel": "gancho",
+      "narracao": "Naquela cidade, todas as noites o relógio da torre parava exatamente no mesmo minuto. Ninguém sabia explicar por quê. Até que uma jovem pesquisadora percebeu algo estranho: cada vez que os ponteiros paravam, uma janela se iluminava do outro lado da praça.",
+      "prompt_imagem": "Original cinematic anime-inspired illustration, young adult female researcher in navy coat, mysterious old clock tower at night, rainy square, wide establishing shot, consistent protagonist, portrait 9:16, no text."
+    },
+    {
+      "id": "cena-2",
+      "papel": "descoberta",
+      "narracao": "Ela decidiu acompanhar o fenômeno de perto e levou consigo um caderno cheio de anotações. Ao entrar na praça vazia, escutou três passos atrás de si. Quando olhou, não encontrou ninguém, mas o som continuou seguindo seus movimentos.",
+      "prompt_imagem": "Original illustration, same young female researcher in navy coat holding a notebook in rainy empty clocktower square, suspenseful cinematic light, different medium shot, vertical, no text."
+    },
+    {
+      "id": "cena-3",
+      "papel": "conflito",
+      "narracao": "Os sinos tocaram uma única vez, apesar de nenhum mecanismo estar funcionando. Uma pequena luz apareceu entre as pedras do chão e revelou uma mensagem deixada por alguém que havia esperado muitos anos por aquela noite.",
+      "prompt_imagem": "Original anime-inspired illustration, abandoned clocktower plaza with glowing blue light emerging between cobblestones, same researcher crouching, cinematic close detail, vertical scene, no text or readable letters."
+    },
+    {
+      "id": "cena-4",
+      "papel": "investigacao",
+      "narracao": "A pesquisadora seguiu a luz até uma antiga biblioteca. Ali encontrou desenhos da mesma torre, feitos muito antes de seu nascimento. Em todos eles havia uma sombra observando uma pessoa diferente, sempre ao lado da janela iluminada.",
+      "prompt_imagem": "Original illustration, same researcher searching an old library with sketches and clocks, dust in warm beams of light, mysterious shadow at the window, cinematic vertical medium shot, no readable text."
+    },
+    {
+      "id": "cena-5",
+      "papel": "virada",
+      "narracao": "Enquanto comparava os desenhos, percebeu que a sombra não representava uma ameaça. Era apenas o reflexo de alguém tentando pedir ajuda. A torre não prendia o tempo; ela repetia um aviso que ninguém havia compreendido.",
+      "prompt_imagem": "Original anime-inspired illustration, researcher realizes shadow on library wall is a plea for help, expressive thoughtful face, violet and gold lighting, vertical close up, no text."
+    },
+    {
+      "id": "cena-6",
+      "papel": "decisao",
+      "narracao": "Sem saber se encontraria uma resposta, ela voltou à praça e abriu a porta enferrujada da torre. Os degraus estavam cobertos de poeira, mas marcas recentes indicavam que outra pessoa também havia passado por ali naquela noite.",
+      "prompt_imagem": "Original cinematic illustration, same young woman with notebook opening rusty clocktower door and climbing dusty staircase, moody shaft of blue light, vertical 9:16, no text."
+    },
+    {
+      "id": "cena-7",
+      "papel": "resolucao",
+      "narracao": "No último andar, encontrou um velho projetor apontado para a janela. Bastou ajustar uma pequena peça para que a luz atravessasse o vidro e iluminasse toda a cidade. Os ponteiros voltaram a se mover pela primeira vez em décadas.",
+      "prompt_imagem": "Original anime-inspired illustration, researcher repairing ancient projector on clocktower top floor, golden beam crossing tall window, gears starting to move, joyful hopeful emotion, vertical composition, no text."
+    },
+    {
+      "id": "cena-8",
+      "papel": "final",
+      "narracao": "Na manhã seguinte, a praça amanheceu diferente. As pessoas pensaram que alguém havia consertado um relógio quebrado. A pesquisadora, porém, sabia que tinha encontrado algo maior: uma mensagem de esperança escondida onde ninguém mais procurava.",
+      "prompt_imagem": "Original illustration, morning sunrise over old city clocktower plaza, same young woman with navy coat holding notebook smiling quietly, warm wide cinematic closing shot, vertical portrait, no text."
+    }
+  ]
+}
