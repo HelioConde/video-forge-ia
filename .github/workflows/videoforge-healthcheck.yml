@@ -1,0 +1,66 @@
+name: VideoForge - Monitor de saude (a cada 30 minutos)
+
+# Runs on GitHub's approximate cron schedule; does not initiate any
+# private workflows, AI calls, paid media generation or YouTube publishing.
+on:
+  schedule:
+    - cron: '12,42 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/check_videoforge_health.py'
+      - 'tests/test_health_monitor.py'
+      - '.github/workflows/videoforge-healthcheck.yml'
+  pull_request:
+    paths:
+      - 'scripts/check_videoforge_health.py'
+      - 'tests/test_health_monitor.py'
+      - '.github/workflows/videoforge-healthcheck.yml'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: videoforge-readonly-health-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-contract:
+    name: Monitor — contrato sem rede
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Testar estados e regras sem Proxy ou credenciais
+        run: python -m unittest discover -s tests -p 'test_health_monitor.py' -v
+
+  read-only-audit:
+    name: Monitor — conferir os workflows da main
+    needs: offline-contract
+    if: >-
+      github.repository == 'HelioConde/video-forge-ia' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verificar os últimos workflows e os 9 agentes (somente leitura)
+        run: python -m scripts.check_videoforge_health
+      - name: Confirmar execução sem IA e sem publicação
+        if: success()
+        run: echo 'HEALTH_CHECK_READONLY_ZERO_MODEL_CALLS_ZERO_YOUTUBE_UPLOADS'

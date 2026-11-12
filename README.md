@@ -30,6 +30,18 @@ o modo `private-quota-live` exige disparo manual protegido e faz no máximo
 que o próximo pedido de IA terá sucesso.
 [Contrato, autorização e resultados](docs/PROXY_QUOTA_DIAGNOSTIC.md).
 
+## Monitoramento automático a cada 30 minutos
+
+O workflow [VideoForge — Monitor de saúde](.github/workflows/videoforge-healthcheck.yml)
+foi configurado para consultar **duas vezes por hora** os workflows
+principais de `push` na `main` e verificar os cadastros dos **9 agentes
+e 5 canais**. Se detectar uma falha ou execução travada, sinaliza no
+GitHub Actions; não inicia Codex Proxy, não gera mídia, não publica
+vídeo nem modifica o repositório. A automação horária do ChatGPT
+investiga os problemas separadamente, respeitando autorizações.
+O GitHub pode atrasar execuções agendadas.
+[Manual e limites](docs/MONITORAMENTO_VIDEOFORGE.md).
+
 ## Organização do projeto
 
 Os cinco canais do AutoEditorVideo estão separados em pastas independentes. Cada canal possui suas próprias regras editoriais e um modelo padrão, que pode ser substituído individualmente em um vídeo.

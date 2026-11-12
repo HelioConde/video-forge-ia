@@ -62,6 +62,20 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 - `docs/`: regras, decisões arquiteturais e documentação.
 - `output/`: arquivos e mídia gerados, não versionados.
 
+## Monitoramento gratuito e recorrente, sem execução paga
+
+`.github/workflows/videoforge-healthcheck.yml` realiza auditorias
+somente leitura com cron `12,42 * * * *` (intervalo de 30 minutos).
+Confere os últimos workflows de `push` na `main` e a configuração de
+9 agentes/5 canais; mantém apenas `contents: read`/`actions: read`.
+Falhas detectadas produzem um run com erro, mas o monitor não cria
+issues, não repete builds, não executa workflows privados nem se
+autocorrige. GitHub cron é aproximado. A automação horária do ChatGPT
+deve investigar as falhas reais, corrigir quando permitido e validar
+novos runs. **NUNCA** inserir secrets do Proxy, YouTube ou PixelLab
+neste monitor, nem permitir que cron rode geração, publicação ou
+falsifique atividade. Ver `docs/MONITORAMENTO_VIDEOFORGE.md`.
+
 ## Regra operacional — sempre executar e verificar o workflow
 
 Após modificar código, configuração, pesquisa ou documentação do VideoForge,
