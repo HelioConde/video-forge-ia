@@ -312,6 +312,19 @@ Os oito agentes do cadastro em `agentes/equipe.json` seguem sem `modelo_ia` e co
 
 As oito âncoras PixelLab foram centralizadas em `site/office-map.js` (não duplicar no renderer): **Direção, Roteirista, Revisor e Publicador em Produção; Artista e Animador na Sala Criativa; Narrador e Editor no Laboratório**. Cada rótulo permanece dentro do cômodo. `site/agent-routines.js` usa o corredor inferior e a passagem superior, em vez de atravessar mesas da Produção ao sair das salas à direita. A prévia continua desacoplada do backend: ninguém é registrado como trabalhando sem evento verificável.
 
+## Diagnóstico de cotas do Codex Proxy com custo de geração zero
+
+Para investigar HTTP 429 sem repetir pedidos de IA, usar primeiro
+`videoforge.proxy.cli --action quota --usage-mode cached` em backend
+protegido. Para consultar o uso atual do provider, o modo
+`private-quota-live` de `codex-proxy-backend.yml` aceita apenas
+`workflow_dispatch` na `main`, com Environment `proxy-runtime`,
+`run_attempt=1` e um GET de uso da primeira conta elegível.
+Nunca imprimir IDs de conta, e-mail, saldo, respostas do provedor,
+tokens nem percentual exato; não publicar no Pages. Um GET de uso
+não autoriza futuras chamadas de geração, modelo alternativo ou retries.
+Ver `docs/PROXY_QUOTA_DIAGNOSTIC.md`.
+
 ## Codex Proxy — integração backend segura
 
 O proxy independente em Go tem 22 rotas, expostas pelo cliente
