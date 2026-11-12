@@ -1,0 +1,238 @@
+name: VideoForge - Gerador AutoEditor (plano ou video privado)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "plan = sem custo; render = imagens reais e MP4"
+        required: true
+        default: plan
+        type: choice
+        options: [plan, render]
+      manifest:
+        description: "Manifesto de video dentro de geradores/ ou canal/"
+        required: true
+        default: geradores/autoeditor/exemplo-manifesto.json
+        type: string
+      authorize_render:
+        description: "Confirmar custos/cotas e gerar apenas para revisao"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: autoeditor-manual-${{  github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    if: inputs.action == 'plan'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Gerar plano sem IA, sem imagens e sem upload
+        shell: bash
+        env:
+          JOB_MANIFEST: ${{  inputs.manifest }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from videoforge.generators.autoeditor import load_manifest,plan
+          root=Path.cwd().resolve()
+          path=(root/Path(os.environ["JOB_MANIFEST"])).resolve()
+          if not (path.is_relative_to(root/"geradores") or path.is_relative_to(root/"canal")):
+              raise SystemExit("AUTOEDITOR_MANIFEST_PATH_NOT_ALLOWED")
+          obj=plan(load_manifest(path))
+          dest=root/"output"/"autoeditor-plan.json"
+          dest.parent.mkdir(parents=True,exist_ok=True)
+          dest.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("AUTOEDITOR_PLAN_ONLY_NO_GENERATION_NO_UPLOAD")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: autoeditor-plan-${{  github.run_id }}
+          path: output/autoeditor-plan.json
+          retention-days: 7
+          if-no-files-found: error
+
+  render:
+    if: >-
+      inputs.action == 'render' &&
+      inputs.authorize_render == true &&
+      github.ref == 'refs/heads/main' &&
+      github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    environment: proxy-runtime
+    timeout-minutes: 90
+    env:
+      GIN_MODE: release
+      DEBUG_LOG_PAYLOADS: 'false'
+      PORT: '8080'
+      VIDEOFORGE_AUTOEDITOR_RENDER_AUTHORIZED: 'yes'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Motor Remotion original fixado
+        uses: actions/checkout@v4
+        with:
+          repository: HelioConde/AutoEditorVideo
+          ref: ec85db5bc74455122e4501aba05bd2dd3fd0df2c
+          path: autoeditor-source
+          persist-credentials: false
+      - name: Go Codex Proxy original fixado
+        uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: autoeditor-source/motion-remotion/package-lock.json
+      - name: Instalar ambiente de render e narração
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check 'Pillow>=10,<13' 'edge-tts>=7,<9'
+          cd autoeditor-source/motion-remotion
+          npm ci --ignore-scripts
+      - name: Validar contratos antes de usar segredos
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
+          python -m unittest discover -s tests -p 'test_generator_registry.py' -v
+      - name: Compilar o proxy Go sem segredos
+        working-directory: upstream-codex-proxy
+        shell: bash
+        run: |
+          set -euo pipefail
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/videoforge-autoeditor-proxy" ./cmd/api
+      - name: Gerar video privado de revisao, sem acesso ao YouTube
+        shell: bash
+        env:
+          JOB_MANIFEST: ${{  inputs.manifest }}
+          PROXY_API_KEY: ${{  secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{  secrets.PROXY_ACCOUNTS_JSON }}
+          PILOT_JOB_ID: vf-${{  github.run_id }}
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$PROXY_API_KEY"
+          test -n "$PROXY_ACCOUNTS_JSON"
+          private_dir="$RUNNER_TEMP/videoforge-autoeditor-private"
+          proxy_pid=''
+          cleanup() {
+            if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
+            rm -rf -- "$private_dir"
+            rm -f -- "$RUNNER_TEMP/videoforge-autoeditor-proxy.log"
+          }}
+          trap cleanup EXIT
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.proxy.private_state import stage_private_state
+          from videoforge.generators.autoeditor import load_manifest,plan
+          root=Path.cwd().resolve()
+          path=(root/Path(os.environ["JOB_MANIFEST"])).resolve()
+          if not (path.is_relative_to(root/"geradores") or path.is_relative_to(root/"canal")):
+              raise SystemExit("AUTOEDITOR_MANIFEST_PATH_NOT_ALLOWED")
+          if path.is_symlink() or not path.is_file():
+              raise SystemExit("AUTOEDITOR_MANIFEST_UNSAFE")
+          p=plan(load_manifest(path))
+          assert p["planned_image_calls"] <= 12 and p["youtube_uploaded"] is False
+          stage_private_state(os.environ["PROXY_ACCOUNTS_JSON"],
+               Path(os.environ["RUNNER_TEMP"])/"videoforge-autoeditor-private")
+          print("AUTOEDITOR_OAUTH_STAGED_PRIVATELY")
+          PY
+          unset PROXY_ACCOUNTS_JSON
+          DATA_DIR="$private_dir" "$RUNNER_TEMP/videoforge-autoeditor-proxy" \
+            >"$RUNNER_TEMP/videoforge-autoeditor-proxy.log" 2>&1 &
+          proxy_pid=$!
+          python - <<'PY'
+          import time
+          from videoforge.proxy.client import ProxyClient, ProxyError
+          client=ProxyClient(timeout=3)
+          for i in range(90):
+              try:
+                  if client.health_live().get("status")=="ok":
+                      print("AUTOEDITOR_PROXY_READY")
+                      break
+              except (ProxyError,ValueError):
+                  pass
+              time.sleep(1)
+          else:
+              raise SystemExit("AUTOEDITOR_PROXY_NOT_READY")
+          PY
+          python -m videoforge.generators.autoeditor \
+            --action produce --manifest "$JOB_MANIFEST" \
+            --output "$GITHUB_WORKSPACE/output/autoeditor-$PILOT_JOB_ID" \
+            --motion-root "$GITHUB_WORKSPACE/autoeditor-source/motion-remotion" \
+            --job-id "$PILOT_JOB_ID" --max-image-calls 12
+      - name: Verificar MP4, procedencia e bloqueio de upload
+        shell: bash
+        env:
+          PILOT_JOB_ID: vf-${{  github.run_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from videoforge.production.image_policy import validate_generated_visuals
+          from videoforge.production.quality_gate import inspect_media
+          root=Path("output")/("autoeditor-"+os.environ["PILOT_JOB_ID"])
+          report=json.loads((root/"manifest.json").read_text(encoding="utf-8"))
+          images=json.loads((root/"imagens.json").read_text(encoding="utf-8"))
+          assert report["generated_images"] == len(images["assets"]) >= 3
+          assert report["fallback_images"] == 0
+          assert report["human_approved"] is False
+          assert report["youtube_uploaded"] is False
+          validate_generated_visuals(images["assets"],root,expected_count=len(images["assets"]))
+          media=inspect_media(root/"video.mp4")
+          assert media["sha256"] == report["media"]["sha256"]
+          assert 90 <= media["duration_seconds"] <= 180.5
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("## AutoEditor - video de revisao\n\n")
+              f.write(f"Imagens geradas: {len(images['assets'])}; fallback zero.\n\n")
+              f.write(f"MP4: {media['duration_seconds']}s, 1080x1920, hash confirmado.\n\n")
+              f.write("QA editorial pendente. Nenhum envio ao YouTube.\n")
+          print("AUTOEDITOR_REAL_VIDEO_VERIFIED_NO_YOUTUBE")
+          PY
+      - name: Entregar artefatos de revisao sem credenciais
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autoeditor-preview-${{  github.run_id }}
+          path: |
+            output/autoeditor-vf-${{  github.run_id }}/video.mp4
+            output/autoeditor-vf-${{  github.run_id }}/scene-*.png
+            output/autoeditor-vf-${{  github.run_id }}/imagens.json
+            output/autoeditor-vf-${{  github.run_id }}/manifest.json
+            output/autoeditor-vf-${{  github.run_id }}/qa-editorial.json
+            output/autoeditor-vf-${{  github.run_id }}/plano.json
+            output/autoeditor-vf-${{  github.run_id }}/remotion-props.json
+          retention-days: 7
+          if-no-files-found: error
