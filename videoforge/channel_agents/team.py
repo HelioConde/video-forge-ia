@@ -282,7 +282,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if (os.getenv("CHANNEL_IDEATION_APPROVED") != "yes"
             or os.getenv("GITHUB_REPOSITORY") != "HelioConde/video-forge-ia"
-            or os.getenv("GITHUB_REF") != "refs/heads/main"):
+            or os.getenv("GITHUB_REF") != "refs/heads/main"
+            or os.getenv("GITHUB_EVENT_NAME") != "workflow_dispatch"
+            or os.getenv("GITHUB_ACTOR") != "HelioConde"
+            or os.getenv("GITHUB_RUN_ATTEMPT") != "1"):
         raise SystemExit("TEAM_PRIVATE_RESEARCH_APPROVAL_REQUIRED")
     if args.channel != "otaku-br":
         raise SystemExit("TEAM_PILOT_ONLY_OTAKU_BR")

@@ -55,6 +55,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_editorial_handoff.py' -v
           python -m unittest discover -s tests -p 'test_secure_draft.py' -v
+          python -m unittest discover -s tests -p 'test_secure_editorial_report.py' -v
           python -m unittest discover -s tests -p 'test_agent_dispatch.py' -v
           python -m unittest discover -s tests -p 'test_agent_gateway.py' -v
           python -m unittest discover -s tests -p 'test_attempt_claim.py' -v
@@ -105,6 +106,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64: ${{ secrets.VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64 }}
         run: |
           set -euo pipefail
           umask 077
@@ -120,15 +122,22 @@ jobs:
               and record.get("path") == ".github/workflows/editorial-team-research.yml"
               and record.get("status") == "completed"
               and record.get("conclusion") == "success"
-              and record.get("event") in ("push","workflow_dispatch")
+              and record.get("event") == "workflow_dispatch"
+              and record.get("actor", {}).get("login") == "HelioConde"
           ):
               raise SystemExit("HANDOFF_SOURCE_WORKFLOW_NOT_TRUSTED")
           print("HANDOFF_SOURCE_WORKFLOW_VERIFIED")
           PY
           mkdir -m 700 "$RUNNER_TEMP/vf-editorial-source"
           gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" \
-            --name "otaku-multicena-agents-decisao-$SOURCE_RUN_ID" \
+            --name "otaku-multicena-agents-decisao-cifrada-$SOURCE_RUN_ID" \
             --dir "$RUNNER_TEMP/vf-editorial-source"
+          # Decrypt privately with the SAME protected Environment key.
+          # A swapped artifact fails authenticated run-id validation.
+          python -m videoforge.channel_agents.secure_report decrypt \
+            --source "$RUNNER_TEMP/vf-editorial-source/decisao.encrypted.json" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --output "$RUNNER_TEMP/vf-editorial-source/decisao.json"
           python -m videoforge.production.editorial_handoff \
             --report "$RUNNER_TEMP/vf-editorial-source/decisao.json" \
             --source-run-id "$SOURCE_RUN_ID" \

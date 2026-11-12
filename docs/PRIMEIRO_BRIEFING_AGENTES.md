@@ -1,5 +1,36 @@
 # Primeiro briefing real pelo Codex Proxy (somente com aprovação)
 
+## Confidencialidade do relatório da equipe editorial (12/11/2026)
+
+O workflow `editorial-team-research.yml` só pode fazer chamada gerativa com
+`workflow_dispatch` na `main`, pelo proprietário `HelioConde`, uma
+única tentativa, confirmação de pesquisa e Environment `proxy-runtime`.
+Foi removido o antigo acionamento por `push` de arquivo de autorização.
+Novas alterações em documentação ou commits não podem iniciar gasto de IA.
+
+O relatório editorial pode conter métricas privadas do YouTube e textos
+gerados por modelo. Agora é criptografado no runner com AES-256-GCM por
+`videoforge.channel_agents.secure_report` usando o **mesmo Secret
+protegido** `VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64`. Só o envelope
+`decisao.encrypted.json` é armazenado como artifact, sob o nome
+`otaku-multicena-agents-decisao-cifrada-<run_id>`. A chave e a
+decisão em claro nunca devem aparecer em logs, artifacts públicos,
+GitHub Pages ou commits. A ausência da chave **bloqueia a pesquisa antes
+da geração**, para evitar cobrança sem um relatório persistível.
+
+O workflow `agent-one-briefing.yml` valida origem, proprietário e
+resultado do run, baixa o artifact cifrado e o decripta **dentro do
+runner privado** com a mesma chave e AAD vinculado ao `source_run_id`.
+Só então aplica validação editorial e a reserva humana persistente.
+Artifacts antigos em texto puro deixam de ser aceitos como fonte
+para novos briefings; eles devem ser tratados como material histórico
+que não deve ser republicado. Não reexecutar automaticamente pesquisa
+antiga para substituir artifact.
+
+Essa proteção não resolve o HTTP 429 e **não** habilita nem publica vídeos.
+Teste: `python -m unittest discover -s tests -p 'test_secure_editorial_report.py' -v`.
+
+
 ## Resultado desta etapa
 
 O workflow manual **VideoForge - Briefing IA protegido (um agente)**

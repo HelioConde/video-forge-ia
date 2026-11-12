@@ -1,5 +1,20 @@
 # VideoForge AI
 
+## Pesquisa por agentes com resultado protegido
+
+A pesquisa do Otaku Multicena só gera novas candidatas após
+`workflow_dispatch` **manual do proprietário** na `main`, com
+autorização explícita e Secret do Environment `proxy-runtime`.
+Ela não é mais iniciada por um commit especial. O resultado editorial,
+que pode incluir Analytics não públicos, é **criptografado no runner
+com AES-256-GCM** antes de ser salvo como artifact. O briefing
+posterior confirma o run autorizado e decripta o arquivo apenas em
+runner privado. Sem chave de cifragem, o workflow para antes de
+consumir IA. O erro HTTP 429 permanece sujeito aos limites reais;
+não há retries nem publicação automática.
+[Manual do handoff protegido](docs/PRIMEIRO_BRIEFING_AGENTES.md).
+
+
 **Gerador modular de vídeos com IA e publicação automatizada no YouTube.**
 
 > **Estado atual:** o pipeline já produziu um MP4 de prévia técnica (18s) no GitHub Actions, mas a geração pelo Proxy falhou por limite HTTP 429; o vídeo anterior usou imagens locais e **não atende à política atual**. A partir desta revisão, a geração de todas as imagens de cena pelo gerador integrado é obrigatória: se falhar, a produção é interrompida. Não há upload automático.
