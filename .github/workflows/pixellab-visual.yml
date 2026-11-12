@@ -95,8 +95,12 @@ jobs:
                   page.wait_for_function("window.VideoForgeAnimator.ready() && window.VideoForgeArt.getArtMode()==='pixellab'",timeout=30000)
                   page.locator("#btnAgents").click()
                   page.get_by_role("button",name="Conversar com colega").click()
-                  assert ("sala criativa" in page.locator(".routine-state").inner_text().lower()
-                          or "conversa" in page.locator(".routine-state").inner_text().lower())
+                  state=page.locator(".routine-state").inner_text().lower()
+                  # Antes de chegarem, os dois agentes exibem "Indo à área
+                  # de colaboração"; depois, "Conversa e escuta alternadas".
+                  assert any(term in state for term in (
+                      "sala criativa", "conversa", "área de colaboração"
+                  )), "Estado da reunião inesperado: "+repr(state)
                   page.screenshot(path=str(root/(name+"-conversation.png")),full_page=True)
                   if errors:raise RuntimeError("Erro JavaScript: "+"; ".join(errors))
                   print(name+": sprites, profissões, rotas e conversa de dois agentes funcionando")
