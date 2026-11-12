@@ -26,8 +26,10 @@ por causa apenas deste gateway.
   entregas (texto, imagem, motores externos, aprovacao).
 - videoforge/channel_agents/ideation.py: agente pesquisador ja integrado
   para pesquisa editorial real autorizada.
-- videoforge/production/dispatcher.py: planejamento e dependencias,
-  ainda sem invocar os modelos dos especialistas.
+- videoforge/production/dispatcher.py: planejamento e dependencias.
+- videoforge/production/agent_dispatch.py: lista offline de especialistas
+  de texto elegiveis e chamada por tarefa privada, autorizada e sem
+  marcacao automatica de QA ou conclusao. Ver AGENT_TEXT_DISPATCH.md.
 
 As rotas de texto usam ProxyClient.chat; imagens continuam com as rotas
 images_generate e images_edit e com a politica de proveniencia.
