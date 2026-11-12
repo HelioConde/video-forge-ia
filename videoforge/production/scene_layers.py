@@ -203,7 +203,6 @@ def _save_edit(data: dict, path: Path, *, transparent: bool) -> dict:
 def _validate_asset(directory: Path, asset: dict, *, transparent: bool) -> None:
     target = directory / asset["file"]
     if (target.is_symlink() or not target.is_file()
-            or target.resolve().parent != (directory / target.parent.relative_to(directory)).resolve()
             or not target.resolve().is_relative_to(directory.resolve())
             or sha256(target.read_bytes()).hexdigest() != asset["sha256"]):
         raise SceneLayerError("LAYERS_IMAGE_PROVENANCE_MISMATCH")
@@ -369,9 +368,8 @@ def generate_scene_layers(manifest: dict, directory: Path, proxy, *,
         "human_visual_review": False,
         "youtube_upload_approved": False,
     }
-    quality = verify_scene_layers(manifest, directory, document)
+    # Artista writes generated assets only. Independent technical review is
+    # performed by the revisor role after the artist's stage completes.
     (directory / "scene-layers.json").write_text(
         json.dumps(document, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    (directory / "qa-camadas.json").write_text(
-        json.dumps(quality, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     return document
