@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 from PIL import Image, ImageDraw
 
+from videoforge.generators import load_generator, build_generator_plan
 from videoforge.generators.autoeditor import (
     AutoEditorBlocked, build_remotion_props, generate_images,
     load_manifest, plan, produce, validate_manifest,
@@ -105,6 +106,36 @@ class LayerPipelineTests(unittest.TestCase):
         doc = generate_scene_layers(manifest, directory, artist,
                                     master_assets=masters, max_calls=budget)
         return artist, masters, doc
+
+    def test_every_agent_has_correct_dag_role_and_approval_dependency(self):
+        definition = load_generator("autoeditor")
+        graph = build_generator_plan(definition)
+        tasks = {x["id"]: x for x in graph["tasks"]}
+        assigned = {
+            "storyboard": "storyboard",
+            "imagens": "ilustrador",
+            "decomposicao": "ilustrador",
+            "qa-camadas": "revisor-visual",
+            "qa-imagens": "revisor-visual",
+            "animacao": "animacao",
+            "edicao": "montagem",
+            "qa-tecnico": "qa-tecnico",
+            "qa-editorial": "revisor-conteudo",
+        }
+        for stage, worker in assigned.items():
+            with self.subTest(stage=stage):
+                self.assertEqual(tasks[stage]["responsavel"], worker)
+                self.assertEqual(tasks[stage]["execution_status"], "not_started")
+        self.assertEqual(tasks["decomposicao"]["depende_de"], ["imagens"])
+        self.assertEqual(tasks["qa-camadas"]["depende_de"], ["decomposicao"])
+        self.assertEqual(tasks["qa-imagens"]["depende_de"], ["qa-camadas"])
+        self.assertEqual(tasks["animacao"]["depende_de"], ["qa-imagens", "legendas"])
+        self.assertEqual(tasks["edicao"]["depende_de"], ["animacao"])
+        self.assertEqual(tasks["qa-tecnico"]["depende_de"], ["edicao"])
+        self.assertNotIn("publicacao", tasks)
+        self.assertFalse(graph["execution_enabled"])
+        self.assertFalse(graph["auto_publish_enabled"])
+        self.assertTrue(graph["requires_human_approval"])
 
     def test_budget_counts_all_background_character_and_prop_edits(self):
         p = plan(self.manifest)
