@@ -434,8 +434,27 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     # TTS first, so an incorrectly paced script does not waste image requests.
     audio, seconds, words = prepare_voice(manifest, dest)
     images = generate_images(manifest, dest, client, max_calls=max_calls)
+    (dest/"qa-imagens.json").write_text(json.dumps({
+        "status": "source_and_bytes_verified",
+        "generator_images": len(images), "fallback": 0,
+        "human_visual_review": False,
+    }, indent=2)+"\n", encoding="utf-8")
     media = render_remotion(manifest, dest, motion_root=motion_root, audio=audio,
                            images=images, duration=seconds, words=words, job_id=job_id)
+    props=json.loads((dest/"remotion-props.json").read_text(encoding="utf-8"))
+    (dest/"storyboard.json").write_text(json.dumps({
+        "source": "remotion_actual_edge_tts_timing",
+        "scenes": props["scenes"], "durationFrames": props["durationFrames"],
+        "editorial_approved": False,
+    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    (dest/"legendas.json").write_text(json.dumps({
+        "source": "real_edge_tts_word_boundary",
+        "captions": props["captions"],
+    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    (dest/"qa-tecnico.json").write_text(json.dumps({
+        "status": "technical_verified", "media": media,
+        "editorial_approved": False, "published": False,
+    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     (dest/"qa-editorial.json").write_text(json.dumps({
         "status": "pending_independent_human_review",
         "originality_not_verified": True, "rights_not_verified": True,
