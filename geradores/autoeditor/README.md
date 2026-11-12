@@ -11,6 +11,13 @@ A arte deve ser produzida **somente pelo VideoForge**, nunca por imagens feitas 
 
 O agente **não pode alternar** anime, pintura, realismo, 3D ou design de personagem; identidade, cabelo, olhos, roupa e acessórios ficam fixos. Estilo depende do vídeo, não é global. Se falta âncora, a edição falha, ocorre HTTP 429 ou a cena contradiz a bíblia, abortar sem fallback nem consumo adicional. O módulo `visual_lock.py` valida o encadeamento e registra os hashes. Esse controle prova referência técnica, **não** semelhança visual: o revisor deve olhar todas as cenas antes de aprovar. O render de prévia não publica, e `qa-imagens.json` continua pendente de aprovação visual independente.
 
+
+## Regra 2 decomposta: **todos os desenhos saem do próprio VideoForge**
+
+Além da consistência da primeira referência, cada cena passa pelo modo obrigatório `layered_from_master_scene`. O storyboard registra `layer_plan.characters` e `layer_plan.movable_props`. O **Artista/Ilustrador** gera a imagem-mãe, depois usa **exatamente aquela imagem** como referência de edição no Codex Proxy para obter um fundo limpo e PNGs RGBA separados dos personagens e objetos móveis. O **Revisor visual** valida hashes, dimensão e transparência, mas ainda exige revisão humana de encaixe. O **Animador** entrega composição `multilayer` ao Remotion e o **Editor** renderiza o vídeo. Objetos `hero_prop` separados ficam estáticos no renderer pinado, sem fingir rigging articulado.
+
+O exemplo contém 26 chamadas de imagem previstas; o orçamento **não** aumenta automaticamente em ações antigas. No GitHub Actions, selecionar `action=plan` para conferir o custo offline ou autorizar `action=render` com limite `max_image_calls` suficiente, após checar cota e custos. A publicação continua desativada. Ver [especificação](../../docs/CAMADAS_CENA_MESTRE.md).
+
 ## O que funciona no executor
 
 1. Recebe um manifesto editorial criado pelos agentes e validado pelo VideoForge:
