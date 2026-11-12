@@ -57,6 +57,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_secure_draft.py' -v
           python -m unittest discover -s tests -p 'test_agent_dispatch.py' -v
           python -m unittest discover -s tests -p 'test_agent_gateway.py' -v
+          python -m unittest discover -s tests -p 'test_attempt_claim.py' -v
       - name: Declarar ausência de execução paga
         run: echo 'OFFLINE_TESTS_ONLY_NO_REAL_PROXY_NO_VIDEO_NO_YOUTUBE_UPLOAD'
 
@@ -71,6 +72,9 @@ jobs:
       inputs.authorize_one_proxy_call == true &&
       inputs.confirm_human_reservation == true
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write  # somente para criar a trava persistente de tentativa
+      actions: read
     environment: proxy-runtime
     timeout-minutes: 27
     env:
@@ -144,6 +148,7 @@ jobs:
           PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
           PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
           VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64: ${{ secrets.VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64 }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           umask 077
@@ -170,7 +175,7 @@ jobs:
           print("BRIEFING_PRIVATE_ACCOUNT_STATE_STAGED")
           PY
           unset PROXY_ACCOUNTS_JSON
-          env -u VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64 \
+          env -u VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64 -u GH_TOKEN \
             DATA_DIR="$state_dir" "$RUNNER_TEMP/vf-one-briefing-proxy" \
             > "$RUNNER_TEMP/vf-briefing-proxy.log" 2>&1 &
           proxy_pid=$!
@@ -198,6 +203,7 @@ jobs:
           import json,os
           from pathlib import Path
           from videoforge.production.agent_dispatch import run_text_draft
+          from videoforge.production.attempt_claim import claim_one_briefing
           from videoforge.production.secure_draft import (
               encrypt_private_draft, decrypt_private_draft,
           )
@@ -206,6 +212,15 @@ jobs:
           handoff=temp/"vf-handoff-ready"
           plan=json.loads((handoff/"plan.json").read_text(encoding="utf-8"))
           context=(handoff/"context.json").read_text(encoding="utf-8")
+          claim=claim_one_briefing(
+              plan=plan, context=json.loads(context),
+              source_run_id=os.environ["SOURCE_RUN_ID"],
+              run_id=os.environ["GITHUB_RUN_ID"],
+              token=os.environ["GH_TOKEN"], env=dict(os.environ),
+          )
+          if claim["status"]!="attempt_reserved_no_automatic_retry":
+              raise SystemExit("BRIEFING_PERSISTENT_ATTEMPT_CLAIM_FAILED")
+          print("BRIEFING_CROSS_RUN_CLAIM_CREATED_NO_AUTORETRY")
           receipt=run_text_draft(
               plan, "briefing", context=context,
               private_dir=temp/"vf-briefing-private", authorized=True,
