@@ -322,6 +322,39 @@ class EditorialTests(TestCase):
         with self.assertRaises(ValueError):
             evaluate_uploaded_video(self.inventory,video_id="not-owned-video")
 
+    def test_shorts_feedback_prefers_engaged_views_and_early_drop(self):
+        rows=[
+            upload("S0","Novo tema original",1200,90,80),
+            upload("S1","Outro assunto original",800,90,70),
+            upload("S2","Terceiro assunto original",850,90,72),
+            upload("S3","Quarto assunto original",900,90,75),
+        ]
+        for i,row in enumerate(rows):
+            row["format"]="short"
+            row["metrics"]["engagedViews"]=600 if i==0 else 400+i*20
+            row["metrics"]["subscribersGained"]=12 if i==0 else 3
+        info={
+            "schema":"videoforge/video-insights/v1",
+            "channel_id":CHANNEL,"video_id":"S0","read_only":True,
+            "window":{"start":"2026-08-12","end":"2026-11-09"},
+            "retention_points":[{"elapsed_ratio":.05,"audience_watch_ratio":1.0}],
+            "largest_adjacent_retention_drop":{"from_ratio":.05,"to_ratio":.1,"drop":.22},
+        }
+        from videoforge.channel_agents.feedback import evaluate_uploaded_video
+        result=evaluate_uploaded_video(snapshot(rows),video_id="S0",detailed_insights=info)
+        self.assertEqual(result["status"],"observed")
+        self.assertEqual(result["metric_basis"],"engagedViews")
+        self.assertEqual(result["next_experiment"],"test_first_20_percent_hook")
+        self.assertEqual(result["subscribers_per_1000_measured_views"],20.0)
+        self.assertEqual(result["experiment_variables"],1)
+        self.assertFalse(result["publication_enabled"])
+        rows[1]["metrics"].pop("engagedViews")
+        self.assertEqual(evaluate_uploaded_video(snapshot(rows),video_id="S0")["status"],
+                         "insufficient_engaged_views")
+        bad=dict(info,channel_id="UCother")
+        with self.assertRaises(ValueError):
+            evaluate_uploaded_video(snapshot(rows),video_id="S0",detailed_insights=bad)
+
     def test_insufficient_metrics_does_not_pick_best(self):
         no_metrics=snapshot([{"id":"1","title":"A","metrics":None}])
         result=select_idea(snapshot=no_metrics,reservations=self.reservas,
