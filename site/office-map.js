@@ -19,7 +19,7 @@
     games:{x:974,y:484,w:145,h:208,label:"SALA DE JOGOS",status:"preview"},
     restroom:{x:1120,y:484,w:109,h:208,label:"WC",status:"preview"}
   });
-  // A imagem contém os assentos: usar a mesma correção para os oito agentes.
+  // O panorama possui oito assentos físicos; o Subgerente fica em pé na área comum.
   // O ajuste é aplicado apenas no desenho de 'sit', não às rotas de caminhada.
   // A cadeira integrada ao sprite sit_down ficava 14 px adiante da cadeira do cenário.
   // O novo encaixe aproxima o personagem do monitor sem alterar os pontos de rota.
@@ -34,7 +34,9 @@
     {id:"narrador",x:1007,y:254,room:"media"},
     {id:"editor",x:1124,y:254,room:"media"},
     {id:"revisor",x:255,y:449,room:"production"},
-    {id:"publicador",x:384,y:449,room:"production"}
+    {id:"publicador",x:384,y:449,room:"production"},
+    // Supervisão móvel na área comum; sem cadeira ou mesa fictícia no PixelLab.
+    {id:"subgerente",x:635,y:448,room:"creative",standing:true}
   ]);
   const destinations=Object.freeze({
     coffee:Object.freeze({x:857,y:572,label:"Máquina de café (prévia)",room:"breakroom"}),

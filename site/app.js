@@ -3,7 +3,7 @@
   "use strict";
   const $ = id => document.getElementById(id);
   const STATUS={nao_conectado:"Não conectado",aguardando:"Aguardando",trabalhando:"Trabalhando",revisao:"Em revisão",concluido:"Concluído",erro:"Erro"};
-  const ICON={diretor:"◆",roteirista:"✎",artista:"✿",animador:"♜",narrador:"♫",editor:"▣",revisor:"✓",publicador:"↗"};
+  const ICON={diretor:"◆",roteirista:"✎",artista:"✿",animador:"♜",narrador:"♫",editor:"▣",revisor:"✓",publicador:"↗",subgerente:"★"};
   const state={snapshot:null,selected:null,tab:"agents",open:false};
   const canvas=$("officeCanvas"), workspace=$("workspace");
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
@@ -120,6 +120,32 @@
       detail.append(make("div","detail-kicker","AGENTE SELECIONADO"),make("div","detail-title",a.nome),make("div","detail-status","● "+label(a.status)),make("p","detail-text",a.tarefa||"Nenhuma tarefa informada"));
       const channel=snap.canais.find(c=>c.id===a.canal);
       detail.append(make("div","detail-footnote","Canal: "+(channel?channel.nome:"Não atribuído")));
+      if(a.id==="subgerente"){
+        const board=snap.ranking_funcionarios;
+        const scorePanel=make("div","organization-overview");
+        scorePanel.append(make("strong","","RANKING DE FUNCIONÁRIOS"));
+        scorePanel.append(make("p","detail-text",
+          "Pontos por qualidade (50), consistência (15), colaboração (10), evolução validada (20) e conformidade (5). Média das entregas, não volume."));
+        if(!board||board.status!=="ready"||!board.ranking?.length){
+          scorePanel.append(make("small","preview-note",
+            "Aguardando evidências de pelo menos 3 entregas por funcionário, aprovadas por QA independente. Ainda não existem pontos reais."));
+        }else{
+          scorePanel.append(make("small","preview-note",
+            "Período: "+board.period.start+" a "+board.period.end+" · QA verificado"));
+          board.ranking.slice(0,10).forEach(person=>{
+            scorePanel.append(make("p","detail-text",
+              "#"+person.rank+" · "+person.name+" — "+person.points+
+              "/100 pontos · "+person.verified_tasks+" entregas"));
+          });
+          const next=board.ranking[0];
+          if(next?.improvements?.length)
+            scorePanel.append(make("small","preview-note",
+              "Próxima melhoria sugerida: "+next.improvements[0]));
+        }
+        scorePanel.append(make("small","preview-note",
+          "O Subgerente não avalia a si mesmo, não publica vídeos nem modifica códigos automaticamente."));
+        detail.append(scorePanel);
+      }
       if(a.conexao){
         const diagnostics=make("div","organization-overview");
         diagnostics.append(make("strong","","DIAGNÓSTICO DA IA"));

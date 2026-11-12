@@ -5,8 +5,15 @@ import argparse
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from datetime import timedelta
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+# Compatível tanto com 'python scripts/build_dashboard_data.py' (Pages)
+# quanto com import do módulo nos testes.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from videoforge.production.subgerente import rank_employees
 STATES = {"nao_conectado", "aguardando", "trabalhando", "revisao", "concluido", "erro"}
 
 
@@ -14,7 +21,8 @@ def text(value: object, limit: int = 100) -> str:
     return " ".join(value.split())[:limit] if isinstance(value, str) else ""
 
 
-def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
+def make_snapshot(root: Path = ROOT, events: Path | None = None,
+                  performance_evidence: Path | None = None) -> dict:
     channels = []
     for folder in sorted((root / "canal").iterdir()):
         if not folder.is_dir():
@@ -164,21 +172,60 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None) -> dict:
                         if x != "Sem telemetria de execução comprovada"
                     ]
 
+    # Ranking público traz somente nomes, pontos e melhorias, NUNCA hashes,
+    # eventos por vídeo, revisões privadas ou métricas de canal.
+    current = datetime.now(timezone.utc).date()
+    ranking_input = (
+        json.loads(performance_evidence.read_text(encoding="utf-8"))
+        if performance_evidence is not None else {
+            "schema": "videoforge/performance-evidence/v1",
+            "source": "trusted_backend_qa",
+            "period": {
+                "start": (current - timedelta(days=29)).isoformat(),
+                "end": current.isoformat(),
+            },
+            "events": [],
+        }
+    )
+    ranking_raw = rank_employees(ranking_input, root=root)
+    ranking_public = {
+        "status": ranking_raw["status"],
+        "manager_id": "subgerente",
+        "min_tasks": ranking_raw["min_tasks"],
+        "period": ranking_raw["period"],
+        "total_verified_jobs": ranking_raw["total_verified_jobs"],
+        "unrated_count": len(ranking_raw["unrated"]),
+        "ranking": [
+            {
+                "id": row["employee_id"], "name": text(row["name"]),
+                "rank": row["rank"], "points": row["points"],
+                "verified_tasks": row["verified_tasks"],
+                "cohort": row["cohort"],
+                "improvements": [text(note, 180)
+                                  for note in row["improvement_actions"]],
+            } for row in ranking_raw["ranking"]
+        ],
+        "evidence_connected": performance_evidence is not None,
+    }
+
     return {
         "schema": "videoforge/agent-office/v1",
         "gerado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "fonte": "eventos_backend" if events else "apenas_configuracao",
         "tempo_real": False,
         "canais": channels, "agentes": agents, "organizacao": organization,
+        "ranking_funcionarios": ranking_public,
     }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--events", type=Path)
+    parser.add_argument("--performance-evidence", type=Path,
+                        help="Evidência QA privada do backend confiável (somente entrada local)")
     parser.add_argument("--output", type=Path, default=ROOT / "site/data/status.json")
     args = parser.parse_args()
-    snapshot = make_snapshot(events=args.events)
+    snapshot = make_snapshot(events=args.events, performance_evidence=args.performance_evidence)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(snapshot, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Painel preparado: {len(snapshot['canais'])} canais; {len(snapshot['agentes'])} agentes (sem execução de IA)")

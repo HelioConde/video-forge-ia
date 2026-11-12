@@ -173,6 +173,7 @@ function pixelBase(c){
   // Mesas dos oito agentes preservam a posição de seus sprites e placas.
   const departments=map.stations;
   departments.forEach((place,i)=>{
+    if(place.standing)return; // Nono agente possui posto móvel sem mesa física.
     const x=place.x,y=place.y;
     const w=place.room==='production'?104:94;
     if(spriteImages.desk) sprite(c,'desk',x-w/2,y+42,w,79);
@@ -290,7 +291,7 @@ function chair(c,x,y){ellipse(c,x,y+45,32,12,'#504744');rect(c,x-30,y+31,60,14,'
 function lamps(c){for(const x of [160,375,585,778,1038]){rect(c,x,151,3,17,'#394752');ellipse(c,x,175,25,8,'#e7ba83');rect(c,x-20,167,40,8,'#344657');rect(c,x-7,168,14,5,'#ffe6ad');}}
 function officeBase(c){rect(c,0,0,SW,SH,'#101b2a');for(let x=0;x<SW;x+=25)rect(c,x,0,1,SH,'#182636');wall(c);floor(c);for(let y=191;y<739;y+=280){carpet(c,86,y,679,233);}divider(c);meeting(c);studio(c);lamps(c);for(let i=0;i<8;i++){const [x,y]=stations[i];desk(c,x,y,i);chair(c,x,y+60);} // plants, artboards, pathways
   plant(c,78,672,.7);plant(c,790,706,.8);plant(c,783,186,.65);rect(c,72,171,50,37,'#253b48');line(c,72,171,50,37,'#7c969b',3);text(c,'01',97,195,'#d8edb8',17,'center');rect(c,752,171,48,37,'#243c4b');text(c,'02',775,195,'#bed9cc',16,'center');for(let x=90;x<754;x+=18)if(noise(x,455)%6===0)rect(c,x,452,6,3,'#d2ad83');}
-function avatar(c,x,y,i,selected=false,doing=false){const skin=['#e5ae87','#c88767','#edc6a0','#ae7961','#cfa081','#eab98e','#bc8968','#d9a678'][i];const hair=['#2b293d','#56382e','#6e443c','#342e3b','#403e48','#aa6645','#cfb18a','#292e43'][i];const top=['#9c99e4','#f1bc76','#78c5a7','#de9cba','#86b9dc','#e69b73','#b5cc86','#75c9be'][i];const float=doing?Math.floor(Date.now()/350)%2:0;const sx=Math.round(x),sy=Math.round(y-float);ellipse(c,sx,sy+24,21,7,'#4e5555');rect(c,sx-17,sy-1,36,24,top);rect(c,sx-22,sy+3,8,17,skin);rect(c,sx+17,sy+3,8,17,skin);rect(c,sx-14,sy+21,12,13,'#4d596f');rect(c,sx+7,sy+21,12,13,'#4d596f');rect(c,sx-15,sy+33,13,5,'#343843');rect(c,sx+7,sy+33,13,5,'#343843');rect(c,sx-12,sy-27,29,29,skin);rect(c,sx-15,sy-31,34,10,hair);rect(c,sx-16,sy-22,7,15,hair);rect(c,sx+16,sy-23,6,8,hair);rect(c,sx-5,sy-11,3,3,'#2e313b');rect(c,sx+9,sy-11,3,3,'#2e313b');rect(c,sx+1,sy-4,7,2,'#a26b5e');if(i===0){rect(c,sx-4,sy+2,6,16,'#f2d195');rect(c,sx-8,sy-13,14,6,'#62758e');}if(i===1){rect(c,sx-19,sy-31,31,6,'#5b402c');rect(c,sx+19,sy+5,4,18,'#e9c48f');}if(i===2){rect(c,sx-19,sy-31,39,5,'#8acfb6');rect(c,sx+3,sy+2,9,4,'#40876f');}if(i===3){rect(c,sx-17,sy-17,5,20,'#4e586c');rect(c,sx+17,sy-17,5,20,'#4e586c');}if(i===4){rect(c,sx+2,sy+7,6,5,'#e3e5d9');}if(i===5){rect(c,sx+6,sy+3,8,11,'#f2ddb9');}if(i===6){rect(c,sx-8,sy-13,12,7,'#6a5954');rect(c,sx+7,sy-13,12,7,'#6a5954');rect(c,sx+4,sy-11,4,2,'#6a5954');}if(i===7){rect(c,sx+7,sy+7,8,8,'#d5f5cf');}if(selected){line(c,sx-31,sy-40,63,82,'#ffe19d',3);star(c,sx,sy-48,'#f9dd8c');}}
+function avatar(c,x,y,i,selected=false,doing=false){const skin=['#e5ae87','#c88767','#edc6a0','#ae7961','#cfa081','#eab98e','#bc8968','#d9a678','#c99b81'][i];const hair=['#2b293d','#56382e','#6e443c','#342e3b','#403e48','#aa6645','#cfb18a','#292e43','#473c3f'][i];const top=['#9c99e4','#f1bc76','#78c5a7','#de9cba','#86b9dc','#e69b73','#b5cc86','#75c9be','#d5b977'][i];const float=doing?Math.floor(Date.now()/350)%2:0;const sx=Math.round(x),sy=Math.round(y-float);ellipse(c,sx,sy+24,21,7,'#4e5555');rect(c,sx-17,sy-1,36,24,top);rect(c,sx-22,sy+3,8,17,skin);rect(c,sx+17,sy+3,8,17,skin);rect(c,sx-14,sy+21,12,13,'#4d596f');rect(c,sx+7,sy+21,12,13,'#4d596f');rect(c,sx-15,sy+33,13,5,'#343843');rect(c,sx+7,sy+33,13,5,'#343843');rect(c,sx-12,sy-27,29,29,skin);rect(c,sx-15,sy-31,34,10,hair);rect(c,sx-16,sy-22,7,15,hair);rect(c,sx+16,sy-23,6,8,hair);rect(c,sx-5,sy-11,3,3,'#2e313b');rect(c,sx+9,sy-11,3,3,'#2e313b');rect(c,sx+1,sy-4,7,2,'#a26b5e');if(i===0){rect(c,sx-4,sy+2,6,16,'#f2d195');rect(c,sx-8,sy-13,14,6,'#62758e');}if(i===1){rect(c,sx-19,sy-31,31,6,'#5b402c');rect(c,sx+19,sy+5,4,18,'#e9c48f');}if(i===2){rect(c,sx-19,sy-31,39,5,'#8acfb6');rect(c,sx+3,sy+2,9,4,'#40876f');}if(i===3){rect(c,sx-17,sy-17,5,20,'#4e586c');rect(c,sx+17,sy-17,5,20,'#4e586c');}if(i===4){rect(c,sx+2,sy+7,6,5,'#e3e5d9');}if(i===5){rect(c,sx+6,sy+3,8,11,'#f2ddb9');}if(i===6){rect(c,sx-8,sy-13,12,7,'#6a5954');rect(c,sx+7,sy-13,12,7,'#6a5954');rect(c,sx+4,sy-11,4,2,'#6a5954');}if(i===7){rect(c,sx+7,sy+7,8,8,'#d5f5cf');}if(selected){line(c,sx-31,sy-40,63,82,'#ffe19d',3);star(c,sx,sy-48,'#f9dd8c');}}
 function statusBar(c,x,y,i,label,status,selected,compact=false){
   const active=['trabalhando','revisao'].includes(status);
   const width=compact?118:133, height=compact?24:29;
@@ -309,7 +310,7 @@ function motionForAgent(agent){
   if(agent.status!=='trabalhando')return 'idle';
   const profession={
     diretor:'talk',roteirista:'type',artista:'type',animador:'type',
-    narrador:'talk',editor:'type',revisor:'talk',publicador:'wave'
+    narrador:'talk',editor:'type',revisor:'talk',publicador:'wave',subgerente:'talk'
   };
   return profession[agent.id]||'idle';
 }
@@ -326,18 +327,20 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
   // Sem uma rota ativa, o agente fica SENTADO no posto, mesmo desconectado.
   // Uma demonstração solicitada ou o retorno à cadeira pode exibir gestos;
   // trajetos e interações fora da mesa nunca são transformados em 'sit'.
-  const atDesk=!position||(!position.moving&&position.target==='home');
-  const arriving=atDesk&&position?.actionLabel&&position.motion!=='sit';
+  const atHome=!position||(!position.moving&&position.target==='home');
+  const deskless=Boolean(window.VideoForgeOfficeMap.stations[i]?.standing);
+  const arriving=atHome&&position?.actionLabel&&position.motion!=='sit';
   const explicitPreview=selected&&previewMotion;
-  const motion=position?.moving?'walk':
-               position&&!atDesk?position.motion:
+  const proposedMotion=position?.moving?'walk':
+               position&&!atHome?position.motion:
                arriving?position.motion:
                explicitPreview?previewMotion:
-               roleDemo?(chosen||motionForAgent(agent)):'sit';
+               roleDemo?(chosen||motionForAgent(agent)):(deskless?'idle':'sit');
+  const motion=deskless&&proposedMotion==='sit'?'idle':proposedMotion;
 
   // As mesas do panorama PixelLab ficam ao norte dos agentes.
   // Segurar o último frame de sit evita ficar levantando/sentando em loop.
-  const seated=atDesk&&motion==='sit';
+  const seated=!deskless&&atHome&&motion==='sit';
   const seat=window.VideoForgeOfficeMap?.seat||{dx:0,dy:0,direction:'north'};
   const direction=seated?seat.direction:
                   position?.direction||(i<4?'south':'north');
@@ -371,17 +374,17 @@ function paintPixelAgent(c,agent,i,position,selected,t,previewMotion,reduceMotio
           animator.draw(c,motion,direction,frame,x,y,size);
     if(!drawn){
       // Durante o movimento, ainda respeitar a posição e o sprite original.
-      const fallback=atDesk?'sit':'idle';
-      const fallbackDirection=atDesk?seat.direction:direction;
-      const fallbackFrame=atDesk?Math.max(0,(animator.frameCount?.('sit')??4)-1):frame;
+      const fallback=seated?'sit':'idle';
+      const fallbackDirection=seated?seat.direction:direction;
+      const fallbackFrame=seated?Math.max(0,(animator.frameCount?.('sit')??4)-1):frame;
       drawn=animator.draw(c,fallback,fallbackDirection,fallbackFrame,x,y,size);
     }
   }
   if(!drawn)return false;
   // Marcador profissional e seleção não mudam estado real do backend.
   const colors=['#d8b979','#98b9dc','#a7d5af','#dbb2d8',
-                '#f0a990','#91cdc8','#d6cc9a','#b8bcf1'];
-  const symbols=['D','R','A','M','N','E','Q','P'];
+                '#f0a990','#91cdc8','#d6cc9a','#b8bcf1','#e7c67e'];
+  const symbols=['D','R','A','M','N','E','Q','P','S'];
   const bx=Math.round(x+size*.35),by=Math.round(y-size*.52);
   rect(c,bx,by,19,20,'#142b3a');
   line(c,bx,by,19,20,colors[i],2);
