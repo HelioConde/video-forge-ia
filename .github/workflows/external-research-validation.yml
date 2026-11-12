@@ -1,0 +1,42 @@
+name: VideoForge - Validar pesquisa externa (sem IA)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'canal/**/editorial/pesquisas/*.json'
+      - 'videoforge/channel_agents/external_research.py'
+      - 'tests/test_external_research.py'
+      - '.github/workflows/external-research-validation.yml'
+  pull_request:
+    paths:
+      - 'canal/**/editorial/pesquisas/*.json'
+      - 'videoforge/channel_agents/external_research.py'
+      - 'videoforge/channel_agents/team.py'
+      - 'videoforge/channel_agents/ideation.py'
+      - 'tests/test_external_research.py'
+      - '.github/workflows/external-research-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-research:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validar fontes e identidade sem chamadas de IA
+        run: python -m videoforge.channel_agents.external_research --channel otaku-br
+      - name: Testar formato, ausência de ranking e antirrepetição
+        run: |
+          python -m unittest discover -s tests -p 'test_external_research.py' -v
+          python -m unittest discover -s tests -p 'test_editorial_team.py' -v
+      - name: Certificar ausência de geração e upload
+        run: echo 'RESEARCH_ONLY_ZERO_PROXY_CALLS_ZERO_IMAGES_ZERO_UPLOADS'

@@ -1,5 +1,18 @@
 # Arquitetura proposta — VideoForge AI
 
+## Entrada de inteligência editorial externa
+
+O assistente pesquisa fatos públicos e documenta fontes em JSONs datados dentro
+de `canal/<id>/editorial/pesquisas/`. O módulo sem rede
+`videoforge/channel_agents/external_research.py` valida o formato e o canal.
+`team.py` entrega o registro mais recente a `ideation.py` apenas como
+**contexto com fontes**; não substitui o pesquisador real, o inventário completo
+de vídeos, a API YouTube Analytics, a auditoria do Subgerente ou o ranking do
+Gerente. O fluxo não ativa o Proxy, a mídia nem o upload em resposta a commits
+de pesquisa. Sem IA disponível (ex.: HTTP 429), o material permanece aguardando
+próxima execução autorizada; nenhum papel visual é marcado como trabalhando.
+Consultar [protocolo da pesquisa externa](PESQUISA_EXTERNA_VIDEOFORGE.md).
+
 ## Telemetria das etapas reais dos agentes visuais
 
 O VideoForge chama `role_task()` durante tarefas reais de roteiro/validação, voz, imagem, animação/composição, renderização e QA. `videoforge/production/role_events.py` envia eventos de início/conclusão do estágio por GitHub Checks e por GitHub Commit Status (fallback). Ambos publicam somente identificadores de função/canal, estado e link verificável do workflow; nenhum prompt, conteúdo de vídeo, token ou OAuth é publicado. A interface read-only em `site/office-live.js` procura o último run ativo de AutoEditor/Editorial, confere a identidade do registro e associa `trabalhando` ao papel correspondente. A etapa de edição só marca Editor enquanto **a renderização estiver efetivamente em execução**; conclusão do GitHub run nunca deixa o funcionário ativo. Se ambos os canais de telemetria estiverem indisponíveis, somente o pipeline global é sinalizado, sem atribuição fictícia a funcionários. Atualização via polling: não é streaming em tempo real.

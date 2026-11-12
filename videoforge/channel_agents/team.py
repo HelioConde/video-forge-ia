@@ -23,6 +23,8 @@ from .ideation import EditorialIdeationError, propose_candidates
 from .manager import ROOT, build_editorial_plan, channel_policy
 from .strategy import analyse_performance
 from .youtube import YouTubeReadOnly, YouTubeReadError, oauth_access_token
+from .external_research import (ExternalResearchError, latest_research,
+                                validate_research)
 
 
 class EditorialTeamError(ValueError):
@@ -80,10 +82,14 @@ def audit_candidates(*, proposals: list[dict], snapshot: dict,
 
 
 def run_team(*, channel: str, snapshot: dict, trends: dict | None = None,
+             external_research: dict | None = None,
              client: ProxyClient, model: str, root: Path = ROOT,
              stage_dir: Path | None = None, reporter: CheckReporter | None = None) -> dict:
     """Separate researcher LLM, analytics worker, manager, deputy QA tasks."""
     manager = channel_policy(channel, root=root)
+    if external_research is not None:
+        validate_research(external_research, channel=channel,
+                          channel_id=manager["youtube_channel_id"])
     if snapshot.get("source") != "youtube-data-v3+analytics-v2":
         raise EditorialTeamError("TEAM_REQUIRES_VERIFIED_YOUTUBE_DATA")
     if snapshot.get("channel_id") != manager["youtube_channel_id"]:
@@ -124,11 +130,13 @@ def run_team(*, channel: str, snapshot: dict, trends: dict | None = None,
     with role_context("roteirista", "research"):
         proposals = propose_candidates(
             manager=manager, snapshot=snapshot, reservations=reservations,
-            trends=trends, client=client, model=model, authorized=True
+            trends=trends, external_research=external_research,
+            client=client, model=model, authorized=True
         )
         stage_file("research", {"produced": len(proposals),
                                 "topic_ids": [p["id"] for p in proposals],
                                 "generator": "codex_proxy_chat",
+                                "external_research_signals": len((external_research or {}).get("signals", [])),
                                 "not_preselected_by_assistant": True})
     if not proposals:
         raise EditorialTeamError("TEAM_RESEARCHER_EMPTY_RESULT")
@@ -288,12 +296,18 @@ def main(argv=None):
                              expected_channel_id=policy["youtube_channel_id"])
         snapshot = yt.snapshot(days=args.days)
         trends = yt.trend_signals(["anime curiosidades", "anime análise"], max_queries=2)
+        external_research = latest_research(
+            root=ROOT, channel=args.channel, channel_id=policy["youtube_channel_id"])
+        if external_research is not None:
+            print("EXTERNAL_RESEARCH_LOADED_" +
+                  str(len(external_research["signals"])) + "_SIGNALS_CONTEXT_ONLY")
         proxy = ProxyClient(timeout=180)
         model = args.model
         if model == "auto":
             model = select_editorial_model(proxy.models())
         stage = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "videoforge-editorial-stage"
         report = run_team(channel=args.channel, snapshot=snapshot, trends=trends,
+                          external_research=external_research,
                           client=proxy, model=model,
                           stage_dir=stage,
                           reporter=CheckReporter(channel=args.channel,
@@ -308,7 +322,8 @@ def main(argv=None):
         print("TOPIC_CHOSEN_BY_MANAGER_NOT_CHATGPT")
         print("NO_IMAGES_NO_VIDEO_NO_PUBLISH")
         return 0 if report.get("chosen_topic") else 2
-    except (EditorialTeamError, EditorialIdeationError, YouTubeReadError) as exc:
+    except (EditorialTeamError, EditorialIdeationError,
+            ExternalResearchError, YouTubeReadError) as exc:
         # Only local, fixed policy codes can be printed. Never disclose the
         # OAuth response, model output, HTTP error body, token or prompt.
         # Error class alone hides whether the block is insufficient channel
@@ -316,7 +331,8 @@ def main(argv=None):
         code = str(exc)
         # Both exception classes use local fixed, ASCII-only rejection
         # codes. Never print upstream Proxy/OAuth/provider messages.
-        if not isinstance(exc, (EditorialTeamError, EditorialIdeationError)) or not (
+        if not isinstance(exc, (EditorialTeamError, EditorialIdeationError,
+                                    ExternalResearchError)) or not (
                 5 <= len(code) <= 90 and
                 all(ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for ch in code)):
             code = type(exc).__name__
