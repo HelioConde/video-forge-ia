@@ -1,5 +1,20 @@
 # AGENTS.md — Regras obrigatórias de manutenção do VideoForge AI
 
+## Regra de autoria das artes: exclusivamente o VideoForge
+
+**O assistente de chat apenas orienta e altera contratos do VideoForge; nunca cria imagens, capas, cenas ou animações fora do pipeline para suprir o artista.** O responsável por gerar toda a mídia é o próprio VideoForge usando seu Codex Proxy, com registro de execução, custo e proveniência. Não copiar artes de chat como se fossem arquivos gerados pelo worker.
+
+**Obrigatório para o artista em todo vídeo:**
+1. Se o canal possui uma referência aprovada, usar aquela imagem como referência no primeiro desenho; caso contrário, o **próprio agente de imagem gera uma única cena 1 oficial** pelo Proxy.
+2. Registrar uma bíblia visual do vídeo (personagens, rosto, cabelo, roupas, acessórios, paleta e estilo). Cada vídeo/canal escolhe seu estilo — não impor anime a conteúdo realista, kids, jogos etc.
+3. Todas as cenas seguintes **devem ser chamadas de edição de imagem com a referência real da cena 1** via `ProxyClient.images_edit_files`. Nunca fazer 8 gerações independentes com apenas "consistent character" no texto.
+4. Não mudar aparência, roupas, idade visual, ambiente fixo ou técnica artística entre cenas sem justificativa narrativa e revisão.
+5. O revisor visual confere a sequência inteira, compara com a primeira cena e **reprova variações**. Arquivos válidos, hashes, proveniência ou API de edição NÃO provam similaridade estética.
+6. Se não houver imagem de referência nem orçamento/conta para criar a âncora, interromper. Se a edição/revisão falhar, não improvisar imagem, não trocar de modelo ou gerar sem referência.
+7. Nenhum MP4 pode receber aprovação editorial ou ser publicado sem evidência independente de continuidade. Um MP4 técnico de prévia pode existir com status explícito de revisão pendente, nunca marcado como qualidade aprovada.
+
+Código responsável: `videoforge/production/visual_lock.py` e `videoforge/generators/autoeditor.py`. Testes: `tests/test_visual_lock.py`.
+
 ## Princípio permanente
 
 Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes de qualquer edição, leia `README.md` e `docs/ARQUITETURA.md`; mantenha esses documentos alinhados com o código.
