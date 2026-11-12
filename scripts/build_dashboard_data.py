@@ -6,9 +6,14 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from datetime import timedelta
-from videoforge.production.subgerente import rank_employees
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+# Compatível tanto com 'python scripts/build_dashboard_data.py' (Pages)
+# quanto com import do módulo nos testes.
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from videoforge.production.subgerente import rank_employees
 STATES = {"nao_conectado", "aguardando", "trabalhando", "revisao", "concluido", "erro"}
 
 
