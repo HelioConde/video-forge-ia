@@ -1,0 +1,10 @@
+{
+  "schema": "videoforge/proxy-diagnostic/v1",
+  "channel": "otaku-br",
+  "authorized": true,
+  "max_live_chat_calls": 1,
+  "live_image_calls": 0,
+  "upload_youtube": false,
+  "record_access_tokens": false,
+  "purpose": "distinguish text model failure from invalid JSON for first video pilot"
+}
