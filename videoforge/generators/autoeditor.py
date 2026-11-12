@@ -418,6 +418,19 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     base_plan = plan(manifest)
     (dest/"plano.json").write_text(json.dumps(base_plan, ensure_ascii=False, indent=2)+"\n",
                                    encoding="utf-8")
+    (dest/"briefing.json").write_text(json.dumps({
+        "channel": manifest["canal"], "video_id": manifest["id"],
+        "title": manifest["titulo"], "description": manifest["descricao"],
+        "status": "prepared_for_review", "upload_enabled": False,
+    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    (dest/"roteiro.json").write_text(json.dumps({
+        "scenes": manifest["cenas"], "originality_not_verified": True,
+        "research_not_verified": True, "approved_for_publish": False,
+    }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    (dest/"deduplicacao.json").write_text(json.dumps({
+        "status": "pending_independent_channel_inventory_review",
+        "youtube_history_checked": False, "approved": False,
+    }, indent=2)+"\n", encoding="utf-8")
     # TTS first, so an incorrectly paced script does not waste image requests.
     audio, seconds, words = prepare_voice(manifest, dest)
     images = generate_images(manifest, dest, client, max_calls=max_calls)
