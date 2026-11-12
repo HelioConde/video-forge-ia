@@ -1,5 +1,9 @@
 # Arquitetura proposta — VideoForge AI
 
+## Handoff editorial e primeiro briefing protegido
+
+`videoforge/production/editorial_handoff.py` valida a decisão real da equipe do canal, a auditoria do Subgerente, a política do canal e a reserva humana previamente persistida. O workflow `.github/workflows/agent-one-briefing.yml` inicia em modo offline; o modo de uma chamada real exige branch main, autoria do proprietário, confirmação humana, Environment protegido e modelo disponível no Codex Proxy. A saída privada é criptografada por `videoforge/production/secure_draft.py` com AES-256-GCM antes de virar artifact do Actions. A tarefa ainda aguarda QA e não é considerada `done`. O registro de reservas ainda não implementa lock global entre workflow runs, portanto a repetição entre runs continua exigindo cuidado e autorizações separadas. Ver [manual](PRIMEIRO_BRIEFING_AGENTES.md).
+
 ## Despacho de agentes de texto pelo Codex Proxy
 
 `videoforge/production/agent_dispatch.py` conecta as etapas textuais elegíveis do DAG do `dispatcher.py` aos especialistas do `agentes/equipe.json` por `videoforge/proxy/agent_gateway.py`. A prévia `plan_text_dispatch` não consulta modelos nem cobra cotas. Somente um runner backend confiável com aprovação por execução pode chamar `run_text_draft`, que reserva a tarefa de modo exclusivo e salva um rascunho privado com hash para revisão independente, sem atualizar o DAG como concluído. O workflow `production-request.yml` exibe somente a prévia; publicação e geração paga não são habilitadas. Ver [guia](AGENT_TEXT_DISPATCH.md).
