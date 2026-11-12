@@ -140,6 +140,12 @@ jobs:
           assert data["youtube_uploaded"] is False
           assert data["human_approved"] is False
           assert data["generative_calls"] <= 4
+          assert data["ai_image_count"] == 3, "ALL_SCENES_MUST_USE_GENERATOR"
+          assert data["local_image_fallbacks"] == 0, "NO_LOCAL_IMAGE_FALLBACK"
+          assert data["visual_provenance"] == "generator_only_verified"
+          from videoforge.production.image_policy import validate_generated_visuals
+          assets=json.loads((root/"assets.json").read_text(encoding="utf-8"))
+          validate_generated_visuals(assets["assets"], root, expected_count=3)
           assert len(data["verified_stages"]) == 15
           assert data["status"] == "preview_generated_pending_editorial_review"
           media=inspect_media(root/"video.mp4")
@@ -148,7 +154,7 @@ jobs:
               fp.write("## Primeiro video de teste - Otaku Multicena\n\n")
               fp.write("**MP4 criado:** sim, verificado com ffprobe e SHA256.\n\n")
               fp.write("**Etapas executadas:** 15; QA editorial, aprovacao e publicacao pendentes.\n\n")
-              fp.write(f"**Imagens via Proxy:** {data['ai_image_count']} de 3; restante original local.\n\n")
+              fp.write(f"**Imagens por gerador integrado:** {data['ai_image_count']} de 3; sem fallback local.\n\n")
               fp.write(f"**Requisicoes generativas ao Proxy:** {data['generative_calls']} (limite 4).\n\n")
               fp.write("**YouTube upload:** nao. **Aprovacao editorial:** nao.\n")
           print("PILOT_FFPROBE_SHA256_AND_NO_PUBLISH_CHECK_PASSED")
