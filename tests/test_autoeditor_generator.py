@@ -51,7 +51,8 @@ class TestAutoEditorGenerator(unittest.TestCase):
     def test_plan_has_no_execution_and_no_generated_media(self):
         p = plan(self.manifest)
         self.assertEqual(p["channel"], "otaku-br")
-        self.assertEqual(p["planned_image_calls"], 8)
+        self.assertEqual(p["planned_image_calls"], 26)
+        self.assertEqual(p["planned_layer_image_calls"], 18)
         self.assertEqual(p["expected_duration_seconds"], 90)
         self.assertEqual(p["actual_images_generated"], 0)
         self.assertFalse(p["execution_enabled"])
