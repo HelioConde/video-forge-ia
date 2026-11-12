@@ -69,8 +69,9 @@ def _request(context: dict, method: str, endpoint: str, body: dict) -> dict:
 
 
 class CheckReporter:
-    def __init__(self, env: dict | None = None):
+    def __init__(self, env: dict | None = None, *, channel: str | None = None):
         self.context = valid_context(env)
+        self.channel = channel if isinstance(channel, str) and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", channel) else None
         self.checks: dict[str, int] = {}
 
     def _emit(self, method: str, endpoint: str, data: dict) -> dict | None:
@@ -86,13 +87,13 @@ class CheckReporter:
     def start(self, role: str) -> None:
         if role not in ROLES:
             raise StageEvidenceError("TELEMETRY_UNKNOWN_ROLE")
-        if not self.context:
+        if not self.context or not self.channel:
             return
         url = ("https://github.com/" + REPO + "/actions/runs/" + self.context["run"])
         payload = {
             "name": PREFIX + role,
             "head_sha": self.context["sha"],
-            "external_id": "vf-autoeditor:" + self.context["run"] + ":" + role,
+            "external_id": "vf-autoeditor:" + self.context["run"] + ":" + self.channel + ":" + role,
             "details_url": url,
             "status": "in_progress",
             "output": {
