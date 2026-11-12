@@ -27,7 +27,7 @@ on:
         default: false
         type: boolean
       max_image_calls:
-        description: "Limite total APROVADO: cenas-mãe + fundos + personagens + props (1-48)"
+        description: "Limite APROVADO (1-48); exemplo atual requer 26. Default 12 NÃO basta."
         required: true
         default: 12
         type: number
@@ -84,10 +84,10 @@ jobs:
 
   render:
     if: >-
-      (
-        (github.event_name == 'workflow_dispatch' && inputs.action == 'render' && inputs.authorize_render == true) ||
-        (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'test(autoeditor): one-shot user-authorized render 2026-11-12'))
-      ) &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.action == 'render' &&
+      inputs.authorize_render == true &&
+      github.actor == 'HelioConde' &&
       github.ref == 'refs/heads/main' &&
       github.run_attempt == 1
     runs-on: ubuntu-24.04
@@ -102,45 +102,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-          fetch-depth: 2
-      - name: Verify one-time owner-approved render request BEFORE any secrets
-        if: github.event_name == 'push'
-        shell: bash
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          import json,subprocess
-          from pathlib import Path
-          original_path="config/autoeditor-once-2026-11-12.json"
-          corrected_path="config/autoeditor-visual-consistency-once-2026-11-12.json"
-          additions=subprocess.check_output(
-              ["git","diff","--name-only","--diff-filter=A","HEAD^","HEAD"],
-              text=True).splitlines()
-          all_changes=subprocess.check_output(
-              ["git","diff","--name-only","HEAD^","HEAD"],
-              text=True).splitlines()
-          if len(additions)!=1 or additions!=all_changes or additions[0] not in (original_path, corrected_path):
-              raise SystemExit("AUTOEDITOR_ONE_SHOT_MUST_ADD_ONLY_ONE_REQUEST_FILE")
-          request_path=additions[0]
-          doc=json.loads(Path(request_path).read_text(encoding="utf-8"))
-          required={
-              "schema":"videoforge/one-shot-autoeditor-render/v1",
-              "request_id":"autoeditor-one-shot-2026-11-12",
-              "manifest":"geradores/autoeditor/exemplo-manifesto.json",
-              "approved_by_owner":True,
-              "max_image_requests":8,
-              "youtube_upload_enabled":False,
-              "auto_retry_enabled":False,
-              "expected_result":"private_review_artifact",
-          }
-          if request_path==corrected_path:
-              required["request_id"]="autoeditor-consistency-remake-2026-11-12"
-              required["rerender_source_run_id"]=43147397260
-              required["visual_consistency"]="canonical_scene_one_image_edit"
-          if doc != required:
-              raise SystemExit("AUTOEDITOR_ONE_SHOT_REQUEST_FIELDS_NOT_AUTHORIZED")
-          print("AUTOEDITOR_ONE_SHOT_EXACT_NEW_FILE_VALIDATED")
-          PY
       - name: Motor Remotion original fixado
         uses: actions/checkout@v4
         with:
@@ -185,6 +146,39 @@ jobs:
           python -m unittest discover -s tests -p 'test_scene_layers.py' -v
           python -m unittest discover -s tests -p 'test_fofinho_motion.py' -v
           python -m unittest discover -s tests -p 'test_generator_registry.py' -v
+      - name: Bloquear orçamento insuficiente ANTES de qualquer Proxy ou geração
+        shell: bash
+        env:
+          JOB_MANIFEST: ${{ inputs.manifest }}
+          IMAGE_CALL_LIMIT: ${{ inputs.max_image_calls }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.generators.autoeditor import load_manifest, plan
+          from videoforge.production.scene_layers import MAX_IMAGE_REQUESTS
+          root=Path.cwd().resolve()
+          supplied=Path(os.environ["JOB_MANIFEST"])
+          full=(root/supplied).resolve()
+          if (supplied.is_absolute() or ".." in supplied.parts
+                  or not (full.is_relative_to(root/"geradores")
+                          or full.is_relative_to(root/"canal"))
+                  or full.is_symlink()):
+              raise SystemExit("AUTOEDITOR_RENDER_MANIFEST_PATH_NOT_ALLOWED")
+          try:
+              cap=int(os.environ["IMAGE_CALL_LIMIT"])
+          except (TypeError, ValueError):
+              raise SystemExit("AUTOEDITOR_RENDER_BUDGET_INVALID") from None
+          if cap < 1 or cap > MAX_IMAGE_REQUESTS:
+              raise SystemExit("AUTOEDITOR_RENDER_BUDGET_INVALID")
+          manifest=load_manifest(full)
+          expected=plan(manifest)["planned_image_calls"]
+          if cap < expected:
+              raise SystemExit("AUTOEDITOR_RENDER_BUDGET_TOO_LOW_NEED_"+str(expected))
+          print("AUTOEDITOR_RENDER_BUDGET_EXPLICITLY_SUFFICIENT_"+str(expected))
+          print("AUTOEDITOR_REVIEW_PREVIEW_ONLY_NOT_AGENT_SELECTED_OR_PUBLISHED")
+          PY
       - name: Compilar o proxy Go sem segredos
         working-directory: upstream-codex-proxy
         shell: bash
@@ -199,7 +193,7 @@ jobs:
           PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
           PILOT_JOB_ID: vf-${{ github.run_id }}
           VF_CHECK_TOKEN: ${{ github.token }}
-          IMAGE_CALL_LIMIT: ${{ github.event_name == 'push' && '8' || inputs.max_image_calls }}
+          IMAGE_CALL_LIMIT: ${{ inputs.max_image_calls }}
         run: |
           set -euo pipefail
           umask 077

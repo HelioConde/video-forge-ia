@@ -1,0 +1,101 @@
+name: VideoForge - Prontidao do primeiro video Otaku (sem IA)
+
+# This workflow audits requirements only. Never runs Proxy, TTS, image
+# generation, Remotion render or YouTube publishing.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'videoforge/production/otaku_video_readiness.py'
+      - 'tests/test_otaku_video_readiness.py'
+      - '.github/workflows/otaku-team-video-readiness.yml'
+      - 'canal/otaku-br/editorial/reservas.json'
+      - 'geradores/autoeditor/exemplo-manifesto.json'
+  pull_request:
+    paths:
+      - 'videoforge/production/otaku_video_readiness.py'
+      - 'tests/test_otaku_video_readiness.py'
+      - '.github/workflows/otaku-team-video-readiness.yml'
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: 'Arquivo manifesto do Otaku (somente leitura)'
+        type: string
+        default: 'geradores/autoeditor/exemplo-manifesto.json'
+        required: true
+      max_image_calls:
+        description: 'Limite de imagens considerado apenas no plano (sem custo)'
+        type: number
+        default: 12
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar Pillow para os testes locais de imagens
+        run: python -m pip install --disable-pip-version-check "Pillow>=10,<13"
+      - name: Testar contrato e bloqueios do primeiro Short sem IA
+        run: |
+          python -m unittest discover -s tests -p 'test_otaku_video_readiness.py' -v
+          python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
+
+  readiness:
+    needs: offline-tests
+    if: >-
+      github.repository == 'HelioConde/video-forge-ia' &&
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    env:
+      JOB_MANIFEST: ${{ inputs.manifest || 'geradores/autoeditor/exemplo-manifesto.json' }}
+      IMAGE_LIMIT: ${{ inputs.max_image_calls || 12 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Conferir roteiro, orçamento de imagens e handoff dos agentes
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="$RUNNER_TEMP/otaku-video-readiness.json"
+          python -m videoforge.production.otaku_video_readiness \
+            --manifest "$JOB_MANIFEST" \
+            --max-image-calls "$IMAGE_LIMIT" \
+            --output "$output"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          data=json.loads((Path(os.environ["RUNNER_TEMP"])/
+                           "otaku-video-readiness.json").read_text(encoding="utf-8"))
+          assert data["schema"] == "videoforge/otaku-team-video-readiness/v1"
+          assert data["can_render_now"] is False
+          assert data["proxy_calls"] == 0 and data["images_generated"] == 0
+          assert data["videos_rendered"] == 0 and data["videos_uploaded"] == 0
+          summary=Path(os.environ["GITHUB_STEP_SUMMARY"])
+          with summary.open("a", encoding="utf-8") as out:
+              out.write("## Otaku Multicena — primeiro vídeo pela equipe\n\n")
+              out.write("**Estado: ainda bloqueado.** Este job NÃO gera vídeo.\n\n")
+              out.write(f"Cenas planejadas: manifesto {data['candidate_manifest']}.\n\n")
+              out.write(f"Chamadas de imagens previstas: **{data['planned_image_requests']}**; ")
+              out.write(f"limite configurado: **{data['explicit_image_call_limit']}**.\n\n")
+              out.write("Pendências seguras para resolver:\n\n")
+              for code in data["blockers"]:
+                  out.write(f"- `{code}`\n")
+              out.write("\nNenhum Proxy, YouTube, áudio, MP4 ou upload executado.\n")
+          print("OTAKU_VIDEO_READINESS_REPORTED_ONLY_NO_GENERATION")
+          PY
