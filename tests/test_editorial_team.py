@@ -176,6 +176,36 @@ class TestEditorialTeam(TestCase):
                 self.assertIn(expected, output.getvalue())
                 self.assertNotIn("secret-WOULD", output.getvalue())
 
+    def test_researcher_failures_expose_only_fixed_safe_codes(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        import os
+        from videoforge.channel_agents.team import main
+        from videoforge.channel_agents.ideation import EditorialIdeationError
+
+        env = {
+            "CHANNEL_IDEATION_APPROVED": "yes",
+            "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
+            "GITHUB_REF": "refs/heads/main",
+        }
+        for reason, expected in (
+            ("EDITORIAL_PROXY_CALL_FAILED", "EDITORIAL_TEAM_BLOCKED_EDITORIAL_PROXY_CALL_FAILED"),
+            ("MODEL_JSON_INVALID", "EDITORIAL_TEAM_BLOCKED_MODEL_JSON_INVALID"),
+            ("EDITORIAL_CANDIDATE_COUNT_INVALID", "EDITORIAL_TEAM_BLOCKED_EDITORIAL_CANDIDATE_COUNT_INVALID"),
+            ("secret=untrusted-token", "EDITORIAL_TEAM_BLOCKED_EditorialIdeationError"),
+        ):
+            with self.subTest(reason=expected):
+                output = StringIO()
+                with (mock.patch.dict(os.environ, env),
+                      mock.patch("videoforge.channel_agents.team.channel_policy",
+                                 side_effect=EditorialIdeationError(reason)),
+                      redirect_stdout(output)):
+                    status = main(["--channel", "otaku-br", "--days", "90",
+                                   "--model", "auto", "--output", "fake.json"])
+                self.assertEqual(status, 1)
+                self.assertIn(expected, output.getvalue())
+                self.assertNotIn("untrusted-token", output.getvalue())
+
     def test_no_topic_returned_if_deputy_blocks_all(self):
         only_paused=[proposal("x","Um novo video", "Death Note")]
         with mock.patch("videoforge.channel_agents.team.propose_candidates",
