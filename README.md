@@ -219,3 +219,21 @@ porque ainda não foi autorizada uma sessão OAuth/Analytics no novo repositóri
 
 [Manual e limites reais](docs/GERENTES-CANAIS.md).
 [Teste/read-only no GitHub Actions](.github/workflows/channel-manager-analysis.yml).
+
+## Subgerente — nono agente e ranking de melhorias
+
+O escritório inclui um novo **Subgerente**, em pé na área colaborativa,
+sem consumir créditos PixelLab nem alterar os oito postos de trabalho.
+Sua função é **classificar os melhores funcionários com pontos de 0–100**
+e sugerir melhorias específicas. Os pontos são médias de tarefas
+**aprovadas por QA independente**: qualidade (50), consistência (15),
+colaboração (10), evolução (20) e conformidade (5).
+Ele não pode pontuar a si próprio, e ninguém entra no ranking com menos
+de três entregas verificadas.
+
+Ao selecionar **Subgerente** na aba Funcionários, a interface mostra
+a classificação ou informa claramente que ainda não há avaliações reais.
+O motor fica em `videoforge/production/subgerente.py`,
+com testes `tests/test_subgerente.py`; documentação:
+[docs/SUBGERENTE.md](docs/SUBGERENTE.md).
+Não há ativação automática de IA, publicação ou mudanças de código.
