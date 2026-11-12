@@ -115,7 +115,7 @@ class FofinhoMotionTests(unittest.TestCase):
             {"id":"gotinha","motion":"fall","start":.61,"end":.91,"distance":36}
         ]}
         raw=validate_manifest(manifest)
-        self.assertEqual(count_image_requests(raw),27)
+        self.assertEqual(count_image_requests(raw),28)
         layer_rows=[]
         for i,shot in enumerate(raw["cenas"],1):
             row={"scene_id":shot["id"],"background":{"file":f"scene-{i}/background.png"},
