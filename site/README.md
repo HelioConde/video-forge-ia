@@ -28,6 +28,35 @@ GitHub Pages é estático: **não hospeda agentes reais**, não inicia tarefas, 
 
 O script `scripts/build_dashboard_data.py` monta dados com os **nomes e modelos** dos canais e sem IDs do YouTube, tokens, segredos ou logs privados. A página tenta atualizar o snapshot a cada minuto, mas isso não é acompanhamento em tempo real: precisa existir um novo deploy para aparecerem novos estados.
 
+## Integração com atividades reais do AutoEditor (12/11/2026)
+
+A produção AutoEditor agora emite um **GitHub Check Run com evidência** para
+cada função de backend que realmente começa a trabalhar: Direção (briefing
+recebido), Roteirista (roteiro recebido/validado), Narrador (voz Edge TTS),
+Artista visual (imagens geradas pelo provedor), Animador (composição Remotion),
+Editor (MP4) e Revisor (QA técnico). Check Runs são marcados como sucesso
+somente após arquivos reais; erros ficam como falha. **Publicador e
+Subgerente não recebem trabalho fabricado.**
+
+O escritório lê apenas a **API pública de GitHub Actions/Checks**, via
+`site/office-live.js`, aproximadamente a cada três minutos. Isso é
+monitoramento por consulta, **não tempo real contínuo**. O site não usa
+cookies do GitHub, credenciais, proxy privado ou tokens no navegador.
+Se a API estiver indisponível ou faltar evidência assinada pelo workflow,
+o site continua exibindo o snapshot estático, sem inventar trabalho.
+
+A origem é uma execução específica do workflow AutoEditor, associada ao
+SHA/ID exatos e ao canal. Ao terminar, as funções aparecem como
+**concluídas/erro**, nunca como ainda trabalhando. O usuário pode abrir
+a execução diretamente no painel. O campo `modelo_ia` permanece
+desabilitado: **uma etapa técnica real não comprova IA autônoma**.
+O vídeo anterior à integração não possui essas etapas individuais;
+a comprovação ocorrerá nas **próximas produções**.
+
+**Não iniciar geração de vídeo apenas para testar a interface.**
+O workflow mantém a autorização manual, as políticas de imagens geradas
+somente pelo provedor e o upload desativado.
+
 ## Integração futura do backend
 
 O gerador suporta opcionalmente `--events caminho/relatorio.json` com um JSON controlado, por exemplo:
