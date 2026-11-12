@@ -317,16 +317,22 @@
     $("activeCount").textContent=String(snap.agentes.filter(a=>live(a.status)).length);
     $("channelsCount").textContent=String(snap.canais.length);
     const actual=snap.fonte==="eventos_backend";
-    const observed = snap.telemetria?.source === "github_actions_checks" && snap.telemetria.recorded_roles > 0;
-    const runActive = observed && snap.telemetria.status === "in_progress";
-    $("sceneSource").textContent=(observed?
-        (runActive?"PRODUÇÃO AUTOEDITOR EM EXECUÇÃO":"ÚLTIMA PRODUÇÃO REGISTRADA") :
-        actual?"SNAPSHOT DE ATIVIDADE":"SEM EXECUÇÃO DE AGENTES")+
+    // A GitHub Actions run is independently verifiable even while no
+    // CheckReporter role records exist. Do NOT infer autonomous agents from it.
+    const pipelineObserved = snap.telemetria?.source === "github_actions_checks" &&
+        Number.isSafeInteger(snap.telemetria.run_id) && snap.telemetria.run_id > 0;
+    const rolesObserved = pipelineObserved && snap.telemetria.recorded_roles > 0;
+    const runActive = pipelineObserved && snap.telemetria.status === "in_progress";
+    $("sceneSource").textContent=(runActive?
+        (rolesObserved?"PRODUÇÃO AUTOEDITOR EM EXECUÇÃO":"RENDER NO GITHUB · AGENTES SEM TELEMETRIA") :
+        rolesObserved?"ÚLTIMA PRODUÇÃO REGISTRADA":
+        pipelineObserved?"ÚLTIMA EXECUÇÃO DO PIPELINE":
+        actual?"SNAPSHOT DE ATIVIDADE":"SEM TELEMETRIA DE AGENTES")+
       (office.roleDemoEnabled()?" · ROTINAS EM PRÉVIA":"");
-    $("connectionBadge").dataset.live=String(actual);
-    $("connectionBadge").lastChild.textContent=observed?
+    $("connectionBadge").dataset.live=String(pipelineObserved||actual);
+    $("connectionBadge").lastChild.textContent=pipelineObserved?
        (runActive?" PIPELINE EM EXECUÇÃO":" HISTÓRICO DO PIPELINE"):
-       actual?" SNAPSHOT RECEBIDO":" NÃO CONECTADO";
+       actual?" SNAPSHOT RECEBIDO":" AGENTES NÃO CONECTADOS";
     if(snap.gerado_em){const d=new Date(snap.gerado_em);$("snapshotAge").textContent=isNaN(d.getTime())?"Sem data":"Snapshot "+d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
     renderPanel();
   }
