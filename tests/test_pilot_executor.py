@@ -56,14 +56,73 @@ class PilotContracts(unittest.TestCase):
         with self.assertRaises(PilotError):
             validate_story(story)
 
-    def test_fallback_is_not_reported_as_successful_model_generation(self):
+    def test_bad_chat_result_fails_closed_without_story_fallback(self):
         proxy = FakeProxy()
         budget = CallBudget(4)
-        result, source = generate_story(proxy, budget, "gpt-6.1-sol")
-        self.assertEqual(source, "script_local_degradado")
-        self.assertEqual(result["title"], FALLBACK["title"])
+        with self.assertRaisesRegex(PilotError, "SCRIPT_GENERATION_UNAVAILABLE"):
+            generate_story(proxy, budget, "gpt-6.1-sol")
         self.assertEqual(budget.sent, 1)
         self.assertEqual(len(proxy.chat_requests), 1)
+
+    def test_image_policy_is_explicit_and_rejects_local_fallback(self):
+        from videoforge.production.image_policy import (
+            load_image_policy, validate_generated_visuals, ImageProvenanceError
+        )
+        p = load_image_policy()
+        self.assertEqual(p["mode"], "generator_only")
+        self.assertIs(p["assistant_generated_images_allowed"], False)
+        self.assertIs(p["local_fallback_allowed"], False)
+        self.assertEqual(p["on_failure"], "abort_video")
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ImageProvenanceError, "MISSING_GENERATED_SCENES"):
+                validate_generated_visuals([], Path(tmp), expected_count=3)
+            forged = [{"scene": 1, "file": "scene-1.png",
+                       "origin": "local_original_fallback",
+                       "generated_by": "video_forge_image_generator"}]
+            with self.assertRaisesRegex(ImageProvenanceError, "UNTRUSTED_VISUAL_OR_FALLBACK"):
+                validate_generated_visuals(forged, Path(tmp), expected_count=1)
+
+    def test_image_provider_failure_must_abort_before_video_render(self):
+        from videoforge.production.pilot_executor import visuals
+        from videoforge.proxy.client import ProxyError
+        class ImageFailProxy:
+            def images_generate(self, body):
+                raise ProxyError("Codex Proxy HTTP 429")
+        with tempfile.TemporaryDirectory() as tmp:
+            budget = CallBudget(4)
+            budget.use()  # script stage
+            with self.assertRaisesRegex(PilotError, "IMAGE_GENERATOR_UNAVAILABLE"):
+                visuals(ImageFailProxy(), budget, Path(tmp), validate_story(FALLBACK),
+                        "gpt-image-2")
+            self.assertEqual(budget.sent, 2)
+            self.assertFalse((Path(tmp)/"video.mp4").exists())
+            self.assertFalse((Path(tmp)/"scene-1.png").exists())
+
+    def test_invalid_image_response_never_creates_placeholder(self):
+        from videoforge.production.pilot_executor import visuals
+        class InvalidImageProxy:
+            def images_generate(self, body):
+                return {"data": [{"b64_json": "invalid-image-base64"}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            budget = CallBudget(4)
+            budget.use()
+            with self.assertRaisesRegex(PilotError, "IMAGE_GENERATOR_RETURNED_INVALID_MEDIA"):
+                visuals(InvalidImageProxy(), budget, Path(tmp), validate_story(FALLBACK),
+                        "gpt-image-2")
+            self.assertFalse((Path(tmp)/"video.mp4").exists())
+
+    def test_all_scenes_must_fit_budget_before_first_image_request(self):
+        from videoforge.production.pilot_executor import visuals
+        class NoCallProxy:
+            def images_generate(self, body):
+                raise AssertionError("not allowed to call provider with incomplete budget")
+        with tempfile.TemporaryDirectory() as tmp:
+            budget = CallBudget(3)
+            budget.use()
+            with self.assertRaisesRegex(PilotError, "INSUFFICIENT_BUDGET"):
+                visuals(NoCallProxy(), budget, Path(tmp), validate_story(FALLBACK),
+                        "gpt-image-2")
+            self.assertEqual(budget.sent, 1)
 
     def test_all_specialists_accounted_and_human_release_blocked(self):
         self.assertEqual(len(STAGES), 18)
