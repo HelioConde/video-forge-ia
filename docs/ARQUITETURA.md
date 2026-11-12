@@ -1,5 +1,23 @@
 # Arquitetura proposta — VideoForge AI
 
+## Executor AutoEditorVideo: motor técnico reutilizável
+
+O novo perfil `geradores/autoeditor/gerador.json` é genérico e
+reaproveitável por qualquer canal, em paralelo aos geradores de
+anime/kids/dorama e aos modelos técnicos estáticos/animados.
+O executor `videoforge/generators/autoeditor.py` integra o
+renderizador real `AutoEditorVideo/motion-remotion/ArquivoOtakuMaster`
+**pinado por commit** com narração Edge TTS marcada por palavra,
+imagens reais via Codex Proxy e inspeção FFprobe + SHA-256.
+
+O planejamento é offline e livre de quota, enquanto a renderização
+é opt-in com autorização manual e Environment protegido.
+Os agentes fornecem os dados de roteiro, pesquisa e storyboard;
+o motor não falsifica histórico YouTube, não gera artes via código,
+não repete requisições HTTP 429 automaticamente e não faz upload.
+
+[Manual AutoEditor](../geradores/autoeditor/README.md).
+
 ## Catálogo aberto de geradores especializados
 
 **Gerador de vídeo** não é uma categoria fixa: cada pasta
