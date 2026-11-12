@@ -80,6 +80,22 @@ jobs:
           )
           print("PROXY_STAGE_BINDINGS_READY_18_ZERO_API_CALLS")
           PY
+      - name: Preparar checklist de qualidade para QA independente (sem IA)
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from videoforge.production.quality_template import review_template
+          root = Path("output/gerente")
+          plan = json.loads((root/"plano.json").read_text(encoding="utf-8"))
+          review = review_template(plan)
+          (root/"quality-review-template.json").write_text(
+              json.dumps(review, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+          )
+          assert review["status"] == "awaiting_real_media_and_independent_qa"
+          assert all(v["score"] is None for v in review["scores"].values())
+          print("QA_TEMPLATE_PENDING_NO_FAKE_SCORES_NO_GENERATION")
+          PY
       - name: Relatório da delegação (sem execução ou publicação)
         run: |
           python - <<'PY'
