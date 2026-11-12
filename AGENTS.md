@@ -1,5 +1,9 @@
 # AGENTS.md — Regras obrigatórias de manutenção do VideoForge AI
 
+## Telemetria real dos funcionários do VideoForge
+
+Quando o backend executa `videoforge/production/role_events.py`, o escritório deve refletir **a etapa real**: o Narrador trabalha durante Edge TTS; o Artista visual durante chamadas de imagem; o Animador durante composição; o Editor durante renderização Remotion; o Revisor durante análise técnica. Não marcar todos trabalhando só porque existe um job de vídeo. O pipeline usa context managers `role_task` e envia transições estáticas, sem prompts/segredos, ao GitHub Checks e, como alternativa independente, a GitHub Commit Statuses (`statuses:write`). A interface `site/office-live.js` valida SHA, ID do run, canal, nome da função e URL do GitHub antes de exibir atividade. O frontend nunca confunde operação do pipeline com agente de IA autônomo, nem mantém um editor trabalhando depois que o run foi encerrado. Falta de telemetria deve ser apresentada como ausência de evidência, nunca como conclusão de que ninguém trabalha.
+
 ## Regra de autoria das artes: exclusivamente o VideoForge
 
 **O assistente de chat apenas orienta e altera contratos do VideoForge; nunca cria imagens, capas, cenas ou animações fora do pipeline para suprir o artista.** O responsável por gerar toda a mídia é o próprio VideoForge usando seu Codex Proxy, com registro de execução, custo e proveniência. Não copiar artes de chat como se fossem arquivos gerados pelo worker.
