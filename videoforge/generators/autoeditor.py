@@ -302,7 +302,7 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
             raw = base64.b64decode(encoded, validate=True)
             if not 1000 < len(raw) < 18_000_000:
                 raise ValueError()
-            with __import__("PIL.Image", fromlist=["open"]).open(io.BytesIO(raw)) as image:
+            with Image.open(io.BytesIO(raw)) as image:
                 image.load()
                 if image.format not in ("PNG", "JPEG", "WEBP") or image.width < 512 or image.height < 768:
                     raise ValueError()
