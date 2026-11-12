@@ -30,6 +30,18 @@ o modo `private-quota-live` exige disparo manual protegido e faz no máximo
 que o próximo pedido de IA terá sucesso.
 [Contrato, autorização e resultados](docs/PROXY_QUOTA_DIAGNOSTIC.md).
 
+## Limite local do prompt editorial (testes sem gerar IA)
+
+A pesquisa do Otaku Multicena projeta somente as métricas numéricas
+necessárias para o Pesquisador e limita cada título/reserva enviada
+ao contexto. Antes de qualquer chamada generativa, mede o **corpo completo**
+da requisição em JSON UTF-8 e bloqueia acima de **96 KiB** com o código
+`EDITORIAL_PAYLOAD_TOO_LARGE`, sem enviar o prompt ou fazer retry.
+Esse teto conservador **não é limite do provedor** e não resolve sozinho
+`HTTP 429`: um pedido pequeno ainda pode ser recusado por cota ou taxa.
+O histórico integral permanece disponível para o Subgerente e o Gerente
+na revisão independente. Testes offline: `tests/test_editorial_team.py`.
+
 ## Primeiro vídeo real do Otaku Multicena pela equipe
 
 O próximo marco do VideoForge é **um Short original de pelo menos

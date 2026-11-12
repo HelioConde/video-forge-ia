@@ -8,6 +8,15 @@ from videoforge.proxy.client import ProxyClient, ProxyError
 from .dedup import norm
 
 MAX_PROPOSALS = 8
+# Limite conservador local, em bytes de JSON UTF-8. Nao representa a
+# janela de contexto do modelo nem uma garantia contra HTTP 429.
+MAX_EDITORIAL_REQUEST_BYTES = 96 * 1024
+EDITORIAL_METRIC_FIELDS = (
+    "views", "engagedViews", "subscribersGained",
+    "estimatedMinutesWatched", "averageViewDuration",
+    "averageViewPercentage", "likes",
+)
+
 
 
 def _safe_proxy_failure(exc: ProxyError) -> str:
@@ -81,12 +90,23 @@ def propose_candidates(*, manager: dict, snapshot: dict, reservations: dict,
     if not isinstance(model, str) or not 2 <= len(model) <= 90:
         raise EditorialIdeationError("MODEL_NOT_SELECTED")
     proxy = client or ProxyClient()
-    history = [{
-        "id": row.get("id"), "title": str(row.get("title", ""))[:190],
-        "seconds": row.get("duration_seconds"), "analytics": row.get("metrics"),
-    } for row in snapshot["videos"][:100]]
+    # Projetar somente metricas usadas na pesquisa; dados inesperados ou
+    # campos privados nao devem inflar o prompt enviado ao modelo.
+    history = []
+    for row in snapshot["videos"][:100]:
+        metrics = row.get("metrics")
+        compact_metrics = ({
+            key: metrics[key] for key in EDITORIAL_METRIC_FIELDS
+            if key in metrics and isinstance(metrics[key], (int, float))
+            and not isinstance(metrics[key], bool)
+        } if isinstance(metrics, dict) else None)
+        history.append({
+            "id": row.get("id"), "title": str(row.get("title", ""))[:190],
+            "seconds": row.get("duration_seconds"), "analytics": compact_metrics,
+        })
     old_topics = [{
-        "topic": row.get("topic_key"), "title": row.get("titulo_provisorio"),
+        "topic": str(row.get("topic_key") or "")[:160],
+        "title": str(row.get("titulo_provisorio") or "")[:160],
     } for row in reservations.get("entries", [])[:300]]
     payload = {
         "channel": manager["channel"], "channel_id": manager["youtube_channel_id"],
@@ -121,13 +141,19 @@ def propose_candidates(*, manager: dict, snapshot: dict, reservations: dict,
         "abordagem, genero, formato, titulo_provisorio, duracao_segundos, "
         "justificativa e fontes_a_verificar. Não execute geração ou upload."
     )
+    request_body = {
+        "model": model,
+        "messages": [{"role": "system", "content": instruction},
+                     {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
+        "response_format": {"type": "json_object"},
+    }
+    request_bytes = len(json.dumps(request_body, ensure_ascii=False,
+                                   separators=(",", ":")).encode("utf-8"))
+    if request_bytes > MAX_EDITORIAL_REQUEST_BYTES:
+        # Nao fazer chamada paga ou truncar silenciosamente fatos.
+        raise EditorialIdeationError("EDITORIAL_PAYLOAD_TOO_LARGE")
     try:
-        raw = proxy.chat({
-            "model": model,
-            "messages": [{"role": "system", "content": instruction},
-                         {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
-            "response_format": {"type": "json_object"},
-        })
+        raw = proxy.chat(request_body)
     except ProxyError as exc:
         raise EditorialIdeationError(_safe_proxy_failure(exc)) from None
     result = _parse_chat_json(raw)
