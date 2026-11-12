@@ -54,6 +54,12 @@ Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md)
 
 As orientações operacionais para agentes de IA e colaboradores estão em [AGENTS.md](AGENTS.md).
 
+## Agentes de IA usam o Codex Proxy
+
+Toda inferência de modelos de IA dos agentes deve passar pelo Codex Proxy privado, incluindo Direção, Subgerente e especialistas. O novo gateway `videoforge/proxy/agent_gateway.py` reconhece os 9 papéis visuais e 27 especialistas definidos em `agentes/equipe.json`, seleciona modelo por papel e permite **uma chamada de texto aprovada por vez**. Não habilita os trabalhadores automaticamente e não executa mídia ou uploads. TTS, render, animação e publicação continuam em seus motores específicos.
+
+[Contrato e integração segura](docs/AGENT_PROXY_GATEWAY.md).
+
 ## Equipe editorial escolhe os temas dos vídeos
 
 O VideoForge AI não recebe um tema pré-selecionado do assistente.

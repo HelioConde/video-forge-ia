@@ -53,6 +53,10 @@ O piloto é `otaku-br`; NÃO publicar, gerar imagens nem vídeos quando a
 demanda for apenas descobrir a melhor pauta. Os registros de pesquisa
 no GH Checks distinguem LLM pesquisador, decisão por métricas e auditoria.
 
+## Gateway obrigatório dos agentes de IA
+
+Qualquer nova inferência de modelo usada por Direção, Subgerente, gerentes e especialistas deve passar por `videoforge/proxy/client.py` e `videoforge/proxy/agent_gateway.py`, nunca por chamadas diretas concorrentes para provedores ou pelo navegador. O gateway descobre papéis em `agentes/equipe.json`, usa modelo configurado por papel e exige autorização explícita por chamada. A configuração do Proxy não habilita automaticamente funcionários, não confere cotas, não gera mídia nem publica vídeos. O runner privado deverá implementar controle agregado de orçamento, idempotência, QA e persistência de evidências antes de ligar a fila. [Documentação](docs/AGENT_PROXY_GATEWAY.md).
+
 ## Escritório deve refletir trabalho real, nunca simulado
 
 Toda execução real AutoEditor deve registrar no GitHub Checks as tarefas
