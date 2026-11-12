@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from videoforge.production.subgerente import rank_employees
+from videoforge.channel_agents.external_research import latest_research
+from urllib.parse import urlsplit, urlunsplit
 STATES = {"nao_conectado", "aguardando", "trabalhando", "revisao", "concluido", "erro"}
 
 
@@ -67,6 +69,39 @@ def make_snapshot(root: Path = ROOT, events: Path | None = None,
             "regra_antirrepeticao": True,
             "youtube_analytics": "nao_conectado",
         }
+        # Apenas uma projeção pública de um pacote validado. Nunca exportar
+        # channel_id, histórico completo do YouTube, Analytics, tokens ou
+        # status de agente como se a pesquisa externa fosse uma execução IA.
+        research = latest_research(
+            root=root, channel=item["id"], channel_id=mgr["youtube_channel_id"])
+        if research is not None:
+            signals = []
+            for row in research["signals"]:
+                source = row["source"]
+                parsed = urlsplit(source["url"])
+                # Excluir parâmetros (eventuais tokens) e fragmentos de links
+                # não confiáveis, além de impedir port/usuário não padrão.
+                if (parsed.scheme != "https" or parsed.username or parsed.password
+                        or parsed.port not in (None, 443)):
+                    raise ValueError("Fonte de pesquisa insegura para exportação")
+                clean_url = urlunsplit(("https", parsed.netloc, parsed.path, "", ""))
+                signals.append({
+                    "id": row["id"],
+                    "serie": text(row["series"], 110),
+                    "afirmacao_da_fonte": text(row["verified_fact"], 340),
+                    "pergunta_editorial": text(row["research_question"], 240),
+                    "editora": text(source["publisher"], 120),
+                    "data_publicacao": source["published_on"],
+                    "url": clean_url,
+                    "estado": "aguardando_checagem",
+                })
+            item["pesquisa_externa"] = {
+                "data_pesquisa": research["researched_on"],
+                "estado": "contexto_aguardando_checagem_e_metricas",
+                "sinais": signals,
+                "pauta_escolhida": False,
+                "aprovado_por_subgerente": False,
+            }
 
     roster = json.loads((root / "agentes/equipe.json").read_text(encoding="utf-8"))
     team = roster.get("agentes")
