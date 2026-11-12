@@ -1,5 +1,29 @@
 # AGENTS.md — Regras obrigatórias de manutenção do VideoForge AI
 
+## Meta de produto — primeiro MP4 original do Otaku Multicena pela equipe
+
+A primeira meta executável deve ser um **vídeo 90–180s** de
+`otaku-br` a partir de pauta realmente produzida pelo Pesquisador,
+selecionada pelo Gerente, aprovada pela auditoria do Subgerente
+e reservada após aprovação humana. A narrativa, roteiro de 90s,
+camadas, imagens do gerador integrado, Edge TTS, Remotion e QA
+devem possuir proveniência real. Nunca chamar uma prévia
+estática de exemplo de "vídeo produzido pelos agentes".
+
+`.github/workflows/otaku-team-video-readiness.yml` avalia
+offline o registro de reservas, o manifesto e o orçamento de
+imagens e emite estado **`blocked`** até as fontes privadas e
+autorizações estarem realmente verificadas. Hoje o manifesto
+de exemplo precisa de **26 imagens/solicitações**, enquanto o
+limite padrão conservador é **12**; não aumentar gastos
+automaticamente. O workflow `autoeditor-generator.yml`
+não pode executar `render` por `push` ou nome de commit:
+somente `workflow_dispatch` do proprietário na `main`,
+`authorize_render=true` e teste offline de orçamento
+**antes** do uso de segredos/proxy. O render independente por
+manifesto não substitui handoff do Gerente/Subgerente.
+Ver `docs/PRIMEIRO_VIDEO_OTAKU_EQUIPE.md`.
+
 ## Segurança obrigatória da pesquisa por agentes (12/11/2026)
 
 O workflow `editorial-team-research.yml` só inicia geração mediante
