@@ -99,6 +99,18 @@ class QualityGateTests(unittest.TestCase):
                            "tema":"História infantil inédita","duracao_segundos":90})
         self.assertIn("politica_infantil_verificada", review_template(kids)["checks"])
 
+    def test_pilot_never_forces_low_quality_uploads(self):
+        root = Path(__file__).resolve().parents[1]
+        data = json.loads((root / "config/pilot-otaku-multicena.json").read_text())
+        self.assertEqual(data["schema"],"videoforge/quality-first-pilot/v1")
+        self.assertEqual(data["pilot_channel"],"otaku-br")
+        self.assertEqual(data["mode"],"quality_first_no_fixed_quota")
+        self.assertEqual(len(data["periods"]),4)
+        self.assertTrue(all(week["uploads_required"] == 0 for week in data["periods"]))
+        self.assertEqual(data["experiments"]["variables_at_a_time"],1)
+        self.assertFalse(data["publication"]["automatic"])
+        self.assertTrue(data["guardrails"]["stop_if_quality_below_policy"])
+
     def test_policy_weights_and_human_approval(self):
         policy = load_policy()
         self.assertAlmostEqual(sum(x["weight"] for x in policy["dimensions"].values()), 1)
