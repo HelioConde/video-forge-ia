@@ -89,6 +89,13 @@ def validate_research(data: object, *, channel: str, channel_id: str,
                 ("series", 110), ("verified_fact", 340),
                 ("research_question", 240))):
             raise ExternalResearchError("RESEARCH_SIGNAL_TEXT_INVALID")
+        aliases = row.get("title_aliases")
+        if aliases is not None:
+            if (not isinstance(aliases, list) or not (1 <= len(aliases) <= 8)
+                    or any(not _string(alias, max_length=65)
+                           or len(alias.strip()) < 3 for alias in aliases)
+                    or len({alias.casefold().strip() for alias in aliases}) != len(aliases)):
+                raise ExternalResearchError("RESEARCH_TITLE_ALIASES_INVALID")
         if row.get("editorial_status") != "unranked_requires_channel_metrics":
             raise ExternalResearchError("RESEARCH_SIGNAL_CANNOT_RANK")
         source = row.get("source")
