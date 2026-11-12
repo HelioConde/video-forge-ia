@@ -15,6 +15,7 @@ on:
   push:
     paths:
       - config/editorial-team-once-2026-11-12.json
+      - config/otaku-agents-real-work-once-2026-11-12.json
 
 permissions:
   contents: read
@@ -70,15 +71,20 @@ jobs:
           python - <<'PY'
           import json,subprocess
           from pathlib import Path
-          path='config/editorial-team-once-2026-11-12.json'
+          valid_paths={
+              'config/editorial-team-once-2026-11-12.json': 'otaku-multicena-agent-team-2026-11-12',
+              'config/otaku-agents-real-work-once-2026-11-12.json': 'otaku-real-agent-evidence-2026-11-12'
+          }
           changed=subprocess.check_output(['git','diff','--name-only','HEAD^','HEAD'],text=True).splitlines()
           added=subprocess.check_output(['git','diff','--name-only','--diff-filter=A','HEAD^','HEAD'],text=True).splitlines()
-          if changed != [path] or added != [path]:
+          if (changed != added or len(added) != 1
+                  or added[0] not in valid_paths):
               raise SystemExit('TEAM_REQUEST_MUST_ADD_SINGLE_FILE')
+          path=added[0]
           actual=json.loads(Path(path).read_text(encoding='utf-8'))
           expected={
               'schema':'videoforge/one-shot-editorial-research/v1',
-              'request_id':'otaku-multicena-agent-team-2026-11-12',
+              'request_id':valid_paths[path],
               'channel':'otaku-br',
               'approved_by_owner':True,
               'youtube_access':'read_only',
