@@ -1,5 +1,29 @@
 # Escritório virtual de agentes (GitHub Pages)
 
+## Conexão verificável com os trabalhos do AutoEditor (12/11/2026)
+
+Foi criada uma camada que liga as **etapas técnicas executadas**
+no backend aos personagens do escritório. O executor
+`videoforge/production/role_events.py` registra no GitHub Checks
+o início e a conclusão apenas de operações efetivas (evidência de
+arquivo, falha marcada). O navegador consulta esses registros
+em `site/office-live.js`, sem nenhum token no front-end.
+
+O novo mecanismo **não transforma os nove personagens em agentes
+autônomos**. O editor trabalha no Remotion, o narrador no Edge TTS,
+o artista na API de imagens, o roteirista valida um manifesto recebido;
+o Publicador e o Subgerente não são ativados, e a revisão editorial
+continua pendente. A fonte da verdade é o job do GitHub Actions,
+não uma animação inventada. Os estados mostrados como "concluído"
+referem-se à última execução; só mostram "trabalhando" enquanto
+aquela etapa estiver de fato ativa.
+
+**O primeiro vídeo real (#43147397260) foi concluído antes desta
+instrumentação, portanto não tem eventos por cargo.** A conexão será
+observável somente nas execuções que utilizarem este código novo.
+A API pública pode ter limite de consultas; na falha, a UI retorna
+ao estado de não conectado, sem afirmar execução.
+
 ## Objetivo
 
 Visualizar os agentes do VideoForge AI como trabalhadores em um escritório, com seus postos, estado reportado, tarefa e canal. O usuário poderá acompanhar a equipe sem misturar a interface com os processos de produção.
