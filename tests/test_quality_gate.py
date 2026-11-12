@@ -8,6 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from videoforge.production.dispatcher import build_plan, ready_tasks, attach_quality_report
+from videoforge.production.quality_template import review_template
 from videoforge.production.quality_gate import (
     inspect_media, load_policy, evaluate_quality, QualityEvidenceError,
 )
@@ -84,6 +85,20 @@ class MediaInspectionTests(unittest.TestCase):
 
 
 class QualityGateTests(unittest.TestCase):
+    def test_quality_template_contains_no_fake_grades(self):
+        plan = build_plan({"id": JOB, "canal": CHANNEL, "tema": "Nova análise original",
+                           "duracao_segundos": 90})
+        template = review_template(plan)
+        self.assertEqual(template["source"],"unverified_template_only")
+        self.assertEqual(template["status"],"awaiting_real_media_and_independent_qa")
+        self.assertTrue(all(row["score"] is None for row in template["scores"].values()))
+        self.assertTrue(all(value is None for value in template["checks"].values()))
+        with self.assertRaises(QualityEvidenceError):
+            evaluate(template)
+        kids = build_plan({"id":"kids-video-001","canal":"manu-kids",
+                           "tema":"História infantil inédita","duracao_segundos":90})
+        self.assertIn("politica_infantil_verificada", review_template(kids)["checks"])
+
     def test_policy_weights_and_human_approval(self):
         policy = load_policy()
         self.assertAlmostEqual(sum(x["weight"] for x in policy["dimensions"].values()), 1)
