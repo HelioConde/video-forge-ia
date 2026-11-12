@@ -24,16 +24,22 @@ O exemplo contém 26 chamadas de imagem previstas; o orçamento **não** aumenta
    título, canal, idioma, roteiro dividido em cenas e prompts das imagens.
 2. **Edge Neural TTS**, como no AutoEditor, produz narração MP3 e marcações reais
    `WordBoundary`. Se os marcadores ou a duração falharem, o job para.
-3. Somente após a voz passar, o cliente `videoforge/proxy/client.py` solicita
-   **uma imagem por cena via `gpt-image-2` ao Codex Proxy**. Sem imagem manual
-   do ChatGPT, arte feita por Pillow ou fallback local. HTTP 429 interrompe.
-4. Valida hashes, formatos e origem pela política global
-   `videoforge/production/image_policy.py`.
-5. Usa **o código Remotion original de AutoEditorVideo**, composição
-   `ArquivoOtakuMaster` em `motion-remotion/src/master-short.tsx`:
-   cenas com movimento de câmera, transições e legendas sincronizadas
-   pelas marcações reais das palavras. Esse modo **não** é rigging independente
-   de personagens e não deve ser descrito como tal.
+3. Somente após a voz passar, o cliente `videoforge/proxy/client.py`
+   solicita **uma imagem-mãe por cena** via `gpt-image-2`, mantendo a
+   referência de identidade. Depois o Ilustrador edita **aquela mesma
+   cena-mãe** para extrair fundo limpo, personagens RGBA e props RGBA.
+   Cada extração consome uma requisição de imagem e requer orçamento.
+   Não usar artes do chat, máscaras fabricadas por Pillow nem fallback.
+4. O Revisor visual valida a integridade das imagens-mãe pela política
+   `videoforge/production/image_policy.py` e das camadas por
+   `videoforge/production/scene_layers.py`. Transparência verificada
+   NÃO substitui revisão humana do encaixe e da aparência.
+5. O Animador alimenta **o código Remotion original de AutoEditorVideo**,
+   composição `ArquivoOtakuMaster` em
+   `motion-remotion/src/master-short.tsx`, com fundo e `Scene.layers`
+   separados, movimentos discretos de personagens, câmera, transições e
+   legendas sincronizadas. Objetos `hero_prop` continuam estáticos até
+   existir rigging independente aprovado — não descrever como articulação.
 6. Confere MP4 real com FFprobe, áudio, 1080×1920, aproximadamente 30 FPS,
    duração de 90–180s e SHA256. Produz relatório de QA **pendente**;
    não faz upload ou agendamento no YouTube.
