@@ -79,6 +79,28 @@ Politica executavel: [config/production-image-policy.json](config/production-ima
 e [videoforge/production/image_policy.py](videoforge/production/image_policy.py).
 [Detalhes do primeiro piloto](docs/PRIMEIRO-VIDEO-PILOTO.md).
 
+## Geradores de vídeo modulares e sem limite de nichos
+
+O VideoForge AI foi preparado para **vários geradores independentes**,
+sem se limitar a anime, crianças ou dorama. Cada gerador pode definir
+seu próprio pipeline, profissionais responsáveis e orientação editorial
+em `geradores/<id>/gerador.json`. Os primeiros perfis são `anime`,
+`kids` e `dorama`. Novos formatos entram no catálogo por descoberta de
+diretório, sem modificar uma lista fixa de categorias no Python.
+
+O canal pode escolher `gerador_padrao`; cada vídeo pode sobrescrever com
+`gerador`. Essa escolha não substitui o modelo técnico de mídia em
+`modelos/<id>/` e não habilita geração de IA por si só. Os perfis
+atuais são **planejados**, e seus executores precisam de implementação
+e aprovação antes de gerar qualquer mídia ou usar APIs pagas.
+
+A regra geral continua inegociável: **imagens das cenas apenas pelo
+gerador integrado do programa, nunca por imagens produzidas pelo
+assistente ou por desenhos de fallback**. Há revisão humana e
+publicação desabilitada por padrão.
+
+[Manual para adicionar qualquer gerador](geradores/README.md).
+
 ## Geração de personagens com PixelLab
 
 O [workflow PixelLab](.github/workflows/pixellab-character.yml) permite planejar gratuitamente, criar um personagem em oito direções, animar movimentos, produzir estados/poses como sentado ou digitando e exportar spritesheets. Já existe o [perfil Alex](personagens/alex/profile.json). O programa pode reconhecer um personagem previamente criado em sua conta, quando não houver ambiguidade.

@@ -25,3 +25,17 @@ Nesta fase, os arquivos são **declarações de configuração**, não implement
 Não há herança implícita entre modelos de produção. Para criar outra receita, adicione `modelos/<id>/modelo.json` com `id` igual ao nome da pasta e escolha esse ID no canal/vídeo.
 
 Credenciais e tokens nunca devem ser salvos nos modelos.
+
+## Geradores especializados (nova camada)
+
+O modelo técnico (`modelos/`) descreve COMO transformar a cena em mídia:
+imagem estática, camadas, renderização etc. O **gerador especializado**
+(`geradores/<id>/gerador.json`) descreve QUE FLUXO editorial e audiovisual
+deve ser seguido: por exemplo anime, infantil, dorama ou qualquer novo
+nicho cadastrado. São conceitos independentes e combináveis.
+
+Um canal pode definir `gerador_padrao`, e cada vídeo pode usar `gerador`.
+O catálogo é aberto: não existe uma lista fixa de nichos no Python.
+Confira [geradores/README.md](../geradores/README.md). Por enquanto
+os geradores são planos, não executores reais de IA.
+

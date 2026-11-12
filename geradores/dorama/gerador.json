@@ -1,0 +1,117 @@
+{
+  "schema": "videoforge/generator/v1",
+  "id": "dorama",
+  "nome": "Gerador Dorama",
+  "descricao": "Histórias cinematográficas em cenas com personagens recorrentes, continuidade de figurino, gestos, emoção e diálogo.",
+  "status": "planned",
+  "execution_enabled": false,
+  "auto_publish_enabled": false,
+  "requires_human_approval": true,
+  "perfil": {
+    "publico": "geral",
+    "estilo": "drama cinematográfico ilustrado, cenários e personagens em camadas",
+    "direcao": "criar bíblia de personagens e validar continuidade entre cenas; imagens apenas pelo gerador integrado, com aprovação antes de publicar"
+  },
+  "pipeline": [
+    {
+      "id": "briefing",
+      "operation": "editorial-brief",
+      "agent": "coordenador-pautas",
+      "after": [],
+      "output": "briefing.json"
+    },
+    {
+      "id": "biblia-personagens",
+      "operation": "character-bible",
+      "agent": "personagens",
+      "after": [
+        "briefing"
+      ],
+      "output": "biblia-personagens.json"
+    },
+    {
+      "id": "roteiro",
+      "operation": "script",
+      "agent": "roteirista-cenas",
+      "after": [
+        "biblia-personagens"
+      ],
+      "output": "roteiro.json"
+    },
+    {
+      "id": "continuidade",
+      "operation": "continuity-review",
+      "agent": "revisor-narrativa",
+      "after": [
+        "roteiro",
+        "biblia-personagens"
+      ],
+      "output": "continuidade.json"
+    },
+    {
+      "id": "storyboard",
+      "operation": "storyboard",
+      "agent": "storyboard",
+      "after": [
+        "continuidade"
+      ],
+      "output": "storyboard.json"
+    },
+    {
+      "id": "imagens",
+      "operation": "image-generation",
+      "agent": "ilustrador",
+      "after": [
+        "storyboard"
+      ],
+      "output": "imagens.json",
+      "source": "integrated-image-generator"
+    },
+    {
+      "id": "camadas",
+      "operation": "layer-preparation",
+      "agent": "cenarios",
+      "after": [
+        "imagens"
+      ],
+      "output": "camadas.json"
+    },
+    {
+      "id": "animacao",
+      "operation": "animation",
+      "agent": "animacao",
+      "after": [
+        "camadas"
+      ],
+      "output": "animacao.json"
+    },
+    {
+      "id": "dialogos",
+      "operation": "dialogue",
+      "agent": "voz",
+      "after": [
+        "roteiro"
+      ],
+      "output": "dialogos.wav"
+    },
+    {
+      "id": "montagem",
+      "operation": "render",
+      "agent": "montagem",
+      "after": [
+        "animacao",
+        "dialogos"
+      ],
+      "output": "video.mp4"
+    },
+    {
+      "id": "qa",
+      "operation": "quality-review",
+      "agent": "revisor-conteudo",
+      "after": [
+        "montagem"
+      ],
+      "output": "qa-dorama.json"
+    }
+  ]
+}

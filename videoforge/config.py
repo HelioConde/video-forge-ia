@@ -10,6 +10,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from videoforge.generators import resolve_generator
+
 ID_PATTERN = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 DEFAULT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -76,10 +78,16 @@ def load_video_config(
         raise ValueError(f"ID do vídeo não corresponde à pasta: {video_id}")
 
     model = resolve_model(channel, video, root / "modelos")
+    generator = resolve_generator(channel, video, root=root)
 
-    return {
+    config = {
         "canal": {"id": channel_id, "nome": channel.get("nome", channel_id)},
         "modelo": model,
         "video": video.get("video", {}),
         "scenes": video.get("scenes"),
     }
+    # Compatibilidade: vídeos legados sem gerador continuam usando seu modelo.
+    # Gerador e modelo são dimensões independentes e não ligam IA sozinhos.
+    if generator is not None:
+        config["gerador"] = generator
+    return config

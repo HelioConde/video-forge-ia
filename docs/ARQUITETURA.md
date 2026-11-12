@@ -1,5 +1,28 @@
 # Arquitetura proposta — VideoForge AI
 
+## Catálogo aberto de geradores especializados
+
+**Gerador de vídeo** não é uma categoria fixa: cada pasta
+`geradores/<slug>/gerador.json` possui sua própria sequência de trabalho
+(DAG), perfil editorial, direção visual e responsabilidades dos agentes.
+A descoberta é automática pelo módulo
+`videoforge/generators/registry.py`, sem lista pré-definida de nichos.
+Os exemplos iniciais são anime, infantil (kids) e dorama, mas é possível
+adicionar qualquer outro formato sem modificar o catálogo.
+
+**Compatibilidade:** os modelos técnicos de produção em `modelos/`
+continuam existindo. O canal escolhe opcionalmente `gerador_padrao`,
+e o vídeo pode escolher `gerador` e sobrescrever o canal. Uma escolha
+de gerador não altera automaticamente `modelo` ou `modelo_padrao`.
+
+**Segurança:** o catálogo é apenas declarativo; não carrega código
+arbitrário nem executa IA, mídia ou uploads. Cada executor real precisa
+ser integrado e validado em um workflow separado. Os perfis não podem
+desligar a regra global de imagens exclusivamente produzidas pelo
+gerador integrado, a revisão de qualidade ou a aprovação humana.
+
+Documentação completa: [geradores/README.md](../geradores/README.md).
+
 ## Organização por canal e por modelo
 
 ```text

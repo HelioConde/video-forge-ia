@@ -1,0 +1,127 @@
+{
+  "schema": "videoforge/generator/v1",
+  "id": "kids",
+  "nome": "Gerador Infantil",
+  "descricao": "Histórias, brincadeiras e animações originais com políticas infantis, consistência visual e revisão de adequação etária.",
+  "status": "planned",
+  "execution_enabled": false,
+  "auto_publish_enabled": false,
+  "requires_human_approval": true,
+  "perfil": {
+    "publico": "infantil",
+    "estilo": "narrativa infantil colorida, personagens consistentes e movimentos em camadas",
+    "direcao": "revisar segurança infantil, faixas etárias, classificação made for kids e direitos; nenhuma imagem substituta por código ou assistente"
+  },
+  "pipeline": [
+    {
+      "id": "protecao-infantil",
+      "operation": "child-safety",
+      "agent": "revisor-conteudo",
+      "after": [],
+      "output": "politica-infantil.json"
+    },
+    {
+      "id": "briefing",
+      "operation": "editorial-brief",
+      "agent": "coordenador-pautas",
+      "after": [
+        "protecao-infantil"
+      ],
+      "output": "briefing.json"
+    },
+    {
+      "id": "personagens",
+      "operation": "character-bible",
+      "agent": "personagens",
+      "after": [
+        "briefing"
+      ],
+      "output": "personagens.json"
+    },
+    {
+      "id": "roteiro",
+      "operation": "script",
+      "agent": "roteirista-cenas",
+      "after": [
+        "personagens"
+      ],
+      "output": "roteiro.json"
+    },
+    {
+      "id": "storyboard",
+      "operation": "storyboard",
+      "agent": "storyboard",
+      "after": [
+        "roteiro"
+      ],
+      "output": "storyboard.json"
+    },
+    {
+      "id": "imagens",
+      "operation": "image-generation",
+      "agent": "ilustrador",
+      "after": [
+        "storyboard"
+      ],
+      "output": "imagens.json",
+      "source": "integrated-image-generator"
+    },
+    {
+      "id": "camadas",
+      "operation": "layer-preparation",
+      "agent": "cenarios",
+      "after": [
+        "imagens"
+      ],
+      "output": "camadas.json"
+    },
+    {
+      "id": "animacao",
+      "operation": "animation",
+      "agent": "animacao",
+      "after": [
+        "camadas"
+      ],
+      "output": "animacao.json"
+    },
+    {
+      "id": "voz",
+      "operation": "narration",
+      "agent": "voz",
+      "after": [
+        "roteiro"
+      ],
+      "output": "narracao.wav"
+    },
+    {
+      "id": "legendas",
+      "operation": "captions",
+      "agent": "legendas",
+      "after": [
+        "voz",
+        "roteiro"
+      ],
+      "output": "legendas.srt"
+    },
+    {
+      "id": "montagem",
+      "operation": "render",
+      "agent": "montagem",
+      "after": [
+        "animacao",
+        "voz",
+        "legendas"
+      ],
+      "output": "video.mp4"
+    },
+    {
+      "id": "qa",
+      "operation": "quality-review",
+      "agent": "revisor-conteudo",
+      "after": [
+        "montagem"
+      ],
+      "output": "qa-infantil.json"
+    }
+  ]
+}

@@ -85,6 +85,13 @@ def build_storyboard(config: dict[str, Any]) -> dict[str, Any]:
         result["canal"] = config["canal"]
     if "modelo" in config:
         result["modelo"] = config["modelo"]
+    if "gerador" in config:
+        # O storyboard apenas informa o gerador escolhido; não o executa.
+        result["gerador"] = {
+            "id": config["gerador"]["id"],
+            "status": config["gerador"]["status"],
+            "execution_enabled": False,
+        }
 
     return result
 
