@@ -24,7 +24,7 @@ import sys
 from videoforge.generators import build_generator_plan, load_generator
 from videoforge.production.image_policy import validate_generated_visuals
 from videoforge.production.quality_gate import inspect_media
-from videoforge.production.role_events import role_task
+from videoforge.production.role_events import role_task, CheckReporter
 from videoforge.proxy.client import ProxyClient, ProxyError
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -357,7 +357,7 @@ def build_remotion_props(manifest: dict, duration: float, words: list[dict],
 
 def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
                    audio: Path, images: list[dict], duration: float,
-                   words: list[dict], job_id: str) -> dict:
+                   words: list[dict], job_id: str, reporter: CheckReporter | None = None) -> dict:
     """Run actual AutoEditorVideo MasterShort. Never invoke its upload scripts."""
     motion_root = Path(motion_root).resolve()
     if not (motion_root/"package.json").is_file() or not (motion_root/"src/master-short.tsx").is_file():
@@ -379,7 +379,7 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
     target.mkdir(parents=True, exist_ok=False)
     try:
         props_file = out/"remotion-props.json"
-        with role_task("animador", evidence=(props_file,)):
+        with role_task("animador", evidence=(props_file,), reporter=reporter):
             props = build_remotion_props(manifest, duration, words, staging_id=staging_id)
             props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
                                   encoding="utf-8")
@@ -387,7 +387,7 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
         for file in images:
             shutil.copyfile(out / file["file"], target / file["file"])
         output = out/"video.mp4"
-        with role_task("editor", evidence=(output,)):
+        with role_task("editor", evidence=(output,), reporter=reporter):
             _run(["npm", "run", "render:master", "--", str(output.resolve()),
                   "--props", str(props_file.resolve()), "--concurrency", "2",
                   "--codec", "h264", "--crf", "21"], cwd=motion_root, timeout=3600)
@@ -418,7 +418,8 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     if not any(isinstance(x, dict) and x.get("eligible_now") is True for x in records):
         raise AutoEditorBlocked("AUTOEDITOR_PROXY_ACCOUNT_NOT_ELIGIBLE")
     dest.mkdir(parents=True, mode=0o700)
-    with role_task("diretor", evidence=(dest/"plano.json", dest/"briefing.json")):
+    reporter = CheckReporter(channel=manifest["canal"])
+    with role_task("diretor", evidence=(dest/"plano.json", dest/"briefing.json"), reporter=reporter):
         base_plan = plan(manifest)
         (dest/"plano.json").write_text(json.dumps(base_plan, ensure_ascii=False, indent=2)+"\n",
                                        encoding="utf-8")
@@ -427,7 +428,7 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
             "title": manifest["titulo"], "description": manifest["descricao"],
             "status": "prepared_for_review", "upload_enabled": False,
         }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    with role_task("roteirista", evidence=(dest/"roteiro.json", dest/"deduplicacao.json")):
+    with role_task("roteirista", evidence=(dest/"roteiro.json", dest/"deduplicacao.json"), reporter=reporter):
         # The script comes from the requested manifest. This worker VALIDATES
         # and records it; it does not autonomously invent a new script.
         (dest/"roteiro.json").write_text(json.dumps({
@@ -439,9 +440,9 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
             "youtube_history_checked": False, "approved": False,
         }, indent=2)+"\n", encoding="utf-8")
     # TTS first, so an incorrectly paced script does not waste image requests.
-    with role_task("narrador", evidence=(dest/"narracao.mp3", dest/"marcacoes-voz.json")):
+    with role_task("narrador", evidence=(dest/"narracao.mp3", dest/"marcacoes-voz.json"), reporter=reporter):
         audio, seconds, words = prepare_voice(manifest, dest)
-    with role_task("artista", evidence=(dest/"imagens.json",)):
+    with role_task("artista", evidence=(dest/"imagens.json",), reporter=reporter):
         images = generate_images(manifest, dest, client, max_calls=max_calls)
     (dest/"qa-imagens.json").write_text(json.dumps({
         "status": "source_and_bytes_verified",
@@ -449,7 +450,7 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
         "human_visual_review": False,
     }, indent=2)+"\n", encoding="utf-8")
     media = render_remotion(manifest, dest, motion_root=motion_root, audio=audio,
-                           images=images, duration=seconds, words=words, job_id=job_id)
+                           images=images, duration=seconds, words=words, job_id=job_id, reporter=reporter)
     props=json.loads((dest/"remotion-props.json").read_text(encoding="utf-8"))
     (dest/"storyboard.json").write_text(json.dumps({
         "source": "remotion_actual_edge_tts_timing",
@@ -460,7 +461,7 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
         "source": "real_edge_tts_word_boundary",
         "captions": props["captions"],
     }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    with role_task("revisor", evidence=(dest/"qa-tecnico.json",)):
+    with role_task("revisor", evidence=(dest/"qa-tecnico.json",), reporter=reporter):
         # This is only an independent TECHNICAL recheck, not editorial approval.
         checked = inspect_media(dest/"video.mp4")
         if checked["sha256"] != media["sha256"]:
