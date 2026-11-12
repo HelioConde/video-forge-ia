@@ -23,6 +23,10 @@ import sys
 
 from videoforge.generators import build_generator_plan, load_generator
 from videoforge.production.image_policy import validate_generated_visuals
+from videoforge.production.visual_lock import (
+    validate_visual_lock, resolve_reference_image, visual_bible_digest,
+    scene_prompt, verify_anchor_trace,
+)
 from videoforge.production.quality_gate import inspect_media
 from videoforge.production.role_events import role_task, CheckReporter
 from videoforge.proxy.client import ProxyClient, ProxyError
@@ -100,6 +104,8 @@ def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
         raise AutoEditorBlocked("AUTOEDITOR_KIDS_CLASSIFICATION_REQUIRED")
     if channel.get("audiencia") != "children" and raw.get("feito_para_criancas") is True:
         raise AutoEditorBlocked("AUTOEDITOR_KIDS_CHANNEL_MISMATCH")
+    visual_lock = validate_visual_lock(raw.get("visual_lock"))
+    resolve_reference_image(visual_lock, channel=channel_id, root=root)
     scenes = raw.get("cenas")
     if not isinstance(scenes, list) or not 3 <= len(scenes) <= MAX_IMAGES:
         raise AutoEditorBlocked("AUTOEDITOR_SCENE_COUNT_INVALID")
@@ -127,7 +133,8 @@ def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
         "aprovacao_humana_obrigatoria": True,
         "feito_para_criancas": channel.get("audiencia") == "children",
         "origem_imagens": "integrated-image-generator",
-        "modelo_imagem": IMAGE_MODEL, "cenas": output_scenes,
+        "modelo_imagem": IMAGE_MODEL, "visual_lock": visual_lock,
+        "cenas": output_scenes,
     }
     return result
 
@@ -154,6 +161,7 @@ def plan(manifest: dict, *, root: Path = ROOT) -> dict:
         "channel": manifest["canal"], "video_id": manifest["id"],
         "format": manifest["formato"], "image_model": IMAGE_MODEL,
         "planned_image_calls": len(manifest["cenas"]),
+        "visual_reference_mode": "supplied_reference" if manifest["visual_lock"]["reference_path"] else "generate_scene_one_then_edit",
         "expected_duration_seconds": MIN_SHORT_SECONDS,
         "voice_engine": "Edge TTS WordBoundary",
         "renderer": "AutoEditorVideo/motion-remotion/ArquivoOtakuMaster",
@@ -278,19 +286,40 @@ def real_timing(manifest: dict, words: list[dict], duration: float) -> tuple[lis
 
 def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
                     max_calls: int) -> list[dict]:
-    """No assistant-made art, no local fallback, no retries on HTTP 429."""
+    """Canonical anchor + reference edits, with no fallback or automatic retries.
+
+    Existing reference (if any) seeds scene one through the VideoForge Proxy.
+    Otherwise the SAME VideoForge Proxy generates ONE canonical scene one.
+    All later scenes are edited from scene-1.png, never text-only generations.
+    """
     from PIL import Image, ImageOps
     if len(manifest["cenas"]) > max_calls or not 1 <= max_calls <= MAX_IMAGES:
         raise AutoEditorBlocked("AUTOEDITOR_GENERATION_BUDGET_INSUFFICIENT")
+    bible = validate_visual_lock(manifest.get("visual_lock"))
+    source_ref = resolve_reference_image(bible, channel=manifest["canal"], root=ROOT)
     files = []
     for i, scene in enumerate(manifest["cenas"], start=1):
+        instruction = scene_prompt(scene, bible, first=i == 1)
+        reference = None
+        mode = "canonical_anchor"
+        if i == 1 and source_ref is not None:
+            reference = source_ref
+            mode = "reference_image_edit"
+        elif i > 1:
+            reference = out / "scene-1.png"
+            if not reference.is_file() or reference.is_symlink():
+                raise AutoEditorBlocked("AUTOEDITOR_CANONICAL_IMAGE_MISSING")
+            mode = "reference_image_edit"
         try:
-            result = proxy.images_generate({
-                "model": IMAGE_MODEL, "n": 1,
-                "prompt": scene["prompt_imagem"] +
-                " Cinematic original illustrated video frame, vertical composition, "
-                "consistent character appearance, no watermark, no text."
-            })
+            if reference is None:
+                result = proxy.images_generate({
+                    "model": IMAGE_MODEL, "n": 1, "prompt": instruction,
+                })
+            else:
+                result = proxy.images_edit_files(
+                    prompt=instruction, images=[reference],
+                    model=IMAGE_MODEL, n=1,
+                )
         except ProxyError as exc:
             raise AutoEditorBlocked("AUTOEDITOR_IMAGE_PROVIDER_" + str(exc)) from None
         try:
@@ -305,8 +334,9 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
                 raise ValueError()
             with Image.open(io.BytesIO(raw)) as image:
                 image.load()
-                if (image.format not in ("PNG", "JPEG", "WEBP") or image.width < 512
-                        or image.height < 768 or image.width * image.height > 18_000_000):
+                if (image.format not in ("PNG", "JPEG", "WEBP")
+                        or image.width < 512 or image.height < 768
+                        or image.width * image.height > 18_000_000):
                     raise ValueError()
                 im = ImageOps.fit(image.convert("RGB"), (720, 1280),
                                   method=Image.Resampling.LANCZOS)
@@ -314,16 +344,25 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
             im.save(out / name, format="PNG")
         except (ValueError, TypeError, KeyError, IndexError, AttributeError, OSError):
             raise AutoEditorBlocked("AUTOEDITOR_PROVIDER_IMAGE_INVALID") from None
-        files.append({
+        record = {
             "scene": i, "file": name, "origin": "codex_proxy_image",
             "generated_by": "video_forge_image_generator",
+            "generation_mode": mode,
+            "visual_bible_sha256": visual_bible_digest(bible),
             "output_sha256": sha256((out / name).read_bytes()).hexdigest(),
-        })
+        }
+        if i == 1 and source_ref is not None:
+            record["source_reference_sha256"] = sha256(source_ref.read_bytes()).hexdigest()
+        if i > 1:
+            record["anchor_scene"] = 1
+            record["anchor_sha256"] = files[0]["output_sha256"]
+        files.append(record)
     validate_generated_visuals(files, out, expected_count=len(manifest["cenas"]))
+    audit = verify_anchor_trace(files, bible)
     (out / "imagens.json").write_text(json.dumps({
         "schema": "videoforge/generator-only-scenes/v1",
-        "provider": "codex_proxy_image",
-        "model": IMAGE_MODEL, "assets": files, "fallback_count": 0,
+        "provider": "codex_proxy_image", "model": IMAGE_MODEL,
+        "assets": files, "visual_audit": audit, "fallback_count": 0,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return files
 
@@ -444,10 +483,11 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
         audio, seconds, words = prepare_voice(manifest, dest)
     with role_task("artista", evidence=(dest/"imagens.json",), reporter=reporter):
         images = generate_images(manifest, dest, client, max_calls=max_calls)
+    audit = verify_anchor_trace(images, manifest["visual_lock"])
     (dest/"qa-imagens.json").write_text(json.dumps({
-        "status": "source_and_bytes_verified",
-        "generator_images": len(images), "fallback": 0,
-        "human_visual_review": False,
+        **audit, "generator_images": len(images), "fallback": 0,
+        "visual_consistency_not_verified": True,
+        "publication_blocked_pending_independent_visual_review": True,
     }, indent=2)+"\n", encoding="utf-8")
     media = render_remotion(manifest, dest, motion_root=motion_root, audio=audio,
                            images=images, duration=seconds, words=words, job_id=job_id, reporter=reporter)
