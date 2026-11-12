@@ -24,6 +24,7 @@ CANVAS = (720, 1280)
 IDENTIFIER = re.compile(r"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$")
 MAX_PROPS_PER_SCENE = 3
 MAX_CHARACTERS_PER_SCENE = 3
+MAX_PARTS_PER_SCENE = 4
 MAX_IMAGE_REQUESTS = 48
 
 
@@ -56,7 +57,9 @@ def validate_layer_plan(raw: object) -> dict:
     A scene with no independent objects reuses its full master as background.
     The image artist must never invent a movable object during generation.
     """
-    if not isinstance(raw, dict) or set(raw) != {"characters", "movable_props"}:
+    if (not isinstance(raw, dict)
+            or not {"characters", "movable_props"} <= set(raw)
+            or set(raw) - {"characters", "movable_props", "character_parts"}):
         raise SceneLayerError("LAYERS_STORYBOARD_PLAN_REQUIRED")
     seen = set()
     items = {}
@@ -78,6 +81,26 @@ def validate_layer_plan(raw: object) -> dict:
             seen.add(identity)
             normalized.append({"id": identity, "description": description.strip()})
         items[group] = normalized
+    parts = raw.get("character_parts", [])
+    if not isinstance(parts, list) or len(parts) > MAX_PARTS_PER_SCENE:
+        raise SceneLayerError("LAYERS_CHARACTER_PART_COUNT_INVALID")
+    result = []
+    character_ids = {x["id"] for x in items["characters"]}
+    for value in parts:
+        if not isinstance(value, dict) or set(value) != {"id", "description", "parent_id"}:
+            raise SceneLayerError("LAYERS_CHARACTER_PART_INVALID")
+        identity = _identifier(value["id"])
+        description = value["description"]
+        parent = value["parent_id"]
+        if (identity in seen or parent not in character_ids
+                or not isinstance(description, str)
+                or not 8 <= len(description.strip()) <= 240
+                or any(ord(x) < 32 for x in description)):
+            raise SceneLayerError("LAYERS_CHARACTER_PART_PARENT_OR_NAME_INVALID")
+        seen.add(identity)
+        result.append({"id": identity, "description": description.strip(),
+                       "parent_id": parent})
+    items["character_parts"] = result
     return items
 
 
@@ -93,7 +116,7 @@ def count_image_requests(manifest: dict) -> int:
     for scene in scenes:
         plan = validate_layer_plan(scene.get("layer_plan"))
         items = plan["characters"] + plan["movable_props"]
-        total += 1 + (1 if items else 0) + len(items)
+        total += 1 + (1 if items else 0) + len(items) + len(plan["character_parts"])
     if total > MAX_IMAGE_REQUESTS:
         raise SceneLayerError("LAYERS_MAX_IMAGE_REQUESTS_EXCEEDED")
     return total
@@ -126,11 +149,22 @@ def _edit_prompt(*, master: str, role: str, label: str, other_items: list[str],
         "furniture, scenery, shadows, any person or other independent prop. "
     )
     if role == "character":
-        return art + (
+        remove_parts = (" Remove the separately animated appendages from this "
+                        "BASE BODY cutout, reconstruct the joint cleanly: " +
+                        ", ".join(other_items) + ". " if other_items else "")
+        return art + remove_parts + (
             "ISOLATE ONLY THIS CHARACTER from the master: " + label + ". "
             "Preserve exact face, hair, clothes, hands, expression and posture. "
             "Remove separate movable props and fill any masked parts from "
             "the same master scene. "
+        ) + extra
+    if role == "part":
+        return art + (
+            "ISOLATE ONLY THIS INDEPENDENT CHARACTER APPENDAGE from the master: " +
+            label + ". Preserve its actual pose, colors, clothing and contour. "
+            "The parent body and this appendage must NOT overlap in the final "
+            "2D sprite composition. Keep the attachment/joint point fixed "
+            "in the original coordinates. No other limbs or body. "
         ) + extra
     if role == "prop":
         return art + (
@@ -256,18 +290,24 @@ def verify_scene_layers(manifest: dict, directory: Path, doc: dict) -> dict:
             _validate_asset(directory, row["background"], transparent=False)
         character_rows = row.get("characters")
         prop_rows = row.get("movable_props")
+        part_rows = row.get("character_parts")
         if (not isinstance(character_rows, list) or not isinstance(prop_rows, list)
+                or not isinstance(part_rows, list)
                 or len(character_rows) != len(plan["characters"])
-                or len(prop_rows) != len(plan["movable_props"])):
+                or len(prop_rows) != len(plan["movable_props"])
+                or len(part_rows) != len(plan["character_parts"])):
             raise SceneLayerError("LAYERS_SUBJECT_COUNT_INVALID")
-        requests += 1 + (1 if elements else 0) + len(elements)
+        requests += 1 + (1 if elements else 0) + len(elements) + len(plan["character_parts"])
         for kind, expected in (("characters", plan["characters"]),
-                               ("movable_props", plan["movable_props"])):
+                               ("movable_props", plan["movable_props"]),
+                               ("character_parts", plan["character_parts"])):
             for spec, asset in zip(expected, row[kind]):
                 file = f"scene-{i}/{kind}/{spec['id']}.png"
                 if (asset.get("id") != spec["id"] or asset.get("file") != file
                         or asset.get("source_master_sha256") != row["master_sha256"]
-                        or asset.get("origin") != "codex_proxy_master_scene_edit"):
+                        or asset.get("origin") != "codex_proxy_master_scene_edit"
+                        or (kind == "character_parts" and
+                            asset.get("parent_id") != spec["parent_id"])):
                     raise SceneLayerError("LAYERS_SUBJECT_ORIGIN_INVALID")
                 _validate_asset(directory, asset, transparent=True)
         if row.get("source") != "video_forge_codex_proxy_master_scene":
@@ -322,7 +362,7 @@ def generate_scene_layers(manifest: dict, directory: Path, proxy, *,
             "scene_id": scene["id"], "index": i, "master": master.name,
             "master_sha256": original_sha,
             "source": "video_forge_codex_proxy_master_scene",
-            "characters": [], "movable_props": [],
+            "characters": [], "movable_props": [], "character_parts": [],
         }
         if things:
             descriptions = [x["description"] for x in things]
@@ -348,10 +388,14 @@ def generate_scene_layers(manifest: dict, directory: Path, proxy, *,
                 "origin": "codex_proxy_master_scene",
                 "source_master_sha256": original_sha,
             }
-        for group, role in (("characters", "character"), ("movable_props", "prop")):
+        for group, role in (("characters", "character"),
+                            ("movable_props", "prop"),
+                            ("character_parts", "part")):
             for subject in plan[group]:
+                appendages = [p["description"] for p in plan["character_parts"]
+                              if p["parent_id"] == subject["id"]] if role == "character" else []
                 prompt = _edit_prompt(master=scene["id"], role=role,
-                                      label=subject["description"], other_items=[],
+                                      label=subject["description"], other_items=appendages,
                                       bible=bible)
                 try:
                     response = proxy.images_edit_files(prompt=prompt, images=[master],
@@ -363,6 +407,7 @@ def generate_scene_layers(manifest: dict, directory: Path, proxy, *,
                 output = _save_edit(response, target, transparent=True)
                 row[group].append({
                     "id": subject["id"],
+                    **({"parent_id": subject["parent_id"]} if role == "part" else {}),
                     "file": target.relative_to(directory).as_posix(),
                     "sha256": output["sha256"],
                     "origin": "codex_proxy_master_scene_edit",
