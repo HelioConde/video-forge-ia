@@ -304,7 +304,8 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
                 raise ValueError()
             with Image.open(io.BytesIO(raw)) as image:
                 image.load()
-                if image.format not in ("PNG", "JPEG", "WEBP") or image.width < 512 or image.height < 768:
+                if (image.format not in ("PNG", "JPEG", "WEBP") or image.width < 512
+                        or image.height < 768 or image.width * image.height > 18_000_000):
                     raise ValueError()
                 im = ImageOps.fit(image.convert("RGB"), (720, 1280),
                                   method=Image.Resampling.LANCZOS)
@@ -362,6 +363,14 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
         raise AutoEditorBlocked("AUTOEDITOR_REMOTION_SOURCE_MISSING")
     if not (motion_root/"node_modules/.bin/remotion").is_file():
         raise AutoEditorBlocked("AUTOEDITOR_REMOTION_NOT_INSTALLED")
+    # Source commit is a contract, not a label inferred from folder names.
+    try:
+        actual = _run(["git", "-C", str(motion_root.parent), "rev-parse", "HEAD"],
+                      timeout=15).stdout.decode("utf-8", "replace").strip()
+    except AutoEditorBlocked:
+        raise AutoEditorBlocked("AUTOEDITOR_SOURCE_COMMIT_UNVERIFIED") from None
+    if actual != AUTOEDITOR_COMMIT:
+        raise AutoEditorBlocked("AUTOEDITOR_SOURCE_COMMIT_MISMATCH")
     staging_id = "vf-autoeditor-" + _check_id(job_id, "JOB")
     target = motion_root / "public" / "generated" / staging_id
     if target.exists() or target.is_symlink():
