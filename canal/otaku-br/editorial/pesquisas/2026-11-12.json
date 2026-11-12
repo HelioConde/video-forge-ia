@@ -17,7 +17,12 @@
         "url": "https://jojo-portal.com/en/anime/sbr/news/",
         "published_on": "2026-11-10"
       },
-      "editorial_status": "unranked_requires_channel_metrics"
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "JoJo",
+        "Steel Ball Run",
+        "SBR"
+      ]
     },
     {
       "id": "one-piece-elbaph-bluray-nov",
@@ -29,7 +34,12 @@
         "url": "https://one-piece.com/news/83333/index.html",
         "published_on": "2026-11-10"
       },
-      "editorial_status": "unranked_requires_channel_metrics"
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "One Piece",
+        "Elbaph",
+        "Elbaf"
+      ]
     },
     {
       "id": "black-clover-season2-outono2026",
@@ -41,7 +51,10 @@
         "url": "https://www.crunchyroll.com/news/seasonal-lineup/2026/9/15/fall-anime-2026-crunchyroll",
         "published_on": "2026-09-15"
       },
-      "editorial_status": "unranked_requires_channel_metrics"
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "Black Clover"
+      ]
     }
   ]
 }
