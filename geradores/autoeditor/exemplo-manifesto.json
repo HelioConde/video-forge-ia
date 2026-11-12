@@ -61,5 +61,19 @@
       "narracao": "Na manhã seguinte, a praça amanheceu diferente. As pessoas pensaram que alguém havia consertado um relógio quebrado. A pesquisadora, porém, sabia que tinha encontrado algo maior: uma mensagem de esperança escondida onde ninguém mais procurava.",
       "prompt_imagem": "Original illustration, morning sunrise over old city clocktower plaza, same young woman with navy coat holding notebook smiling quietly, warm wide cinematic closing shot, vertical portrait, no text."
     }
-  ]
+  ],
+  "visual_lock": {
+    "schema": "videoforge/visual-bible/v1",
+    "mode": "anchor_image_edit",
+    "anchor_scene": 1,
+    "style_family": "illustration",
+    "render_style": "cinematic hand-painted 2D anime illustration",
+    "character_id": "pesquisadora-da-torre",
+    "identity": "Uma jovem pesquisadora adulta com rosto oval, traços desenhados delicados, pele clara e proporções faciais constantes",
+    "hair": "Cabelo castanho-escuro preso em coque baixo solto com fita azul-marinho e pequenas mechas na frente, sem mudanças de cor",
+    "eyes": "Olhos azul-esverdeados sempre do mesmo formato, tamanho e espaçamento",
+    "wardrobe": "Casaco comprido azul-marinho de gola alta, camisa creme e calças escuras, sempre com o mesmo corte e material",
+    "accessories": "Bolsa transversal de couro marrom com fecho de latão e caderno antigo marrom com gravação dourada; não adicionar óculos",
+    "require_human_visual_review": true
+  }
 }
