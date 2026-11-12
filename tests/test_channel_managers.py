@@ -351,6 +351,7 @@ class EditorialTests(TestCase):
         rows[1]["metrics"].pop("engagedViews")
         self.assertEqual(evaluate_uploaded_video(snapshot(rows),video_id="S0")["status"],
                          "insufficient_engaged_views")
+        rows[1]["metrics"]["engagedViews"]=420
         bad=dict(info,channel_id="UCother")
         with self.assertRaises(ValueError):
             evaluate_uploaded_video(snapshot(rows),video_id="S0",detailed_insights=bad)
