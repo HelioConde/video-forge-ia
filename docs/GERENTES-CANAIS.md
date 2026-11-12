@@ -137,3 +137,15 @@ agendamento autônomo. O avaliador de desempenho pós-publicação já
 possui código e testes, mas o loop recorrente automatizado depende de
 conexão autorizada e armazenamento persistente privado. O painel deve continuar marcando os gerentes como
 `nao_conectado` até evidência real de execução.
+
+## Portão de qualidade vinculado à estratégia de crescimento
+
+Aplicar a política de \`docs/QUALIDADE-E-CRESCIMENTO.md\` antes da
+aprovação final: medir originalidade, fatos, narração, consistência
+visual, ritmo, título/thumbnail e integridade técnica. O gerente pode
+devolver ou suspender vídeos em vez de cumprir quantidade de uploads.
+Para Shorts, \`engagedViews\` e retenção por trechos são indicadores
+distintos de starts; não usar \`views\` como substituto quando o vídeo
+foi classificado editorialmente como Short. \`feedback.py\` produz
+apenas uma variável experimental por ciclo. Retenção por trecho
+depende de OAuth read-only e pode estar ausente na API.

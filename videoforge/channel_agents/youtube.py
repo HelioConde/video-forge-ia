@@ -192,8 +192,8 @@ class YouTubeReadOnly:
         return list(metadata.values())
 
     def _analytics(self, *, start_date: date, end_date: date) -> dict[str, dict]:
-        metrics = ("views,estimatedMinutesWatched,averageViewDuration,"
-                   "averageViewPercentage,likes")
+        metrics = ("views,engagedViews,subscribersGained,estimatedMinutesWatched,"
+                   "averageViewDuration,averageViewPercentage,likes")
         rows = []
         offset = 1
         while True:
@@ -249,6 +249,95 @@ class YouTubeReadOnly:
         return {"schema": "videoforge/trend-signals/v1",
                 "read_only": True, "results": signals,
                 "uses_external_public_metadata_only": True}
+
+    def video_retention_insights(self, video_id: str, *,
+                                 start_date: date, end_date: date) -> dict:
+        """Retenção por ponto + engajamento do PRÓPRIO canal (somente leitura).
+
+        audienceWatchRatio pode ultrapassar 1 após reassistir; não é porcentagem
+        de likes, CTR nem "ficou versus pulou". Não consultar vídeos de terceiros.
+        Usa filtros por vídeo único, como exige a API Analytics.
+        """
+        if (not isinstance(video_id, str) or len(video_id) != 11
+                or not all(c.isalnum() or c in "-_" for c in video_id)):
+            raise ValueError("ID de vídeo inválido")
+        if not isinstance(start_date, date) or not isinstance(end_date, date) or end_date < start_date:
+            raise ValueError("Janela Analytics inválida")
+        self.verify_identity()
+        details = self._data("videos", part="snippet", id=video_id)
+        items = details.get("items", [])
+        if len(items) != 1 or items[0].get("id") != video_id:
+            raise YouTubeReadError("VIDEO_NOT_ACCESSIBLE_ON_CHANNEL")
+        if items[0].get("snippet", {}).get("channelId") != self.expected_channel_id:
+            raise YouTubeReadError("VIDEO_OWNER_MISMATCH")
+        common = {"ids": "channel==MINE", "startDate": start_date.isoformat(),
+                  "endDate": end_date.isoformat(), "filters": "video==" + video_id}
+        overview_metrics = "views,engagedViews,subscribersGained,averageViewDuration,averageViewPercentage"
+        overview = self._get(ANALYTICS_API, {**common, "metrics": overview_metrics})
+        cols = [x.get("name") for x in overview.get("columnHeaders", [])]
+        if cols != overview_metrics.split(","):
+            raise YouTubeReadError("VIDEO_INSIGHTS_SCHEMA_MISMATCH")
+        rows = overview.get("rows") or []
+        if len(rows) > 1 or any(not isinstance(row, list) or len(row) != len(cols) for row in rows):
+            raise YouTubeReadError("VIDEO_INSIGHTS_INVALID_ROWS")
+        metrics = dict(zip(cols, rows[0])) if rows else None
+        if metrics is None:
+            return {"schema": "videoforge/video-insights/v1", "status": "insufficient_data",
+                    "video_id": video_id, "channel_id": self.expected_channel_id,
+                    "retention_points": [], "metrics": None,
+                    "read_only": True, "source": "youtube-analytics-v2"}
+        retain = self._get(ANALYTICS_API, {
+            **common, "dimensions": "elapsedVideoTimeRatio",
+            "metrics": "audienceWatchRatio,relativeRetentionPerformance",
+            "sort": "elapsedVideoTimeRatio",
+        })
+        headers = [c.get("name") for c in retain.get("columnHeaders", [])]
+        if headers != ["elapsedVideoTimeRatio", "audienceWatchRatio", "relativeRetentionPerformance"]:
+            raise YouTubeReadError("RETENTION_SCHEMA_MISMATCH")
+        points = []
+        for row in retain.get("rows", []) or []:
+            if not isinstance(row, list) or len(row) != 3:
+                raise YouTubeReadError("RETENTION_ROW_INVALID")
+            try:
+                elapsed, watch, relative = map(float, row)
+            except (TypeError, ValueError):
+                raise YouTubeReadError("RETENTION_ROW_INVALID") from None
+            if not (0 <= elapsed <= 1 and 0 <= watch <= 20 and 0 <= relative <= 1):
+                raise YouTubeReadError("RETENTION_VALUES_INVALID")
+            if points and elapsed <= points[-1]["elapsed_ratio"]:
+                raise YouTubeReadError("RETENTION_POINTS_NOT_SORTED")
+            points.append({"elapsed_ratio": elapsed, "audience_watch_ratio": watch,
+                           "relative_retention": relative})
+            if len(points) > 100:
+                raise YouTubeReadError("RETENTION_TOO_MANY_POINTS")
+        # Calcular maior queda entre amostras, sem afirmar causalidade.
+        drops = [
+            {"from_ratio": a["elapsed_ratio"], "to_ratio": b["elapsed_ratio"],
+             "drop": round(a["audience_watch_ratio"] - b["audience_watch_ratio"], 4)}
+            for a, b in zip(points, points[1:])
+        ]
+        largest = max(drops, key=lambda x: x["drop"]) if drops else None
+        engaged = metrics.get("engagedViews")
+        views = metrics.get("views")
+        if not isinstance(engaged, (int,float)) or isinstance(engaged, bool) or engaged < 0:
+            raise YouTubeReadError("ENGAGED_VIEWS_INVALID")
+        if not isinstance(views, (int,float)) or isinstance(views, bool) or views < 0:
+            raise YouTubeReadError("VIDEO_VIEWS_INVALID")
+        return {
+            "schema": "videoforge/video-insights/v1",
+            "status": "observed" if points else "retention_unavailable",
+            "video_id": video_id, "channel_id": self.expected_channel_id,
+            "window": {"start": start_date.isoformat(), "end": end_date.isoformat()},
+            "metrics": metrics, "retention_points": points,
+            "largest_adjacent_retention_drop": largest,
+            "engaged_views": engaged,
+            "views": views,
+            "engaged_view_ratio": round(engaged / views, 4) if views else None,
+            "shorts_feed_swipe_rate": None,
+            "impressions_ctr": None,
+            "data_comparability": "same_window_only_no_causal_inference",
+            "read_only": True, "source": "youtube-analytics-v2",
+        }
 
     def snapshot(self, *, days: int = 90, end_date: date | None = None) -> dict:
         """Coleta histórico de uploads + desempenho recente. SEM cache fictício."""

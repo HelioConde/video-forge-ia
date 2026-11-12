@@ -237,3 +237,21 @@ O motor fica em `videoforge/production/subgerente.py`,
 com testes `tests/test_subgerente.py`; documentação:
 [docs/SUBGERENTE.md](docs/SUBGERENTE.md).
 Não há ativação automática de IA, publicação ou mudanças de código.
+
+## Qualidade e crescimento antes de quantidade
+
+O piloto Otaku Multicena prioriza **vídeos melhores e inéditos**, não uma
+meta rígida de 3 uploads diários. A produção pode ser devolvida, suspensa
+ou bloqueada por problemas de originalidade, fatos, direitos, roteiro,
+narração, imagem, edição ou arquivo. A decisão final de publicação é
+humana. O checklist é anexado a cada plano do workflow de demanda, com
+notas pendentes até uma revisão independente confiável.
+
+A integração read-only do YouTube foi ampliada com \`engagedViews\`,
+inscritos ganhos e retenção por ponto, e o feedback propõe uma hipótese
+de melhoria por vez sem repetir tema. Não são simuladas métricas ou
+publicações reais.
+
+[Regras e roadmap de qualidade](docs/QUALIDADE-E-CRESCIMENTO.md) ·
+[Piloto de 28 dias](config/pilot-otaku-multicena.json) ·
+[Política técnica de QA](config/quality-policy.json).

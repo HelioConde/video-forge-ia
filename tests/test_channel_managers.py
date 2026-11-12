@@ -81,6 +81,9 @@ class FakeYouTube:
         self.calls = []
         self.mismatch = mismatch
 
+    def assert_only_get(self, req):
+        assert req.get_method() == "GET"
+
     def open(self, req, timeout):
         url = urlsplit(req.full_url)
         p = parse_qs(url.query)
@@ -107,13 +110,26 @@ class FakeYouTube:
                     "status": {"privacyStatus": "public"},
                     "statistics": {"viewCount": "800"}})
             return FakeResponse({"items": items})
+        if url.path.endswith("/reports") and "filters" in p:
+            self.assert_only_get(req)
+            if p.get("dimensions") == ["elapsedVideoTimeRatio"]:
+                headers = ["elapsedVideoTimeRatio","audienceWatchRatio","relativeRetentionPerformance"]
+                rows = [[.01, 1.0, .72], [.1, .81, .60],
+                        [.2, .54, .45], [1.0, .2, .40]]
+            else:
+                headers = ["views","engagedViews","subscribersGained",
+                           "averageViewDuration","averageViewPercentage"]
+                rows = [[800, 520, 15, 65, 72.2]]
+            return FakeResponse({"columnHeaders":[{"name": h} for h in headers],
+                                 "rows":rows})
         if url.path.endswith("/reports"):
-            headers = ["video", "views", "estimatedMinutesWatched",
-                       "averageViewDuration", "averageViewPercentage", "likes"]
+            headers = ["video", "views", "engagedViews", "subscribersGained",
+                       "estimatedMinutesWatched", "averageViewDuration",
+                       "averageViewPercentage", "likes"]
             return FakeResponse({
                 "columnHeaders": [{"name": h} for h in headers],
-                "rows": [["ABCDE12345x", 800, 700, 65, 72.2, 40],
-                         ["FGHIJ67890y", 700, 650, 66, 73.3, 35]],
+                "rows": [["ABCDE12345x", 800, 520, 15, 700, 65, 72.2, 40],
+                         ["FGHIJ67890y", 700, 410, 8, 650, 66, 73.3, 35]],
             })
         if url.path.endswith("/search"):
             return FakeResponse({"items": [{"id":{"videoId":"ttttt123456"},
@@ -135,6 +151,8 @@ class YouTubeTests(TestCase):
         self.assertTrue(report["history_complete"])
         self.assertEqual(report["count"],2)
         self.assertEqual(report["videos"][0]["metrics"]["views"],800)
+        self.assertEqual(report["videos"][0]["metrics"]["engagedViews"],520)
+        self.assertEqual(report["videos"][0]["metrics"]["subscribersGained"],15)
         self.assertEqual(report["videos"][0]["duration_seconds"],90)
         self.assertEqual(report["window"]["start"],"2026-08-12")
         self.assertEqual([x[0] for x in fake.calls],
@@ -160,6 +178,35 @@ class YouTubeTests(TestCase):
                          "youtube-data-v3/search.list")
         with self.assertRaises(ValueError):
             api.trend_signals(["Naruto","One Piece","Bleach"])
+
+    def test_per_video_retention_uses_verified_owner_and_same_window(self):
+        fake = FakeYouTube()
+        api = YouTubeReadOnly(access_token="synthetic-access-abcdefg",
+                              expected_channel_id=CHANNEL, opener=fake.open)
+        report = api.video_retention_insights(
+            "ABCDE12345x", start_date=date(2026,10,1), end_date=date(2026,11,9))
+        self.assertEqual(report["status"],"observed")
+        self.assertEqual(report["engaged_views"],520)
+        self.assertEqual(report["metrics"]["subscribersGained"],15)
+        self.assertEqual(report["engaged_view_ratio"],.65)
+        self.assertEqual(report["largest_adjacent_retention_drop"]["from_ratio"],.2)
+        self.assertIsNone(report["impressions_ctr"])
+        self.assertIsNone(report["shorts_feed_swipe_rate"])
+        self.assertTrue(all(method=="GET" for _,_,method in fake.calls))
+        self.assertEqual(len(fake.calls),4)
+        self.assertEqual(fake.calls[0][0],"/youtube/v3/channels")
+        self.assertEqual(fake.calls[1][0],"/youtube/v3/videos")
+        self.assertEqual(fake.calls[2][1]["filters"],["video==ABCDE12345x"])
+        self.assertEqual(fake.calls[3][1]["dimensions"],["elapsedVideoTimeRatio"])
+
+    def test_insights_reject_unowned_video_before_analytics(self):
+        fake = FakeYouTube(mismatch=True)
+        api = YouTubeReadOnly(access_token="synthetic-access-abcdefg",
+                              expected_channel_id=CHANNEL, opener=fake.open)
+        with self.assertRaises(YouTubeReadError):
+            api.video_retention_insights(
+                "ABCDE12345x",start_date=date(2026,10,1),end_date=date(2026,11,9))
+        self.assertEqual(len(fake.calls),1)
 
     def test_refresh_requires_two_readonly_scopes(self):
         client=json.dumps({"installed":{"client_id":"abc","client_secret":"secret"}})
@@ -274,6 +321,40 @@ class EditorialTests(TestCase):
                       ("test_new_original_angle","test_hook_and_pacing"))
         with self.assertRaises(ValueError):
             evaluate_uploaded_video(self.inventory,video_id="not-owned-video")
+
+    def test_shorts_feedback_prefers_engaged_views_and_early_drop(self):
+        rows=[
+            upload("S0","Novo tema original",1200,90,80),
+            upload("S1","Outro assunto original",800,90,70),
+            upload("S2","Terceiro assunto original",850,90,72),
+            upload("S3","Quarto assunto original",900,90,75),
+        ]
+        for i,row in enumerate(rows):
+            row["format"]="short"
+            row["metrics"]["engagedViews"]=600 if i==0 else 400+i*20
+            row["metrics"]["subscribersGained"]=12 if i==0 else 3
+        info={
+            "schema":"videoforge/video-insights/v1",
+            "channel_id":CHANNEL,"video_id":"S0","read_only":True,
+            "window":{"start":"2026-08-12","end":"2026-11-09"},
+            "retention_points":[{"elapsed_ratio":.05,"audience_watch_ratio":1.0}],
+            "largest_adjacent_retention_drop":{"from_ratio":.05,"to_ratio":.1,"drop":.22},
+        }
+        from videoforge.channel_agents.feedback import evaluate_uploaded_video
+        result=evaluate_uploaded_video(snapshot(rows),video_id="S0",detailed_insights=info)
+        self.assertEqual(result["status"],"observed")
+        self.assertEqual(result["metric_basis"],"engagedViews")
+        self.assertEqual(result["next_experiment"],"test_first_20_percent_hook")
+        self.assertEqual(result["subscribers_per_1000_measured_views"],20.0)
+        self.assertEqual(result["experiment_variables"],1)
+        self.assertFalse(result["publication_enabled"])
+        rows[1]["metrics"].pop("engagedViews")
+        self.assertEqual(evaluate_uploaded_video(snapshot(rows),video_id="S0")["status"],
+                         "insufficient_engaged_views")
+        rows[1]["metrics"]["engagedViews"]=420
+        bad=dict(info,channel_id="UCother")
+        with self.assertRaises(ValueError):
+            evaluate_uploaded_video(snapshot(rows),video_id="S0",detailed_insights=bad)
 
     def test_insufficient_metrics_does_not_pick_best(self):
         no_metrics=snapshot([{"id":"1","title":"A","metrics":None}])

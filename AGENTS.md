@@ -191,3 +191,27 @@ O Subgerente pode sugerir ações, mas **não editar arquivos, alterar outros
 agentes, aumentar gastos, demitir, punir ou publicar conteúdo** sozinho.
 Toda alteração de modelos/prompts/código exige aprovação humana, testes e
 política de rollback. [Contrato e critérios](docs/SUBGERENTE.md).
+
+## Qualidade é obrigatória antes de ampliar quantidade
+
+A política está em \`config/quality-policy.json\` e
+\`docs/QUALIDADE-E-CRESCIMENTO.md\`. Toda execução real futura deve
+produzir provas de mídia com hash, revisão de QA independente e
+aprovação humana. Não preencher pontuações do checklist
+\`quality-review-template.json\` por simulação; não permitir que a
+interface pública aprove sua própria entrega.
+
+O planejador \`videoforge/production/dispatcher.py\` não libera a etapa
+\`aprovacao\` até o portão \`quality_gate.py\` passar. Reprovar a
+entrega devolve dependências para revisão; depois de no máximo duas
+revisões, suspender e exigir diagnóstico. Direitos, repetição de
+conteúdo, veracidade, segurança infantil e canal errado bloqueiam
+imediatamente, não geram retries automáticos. Nenhum resultado de QA
+libera \`publicacao\` sozinho.
+
+Para os canais, usar \`engagedViews\` na avaliação de Shorts quando o
+formato foi identificado pelo editor e comparar somente vídeos do
+próprio canal na mesma janela. Dados insuficientes implicam não
+concluir. Cada experimento posterior muda uma variável de cada vez;
+não reutilizar pauta ou conteúdo. O piloto de 28 dias não obriga
+volume, consumo de recursos nem publicação.

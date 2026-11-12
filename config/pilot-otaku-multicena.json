@@ -1,0 +1,79 @@
+{
+  "schema": "videoforge/quality-first-pilot/v1",
+  "pilot_channel": "otaku-br",
+  "name": "Otaku Multicena — piloto de 28 dias",
+  "mode": "quality_first_no_fixed_quota",
+  "publication": {
+    "automatic": false,
+    "human_approval_required": true
+  },
+  "criteria": {
+    "no_repeated_topic": true,
+    "minimum_revisions_before_suspend": 0,
+    "max_revisions": 2,
+    "minimum_short_duration_seconds": 90,
+    "policy_file": "config/quality-policy.json"
+  },
+  "experiments": {
+    "variables_at_a_time": 1,
+    "do_not_repost_same_topic": true,
+    "compare_same_channel_and_window": true,
+    "min_peer_samples": 3,
+    "prefer_engaged_views_for_shorts": true,
+    "change_only_hook_or_pacing_or_angle": true
+  },
+  "periods": [
+    {
+      "week": 1,
+      "objective": "Auditoria do canal e inventário completo",
+      "outputs": [
+        "Identidade OAuth confirmada",
+        "Métricas por formato e janela",
+        "Histórico de pautas e reservas completo",
+        "Dados insuficientes identificados"
+      ],
+      "uploads_required": 0
+    },
+    {
+      "week": 2,
+      "objective": "Piloto de produção com revisão independente",
+      "outputs": [
+        "Até três hipóteses de vídeos originais, se houver evidência",
+        "QA de roteiro, voz, visuais e MP4",
+        "Revisões limitadas e decisão de suspender",
+        "Publicação somente após aprovação"
+      ],
+      "uploads_required": 0
+    },
+    {
+      "week": 3,
+      "objective": "Medição de performance sem misturar Shorts e longos",
+      "outputs": [
+        "EngagedViews e retenção para Shorts",
+        "Curvas de retenção individuais quando disponíveis",
+        "Inscritos ganhos",
+        "Comparação com pelo menos três pares da mesma janela"
+      ],
+      "uploads_required": 0
+    },
+    {
+      "week": 4,
+      "objective": "Ajustar uma variável e decidir se é seguro ampliar",
+      "outputs": [
+        "Experimento de gancho/ritmo/ângulo escolhido",
+        "Sem repetir tema",
+        "Relatório de qualidade e custo",
+        "Decisão humana de expandir ou repetir piloto"
+      ],
+      "uploads_required": 0
+    }
+  ],
+  "guardrails": {
+    "stop_if_quality_below_policy": true,
+    "stop_if_unverified_originality": true,
+    "stop_if_analytics_missing": true,
+    "stop_if_budget_not_authorized": true,
+    "never_assume_growth_guaranteed": true
+  },
+  "status": "not_started_real_youtube_oauth_not_connected"
+}
