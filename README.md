@@ -54,6 +54,10 @@ Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md)
 
 As orientações operacionais para agentes de IA e colaboradores estão em [AGENTS.md](AGENTS.md).
 
+## Primeiro briefing IA com autorização humana e revisão privada
+
+O workflow manual `agent-one-briefing.yml` prepara **um único** briefing textual do Otaku Multicena a partir de pauta realmente escolhida pela equipe e aprovada/reservada pelo gerente humano. A execução padrão faz testes offline; o modo real exige `main`, confirmação explícita, modelo existente, credenciais em `proxy-runtime` e uma chave de criptografia. O resultado é enviado somente como **artifact AES-256-GCM**, aguardando revisão independente; não gera imagens, vídeos ou uploads. Hoje, o registro inicial de reservas está vazio, então não se deve presumir que já exista uma pauta liberada. [Manual](docs/PRIMEIRO_BRIEFING_AGENTES.md).
+
 ## Delegação de texto para funcionários pelo Proxy
 
 O motor de delegação agora possui `videoforge/production/agent_dispatch.py`: identifica especialistas liberados pelo DAG das 18 tarefas e prepara chamadas de texto pelo Codex Proxy somente em backend privado e explicitamente autorizado. A execução cria reserva exclusiva e rascunho com hash para revisão independente, não marca tarefas como aprovadas, não renderiza mídia nem publica vídeos. O workflow de recebimento de demanda exporta apenas a prévia offline dos especialistas liberados. Não há disparo pago automático.
