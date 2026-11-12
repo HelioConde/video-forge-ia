@@ -117,6 +117,10 @@ Politica executavel: [config/production-image-policy.json](config/production-ima
 e [videoforge/production/image_policy.py](videoforge/production/image_policy.py).
 [Detalhes do primeiro piloto](docs/PRIMEIRO-VIDEO-PILOTO.md).
 
+## Funcionários refletem etapas reais da produção
+
+Durante uma produção, o painel do VideoForge deve mostrar quem está trabalhando: Artista visual quando o Proxy gera/edita as cenas, Narrador na síntese de voz, Editor durante o render do MP4 e Revisor durante QA técnico. O monitor exige sinais confirmados pelo GitHub, não animações simuladas. A fonte principal são Check Runs do `role_task`; quando indisponíveis, a execução publica estados saneados em GitHub Commit Statuses. O dashboard valida a origem, diferencia tarefas técnicas de agentes IA autônomos e deixa de mostrar `trabalhando` ao final da execução. Se não houver evidência individual, indica apenas que o **pipeline** está em execução, sem inventar o agente ativo.
+
 ## Estado do pipeline no escritório
 
 O GitHub Pages mostra um snapshot e consulta execuções públicas do GitHub Actions. Uma execução de renderização pode estar em andamento mesmo que os agentes autônomos continuem **não conectados** e não haja Check Run específico para cada funcionário. Nesse caso, o painel informa **PIPELINE EM EXECUÇÃO**, mantendo a contagem real de agentes com atividade comprovada em zero; não transforma o render em prova de autonomia. O botão GitHub Actions abre o repositório correto.

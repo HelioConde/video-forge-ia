@@ -29,6 +29,7 @@ on:
 
 permissions:
   contents: read
+  statuses: write  # fallback verificavel das etapas por funcionario
   checks: write  # somente registros publicos dos trabalhos reais do pipeline
 
 concurrency:

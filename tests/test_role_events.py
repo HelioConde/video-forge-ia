@@ -18,6 +18,15 @@ class RoleEventTests(unittest.TestCase):
             "GITHUB_RUN_ID": "43147397260",
         }
 
+        self.status_events = []
+        def mocked_status(context, payload):
+            self.status_events.append(payload)
+            return {"id": len(self.status_events)}
+        status_patch = patch("videoforge.production.role_events._status_request",
+                             side_effect=mocked_status)
+        status_patch.start()
+        self.addCleanup(status_patch.stop)
+
     def test_no_token_stays_unconnected_and_requires_actual_evidence(self):
         self.assertIsNone(valid_context({}))
         reporter = CheckReporter(env={}, channel="otaku-br")
@@ -72,6 +81,33 @@ class RoleEventTests(unittest.TestCase):
         with patch("videoforge.production.role_events._request") as handler:
             reporter.start("narrador")
             handler.assert_not_called()
+
+    def test_commit_status_tracks_actual_stages_without_private_details(self):
+        reporter = CheckReporter(self.env, channel="otaku-br")
+        with patch("videoforge.production.role_events._request",
+                   side_effect=ValueError("checks API unavailable")):
+            with tempfile.TemporaryDirectory() as d:
+                evidence = Path(d) / "video.mp4"
+                with role_task("editor", evidence=(evidence,), reporter=reporter):
+                    self.assertEqual(self.status_events[-1]["state"], "pending")
+                    evidence.write_bytes(b"verified render")
+        self.assertEqual([x["state"] for x in self.status_events],
+                         ["pending", "success"])
+        self.assertEqual(self.status_events[-1]["context"],
+                         "VideoForge Stage / autoeditor / otaku-br / editor")
+        self.assertEqual(self.status_events[-1]["target_url"],
+                         "https://github.com/HelioConde/video-forge-ia/actions/runs/43147397260")
+        self.assertNotIn("dummy-mocked-token", repr(self.status_events))
+        self.assertFalse(reporter.checks)
+
+    def test_commit_status_reports_failure_after_real_stage_failure(self):
+        reporter = CheckReporter(self.env, channel="otaku-br")
+        with patch("videoforge.production.role_events._request", return_value={"id": 21}):
+            with self.assertRaisesRegex(ValueError, "render failed"):
+                with role_task("editor", reporter=reporter):
+                    raise ValueError("render failed")
+        self.assertEqual([x["state"] for x in self.status_events],
+                         ["pending", "failure"])
 
     def test_telemetry_http_failure_never_exposes_credentials(self):
         reporter = CheckReporter(self.env, channel="otaku-br")

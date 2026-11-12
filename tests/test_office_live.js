@@ -81,17 +81,77 @@ assert.equal(mergedEditorial.agentes.find(x=>x.id==="subgerente").status,"conclu
 assert.match(mergedEditorial.agentes.find(x=>x.id==="subgerente").tarefa,/auditar/i);
 assert.equal(mergedEditorial.agentes.find(x=>x.id==="publicador").status,"nao_conectado");
 
+
+// Independent status telemetry covers stages where the Checks API fails.
+const statusEditor=(id,state="pending",ctx="VideoForge Stage / autoeditor / otaku-br / editor")=>({
+  id, sha:SHA, context:ctx, state,
+  target_url:"https://github.com/HelioConde/video-forge-ia/actions/runs/43147397260",
+});
+const statusArtist=statusEditor(222,"pending","VideoForge Stage / autoeditor / otaku-br / artista");
+const statusFallback=live.readEvidence(RUN,[],[statusArtist,statusEditor(223)]);
+assert.equal(statusFallback.tasks.length,2);
+assert.equal(statusFallback.tasks.find(x=>x.role==="editor").status,"in_progress");
+assert.equal(statusFallback.tasks.find(x=>x.role==="artista").origin,"github_commit_status");
+const withEditor={...snapshot,agentes:[...snapshot.agentes,
+  {id:"editor",status:"nao_conectado",canal:null}]};
+const mergedFallback=live.merge(withEditor,statusFallback);
+assert.equal(mergedFallback.agentes.find(x=>x.id==="editor").status,"trabalhando");
+assert.equal(mergedFallback.agentes.find(x=>x.id==="editor").execucao_pipeline.origem,"github_commit_status");
+assert.equal(mergedFallback.agentes.find(x=>x.id==="publicador").status,"nao_conectado");
+
+// Completion stops the editor; an old pending status cannot imply live work.
+const stageDone=live.readEvidence({...RUN,status:"completed",conclusion:"success"},[],
+  [statusEditor(226,"success")]);
+assert.equal(live.merge(withEditor,stageDone).agentes.find(x=>x.id==="editor").status,
+  "concluido");
+const stageOld=live.readEvidence({...RUN,status:"completed",conclusion:"failure"},[],
+  [statusEditor(225,"pending")]);
+assert.notEqual(live.merge(withEditor,stageOld).agentes.find(x=>x.id==="editor").status,
+  "trabalhando");
+
+// Invalid source, forged URLs, attempted publication and wrong commit are ignored.
+for(const corrupt of [
+  {...statusEditor(301),sha:"b".repeat(40)},
+  {...statusEditor(302),target_url:"https://evil.example/work"},
+  statusEditor(303,"pending","VideoForge Stage / autoeditor / otaku-br / publicador"),
+  statusEditor(304,"pending","VideoForge Stage / autoeditor / other-channel / editor"),
+  {...statusEditor(305),state:"unknown"},
+]) {
+  const rows=live.readEvidence(RUN,[],[corrupt]).tasks;
+  // Unknown channels are filtered when merging, not inside the parser.
+  if(corrupt.context.includes("other-channel")) {
+    assert.equal(live.merge(withEditor,live.readEvidence(RUN,[],[corrupt]))
+      .agentes.find(x=>x.id==="editor").status,"nao_conectado");
+  } else {
+    assert.equal(rows.length,0);
+  }
+}
+const checkPending=live.readEvidence(RUN,[PROOF("narrador")],
+  [statusEditor(331,"success","VideoForge Stage / autoeditor / otaku-br / narrador")]);
+assert.equal(checkPending.tasks[0].status,"completed");
+assert.equal(checkPending.tasks[0].conclusion,"success");
+
 let count=0;
 async function fakeFetch(url){
   count++;
-  return {ok:true,json:async()=>count===1?
-    {workflow_runs:[RUN]}:
-    {check_runs:[PROOF("narrador")]}};
+  const result=url.includes("/actions/workflows/")?
+    {workflow_runs:[RUN]}:url.includes("/check-runs")?
+    {check_runs:[PROOF("narrador")]}:
+    [statusEditor(330,"success","VideoForge Stage / autoeditor / otaku-br / editor")];
+  return {ok:true,json:async()=>result};
 }
 (async()=>{
   const loaded=await live.load(fakeFetch);
-  assert.equal(count,2);
-  assert.equal(loaded.tasks.length,1);
+  assert.equal(count,3);
+  assert.equal(loaded.tasks.length,2);
   assert.equal(loaded.url,"https://github.com/HelioConde/video-forge-ia/actions/runs/43147397260");
+  const absentChecks=await live.load(async url=>({
+    ok:!url.includes("check-runs"),
+    json:async()=>url.includes("workflow_runs")?{workflow_runs:[RUN]}:
+      url.includes("/actions/workflows/")?{workflow_runs:[RUN]}:
+      [statusEditor(336)]
+  }));
+  assert.equal(absentChecks.tasks.length,1);
+  assert.equal(absentChecks.tasks[0].role,"editor");
   console.log("Office live evidence tests passed");
 })().catch(err=>{console.error(err);process.exitCode=1;});
