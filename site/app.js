@@ -4,7 +4,7 @@
   const $ = id => document.getElementById(id);
   const STATUS={nao_conectado:"Não conectado",aguardando:"Aguardando",trabalhando:"Trabalhando",revisao:"Em revisão",concluido:"Concluído",erro:"Erro"};
   const ICON={diretor:"◆",roteirista:"✎",artista:"✿",animador:"♜",narrador:"♫",editor:"▣",revisor:"✓",publicador:"↗",subgerente:"★"};
-  const state={snapshot:null,selected:null,tab:"agents",open:false};
+  const state={snapshot:null,baseSnapshot:null,liveInfo:null,selected:null,tab:"agents",open:false};
   const canvas=$("officeCanvas"), workspace=$("workspace");
   const office=new window.VideoForgeOffice.Office(canvas,id=>{state.selected=id;state.tab="agents";setOpen(true);render();});
   window.VideoForgeAnimator.preload().then(ready=>{
@@ -120,7 +120,17 @@
       detail.append(make("div","detail-kicker","AGENTE SELECIONADO"),make("div","detail-title",a.nome),make("div","detail-status","● "+label(a.status)),make("p","detail-text",a.tarefa||"Nenhuma tarefa informada"));
       const channel=snap.canais.find(c=>c.id===a.canal);
       detail.append(make("div","detail-footnote","Canal: "+(channel?channel.nome:"Não atribuído")));
-      if(a.id==="subgerente"){
+      if(a.execucao_pipeline){
+          const info=make("div","organization-overview");
+          info.append(make("strong","","TRABALHO REAL DO PIPELINE AUTOEDITOR"));
+          info.append(make("p","detail-text","Etapa executada pelo motor técnico, não por uma IA autônoma."));
+          const evidence=make("a","detail-footnote","Ver execução comprovada no GitHub");
+          evidence.href=a.execucao_pipeline.evidence_url;
+          evidence.target="_blank";evidence.rel="noopener noreferrer";
+          info.append(evidence);
+          detail.append(info);
+        }
+        if(a.id==="subgerente"){
         const board=snap.ranking_funcionarios;
         const scorePanel=make("div","organization-overview");
         scorePanel.append(make("strong","","RANKING DE FUNCIONÁRIOS"));
@@ -148,9 +158,9 @@
       }
       if(a.conexao){
         const diagnostics=make("div","organization-overview");
-        diagnostics.append(make("strong","","DIAGNÓSTICO DA IA"));
-        const model=a.conexao.modelo_definido?"Modelo cadastrado":"Modelo não definido";
-        const executor=a.conexao.executor_habilitado?"Executor habilitado":"Executor desabilitado";
+        diagnostics.append(make("strong","","IA AUTÔNOMA (SEPARADA DO PIPELINE)"));
+        const model=a.conexao.modelo_definido?"Modelo de IA cadastrado":"Modelo de IA autônoma não definido";
+        const executor=a.conexao.executor_habilitado?"Executor autônomo habilitado":"Executor autônomo desabilitado";
         diagnostics.append(make("p","",model+" · "+executor));
         if(a.conexao.dependencias?.length)
           diagnostics.append(make("small","","Depende de: "+a.conexao.dependencias.join(", ")));
@@ -307,10 +317,16 @@
     $("activeCount").textContent=String(snap.agentes.filter(a=>live(a.status)).length);
     $("channelsCount").textContent=String(snap.canais.length);
     const actual=snap.fonte==="eventos_backend";
-    $("sceneSource").textContent=(actual?"SNAPSHOT DE ATIVIDADE":"SEM EXECUÇÃO DE AGENTES")+
+    const observed = snap.telemetria?.source === "github_actions_checks" && snap.telemetria.recorded_roles > 0;
+    const runActive = observed && snap.telemetria.status === "in_progress";
+    $("sceneSource").textContent=(observed?
+        (runActive?"PRODUÇÃO AUTOEDITOR EM EXECUÇÃO":"ÚLTIMA PRODUÇÃO REGISTRADA") :
+        actual?"SNAPSHOT DE ATIVIDADE":"SEM EXECUÇÃO DE AGENTES")+
       (office.roleDemoEnabled()?" · ROTINAS EM PRÉVIA":"");
     $("connectionBadge").dataset.live=String(actual);
-    $("connectionBadge").lastChild.textContent=actual?" SNAPSHOT RECEBIDO":" NÃO CONECTADO";
+    $("connectionBadge").lastChild.textContent=observed?
+       (runActive?" PIPELINE EM EXECUÇÃO":" HISTÓRICO DO PIPELINE"):
+       actual?" SNAPSHOT RECEBIDO":" NÃO CONECTADO";
     if(snap.gerado_em){const d=new Date(snap.gerado_em);$("snapshotAge").textContent=isNaN(d.getTime())?"Sem data":"Snapshot "+d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
     renderPanel();
   }
@@ -320,11 +336,28 @@
       if(!response.ok)throw new Error("HTTP "+response.status);
       const data=await response.json();
       if(!data||data.schema!=="videoforge/agent-office/v1"||!Array.isArray(data.agentes)||!Array.isArray(data.canais))throw new Error("Formato de snapshot inválido");
-      state.snapshot=data;render();
+      state.baseSnapshot=data;
+      state.snapshot=state.liveInfo?window.VideoForgeLive.merge(data,state.liveInfo):data;
+      render();
     }catch(err){
       $("sceneSource").textContent="SNAPSHOT INDISPONÍVEL";
       $("snapshotAge").textContent="Sem dados";
       console.error("VideoForge: erro no snapshot",err);
+    }
+  }
+  async function refreshLive(){
+    if(!window.VideoForgeLive)return;
+    try{
+      const evidence=await window.VideoForgeLive.load();
+      state.liveInfo=evidence;
+      if(state.baseSnapshot){
+        state.snapshot=window.VideoForgeLive.merge(state.baseSnapshot,evidence);
+        render();
+      }
+    }catch(err){
+      state.liveInfo=null;
+      if(state.baseSnapshot){state.snapshot=state.baseSnapshot;render();}
+      console.warn("VideoForge: status do GitHub indisponivel");
     }
   }
   $("btnZoomIn").addEventListener("click",()=>office.zoomAt(1.2));
@@ -344,5 +377,7 @@
     if((e.key==="+"||e.key==="=")&&!(e.target instanceof HTMLInputElement))office.zoomAt(1.15);
     if(e.key==="-"&&!(e.target instanceof HTMLInputElement))office.zoomAt(1/1.15);
   });
-  load();window.setInterval(load,60000);
+  load().then(refreshLive);
+  window.setInterval(load,60000);
+  window.setInterval(refreshLive,180000);
 })();
