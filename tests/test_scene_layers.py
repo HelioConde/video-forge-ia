@@ -211,6 +211,36 @@ class LayerPipelineTests(unittest.TestCase):
                           scenes[1]["layers"][1]["src"])
             self.assertEqual(props["durationFrames"],3300)
 
+    def test_detachable_paw_is_edited_from_master_without_duplicate_base_limb(self):
+        manifest=copy.deepcopy(self.manifest)
+        manifest["cenas"][0]["layer_plan"]["character_parts"]=[{
+            "id":"patinha","parent_id":"pesquisadora",
+            "description":"Mao direita isolada para animacao independente"
+        }]
+        with tempfile.TemporaryDirectory() as d:
+            output=Path(d)
+            artist,masters,document=self._create(output,manifest=manifest)
+            self.assertEqual(len(artist.calls),27)
+            self.assertEqual(count_image_requests(manifest),27)
+            part=document["scenes"][0]["character_parts"][0]
+            self.assertEqual(part["parent_id"],"pesquisadora")
+            self.assertEqual(part["source_master_sha256"],
+                             document["scenes"][0]["master_sha256"])
+            self.assertEqual(part["file"],"scene-1/character_parts/patinha.png")
+            with Image.open(output/part["file"]) as img:
+                self.assertEqual(img.mode,"RGBA")
+                self.assertEqual(img.getchannel("A").getextrema(),(0,255))
+            prompts=[x.get("prompt","") for x in artist.calls]
+            self.assertTrue(any("BASE BODY" in x for x in prompts))
+            self.assertTrue(any("INDEPENDENT CHARACTER APPENDAGE" in x for x in prompts))
+            technical=verify_scene_layers(manifest,output,document)
+            self.assertTrue(technical["true_png_transparency_verified"])
+            self.assertFalse(technical["subject_alignment_verified"])
+            damaged=copy.deepcopy(document)
+            damaged["scenes"][0]["character_parts"][0]["parent_id"]="other"
+            with self.assertRaisesRegex(SceneLayerError,"SUBJECT_ORIGIN_INVALID"):
+                verify_scene_layers(manifest,output,damaged)
+
     def test_no_characters_means_master_background_and_no_wasted_edit(self):
         manifest=copy.deepcopy(self.manifest)
         manifest["cenas"][0]["layer_plan"]={"characters":[],"movable_props":[]}
