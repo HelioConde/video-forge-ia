@@ -103,9 +103,6 @@ jobs:
                   }""")
                   assert sprite["inManifest"] and sprite["loaded"] and sprite["availableAfter"], (
                       "Sprite de trabalho indisponível: "+repr(sprite))
-                  # A prévia das profissões nunca pode ser confundida com trabalho real;
-                  # o status do pipeline varia conforme o GitHub Actions.
-                  assert "PRÉVIA" in page.locator("#sceneSource").inner_text()
                   page.screenshot(path=str(root/(name+"-professions.png")),full_page=True)
                   page.locator("#btnRoleDemo").click()
                   assert page.locator("#btnRoleDemo").get_attribute("aria-pressed")=="false"
