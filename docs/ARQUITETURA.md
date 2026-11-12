@@ -12,6 +12,19 @@ exibe os sinais em cartões de fonte, sem marcar nenhum agente como
 bloqueia o build, em vez de exibir fato ou ranking fictício.
 O uso de uma pesquisa pública não resolve HTTP 429 do Codex Proxy.
 
+## Diagnóstico privado de cota sem chamada generativa
+
+`videoforge/proxy/quota_diagnostic.py` resume a elegibilidade de conta
+e as janelas de uso relatadas pelo endpoint administrativo do proxy
+fixado, sem imprimir identificador, assinatura, saldo, token, porcentagens
+exatas ou corpo do erro upstream. `cli.py --action quota` tem modo
+`cached` local e `live` (até um GET externo, manual e autorizado).
+`codex-proxy-backend.yml` inclui a opção de dispatch
+`private-quota-live` no `proxy-runtime`, com `run_attempt=1` e
+sem endpoints de geração. Sinais de limite não provam isoladamente
+a causa do erro anterior; ausência deles não comprova quota disponível.
+[Documentação](PROXY_QUOTA_DIAGNOSTIC.md).
+
 ## Entrada de inteligência editorial externa
 
 O assistente pesquisa fatos públicos e documenta fontes em JSONs datados dentro
