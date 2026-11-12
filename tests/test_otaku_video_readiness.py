@@ -101,6 +101,26 @@ class FirstOtakuVideoTests(TestCase):
             self.assertFalse(data["can_render_now"])
             self.assertEqual(main(["--output", str(report_path)]), 1)
 
+    def test_render_is_manual_owner_only_with_preflight_before_proxy(self):
+        workflow = (ROOT / ".github/workflows/autoeditor-generator.yml"
+                    ).read_text(encoding="utf-8")
+        render = workflow.split("\n  render:\n", 1)[1]
+        self.assertIn("github.event_name == 'workflow_dispatch'", render)
+        self.assertIn("github.actor == 'HelioConde'", render)
+        self.assertIn("inputs.authorize_render == true", render)
+        self.assertIn("github.run_attempt == 1", render)
+        self.assertNotIn("head_commit.message", render)
+        self.assertNotIn("github.event_name == 'push'", render)
+        self.assertIn("AUTOEDITOR_RENDER_BUDGET_TOO_LOW_NEED_", render)
+        self.assertLess(
+            render.index("Bloquear orçamento insuficiente"),
+            render.index("Compilar o proxy Go sem segredos"))
+        self.assertLess(
+            render.index("Bloquear orçamento insuficiente"),
+            render.index("PROXY_ACCOUNTS_JSON: "))
+        self.assertIn("Default 12 NÃO basta", workflow)
+        self.assertNotIn("github.event_name == 'push' && '8' ||", render)
+
     def test_readiness_workflow_is_free_and_never_reports_video_generation(self):
         workflow = (ROOT / ".github/workflows/otaku-team-video-readiness.yml"
                     ).read_text(encoding="utf-8")
