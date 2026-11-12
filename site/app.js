@@ -348,7 +348,7 @@
   async function refreshLive(){
     if(!window.VideoForgeLive)return;
     try{
-      const evidence=await window.VideoForgeLive.load();
+      const evidence=await window.VideoForgeLive.loadLatest();
       state.liveInfo=evidence;
       if(state.baseSnapshot){
         state.snapshot=window.VideoForgeLive.merge(state.baseSnapshot,evidence);
