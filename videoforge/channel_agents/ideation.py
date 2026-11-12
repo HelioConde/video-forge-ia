@@ -10,6 +10,33 @@ from .dedup import norm
 MAX_PROPOSALS = 8
 
 
+def _safe_proxy_failure(exc: ProxyError) -> str:
+    """Reduce local ProxyClient exceptions to fixed diagnostic codes.
+
+    Never propagate upstream messages, headers, private payloads or tokens.
+    In particular, a 400 request-validation error differs from 401/403,
+    rate limiting, backend failures or transport errors. No automatic retry.
+    """
+    reason = str(exc)
+    prefix = "Codex Proxy HTTP "
+    if reason.startswith(prefix):
+        status = reason[len(prefix):]
+        if status in {"400", "401", "403", "404", "408", "409", "413",
+                      "422", "429", "500", "502", "503", "504"}:
+            return "EDITORIAL_PROXY_HTTP_" + status
+        return "EDITORIAL_PROXY_HTTP_OTHER"
+    if reason == "Codex Proxy indisponivel":
+        return "EDITORIAL_PROXY_UNAVAILABLE"
+    if reason == "PROXY_API_KEY ausente ou invalida no backend":
+        return "EDITORIAL_PROXY_AUTH_CONFIG_INVALID"
+    if reason == "Resposta JSON invalida do proxy":
+        return "EDITORIAL_PROXY_RESPONSE_JSON_INVALID"
+    if reason == "Resposta excede limite local":
+        return "EDITORIAL_PROXY_RESPONSE_OVERSIZED"
+    return "EDITORIAL_PROXY_CALL_FAILED"
+
+
+
 class EditorialIdeationError(ValueError):
     pass
 
@@ -86,8 +113,8 @@ def propose_candidates(*, manager: dict, snapshot: dict, reservations: dict,
                          {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}],
             "response_format": {"type": "json_object"},
         })
-    except ProxyError:
-        raise EditorialIdeationError("EDITORIAL_PROXY_CALL_FAILED") from None
+    except ProxyError as exc:
+        raise EditorialIdeationError(_safe_proxy_failure(exc)) from None
     result = _parse_chat_json(raw)
     rows = result.get("candidates")
     if not isinstance(rows, list) or not 1 <= len(rows) <= MAX_PROPOSALS:
