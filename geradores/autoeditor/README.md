@@ -5,6 +5,12 @@ pipeline real do repositório [AutoEditorVideo](https://github.com/HelioConde/Au
 Não substitui Kids, Anime, Dorama ou outros geradores: o canal ou vídeo
 pode optar por este motor quando preferir esse formato de edição.
 
+## Regra permanente do ilustrador e do revisor visual
+
+A arte deve ser produzida **somente pelo VideoForge**, nunca por imagens feitas em outro chat. O manifesto exige `visual_lock` com uma bíblia visual específica do vídeo. Se `reference_path` apontar para um PNG/JPG/WEBP aprovado do próprio canal em `canal/<id>/referencias/<arquivo>`, o VideoForge usa esse arquivo na primeira edição. **Sem referência disponível, o próprio VideoForge gera a cena 1** no Codex Proxy e guarda o resultado como âncora canônica. As cenas 2 até N são chamadas de `images_edit_files` do Proxy enviando a imagem real da cena 1 — não novas gerações independentes.
+
+O agente **não pode alternar** anime, pintura, realismo, 3D ou design de personagem; identidade, cabelo, olhos, roupa e acessórios ficam fixos. Estilo depende do vídeo, não é global. Se falta âncora, a edição falha, ocorre HTTP 429 ou a cena contradiz a bíblia, abortar sem fallback nem consumo adicional. O módulo `visual_lock.py` valida o encadeamento e registra os hashes. Esse controle prova referência técnica, **não** semelhança visual: o revisor deve olhar todas as cenas antes de aprovar. O render de prévia não publica, e `qa-imagens.json` continua pendente de aprovação visual independente.
+
 ## O que funciona no executor
 
 1. Recebe um manifesto editorial criado pelos agentes e validado pelo VideoForge:
