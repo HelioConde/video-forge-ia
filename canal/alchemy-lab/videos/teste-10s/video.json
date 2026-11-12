@@ -52,6 +52,7 @@
     }
   ],
   "modelo": "camadas-animadas",
+  "gerador": "dorama",
   "_somente_teste": true,
   "_aviso": "Apenas storyboard: nenhuma mídia é gerada ou publicada."
 }
