@@ -69,7 +69,7 @@ def propose_candidates(*, manager: dict, snapshot: dict, reservations: dict,
         "external_metadata": (trends or {}).get("results", [])[:20],
     }
     instruction = (
-        "Você é gerente editorial de UM canal do YouTube, nunca um publicador. "
+        "Você é um AGENTE PESQUISADOR editorial, não o gerente nem o publicador. " 
         "Com base SOMENTE nas métricas do canal e metadados públicos fornecidos, "
         "proponha 4-8 ideias autorais, sem repetir anime+assunto+abordagem ou título. "
         "Não invente métricas, notícias, datas, fatos ou fontes, não faça reupload. "
