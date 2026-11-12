@@ -50,7 +50,7 @@ jobs:
                   page.on("pageerror",lambda e:errors.append(str(e)))
                   page.goto("http://127.0.0.1:8765/",wait_until="networkidle")
                   page.wait_for_function("window.VideoForgeAnimator.ready() && window.VideoForgeArt.getArtMode()==='pixellab'",timeout=30000)
-                  assert page.locator("#agentsCount").inner_text()=="8"
+                  assert page.locator("#agentsCount").inner_text()=="9"
                   # O cabeçalho sobreposto (66px) nunca deve ocultar o HUD.
                   panel=page.locator(".corner-hud").bounding_box()
                   assert panel and panel["y"]>= (65 if name=="desktop" else 57), (
@@ -60,6 +60,13 @@ jobs:
                       assert page.locator("#btnMiniMap").is_visible()
                   page.screenshot(path=str(root/(name+"-scene.png")),full_page=True)
                   page.locator("#btnAgents").click()
+                  # O Subgerente é o nono agente e não deve inventar pontos.
+                  page.locator("button.agent-item").filter(has_text="Subgerente").click()
+                  detail=page.locator("#panelDetails").inner_text()
+                  assert "RANKING DE FUNCIONÁRIOS" in detail
+                  assert "Aguardando evidências" in detail
+                  # Mantém os testes antigos de navegação e animações da Direção.
+                  page.locator("button.agent-item").first.click()
                   preview=page.locator("button.animation-preview").first
                   preview.wait_for(timeout=10000)
                   preview.click()
