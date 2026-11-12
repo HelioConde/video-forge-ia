@@ -1,5 +1,9 @@
 # Arquitetura proposta — VideoForge AI
 
+## Idempotência persistente entre execuções
+
+`videoforge/production/attempt_claim.py` registra uma tentativa de briefing usando `PUT /contents/` da API GitHub sem `sha` de substituição. O arquivo é único por hash SHA-256 do canal + anime + título + ângulo, e só contém metadados públicos saneados (não resposta, token ou prompt). Se já existir, ou se a gravação não puder ser confirmada, falha antes da chamada ao Codex Proxy. O workflow manual é serializado por concurrency group; o job real usa `contents:write` apenas para a reserva. O artefato de resposta continua cifrado e depende de revisão independente. A trava não cobre alterações semânticas nas pautas nem substitui auditoria de consumo por conta. Consulte [manual](PRIMEIRO_BRIEFING_AGENTES.md).
+
 ## Handoff editorial e primeiro briefing protegido
 
 `videoforge/production/editorial_handoff.py` valida a decisão real da equipe do canal, a auditoria do Subgerente, a política do canal e a reserva humana previamente persistida. O workflow `.github/workflows/agent-one-briefing.yml` inicia em modo offline; o modo de uma chamada real exige branch main, autoria do proprietário, confirmação humana, Environment protegido e modelo disponível no Codex Proxy. A saída privada é criptografada por `videoforge/production/secure_draft.py` com AES-256-GCM antes de virar artifact do Actions. A tarefa ainda aguarda QA e não é considerada `done`. O registro de reservas ainda não implementa lock global entre workflow runs, portanto a repetição entre runs continua exigindo cuidado e autorizações separadas. Ver [manual](PRIMEIRO_BRIEFING_AGENTES.md).
