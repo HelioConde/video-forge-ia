@@ -22,6 +22,34 @@ jobs:
         run: python -m pip install "Pillow>=10,<13" "cryptography>=43,<50"
       - name: Executar testes
         run: python -m unittest discover -s tests -v
+      - name: Buscar Remotion original da era Fofinho
+        uses: actions/checkout@v4
+        with:
+          repository: HelioConde/AutoEditorVideo
+          ref: ec85db5bc74455122e4501aba05bd2dd3fd0df2c
+          path: .work/autoeditor-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: .work/autoeditor-source/motion-remotion/package-lock.json
+      - name: Instalar Remotion para validar TS e frames sem render ou IA
+        working-directory: .work/autoeditor-source/motion-remotion
+        run: npm ci
+      - name: Aplicar overlay e testar motor real do Fofinho por quadros
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          from videoforge.motion.remotion_overlay import apply_motion_overlay
+          project=Path(".work/autoeditor-source/motion-remotion")
+          print("VIDEOFORGE_REMOTION_SHA256_"+apply_motion_overlay(project))
+          PY
+          cd .work/autoeditor-source/motion-remotion
+          npm run typecheck
+          node "$GITHUB_WORKSPACE/tests/test_fofinho_motion.cjs"
       - name: Testar comando PixelLab em dry-run
         run: python -m videoforge.pixellab.cli --operation plan --character alex --motion idle --direction south --output /tmp/videoforge-pixellab-plan
       - name: Validar JavaScript do painel

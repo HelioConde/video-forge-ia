@@ -126,6 +126,10 @@ Durante uma produção, o painel do VideoForge deve mostrar quem está trabalhan
 O GitHub Pages mostra um snapshot e consulta execuções públicas do GitHub Actions. Uma execução de renderização pode estar em andamento mesmo que os agentes autônomos continuem **não conectados** e não haja Check Run específico para cada funcionário. Nesse caso, o painel informa **PIPELINE EM EXECUÇÃO**, mantendo a contagem real de agentes com atividade comprovada em zero; não transforma o render em prova de autonomia. O botão GitHub Actions abre o repositório correto.
 
 
+## Regra 3 — animação de personagens e objetos pelo Remotion (Fofinho Parte 3)
+
+O VideoForge agora possui um adaptador de animação por **quadros reais**, inspirado no Fofinho EP01 Parte 3. O Storyboard define movimentos de sprites por cena; o Artista extrai fundo, personagem, props e **partes articuláveis opcionais (patinha/mão)** em PNG RGBA da própria cena-mãe; o Animador injeta o módulo `videoforge-motion.ts` no checkout temporário do Remotion **fixado por commit**. Movimentos como saltos, balanço de patas isoladas, gotinhas subindo/caindo/flutuando, aproximação, pulsação e carinho passam a ser calculados por frame. Nenhum movimento da patinha pode ser alegado quando não existe uma camada distinta. O Editor rende o MP4 a partir dessas camadas, com QA artístico ainda pendente. Os 18 beats originais da Parte 3 estão preservados em um **plano**, não em mídia criada. [Contrato e limitações](docs/FOFINHO_PARTE3_MOTION_REMOTION.md).
+
 ## Regra 2 — fundos, personagens e objetos separados automaticamente
 
 Após a geração de cada **cena-mãe** pelo Artista do VideoForge, o sistema envia aquela mesma cena à edição de imagens do Codex Proxy para criar um **fundo limpo**, uma camada **PNG RGBA transparente por personagem** e camadas PNG RGBA dos **objetos móveis** declarados pelo Storyboard. A composição do Remotion passa a usar fundos reais com personagens e objetos em layers independentes, não a mesma imagem duplicada. O Revisor valida integridade, proveniência e transparência antes da montagem, mas não declara alinhamento artístico nem QA humano concluídos.

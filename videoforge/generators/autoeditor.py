@@ -34,6 +34,11 @@ from videoforge.production.visual_lock import (
 )
 from videoforge.production.quality_gate import inspect_media
 from videoforge.production.role_events import role_task, CheckReporter
+from videoforge.production.motion_plan import (
+    SCHEMA as MOTION_SCHEMA, validate_motion_plan, motion_for_actor,
+    verify_animated_scene,
+)
+from videoforge.motion.remotion_overlay import apply_motion_overlay
 from videoforge.proxy.client import ProxyClient, ProxyError
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -124,12 +129,16 @@ def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
         if scene_id in seen:
             raise AutoEditorBlocked("AUTOEDITOR_DUPLICATED_SCENE_ID")
         seen.add(scene_id)
+        layer_plan = validate_layer_plan(item.get("layer_plan"))
+        motion_plan = validate_motion_plan(item.get("motion_plan", {
+            "schema": MOTION_SCHEMA, "cues": [],
+        }), layer_plan)
         output_scenes.append({
             "id": scene_id,
             "narracao": _check_text(item.get("narracao"), "SCENE_NARRATION", 900),
             "prompt_imagem": _check_text(item.get("prompt_imagem"), "IMAGE_PROMPT", 1200),
             "papel": _check_text(item.get("papel", "detail"), "SCENE_ROLE", 60),
-            "layer_plan": validate_layer_plan(item.get("layer_plan")),
+            "layer_plan": layer_plan, "motion_plan": motion_plan,
         })
     if _words(" ".join(s["narracao"] for s in output_scenes)) < 130:
         raise AutoEditorBlocked("AUTOEDITOR_SCRIPT_TOO_SHORT_FOR_90_SECONDS")
@@ -395,6 +404,7 @@ def build_remotion_props(manifest: dict, duration: float, words: list[dict],
                 raise AutoEditorBlocked("AUTOEDITOR_LAYER_SCENE_MISMATCH")
             background = f"generated/{staging_id}/{row['background']['file']}"
             for character in row["characters"]:
+                cues = motion_for_actor(scene["motion_plan"], character["id"])
                 layers.append({
                     "id": character["id"], "role": "front_character",
                     "src": f"generated/{staging_id}/{character['file']}",
@@ -402,17 +412,32 @@ def build_remotion_props(manifest: dict, duration: float, words: list[dict],
                     # Never separate arms/hands from an attached movable prop.
                     "heroRisk": .08 if row["movable_props"] else .02,
                     "contactRisk": .30, "anchorX": 50, "anchorY": 80,
+                    **({"motion": cues} if cues else {}),
                 })
             for movable in row["movable_props"]:
+                cues = motion_for_actor(scene["motion_plan"], movable["id"])
+                left, top, right, bottom = movable["bbox"]
                 layers.append({
                     "id": movable["id"], "role": "hero_prop",
                     "src": f"generated/{staging_id}/{movable['file']}",
                     "z": 30, "alphaCoverage": movable["alpha_coverage"],
-                    # A separate transparent object can be animated later, but
-                    # the existing pinned renderer keeps hero props static
-                    # rather than inventing motion that may break hand contact.
+                    "anchorX": round((left+right)/(2*720)*100, 2),
+                    "anchorY": round((top+bottom)/(2*1280)*100, 2),
+                    **({"motion": cues} if cues else {}),
                 })
-            if bool(row["characters"] or row["movable_props"]) != bool(layers):
+            for part in row["character_parts"]:
+                cues = motion_for_actor(scene["motion_plan"], part["id"])
+                left, top, right, bottom = part["bbox"]
+                layers.append({
+                    "id": part["id"], "role": "character_part",
+                    "src": f"generated/{staging_id}/{part['file']}",
+                    "z": 26, "alphaCoverage": part["alpha_coverage"],
+                    "anchorX": round((left+right)/(2*720)*100, 2),
+                    "anchorY": round((top+(bottom-top)*.22)/1280*100, 2),
+                    **({"motion": cues} if cues else {}),
+                })
+            verify_animated_scene(scene["motion_plan"], layers)
+            if bool(row["characters"] or row["movable_props"] or row["character_parts"]) != bool(layers):
                 raise AutoEditorBlocked("AUTOEDITOR_LAYER_GRAPH_INVALID")
         scenes.append({
             "id": scene["id"], "subject": "personagens",
@@ -453,6 +478,8 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
         raise AutoEditorBlocked("AUTOEDITOR_SOURCE_COMMIT_UNVERIFIED") from None
     if actual != AUTOEDITOR_COMMIT:
         raise AutoEditorBlocked("AUTOEDITOR_SOURCE_COMMIT_MISMATCH")
+    # The Animador owns source instrumentation and sprite composition;
+    # never tag the Editor as working while just preparing its scene plan.
     staging_id = "vf-autoeditor-" + _check_id(job_id, "JOB")
     target = motion_root / "public" / "generated" / staging_id
     if target.exists() or target.is_symlink():
@@ -460,20 +487,36 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
     target.mkdir(parents=True, exist_ok=False)
     try:
         props_file = out/"remotion-props.json"
-        with role_task("animador", evidence=(props_file,), reporter=reporter):
+        with role_task("animador", evidence=(props_file, out/"qa-motion.json"),
+                       reporter=reporter):
+            # Checked upstream commit above: the source overlay is local and
+            # deterministic, not an unverified npm package or remote download.
+            motion_overlay_sha = apply_motion_overlay(motion_root)
             if layer_document is None:
                 raise AutoEditorBlocked("AUTOEDITOR_LAYERS_REQUIRED_FOR_RENDER")
             verify_scene_layers(manifest, out, layer_document)
             props = build_remotion_props(manifest, duration, words,
                                           staging_id=staging_id,
                                           layer_document=layer_document)
+            props["motionOverlaySha256"] = motion_overlay_sha
+            (out/"qa-motion.json").write_text(json.dumps({
+                "schema": "videoforge/animated-layers-audit/v1",
+                "motion_overlay_sha256": motion_overlay_sha,
+                "configured_motion_cues": sum(
+                    len(scene["motion_plan"]["cues"]) for scene in manifest["cenas"]),
+                "complete_remotion_layer_graph": True,
+                "animations_executed_before_render": False,
+                "animation_frame_visual_review": False,
+                "human_approval_required": True,
+                "youtube_upload_approved": False,
+            }, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
             props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
                                   encoding="utf-8")
         shutil.copyfile(audio, target/"voice.mp3")
         for file in images:
             shutil.copyfile(out / file["file"], target / file["file"])
         for row in layer_document["scenes"]:
-            for asset in [row["background"], *row["characters"], *row["movable_props"]]:
+            for asset in [row["background"], *row["characters"], *row["movable_props"], *row["character_parts"]]:
                 source = out / asset["file"]
                 destination = target / asset["file"]
                 if source.resolve() == (out / row["master"]).resolve():
@@ -586,7 +629,9 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     (dest/"qa-editorial.json").write_text(json.dumps({
         "status": "pending_independent_human_review",
         "originality_not_verified": True, "rights_not_verified": True,
-        "visual_consistency_not_verified": True, "voice_quality_not_reviewed": True,
+        "visual_consistency_not_verified": True,
+        "motion_contact_and_articulation_not_visually_reviewed": True,
+        "voice_quality_not_reviewed": True,
         "youtube_history_not_reviewed": True, "upload_approved": False,
     }, indent=2)+"\n", encoding="utf-8")
     report = {
@@ -601,13 +646,18 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
         "layer_image_requests": layers["image_requests"],
         "image_requests": layers["total_image_requests"],
         "scene_decomposition": manifest["scene_decomposition"]["mode"],
+        "motion_overlay_sha256": json.loads(
+            (dest/"remotion-props.json").read_text(encoding="utf-8")
+        )["motionOverlaySha256"],
+        "motion_cues": sum(len(x["motion_plan"]["cues"]) for x in manifest["cenas"]),
         "generated_layer_files": sum(
             len(row["characters"]) + len(row["movable_props"]) +
+            len(row["character_parts"]) +
             (1 if row["characters"] or row["movable_props"] else 0)
             for row in layers["scenes"]),
         "fallback_images": 0, "media": media,
         "human_approved": False, "youtube_uploaded": False,
-        "limitation": "2D RGBA-layer composition; independent prop rigging and human visual QA still pending",
+        "limitation": "Deterministic Remotion sprite motion including separate paw/props; not 3D rigging or proven visual contact",
     }
     (dest/"manifest.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",
                                       encoding="utf-8")

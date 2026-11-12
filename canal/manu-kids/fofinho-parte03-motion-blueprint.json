@@ -1,0 +1,477 @@
+{
+  "schema": "videoforge/fofinho-p03-motion-blueprint/v1",
+  "source": "HelioConde/AutoEditorVideo/conteudos/fofinhos-ep01-parte03-roteiro-longo-v1.json",
+  "reference_model": "AutoEditorVideo motion-remotion/src/emanuelly-layer-stage.tsx e src/fofinhos-ambient-effects.tsx",
+  "chapter": "Fofinhos EP01 — Parte 3: Magia da Água",
+  "mode": "plan_only",
+  "execution_enabled": false,
+  "generated_media": false,
+  "upload_enabled": false,
+  "description": "Plano técnico de animação por cenas reais; cada peça deve ser extraída em PNG RGBA do master correspondente. Não cria imagem, não assume que as referências privadas já existem.",
+  "rules": [
+    "Mesmo Fofinho azul e Emanuelly das Partes 1–2",
+    "Não mostrar ovo nem elenco futuro",
+    "Sem abraçar magicamente antes da Parte 4",
+    "Gotas de água e borboletas independentes dos personagens",
+    "Patinha precisa de PNG separado e corpo-base sem patinha duplicada",
+    "Qualidade de contato, máscara e pose requer aprovação visual",
+    "Mudança de quarto para jardim deve ter planos intermediários antes do render final"
+  ],
+  "beats": [
+    {
+      "beat": 1,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "fofinho",
+        "gotinha"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "idle",
+          "start": 0.05,
+          "end": 0.95,
+          "distance": 6
+        },
+        {
+          "id": "gotinha",
+          "motion": "float",
+          "start": 0.1,
+          "end": 0.85,
+          "distance": 21
+        }
+      ]
+    },
+    {
+      "beat": 2,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "fofinho",
+        "patinha-fofinho",
+        "gotinha"
+      ],
+      "required_character_parts": [
+        "patinha-fofinho"
+      ],
+      "cues": [
+        {
+          "id": "patinha-fofinho",
+          "motion": "paw-lift",
+          "start": 0.12,
+          "end": 0.48,
+          "distance": 24
+        },
+        {
+          "id": "gotinha",
+          "motion": "rise",
+          "start": 0.12,
+          "end": 0.48,
+          "distance": 27
+        },
+        {
+          "id": "gotinha",
+          "motion": "fall",
+          "start": 0.5,
+          "end": 0.88,
+          "distance": 27
+        }
+      ]
+    },
+    {
+      "beat": 3,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "fofinho",
+        "gotinha-1",
+        "gotinha-2",
+        "gotinha-3"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "gotinha-1",
+          "motion": "float",
+          "start": 0.05,
+          "end": 0.95,
+          "distance": 15
+        },
+        {
+          "id": "gotinha-2",
+          "motion": "pop",
+          "start": 0.33,
+          "end": 0.74,
+          "distance": 15
+        },
+        {
+          "id": "gotinha-3",
+          "motion": "pop",
+          "start": 0.62,
+          "end": 0.95,
+          "distance": 15
+        }
+      ]
+    },
+    {
+      "beat": 4,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "fofinho",
+        "gotinha-1",
+        "gotinha-2",
+        "gotinha-3"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "hop",
+          "start": 0.1,
+          "end": 0.7,
+          "distance": 28
+        },
+        {
+          "id": "gotinha-1",
+          "motion": "orbit",
+          "start": 0.1,
+          "end": 0.84,
+          "distance": 21
+        }
+      ]
+    },
+    {
+      "beat": 5,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "emanuelly",
+        "fofinho",
+        "gotinha"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "gotinha",
+          "motion": "float",
+          "start": 0.15,
+          "end": 0.85,
+          "distance": 8
+        },
+        {
+          "id": "fofinho",
+          "motion": "idle",
+          "start": 0.05,
+          "end": 0.9,
+          "distance": 5
+        }
+      ]
+    },
+    {
+      "beat": 6,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "bolha"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "bolha",
+          "motion": "rise",
+          "start": 0.1,
+          "end": 0.88,
+          "distance": 44
+        }
+      ]
+    },
+    {
+      "beat": 7,
+      "environment": "quarto-noite",
+      "required_rgba_actors": [
+        "bolha",
+        "chuvisco"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "bolha",
+          "motion": "pop",
+          "start": 0.08,
+          "end": 0.34,
+          "distance": 22
+        },
+        {
+          "id": "chuvisco",
+          "motion": "fall",
+          "start": 0.34,
+          "end": 0.93,
+          "distance": 33
+        }
+      ]
+    },
+    {
+      "beat": 8,
+      "environment": "quarto-para-jardim",
+      "required_rgba_actors": [
+        "emanuelly",
+        "fofinho"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "walk",
+          "start": 0.1,
+          "end": 0.72,
+          "distance": 30
+        }
+      ]
+    },
+    {
+      "beat": 9,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "fofinho",
+        "borboleta",
+        "petalas"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "borboleta",
+          "motion": "orbit",
+          "start": 0.1,
+          "end": 0.8,
+          "distance": 28
+        },
+        {
+          "id": "petalas",
+          "motion": "float",
+          "start": 0.15,
+          "end": 0.88,
+          "distance": 17
+        },
+        {
+          "id": "fofinho",
+          "motion": "hop",
+          "start": 0.35,
+          "end": 0.74,
+          "distance": 15
+        }
+      ]
+    },
+    {
+      "beat": 10,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "flor-murcha"
+      ],
+      "required_character_parts": [],
+      "cues": []
+    },
+    {
+      "beat": 11,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "emanuelly",
+        "fofinho"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "approach",
+          "start": 0.1,
+          "end": 0.7,
+          "distance": 22
+        }
+      ]
+    },
+    {
+      "beat": 12,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "fofinho",
+        "patinha-fofinho",
+        "gotinha-1",
+        "gotinha-2"
+      ],
+      "required_character_parts": [
+        "patinha-fofinho"
+      ],
+      "cues": [
+        {
+          "id": "patinha-fofinho",
+          "motion": "paw-lift",
+          "start": 0.08,
+          "end": 0.61,
+          "distance": 19
+        },
+        {
+          "id": "gotinha-1",
+          "motion": "float",
+          "start": 0.28,
+          "end": 0.87,
+          "distance": 14
+        }
+      ]
+    },
+    {
+      "beat": 13,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "fofinho",
+        "patinha-fofinho",
+        "flor-murcha"
+      ],
+      "required_character_parts": [
+        "patinha-fofinho"
+      ],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "idle",
+          "start": 0.1,
+          "end": 0.83,
+          "distance": 5
+        },
+        {
+          "id": "patinha-fofinho",
+          "motion": "paw-lift",
+          "start": 0.25,
+          "end": 0.82,
+          "distance": 14
+        }
+      ]
+    },
+    {
+      "beat": 14,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "gotinha-1",
+        "gotinha-2",
+        "flor-murcha"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "gotinha-1",
+          "motion": "fall",
+          "start": 0.22,
+          "end": 0.72,
+          "distance": 36
+        },
+        {
+          "id": "gotinha-2",
+          "motion": "fall",
+          "start": 0.33,
+          "end": 0.8,
+          "distance": 35
+        }
+      ]
+    },
+    {
+      "beat": 15,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "fofinho",
+        "borboleta",
+        "flor-revigorada"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "hop",
+          "start": 0.2,
+          "end": 0.65,
+          "distance": 21
+        },
+        {
+          "id": "borboleta",
+          "motion": "settle",
+          "start": 0.4,
+          "end": 0.9,
+          "distance": 16
+        }
+      ]
+    },
+    {
+      "beat": 16,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "bolha",
+        "gotinha-1",
+        "gotinha-2"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "bolha",
+          "motion": "float",
+          "start": 0.1,
+          "end": 0.55,
+          "distance": 19
+        },
+        {
+          "id": "gotinha-1",
+          "motion": "orbit",
+          "start": 0.38,
+          "end": 0.88,
+          "distance": 18
+        }
+      ]
+    },
+    {
+      "beat": 17,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "emanuelly",
+        "mao-emanuelly",
+        "fofinho"
+      ],
+      "required_character_parts": [
+        "mao-emanuelly"
+      ],
+      "cues": [
+        {
+          "id": "mao-emanuelly",
+          "motion": "pat",
+          "start": 0.19,
+          "end": 0.78,
+          "distance": 15
+        },
+        {
+          "id": "fofinho",
+          "motion": "snuggle",
+          "start": 0.1,
+          "end": 0.8,
+          "distance": 16
+        }
+      ]
+    },
+    {
+      "beat": 18,
+      "environment": "jardim-dia",
+      "required_rgba_actors": [
+        "fofinho",
+        "gotinha"
+      ],
+      "required_character_parts": [],
+      "cues": [
+        {
+          "id": "fofinho",
+          "motion": "idle",
+          "start": 0.08,
+          "end": 0.91,
+          "distance": 5
+        },
+        {
+          "id": "gotinha",
+          "motion": "pulse",
+          "start": 0.25,
+          "end": 0.89,
+          "distance": 17
+        }
+      ]
+    }
+  ]
+}

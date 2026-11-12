@@ -183,6 +183,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
           python -m unittest discover -s tests -p 'test_visual_lock.py' -v
           python -m unittest discover -s tests -p 'test_scene_layers.py' -v
+          python -m unittest discover -s tests -p 'test_fofinho_motion.py' -v
           python -m unittest discover -s tests -p 'test_generator_registry.py' -v
       - name: Compilar o proxy Go sem segredos
         working-directory: upstream-codex-proxy
@@ -289,6 +290,16 @@ jobs:
           full=load_manifest(manifest_path)
           layer_doc=json.loads((root/"scene-layers.json").read_text(encoding="utf-8"))
           layer_qa=verify_scene_layers(full, root, layer_doc)
+          motion_qa=json.loads((root/"qa-motion.json").read_text(encoding="utf-8"))
+          motion_props=json.loads((root/"remotion-props.json").read_text(encoding="utf-8"))
+          from videoforge.motion.remotion_overlay import TS
+          from hashlib import sha256
+          assert motion_qa["motion_overlay_sha256"] == sha256(TS.read_bytes()).hexdigest()
+          assert motion_props["motionOverlaySha256"] == motion_qa["motion_overlay_sha256"]
+          assert motion_qa["human_approval_required"] is True
+          assert motion_qa["youtube_upload_approved"] is False
+          assert report["motion_overlay_sha256"] == motion_qa["motion_overlay_sha256"]
+          assert motion_qa["configured_motion_cues"] == report["motion_cues"]
           assert layer_qa["true_png_transparency_verified"] is True
           assert layer_qa["subject_alignment_verified"] is False
           assert layer_qa["approved_for_youtube"] is False
@@ -320,6 +331,7 @@ jobs:
             output/autoeditor-vf-${{ github.run_id }}/scene-*/**
             output/autoeditor-vf-${{ github.run_id }}/scene-layers.json
             output/autoeditor-vf-${{ github.run_id }}/qa-camadas.json
+            output/autoeditor-vf-${{ github.run_id }}/qa-motion.json
             output/autoeditor-vf-${{ github.run_id }}/imagens.json
             output/autoeditor-vf-${{ github.run_id }}/manifest.json
             output/autoeditor-vf-${{ github.run_id }}/qa-editorial.json
