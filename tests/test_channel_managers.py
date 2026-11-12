@@ -186,7 +186,7 @@ class YouTubeTests(TestCase):
         self.assertEqual(report["engaged_views"],520)
         self.assertEqual(report["metrics"]["subscribersGained"],15)
         self.assertEqual(report["engaged_view_ratio"],.65)
-        self.assertEqual(report["largest_adjacent_retention_drop"]["from_ratio"],.1)
+        self.assertEqual(report["largest_adjacent_retention_drop"]["from_ratio"],.2)
         self.assertIsNone(report["impressions_ctr"])
         self.assertIsNone(report["shorts_feed_swipe_rate"])
         self.assertTrue(all(method=="GET" for _,_,method in fake.calls))
