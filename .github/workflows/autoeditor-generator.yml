@@ -7,6 +7,7 @@ on:
       - geradores/autoeditor/gerador.json
       - geradores/autoeditor/exemplo-manifesto.json
       - config/autoeditor-once-2026-11-12.json
+      - config/autoeditor-visual-consistency-once-2026-11-12.json
   workflow_dispatch:
     inputs:
       action:
@@ -104,15 +105,17 @@ jobs:
           python - <<'PY'
           import json,subprocess
           from pathlib import Path
-          request_path="config/autoeditor-once-2026-11-12.json"
+          original_path="config/autoeditor-once-2026-11-12.json"
+          corrected_path="config/autoeditor-visual-consistency-once-2026-11-12.json"
           additions=subprocess.check_output(
               ["git","diff","--name-only","--diff-filter=A","HEAD^","HEAD"],
               text=True).splitlines()
           all_changes=subprocess.check_output(
               ["git","diff","--name-only","HEAD^","HEAD"],
               text=True).splitlines()
-          if additions != [request_path] or all_changes != [request_path]:
+          if len(additions)!=1 or additions!=all_changes or additions[0] not in (original_path, corrected_path):
               raise SystemExit("AUTOEDITOR_ONE_SHOT_MUST_ADD_ONLY_ONE_REQUEST_FILE")
+          request_path=additions[0]
           doc=json.loads(Path(request_path).read_text(encoding="utf-8"))
           required={
               "schema":"videoforge/one-shot-autoeditor-render/v1",
@@ -124,6 +127,10 @@ jobs:
               "auto_retry_enabled":False,
               "expected_result":"private_review_artifact",
           }
+          if request_path==corrected_path:
+              required["request_id"]="autoeditor-consistency-remake-2026-11-12"
+              required["rerender_source_run_id"]=43147397260
+              required["visual_consistency"]="canonical_scene_one_image_edit"
           if doc != required:
               raise SystemExit("AUTOEDITOR_ONE_SHOT_REQUEST_FIELDS_NOT_AUTHORIZED")
           print("AUTOEDITOR_ONE_SHOT_EXACT_NEW_FILE_VALIDATED")
@@ -184,6 +191,7 @@ jobs:
           PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
           PILOT_JOB_ID: vf-${{ github.run_id }}
           VF_CHECK_TOKEN: ${{ github.token }}
+          IMAGE_CALL_LIMIT: ${{ github.event_name == 'push' && '8' || '12' }}
         run: |
           set -euo pipefail
           umask 077
@@ -237,7 +245,7 @@ jobs:
             --action produce --manifest "$JOB_MANIFEST" \
             --output "$GITHUB_WORKSPACE/output/autoeditor-$PILOT_JOB_ID" \
             --motion-root "$GITHUB_WORKSPACE/autoeditor-source/motion-remotion" \
-            --job-id "$PILOT_JOB_ID" --max-image-calls 12
+            --job-id "$PILOT_JOB_ID" --max-image-calls "$IMAGE_CALL_LIMIT"
       - name: Verificar MP4, procedencia, referencia visual e bloqueio de upload
         shell: bash
         env:
