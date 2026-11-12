@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class GeneratorRegistryTests(unittest.TestCase):
     def test_builtin_examples_without_execution(self):
         catalog = list_generators(root=ROOT)
-        self.assertEqual({x["id"] for x in catalog}, {"anime", "kids", "dorama"})
+        self.assertEqual({x["id"] for x in catalog}, {"anime", "kids", "dorama", "autoeditor"})
         for item in catalog:
             with self.subTest(generator=item["id"]):
                 definition = load_generator(item["id"], root=ROOT)
