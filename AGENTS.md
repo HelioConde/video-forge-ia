@@ -29,6 +29,29 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 
 **Critério de conclusão:** a tarefa deve funcionar e a aplicação deve continuar organizada, compreensível e sustentável para a próxima modificação.
 
+## Arquitetura aberta para qualquer gerador de vídeo
+
+Não manter uma lista fixa de geradores por gênero em código. Geradores
+de vídeo são módulos declarativos independentes em
+`geradores/<id>/gerador.json`, descobertos pelo catálogo
+`videoforge/generators/registry.py`. Os exemplos `anime`, `kids` e
+`dorama` **não são uma lista exaustiva**. Novos formatos devem ser
+adicionados como manifestos de pipeline, com especialistas, dependências
+e entregas próprias. Não forçar todos os nichos a usarem o mesmo roteiro,
+a mesma animação ou a mesma direção artística.
+
+Respeitar `video.json.gerador` > `canal.json.gerador_padrao`, ambos
+opcionais. O gerador editorial e o `modelo` técnico são dimensões
+independentes. Um cadastro não autoriza execução, cobrança, uso de
+credenciais ou publicação. Conectar cada novo executor privado com
+testes, verificação de saídas e orçamento limitado.
+
+Nenhum módulo pode alterar a regra global: artes narrativas produzidas
+exclusivamente pelo gerador de imagens integrado, sem desenhos de
+substituição criados pelo assistente ou pelo código. QA e aprovação
+humana são obrigatórios antes de publicar. Consultar
+[geradores/README.md](geradores/README.md).
+
 ## Regras adicionais da migração
 
 As pastas de canais reais são `otaku-br`, `otaku-en`, `gamer`, `manu-kids` e `alchemy-lab` dentro de `canal/`. A pasta fictícia `exemplo` foi removida. Não tratar `arquivo-editorial/` ou `conteudos/indice.json` como fila de produção. Não transportar workflows, segredos ou tokens do AutoEditorVideo. Consultar `docs/MIGRACAO_AUTOEDITORVIDEO.md` antes de modificar a migração.
