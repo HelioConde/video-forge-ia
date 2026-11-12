@@ -133,7 +133,14 @@
     const runs = results.map(r => Array.isArray(r.workflow_runs) ? r.workflow_runs[0] : null)
       .filter(usableRun);
     if (!runs.length) return null;
-    runs.sort((a,b)=>Date.parse(b.created_at || "")-Date.parse(a.created_at || ""));
+    // Prefer an ongoing verified production to a newer, unrelated completed
+    // workflow, so the office does not hide a busy editor behind research.
+    runs.sort((a,b)=>{
+      const activeA=a.status === "in_progress" ? 1 : 0;
+      const activeB=b.status === "in_progress" ? 1 : 0;
+      return activeB-activeA ||
+        Date.parse(b.created_at || "")-Date.parse(a.created_at || "");
+    });
     const run = runs[0];
     const [checks, statuses] = await Promise.all([
       read(API + "/commits/" + run.head_sha + "/check-runs?per_page=100").catch(() => null),
