@@ -478,9 +478,8 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
         raise AutoEditorBlocked("AUTOEDITOR_SOURCE_COMMIT_UNVERIFIED") from None
     if actual != AUTOEDITOR_COMMIT:
         raise AutoEditorBlocked("AUTOEDITOR_SOURCE_COMMIT_MISMATCH")
-    # Pinned upstream commit is independently checked above. Activate the
-    # trusted VideoForge motion overlay only in this temporary checkout.
-    motion_overlay_sha = apply_motion_overlay(motion_root)
+    # The Animador owns source instrumentation and sprite composition;
+    # never tag the Editor as working while just preparing its scene plan.
     staging_id = "vf-autoeditor-" + _check_id(job_id, "JOB")
     target = motion_root / "public" / "generated" / staging_id
     if target.exists() or target.is_symlink():
@@ -490,6 +489,9 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
         props_file = out/"remotion-props.json"
         with role_task("animador", evidence=(props_file, out/"qa-motion.json"),
                        reporter=reporter):
+            # Checked upstream commit above: the source overlay is local and
+            # deterministic, not an unverified npm package or remote download.
+            motion_overlay_sha = apply_motion_overlay(motion_root)
             if layer_document is None:
                 raise AutoEditorBlocked("AUTOEDITOR_LAYERS_REQUIRED_FOR_RENDER")
             verify_scene_layers(manifest, out, layer_document)
