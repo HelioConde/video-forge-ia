@@ -201,3 +201,14 @@ A captura aproximada mostrou o sprite `sit_down` sentado, mas avançado para o c
 ### Remover cadeira duplicada no Canvas (11/11/2026)
 
 O sprite **`sit_down.png` direção norte, quadro 3**, já inclui uma cadeira desenhada. Como a imagem principal da agência também contém uma cadeira em cada posto, o quadro completo desenhava duas cadeiras sobrepostas (além de uma base extra), visível no close dos agentes Direção e Roteirista. A renderização no `site/office-art.js` agora utiliza **somente os 54 pixels superiores do quadro de 88×88**, mantendo cabeça, tronco e braços e revelando o assento/base que já existem no cenário. As coordenadas, escala 88px, zoom, etiquetas, seleção e rotas permanecem iguais; apenas o trecho visual da cadeira embutida foi omitido. A validação em `tests/test_agent_seating.js` verifica `sx=264, sy=88, sw=88, sh=54` e evita distorcer a altura. Nenhuma API PixelLab foi chamada para a correção.
+
+## Subgerente (nono agente)
+
+O posto do **Subgerente** fica em pé na área comum da agência.
+É o único posto sem cadeira/mesa nova: os oito assentos PixelLab
+permanecem intactos, e a animação de repouso do Subgerente é `idle`,
+nunca o recorte `sit_down` que contém a cadeira embutida.
+Na aba Funcionários, selecione Subgerente para visualizar pontos,
+rankings e próximas melhorias — ou aviso de ausência de evidência real.
+O ranking vem do backend por `scripts/build_dashboard_data.py`; o
+Canvas não inventa métricas ou execução. Ver `docs/SUBGERENTE.md`.
