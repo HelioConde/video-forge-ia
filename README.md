@@ -79,6 +79,25 @@ Politica executavel: [config/production-image-policy.json](config/production-ima
 e [videoforge/production/image_policy.py](videoforge/production/image_policy.py).
 [Detalhes do primeiro piloto](docs/PRIMEIRO-VIDEO-PILOTO.md).
 
+## Motor AutoEditorVideo integrado ao catálogo
+
+Adicionado o **Gerador AutoEditor**, que aproveita o Remotion
+`ArquivoOtakuMaster` original do `HelioConde/AutoEditorVideo`,
+além de Edge TTS com marcações reais e do Codex Proxy para imagens.
+É uma opção técnica de produção, não um gênero fixo: pode trabalhar
+com roteiros preparados pelos agentes para vários canais.
+
+O gerador pode ser consultado sem gastos com
+`python -m videoforge.generators.autoeditor --action plan`.
+O render somente é iniciado por ação manual protegida,
+exigindo autorização de uso de cotas e o Environment `proxy-runtime`.
+Todas as imagens vêm do gerador integrado; falhas (inclusive 429)
+interrompem a produção sem fallback. O MP4 fica para revisão e
+**não** é publicado automaticamente.
+
+[Manual](geradores/autoeditor/README.md) ·
+[Workflow manual](.github/workflows/autoeditor-generator.yml).
+
 ## Geradores de vídeo modulares e sem limite de nichos
 
 O VideoForge AI foi preparado para **vários geradores independentes**,
