@@ -42,6 +42,33 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 - `docs/`: regras, decisões arquiteturais e documentação.
 - `output/`: arquivos e mídia gerados, não versionados.
 
+## Regra operacional — sempre executar e verificar o workflow
+
+Após modificar código, configuração, pesquisa ou documentação do VideoForge,
+**não encerrar a tarefa somente com o Pull Request ou com um comando para o
+proprietário executar**. O responsável pela alteração deve:
+
+1. Acionar o `workflow run` de validação relacionado à mudança quando houver
+   acesso a uma ferramenta de disparo autorizada; também inspecionar a execução
+   automática de `push`/`pull_request`, se existir.
+2. Acompanhar o run até o resultado definitivo e consultar jobs/logs quando
+   falhar. Não afirmar sucesso sem confirmação da execução concreta.
+3. Se a ferramenta conectada não permitir `workflow_dispatch`, declarar
+   explicitamente a limitação, verificar os workflows automáticos disponíveis
+   e indicar o comando `gh workflow run` exato como alternativa, sem fingir
+   que foi disparado.
+4. Não alterar os controles de segurança de uma tarefa para dispará-la
+   indiretamente: nunca contornar `workflow_dispatch`, autorização humana,
+   `Environment` protegido, limite de consumo, HTTP 429, credenciais,
+   publicação ou revisão. Workflows que gastam cota, geram mídia ou publicam
+   exigem autorização específica vigente.
+5. Informar o nome do workflow, o resultado e o link do GitHub Actions. Se
+   falhar, corrigir o erro verificável antes de solicitar outro teste.
+
+Esta é uma preferência operacional explícita do proprietário para as próximas
+alterações no repositório; não significa autorização permanente para produção
+paga ou publicação de vídeos.
+
 ## Em toda mudança
 
 1. Examinar caminhos e padrões existentes antes de criar algo novo.
