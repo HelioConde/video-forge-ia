@@ -1,0 +1,28 @@
+{
+  "schema": "videoforge/production-images/v1",
+  "mode": "generator_only",
+  "allowed_generators": [
+    "codex_proxy_image"
+  ],
+  "assistant_generated_images_allowed": false,
+  "local_fallback_allowed": false,
+  "on_failure": "abort_video",
+  "visuals_required_for_render": true,
+  "source_evidence": "image_generation_api_response_validated_by_private_executor",
+  "permitted_post_processing": [
+    "crop",
+    "resize",
+    "color_convert",
+    "camera_motion",
+    "composite_text_on_generated_thumbnail"
+  ],
+  "prohibited": [
+    "assistant_manual_image_generation",
+    "procedural_art",
+    "placeholder_art",
+    "stock_image_substitution",
+    "reuse_from_other_video_without_verified_image_generator_origin",
+    "silently_ignore_provider_error"
+  ],
+  "notes": "Applies to all production videos. The private backend must verify each response; public manifests alone do not establish provenance. Missing images fail the job without uploading a video."
+}
