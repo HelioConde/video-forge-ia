@@ -6,25 +6,46 @@ on:
     paths:
       - 'canal/**/editorial/pesquisas/*.json'
       - 'videoforge/channel_agents/external_research.py'
+      - 'videoforge/channel_agents/research_triage.py'
       - 'tests/test_external_research.py'
+      - 'tests/test_research_triage.py'
       - '.github/workflows/external-research-validation.yml'
   pull_request:
     paths:
       - 'canal/**/editorial/pesquisas/*.json'
       - 'videoforge/channel_agents/external_research.py'
+      - 'videoforge/channel_agents/research_triage.py'
       - 'videoforge/channel_agents/team.py'
       - 'videoforge/channel_agents/ideation.py'
       - 'tests/test_external_research.py'
+      - 'tests/test_research_triage.py'
       - '.github/workflows/external-research-validation.yml'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'offline: validar; youtube-readonly: analisar historico privado (sem IA)'
+        type: choice
+        required: true
+        default: offline
+        options: [offline, youtube-readonly]
+      days:
+        description: 'Janela do historico do canal'
+        type: choice
+        required: true
+        default: '90'
+        options: ['28', '90', '180']
 
 permissions:
   contents: read
 
+concurrency:
+  group: external-research-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+
 jobs:
   validate-research:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,9 +55,62 @@ jobs:
           python-version: '3.12'
       - name: Validar fontes e identidade sem chamadas de IA
         run: python -m videoforge.channel_agents.external_research --channel otaku-br
-      - name: Testar formato, ausência de ranking e antirrepetição
+      - name: Testar formato, antirrepetição e triagem sem selecionar tema
         run: |
           python -m unittest discover -s tests -p 'test_external_research.py' -v
+          python -m unittest discover -s tests -p 'test_research_triage.py' -v
           python -m unittest discover -s tests -p 'test_editorial_team.py' -v
-      - name: Certificar ausência de geração e upload
+      - name: Confirmar zero geração de IA
         run: echo 'RESEARCH_ONLY_ZERO_PROXY_CALLS_ZERO_IMAGES_ZERO_UPLOADS'
+
+  youtube-readonly-triage:
+    # The owner must explicitly authorize each private live YouTube API read.
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      github.run_attempt == 1 &&
+      inputs.mode == 'youtube-readonly'
+    needs: validate-research
+    runs-on: ubuntu-24.04
+    environment: proxy-runtime
+    timeout-minutes: 15
+    env:
+      CHANNEL_METRICS_READONLY_AUTHORIZED: 'yes'
+      YOUTUBE_CLIENT_JSON: ${{ secrets.YOUTUBE_CLIENT_JSON }}
+      YOUTUBE_CHANNEL_TOKEN_JSON: ${{ secrets.YOUTUBE_OTAKU_BR_TOKEN_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cruzar pesquisa com historico completo e Analytics (somente leitura)
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          report="$RUNNER_TEMP/vf-external-triage.json"
+          trap 'rm -f -- "$report"' EXIT
+          python -m videoforge.channel_agents.research_triage \
+            --channel otaku-br \
+            --mode youtube-readonly \
+            --days "${{ inputs.days }}" \
+            --output "$report"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          j = json.loads((Path(os.environ["RUNNER_TEMP"]) /
+                          "vf-external-triage.json").read_text(encoding="utf-8"))
+          assert j["schema"] == "videoforge/external-research-triage/v1"
+          assert j["verified_full_upload_history"]
+          assert j["proxy_calls"] == 0 and j["candidates_created"] == 0
+          assert j["selected"] is None and not j["publish_enabled"]
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+              f.write("## Pesquisa externa — triagem somente leitura\\n\\n")
+              f.write("Histórico completo e identidade do canal conferidos.\\n\\n")
+              f.write("Sinais com fonte avaliados: " + str(len(j["signals"])) + ".\\n\\n")
+              f.write("Nenhuma métrica privada ou título foi publicado.\\n\\n")
+              f.write("Nenhum tema escolhido, nenhuma IA chamada, nenhum vídeo enviado.\\n")
+          print("TRIAGE_NO_PROXY_NO_TOPICS_NO_UPLOADS")
+          PY
