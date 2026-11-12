@@ -1,0 +1,12 @@
+{
+  "schema": "videoforge/one-shot-editorial-research/v1",
+  "request_id": "otaku-multicena-agent-team-2026-11-12",
+  "channel": "otaku-br",
+  "approved_by_owner": true,
+  "youtube_access": "read_only",
+  "max_proxy_chat_calls": 1,
+  "images_enabled": false,
+  "video_enabled": false,
+  "youtube_upload_enabled": false,
+  "retry_enabled": false
+}
