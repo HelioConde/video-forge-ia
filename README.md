@@ -54,6 +54,10 @@ Leia [canal/README.md](canal/README.md) e [modelos/README.md](modelos/README.md)
 
 As orientações operacionais para agentes de IA e colaboradores estão em [AGENTS.md](AGENTS.md).
 
+## Proteção contra chamadas repetidas entre execuções
+
+Antes do primeiro briefing real, o workflow grava uma **reserva exclusiva de tentativa** no GitHub (`canal/otaku-br/editorial/tentativas/<sha256>.json`) usando a API de criação de arquivo, sem sobrescrever. A trava é persistente entre GitHub Actions: se a mesma pauta for enviada novamente, a execução é bloqueada **antes** de chamar o Codex Proxy. Falhas ou timeout deixam a reserva para reconciliação manual; não há repetição automática nem liberação de consumo por conta própria. [Detalhes](docs/PRIMEIRO_BRIEFING_AGENTES.md).
+
 ## Primeiro briefing IA com autorização humana e revisão privada
 
 O workflow manual `agent-one-briefing.yml` prepara **um único** briefing textual do Otaku Multicena a partir de pauta realmente escolhida pela equipe e aprovada/reservada pelo gerente humano. A execução padrão faz testes offline; o modo real exige `main`, confirmação explícita, modelo existente, credenciais em `proxy-runtime` e uma chave de criptografia. O resultado é enviado somente como **artifact AES-256-GCM**, aguardando revisão independente; não gera imagens, vídeos ou uploads. Hoje, o registro inicial de reservas está vazio, então não se deve presumir que já exista uma pauta liberada. [Manual](docs/PRIMEIRO_BRIEFING_AGENTES.md).

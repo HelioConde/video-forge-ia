@@ -78,8 +78,9 @@ imagem, áudio, MP4, upload ou pontuação do Subgerente.
   conta, tentativa inicial, duas autorizações e o Environment protegido.
 - O ticket por tarefa é exclusivo dentro da execução efêmera; execução
   repetida em outro workflow ainda depende de nova autorização humana.
-  **Não há trava persistente de consumo de pauta entre execuções**; esta
-  precisa ser adicionada antes de produção autônoma recorrente.
+  A trava persistente via Contents API bloqueia a repetição exata da
+  mesma pauta em outros workflow runs; controle global de quota e
+  revisão semântica de pautas semelhantes continuam pendentes.
 - O artifact público contém apenas nonce e ciphertext autenticado;
   credenciais, respostas e tokens nunca são enviados em claro.
 - O rascunho é awaiting_independent_review; não aprova o QA, não pontua
@@ -88,10 +89,17 @@ imagem, áudio, MP4, upload ou pontuação do Subgerente.
 - Se faltar Source Report, reserva, aprovação, modelo ou chave AES, o job
   falha antes de fazer uma requisição generativa.
 
+## Trava entre runs do GitHub Actions
+
+Antes da requisição generativa, o executor verifica o modelo no Proxy e chama `videoforge/production/attempt_claim.py`. O código grava `canal/otaku-br/editorial/tentativas/<sha256>.json` por criação **exclusiva** com o token efêmero do job. Nenhuma resposta de IA, prompt ou credencial é gravada. O hash representa o canal + anime + título + ângulo normalizados, não o identificador transitório da pesquisa. A tentativa é persistente entre runs; um segundo workflow com a mesma pauta falha antes de usar IA. A política `concurrency` do workflow serializa os disparos deste executor.
+
+O claim é registrado **antes** de chamar o modelo, portanto pode permanecer mesmo quando ocorre uma falha, quota 429 ou timeout que não consumiu tokens. Não apagar ou repetir automaticamente: revisar o run e seu eventual consumo antes de qualquer nova tentativa. Se a branch principal não permitir que `GITHUB_TOKEN` crie o arquivo, a chamada é bloqueada (não contornar a proteção); configurar as permissões do repositório com revisão adequada. A trava não substitui controle agregado de custos nem a checagem de semelhança de pautas.
+
 ## Testes
 
     python -m unittest discover -s tests -p 'test_editorial_handoff.py' -v
     python -m unittest discover -s tests -p 'test_secure_draft.py' -v
+    python -m unittest discover -s tests -p 'test_attempt_claim.py' -v
 
 O segundo teste usa a dependência opcional cryptography. O workflow
 instala a biblioteca para validar a cifra em Linux. Nenhum teste utiliza
@@ -99,7 +107,7 @@ OAuth ou realiza chamadas a serviços pagos.
 
 ## Próximo passo
 
-Persistir uma reserva/lock idempotente de uso único entre runs com
-controle de custo e auditoria, conectar uma revisão independente real,
+Conectar controle de custo agregado, confirmação auditável de resultados,
+e revisão independente real,
 e somente então liberar execução sequencial de roteirista, título,
 descrição e outros especialistas. A publicação permanece bloqueada.
