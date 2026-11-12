@@ -74,6 +74,31 @@ def _request(context: dict, method: str, endpoint: str, body: dict) -> dict:
         return json.loads(response.read(50000).decode("utf-8"))
 
 
+
+def _status_request(context: dict, body: dict) -> dict:
+    """GitHub commit status: independent public-safe fallback for Checks API.
+
+    Only static role names, channel and workflow IDs are published. The
+    response never includes a secret or payload from the provider.
+    """
+    req = Request(
+        "https://api.github.com/repos/" + REPO + "/statuses/" + context["sha"],
+        data=json.dumps(body, ensure_ascii=True, separators=(",", ":")).encode("utf-8"),
+        method="POST", headers={
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "Authorization": "Bearer " + context["token"],
+            "Content-Type": "application/json",
+            "User-Agent": "VideoForge-Trusted-Backend",
+        }
+    )
+    with urlopen(req, timeout=8) as response:
+        if response.status != 201:
+            raise ValueError("ROLE_COMMIT_STATUS_NOT_CREATED")
+        return json.loads(response.read(50000).decode("utf-8"))
+
+
+
 class CheckReporter:
     def __init__(self, env: dict | None = None, *, channel: str | None = None,
                  workflow_kind: str = "autoeditor"):
@@ -83,6 +108,7 @@ class CheckReporter:
         self.context = valid_context(env)
         self.channel = channel if isinstance(channel, str) and re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", channel) else None
         self.checks: dict[str, int] = {}
+        self.started_roles: set[str] = set()
 
     def _emit(self, method: str, endpoint: str, data: dict) -> dict | None:
         if not self.context:
@@ -94,12 +120,38 @@ class CheckReporter:
             print("VIDEOFORGE_ROLE_TELEMETRY_UNAVAILABLE", file=sys.stderr)
             return None
 
+    def _emit_status(self, role: str, state: str) -> None:
+        """Write a stage transition only with an authenticated runner context."""
+        if not self.context or not self.channel:
+            return
+        if state not in ("pending", "success", "failure"):
+            raise StageEvidenceError("TELEMETRY_STATUS_INVALID")
+        url = "https://github.com/" + REPO + "/actions/runs/" + self.context["run"]
+        body = {
+            "state": state,
+            "context": "VideoForge Stage / " + self.workflow_kind + " / " + self.channel + " / " + role,
+            "target_url": url,
+            "description": (
+                "Etapa em execucao no backend; nao equivale a IA autonoma"
+                if state == "pending" else
+                "Etapa tecnica concluida com evidencia; revisao editorial pendente"
+                if state == "success" else
+                "Etapa tecnica interrompida; verificar GitHub Actions"
+            ),
+        }
+        try:
+            _status_request(self.context, body)
+        except (HTTPError, URLError, OSError, ValueError, TimeoutError, KeyError, TypeError):
+            print("VIDEOFORGE_ROLE_STATUS_TELEMETRY_UNAVAILABLE", file=sys.stderr)
+
     def start(self, role: str) -> None:
         valid_roles = EDITORIAL_ROLES if self.workflow_kind == "editorial" else ROLES
         if role not in valid_roles:
             raise StageEvidenceError("TELEMETRY_UNKNOWN_ROLE")
         if not self.context or not self.channel:
             return
+        self.started_roles.add(role)
+        self._emit_status(role, "pending")
         url = ("https://github.com/" + REPO + "/actions/runs/" + self.context["run"])
         payload = {
             "name": PREFIX + role,
@@ -121,6 +173,9 @@ class CheckReporter:
             self.checks[role] = result["id"]
 
     def finish(self, role: str, *, passed: bool) -> None:
+        if role in self.started_roles:
+            self.started_roles.remove(role)
+            self._emit_status(role, "success" if passed else "failure")
         if role not in self.checks:
             return
         endpoint = "/check-runs/" + str(self.checks.pop(role))
