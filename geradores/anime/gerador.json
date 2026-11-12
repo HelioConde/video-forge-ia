@@ -1,0 +1,89 @@
+{
+  "schema": "videoforge/generator/v1",
+  "id": "anime",
+  "nome": "Gerador Anime",
+  "descricao": "Analises, curiosidades e historias ilustradas com ritmo, roteiro e visuais adaptados ao canal; sem copiar obras protegidas.",
+  "status": "planned",
+  "execution_enabled": false,
+  "auto_publish_enabled": false,
+  "requires_human_approval": true,
+  "perfil": {
+    "publico": "geral",
+    "estilo": "anime ilustrado original",
+    "direcao": "priorizar gancho, pesquisa quando houver afirmações factuais, ritmo e direitos autorais; cada imagem vem do gerador integrado"
+  },
+  "pipeline": [
+    {
+      "id": "briefing",
+      "operation": "editorial-brief",
+      "agent": "coordenador-pautas",
+      "after": [],
+      "output": "briefing.json"
+    },
+    {
+      "id": "pesquisa",
+      "operation": "research",
+      "agent": "pesquisador",
+      "after": [
+        "briefing"
+      ],
+      "output": "pesquisa.json"
+    },
+    {
+      "id": "roteiro",
+      "operation": "script",
+      "agent": "roteirista-cenas",
+      "after": [
+        "pesquisa"
+      ],
+      "output": "roteiro.json"
+    },
+    {
+      "id": "storyboard",
+      "operation": "storyboard",
+      "agent": "storyboard",
+      "after": [
+        "roteiro"
+      ],
+      "output": "storyboard.json"
+    },
+    {
+      "id": "imagens",
+      "operation": "image-generation",
+      "agent": "ilustrador",
+      "after": [
+        "storyboard"
+      ],
+      "output": "imagens.json",
+      "source": "integrated-image-generator"
+    },
+    {
+      "id": "voz",
+      "operation": "narration",
+      "agent": "voz",
+      "after": [
+        "roteiro"
+      ],
+      "output": "narracao.wav"
+    },
+    {
+      "id": "edicao",
+      "operation": "render",
+      "agent": "montagem",
+      "after": [
+        "imagens",
+        "voz"
+      ],
+      "output": "video.mp4"
+    },
+    {
+      "id": "qa",
+      "operation": "quality-review",
+      "agent": "revisor-conteudo",
+      "after": [
+        "edicao"
+      ],
+      "output": "qa.json"
+    }
+  ]
+}
