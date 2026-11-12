@@ -280,5 +280,80 @@ class TestEditorialTeam(TestCase):
         self.assertEqual(result["status"],"no_unique_candidate")
 
 
+class TestEditorialRequestSize(TestCase):
+    """Diagnostico totalmente offline do payload; nao chama o Proxy real."""
+
+    def _base(self):
+        from videoforge.channel_agents.ideation import propose_candidates
+        from videoforge.proxy.client import ProxyError
+        import json
+        import os
+
+        class RecordingProxy:
+            def __init__(self, *, error=False):
+                self.requests = []
+                self.error = error
+
+            def chat(self, body):
+                self.requests.append(body)
+                if self.error:
+                    raise ProxyError("Codex Proxy HTTP 429")
+                data = {"candidates": [{
+                    "id": "idea-teste", "anime": "One Piece",
+                    "assunto": "Uma hipotese original",
+                    "abordagem": "Consequencias na historia",
+                    "genero": "analise", "formato": "short narrado",
+                    "titulo_provisorio": "Uma analise original",
+                    "duracao_segundos": 100,
+                }]}
+                return {"choices": [{"message": {"content": json.dumps(data)}}]}
+
+        manager = {
+            "channel": "otaku-br", "youtube_channel_id": CID,
+            "goal": "Crescer com originalidade", "paused_animes": ["Death Note"],
+        }
+        reservations = {"channel_id": CID, "entries": []}
+        return propose_candidates, RecordingProxy, manager, reservations
+
+    def test_normal_request_is_single_and_uses_only_expected_metrics(self):
+        import json
+        import os
+        propose, Proxy, manager, reservations = self._base()
+        data = inventory()
+        data["videos"][0]["metrics"]["secret_metric"] = "DO_NOT_SEND"
+        proxy = Proxy()
+        with mock.patch.dict(os.environ, {"CHANNEL_IDEATION_APPROVED": "yes"}):
+            result = propose(manager=manager, snapshot=data, reservations=reservations,
+                             model="mock-model", client=proxy, authorized=True)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(len(proxy.requests), 1)
+        self.assertEqual(proxy.requests[0]["response_format"], {"type": "json_object"})
+        self.assertNotIn("secret_metric", json.dumps(proxy.requests[0]))
+        self.assertEqual(len(json.loads(proxy.requests[0]["messages"][1]["content"])["past_videos"]), 4)
+
+    def test_large_payload_is_blocked_before_any_request(self):
+        import os
+        from videoforge.channel_agents.ideation import EditorialIdeationError
+        propose, Proxy, manager, reservations = self._base()
+        proxy = Proxy()
+        trends = {"results": [{"snippet": "x" * 110_000}]}
+        with (mock.patch.dict(os.environ, {"CHANNEL_IDEATION_APPROVED": "yes"}),
+              self.assertRaisesRegex(EditorialIdeationError, "EDITORIAL_PAYLOAD_TOO_LARGE")):
+            propose(manager=manager, snapshot=inventory(), reservations=reservations,
+                    trends=trends, model="mock-model", client=proxy, authorized=True)
+        self.assertEqual(proxy.requests, [])
+
+    def test_small_request_429_is_not_retried(self):
+        import os
+        from videoforge.channel_agents.ideation import EditorialIdeationError
+        propose, Proxy, manager, reservations = self._base()
+        proxy = Proxy(error=True)
+        with (mock.patch.dict(os.environ, {"CHANNEL_IDEATION_APPROVED": "yes"}),
+              self.assertRaisesRegex(EditorialIdeationError, "EDITORIAL_PROXY_HTTP_429")):
+            propose(manager=manager, snapshot=inventory(), reservations=reservations,
+                    model="mock-model", client=proxy, authorized=True)
+        self.assertEqual(len(proxy.requests), 1)
+
+
 if __name__ == "__main__":
     main()
