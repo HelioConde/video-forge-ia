@@ -303,7 +303,7 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
     All later scenes are edited from scene-1.png, never text-only generations.
     """
     from PIL import Image, ImageOps
-    if len(manifest["cenas"]) > max_calls or not 1 <= max_calls <= MAX_IMAGES:
+    if len(manifest["cenas"]) > max_calls or not 1 <= max_calls <= MAX_IMAGE_REQUESTS:
         raise AutoEditorBlocked("AUTOEDITOR_GENERATION_BUDGET_INSUFFICIENT")
     bible = validate_visual_lock(manifest.get("visual_lock"))
     # Check every scene for contradictory art direction BEFORE first paid call.
