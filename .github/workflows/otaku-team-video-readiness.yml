@@ -93,7 +93,7 @@ jobs:
               out.write(f"limite configurado: **{data['explicit_image_call_limit']}**.\n\n")
               out.write("Pendências seguras para resolver:\n\n")
               for code in data["blockers"]:
-                  out.write(f"- \`{code}\`\n")
+                  out.write(f"- `{code}`\n")
               out.write("\nNenhum Proxy, YouTube, áudio, MP4 ou upload executado.\n")
           print("OTAKU_VIDEO_READINESS_REPORTED_ONLY_NO_GENERATION")
           PY
