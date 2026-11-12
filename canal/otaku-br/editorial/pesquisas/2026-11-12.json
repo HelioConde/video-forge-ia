@@ -1,0 +1,47 @@
+{
+  "schema": "videoforge/external-editorial-research/v1",
+  "channel": "otaku-br",
+  "channel_id": "UCXGYTuBYn-0Ziqin5ajKhOw",
+  "researched_on": "2026-11-12",
+  "prepared_by": "chatgpt_external_research",
+  "scope": "source_context_only",
+  "note": "Fontes públicas como contexto, não prova de demanda, CTR, retenção ou tendência do canal. Sem pauta vencedora. A equipe deve verificar duplicação, spoilers e fatos antes de escolher qualquer produção.",
+  "signals": [
+    {
+      "id": "jojo-sbr-ep8-noticias-nov",
+      "series": "JoJo's Bizarre Adventure — Steel Ball Run",
+      "verified_fact": "O portal oficial de Steel Ball Run publicou sinopse e imagens do episódio 8 em 9 de novembro de 2026; também anunciou um vídeo especial sobre STAND em 10 de novembro.",
+      "research_question": "Quais aspectos da atualização oficial permitiriam uma análise original e sem spoilers desnecessários, caso o histórico do canal indique interesse?",
+      "source": {
+        "publisher": "JoJo Portal — site oficial do anime",
+        "url": "https://jojo-portal.com/en/anime/sbr/news/",
+        "published_on": "2026-11-10"
+      },
+      "editorial_status": "unranked_requires_channel_metrics"
+    },
+    {
+      "id": "one-piece-elbaph-bluray-nov",
+      "series": "One Piece — Elbaph",
+      "verified_fact": "O portal oficial de One Piece anunciou em 10 de novembro de 2026 quatro volumes em Blu-ray/DVD do arco Elbaph; o comunicado lista episódios associados aos volumes.",
+      "research_question": "O arco Elbaph abre espaço para uma explicação autoral que não repita títulos publicados? Comparar com inventário completo e dados do canal.",
+      "source": {
+        "publisher": "ONE PIECE.com — portal oficial",
+        "url": "https://one-piece.com/news/83333/index.html",
+        "published_on": "2026-11-10"
+      },
+      "editorial_status": "unranked_requires_channel_metrics"
+    },
+    {
+      "id": "black-clover-season2-outono2026",
+      "series": "Black Clover — segunda temporada",
+      "verified_fact": "A programação de outono de 2026 anunciada pela Crunchyroll inclui a segunda temporada de Black Clover, produzida pelo Studio Pierrot.",
+      "research_question": "O público do canal já demonstrou interesse por Black Clover suficiente para justificar uma análise original? Verificar dados próprios antes de priorizar.",
+      "source": {
+        "publisher": "Crunchyroll News — programação oficial da plataforma",
+        "url": "https://www.crunchyroll.com/news/seasonal-lineup/2026/9/15/fall-anime-2026-crunchyroll",
+        "published_on": "2026-09-15"
+      },
+      "editorial_status": "unranked_requires_channel_metrics"
+    }
+  ]
+}
