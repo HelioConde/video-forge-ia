@@ -35,6 +35,7 @@ def event(worker: str, i: int, *, quality: int = 90, attempts: int = 1,
     if improvement:
         e["improvement"] = {
             "previous_artifact_sha256": HEX_A,
+            "previous_quality": max(0, quality-10),
             "summary": "Corrigiu a falha do gancho com melhoria mensurável e revisão.",
             "reviewed_by": reviewer,
         }
@@ -111,6 +112,12 @@ class SubmanagerTests(unittest.TestCase):
         bad[2]["policy_compliant"]=False
         with self.assertRaisesRegex(RankingEvidenceError,"COMPLIANCE"):
             rank_employees(payload(bad))
+
+    def test_improvement_requires_independently_better_qa_score(self):
+        p=payload([event("roteirista",1,quality=90,improvement=True)])
+        p["events"][0]["improvement"]["previous_quality"]=89
+        with self.assertRaisesRegex(RankingEvidenceError,"IMPROVEMENT"):
+            rank_employees(p)
 
     def test_untrusted_source_or_invalid_reference_blocks(self):
         p=payload([event("roteirista",1)])
