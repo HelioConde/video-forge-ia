@@ -209,6 +209,18 @@ humana são obrigatórios antes de publicar. Consultar
 
 As pastas de canais reais são `otaku-br`, `otaku-en`, `gamer`, `manu-kids` e `alchemy-lab` dentro de `canal/`. A pasta fictícia `exemplo` foi removida. Não tratar `arquivo-editorial/` ou `conteudos/indice.json` como fila de produção. Não transportar workflows, segredos ou tokens do AutoEditorVideo. Consultar `docs/MIGRACAO_AUTOEDITORVIDEO.md` antes de modificar a migração.
 
+## Mostrar pesquisas recebidas sem fingir trabalho dos agentes
+
+Ao atualizar a fila `canal/<id>/editorial/pesquisas/`, o exportador
+`build_dashboard_data.py` pode mostrar apenas informação pública
+saneada em `canais[].pesquisa_externa`: série, alegação da fonte, pergunta,
+URL HTTPS sem query/fragmentos, editor e data. O painel Canais deve
+apresentar claramente "pesquisa recebida" e "pendente de checagem,
+métricas e auditoria", nunca classificar como pauta aprovada.
+Não associar esses registros a atividade real, pontuação, Analytics,
+diretor ou Subgerente. Respeitar sanitização anti-vazamento e links
+seguros. Testar exportação e UI e confirmar deploy do Pages.
+
 ## Regras do dashboard Pages
 
 O escritório em `site/` deve ser organizado e consumir apenas snapshots públicos saneados gerados por `scripts/build_dashboard_data.py`. O navegador não roda agentes nem recebe tokens. Nunca exibir execução simulada como se fosse real; não copiar informações privadas para o Pages. Após a configuração do Pages pelo proprietário, a publicação é automática em mudanças relevantes da branch main e pode ser executada manualmente. O site publicado pode ser público mesmo com repositório privado; exportar apenas dados saneados. Consulte `docs/ESCRITORIO_AGENTES.md`.
