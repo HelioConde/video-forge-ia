@@ -168,3 +168,26 @@ requisições; não imprimir dados privados nem expô-los ao GitHub Pages.
 O `ideation.py` só utiliza Codex Proxy explicitamente autorizado, com
 um chamado por execução, JSON validado e verificação posterior de duplicatas.
 Não copiar Secrets do AutoEditorVideo automaticamente.
+
+## Subgerente — avaliação baseada em QA, sem autoavaliações
+
+O cadastro `agentes/equipe.json` inclui **exatamente um** agente adicional
+(`subgerente`), o nono visual, subordinado ao gerente geral humano.
+Seu posto em `site/office-map.js` é **em pé** na área colaborativa:
+não renderizar outra mesa ou cadeira, nem repetir sprite sentado.
+Os oito postos existentes devem permanecer com posição e pose preservadas.
+
+`videoforge/production/subgerente.py` calcula média de pontos (0–100)
+por trabalho aprovado por revisor independente. Exigir referência verificável
+do artefato, trabalho único, revisor QA distinto do funcionário,
+conformidade e mínimo três avaliações. Não premiar volume bruto, views,
+CTR, uploads de vídeos ou fabricação de dados. A origem JSON
+`trusted_backend_qa` é **uma declaração do chamador**, NÃO autenticação
+criptográfica: antes da produção real implementar verificador confiável de
+hash/QA no backend. Não expor hashes privados no Pages, apenas ranking agregado
+e sugestões. Sem evidências, status `awaiting_verified_evidence` e sem pontos.
+
+O Subgerente pode sugerir ações, mas **não editar arquivos, alterar outros
+agentes, aumentar gastos, demitir, punir ou publicar conteúdo** sozinho.
+Toda alteração de modelos/prompts/código exige aprovação humana, testes e
+política de rollback. [Contrato e critérios](docs/SUBGERENTE.md).
