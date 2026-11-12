@@ -45,7 +45,7 @@ for(const cue of ['hop','idle','rise','fall','paw-lift','paw-wave','pat','walk',
     assert.ok(!res.transform.includes('NaN'),cue);
     assert.ok(!res.transform.includes('Infinity'),cue);
     assert.ok(res.opacity>=0 && res.opacity<=1);
-    assert.equal(res,undefined, false);
+    assert.ok(res);
     assert.deepEqual(scene([sample(cue)],frame),res,'determinism: '+cue);
   }
 }
