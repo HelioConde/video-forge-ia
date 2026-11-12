@@ -307,6 +307,39 @@
       }
     }else{const c=snap.canais.find(c=>c.id===state.selectedChannel)||snap.canais[0];if(!c)return;
       detail.append(make("div","detail-kicker","GERENTE EDITORIAL DO CANAL"),make("div","detail-title",c.nome),make("div","detail-status",(c.gerente?.nome||"Gerente não cadastrado")+" · "+label(c.gerente?.status)),make("p","detail-text","O gerente pesquisa métricas, escolhe pautas inéditas e delega roteiro, narração, título, descrição, tags e edição. YouTube Analytics: não conectado nesta interface; nenhuma produção foi iniciada."),make("small","preview-note","REGRA FIXA: não repetir conteúdo; sem publicação automática."));
+      const queue=c.pesquisa_externa;
+      if(queue?.estado==="contexto_aguardando_checagem_e_metricas"&&Array.isArray(queue.sinais)){
+        const section=make("section","research-queue");
+        section.append(make("strong","research-queue-title","PESQUISA RECEBIDA · NÃO É PAUTA APROVADA"));
+        section.append(make("p","detail-text",
+          queue.sinais.length+" fontes para conferir · pacote de "+queue.data_pesquisa+
+          " · aguardando métricas do canal, deduplicação e auditoria do Subgerente."));
+        for(const signal of queue.sinais.slice(0,12)){
+          if(signal.estado!=="aguardando_checagem")continue;
+          const card=make("article","research-source");
+          card.append(make("strong","research-source-title",signal.serie));
+          card.append(make("p","research-source-note",signal.afirmacao_da_fonte));
+          card.append(make("p","research-source-question","Verificar: "+signal.pergunta_editorial));
+          const citation=make("a","research-source-link",
+            "Fonte informada: "+signal.editora+" · "+signal.data_publicacao);
+          try{
+            const parsed=new URL(signal.url);
+            if(parsed.protocol==="https:"&&!parsed.username&&!parsed.password){
+              citation.href=parsed.href;
+              citation.target="_blank";
+              citation.rel="noopener noreferrer";
+              card.append(citation);
+            }
+          }catch(_){ /* Não mostrar URL inválida */ }
+          section.append(card);
+        }
+        section.append(make("small","preview-note",
+          "Notícias e perguntas não demonstram demanda nem autenticidade confirmada. Nenhum tema foi escolhido; pesquisar não significa agente IA trabalhando."));
+        detail.append(section);
+      }else{
+        detail.append(make("small","preview-note",
+          "Nenhum pacote público de pesquisa externa disponível para este canal."));
+      }
     }
   }
   function render(){
