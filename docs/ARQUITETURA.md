@@ -1,5 +1,21 @@
 # Arquitetura proposta — VideoForge AI
 
+## Handoff editorial cifrado entre agentes e briefing
+
+A pesquisa de pauta por agentes exige agora dispatch manual do
+proprietário em `main` (sem ativação por commit/push), uma chamada
+autorizada e Environment `proxy-runtime`. O relatório contendo
+candidatas e possíveis métricas YouTube é cifrado no runner via
+`videoforge/channel_agents/secure_report.py` antes do artifact.
+O briefing posterior só aceita artifact AES-256-GCM com AAD do run
+e a mesma chave protegida; valida ainda seleção do Gerente,
+auditoria do Subgerente, a aprovação humana e a reserva persistida.
+Sem chave/credenciais ou modelo, bloqueia antes da geração.
+[Contrato completo](PRIMEIRO_BRIEFING_AGENTES.md).
+A proteção de dados não equivale a habilitar agentes visuais nem
+desbloqueia o HTTP 429.
+
+
 ## Exportação segura da fila de pesquisas ao escritório
 
 O `build_dashboard_data.py` projeta o último pacote de pesquisa pública
