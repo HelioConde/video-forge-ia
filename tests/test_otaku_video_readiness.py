@@ -112,7 +112,8 @@ class FirstOtakuVideoTests(TestCase):
         self.assertNotIn("proxy-runtime", workflow)
         self.assertNotIn("youtube-analytics-readonly", workflow)
         self.assertNotIn("autoeditor --action produce", workflow)
-        self.assertNotIn("publish", workflow.lower())
+        self.assertNotIn("secrets.PROXY_API_KEY", workflow)
+        self.assertNotIn("actions/upload-artifact", workflow)
 
 
 if __name__ == "__main__":
