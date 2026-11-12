@@ -95,7 +95,7 @@ class PilotContracts(unittest.TestCase):
             forged = [{"scene": 1, "file": "scene-1.png",
                        "origin": "local_original_fallback",
                        "generated_by": "video_forge_image_generator"}]
-            with self.assertRaisesRegex(ImageProvenanceError, "UNTRUSTED_VISUAL_OR_EXAMPLE_STORY"):
+            with self.assertRaisesRegex(ImageProvenanceError, "UNTRUSTED_VISUAL_OR_FALLBACK"):
                 validate_generated_visuals(forged, Path(tmp), expected_count=1)
 
     def test_image_provider_failure_must_abort_before_video_render(self):
