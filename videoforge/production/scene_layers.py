@@ -15,7 +15,6 @@ import json
 from pathlib import Path
 import re
 
-from PIL import Image, ImageOps, UnidentifiedImageError
 
 from videoforge.proxy.client import ProxyError
 
@@ -143,6 +142,7 @@ def _edit_prompt(*, master: str, role: str, label: str, other_items: list[str],
 
 
 def _save_edit(data: dict, path: Path, *, transparent: bool) -> dict:
+    from PIL import Image, ImageOps, UnidentifiedImageError
     try:
         encoded = data["data"][0].get("b64_json") or data["data"][0].get("image_base64")
         if not isinstance(encoded, str) or not 100 < len(encoded) <= 26_000_000:
@@ -201,6 +201,7 @@ def _save_edit(data: dict, path: Path, *, transparent: bool) -> dict:
 
 
 def _validate_asset(directory: Path, asset: dict, *, transparent: bool) -> None:
+    from PIL import Image
     target = directory / asset["file"]
     if (target.is_symlink() or not target.is_file()
             or not target.resolve().is_relative_to(directory.resolve())
