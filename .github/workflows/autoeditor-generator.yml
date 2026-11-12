@@ -237,6 +237,13 @@ jobs:
             output/autoeditor-vf-${{ github.run_id }}/imagens.json
             output/autoeditor-vf-${{ github.run_id }}/manifest.json
             output/autoeditor-vf-${{ github.run_id }}/qa-editorial.json
+            output/autoeditor-vf-${{ github.run_id }}/qa-tecnico.json
+            output/autoeditor-vf-${{ github.run_id }}/qa-imagens.json
+            output/autoeditor-vf-${{ github.run_id }}/deduplicacao.json
+            output/autoeditor-vf-${{ github.run_id }}/roteiro.json
+            output/autoeditor-vf-${{ github.run_id }}/storyboard.json
+            output/autoeditor-vf-${{ github.run_id }}/legendas.json
+            output/autoeditor-vf-${{ github.run_id }}/briefing.json
             output/autoeditor-vf-${{ github.run_id }}/plano.json
             output/autoeditor-vf-${{ github.run_id }}/remotion-props.json
           retention-days: 7
