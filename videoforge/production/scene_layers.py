@@ -272,7 +272,7 @@ def verify_scene_layers(manifest: dict, directory: Path, doc: dict) -> dict:
         raise SceneLayerError("LAYERS_SCENE_LIST_INVALID")
     requests = 0
     for i, (scene, row) in enumerate(zip(manifest["cenas"], scenes), start=1):
-        plan = scene["layer_plan"]
+        plan = validate_layer_plan(scene["layer_plan"])
         if row.get("scene_id") != scene["id"] or row.get("index") != i:
             raise SceneLayerError("LAYERS_SCENE_ID_MISMATCH")
         master = directory / f"scene-{i}.png"
@@ -355,7 +355,7 @@ def generate_scene_layers(manifest: dict, directory: Path, proxy, *,
         if (master_row["file"] != master.name or
                 master_row["output_sha256"] != sha256(master.read_bytes()).hexdigest()):
             raise SceneLayerError("LAYERS_UNTRUSTED_MASTER")
-        plan = scene["layer_plan"]
+        plan = validate_layer_plan(scene["layer_plan"])
         things = plan["characters"] + plan["movable_props"]
         original_sha = master_row["output_sha256"]
         row = {
