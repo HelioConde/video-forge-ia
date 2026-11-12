@@ -1,0 +1,175 @@
+name: VideoForge - Primeiro video real (piloto privado)
+
+# First request file triggers once when merged to main; manual re-run is opt-in.
+on:
+  push:
+    branches: [main]
+    paths:
+      - config/pilot-first-video.json
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: videoforge-first-video-pilot
+  cancel-in-progress: false
+
+jobs:
+  original-video-preview:
+    if: github.ref == 'refs/heads/main'
+    environment: proxy-runtime
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      GIN_MODE: release
+      DEBUG_LOG_PAYLOADS: 'false'
+      PORT: '8080'
+      VIDEOFORGE_PILOT_APPROVED: 'yes'
+    steps:
+      - name: Checkout VideoForge
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Checkout pinned Go Codex Proxy
+        uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+
+      - name: Install offline render and voice tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg espeak-ng fonts-dejavu-core
+          python -m pip install --disable-pip-version-check Pillow==11.3.0
+
+      - name: Validate offline production contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_pilot_executor.py' -v
+          python -m unittest discover -s tests -p 'test_delegation.py' -v
+
+      - name: Compile trusted Go proxy BEFORE injecting secrets
+        working-directory: upstream-codex-proxy
+        shell: bash
+        run: |
+          set -euo pipefail
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/video-forge-proxy" ./cmd/api
+
+      - name: Restore private OAuth and produce exactly one 18s preview
+        id: produce
+        shell: bash
+        env:
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }
+          PILOT_JOB_ID: ${{ github.run_id }
+        run: |
+          set -euo pipefail
+          umask 077
+          test -n "$PROXY_API_KEY"
+          test -n "$PROXY_ACCOUNTS_JSON"
+          state_dir="$RUNNER_TEMP/video-forge-pilot-private"
+          proxy_pid=''
+          cleanup() {
+            if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
+            rm -rf -- "$state_dir"
+            rm -f -- "$RUNNER_TEMP/video-forge-pilot-go.log"
+          }
+          trap cleanup EXIT
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.proxy.private_state import stage_private_state
+          n = stage_private_state(
+              os.environ["PROXY_ACCOUNTS_JSON"],
+              Path(os.environ["RUNNER_TEMP"])/"video-forge-pilot-private"
+          )
+          assert n >= 1
+          print("PILOT_PRIVATE_OAUTH_STAGED_RECORDS_"+str(n))
+          PY
+          unset PROXY_ACCOUNTS_JSON
+          DATA_DIR="$state_dir" "$RUNNER_TEMP/video-forge-proxy" \
+            > "$RUNNER_TEMP/video-forge-pilot-go.log" 2>&1 &
+          proxy_pid=$!
+          python - <<'PY'
+          import time
+          from videoforge.proxy.client import ProxyClient, ProxyError
+          p = ProxyClient(timeout=3)
+          for i in range(60):
+              try:
+                  if p.health_live().get("status") == "ok":
+                      print("PILOT_PROXY_SERVER_READY")
+                      break
+              except (ProxyError, ValueError):
+                  pass
+              time.sleep(1)
+          else:
+              raise SystemExit("PILOT_PROXY_NOT_READY")
+          PY
+          python -m videoforge.production.pilot_executor \
+            --output "$GITHUB_WORKSPACE/output/first-video-pilot" \
+            --job-id "pilot-$PILOT_JOB_ID" \
+            --max-calls 4
+
+      - name: Verify that publication stayed disabled
+        if: steps.produce.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from videoforge.production.quality_gate import inspect_media
+          root=Path("output/first-video-pilot")
+          data=json.loads((root/"manifest.json").read_text(encoding="utf-8"))
+          assert data["youtube_uploaded"] is False
+          assert data["human_approved"] is False
+          assert data["generative_calls"] <= 4
+          assert len(data["verified_stages"]) == 15
+          assert data["status"] == "preview_generated_pending_editorial_review"
+          media=inspect_media(root/"video.mp4")
+          assert media["sha256"] == data["media"]["sha256"]
+          with open(__import__("os").environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as fp:
+              fp.write("## Primeiro video de teste - Otaku Multicena\n\n")
+              fp.write("**MP4 criado:** sim, verificado com ffprobe e SHA256.\n\n")
+              fp.write("**Etapas executadas:** 15; QA editorial, aprovacao e publicacao pendentes.\n\n")
+              fp.write(f"**Imagens via Proxy:** {data['ai_image_count']} de 3; restante original local.\n\n")
+              fp.write(f"**Requisicoes generativas ao Proxy:** {data['generative_calls']} (limite 4).\n\n")
+              fp.write("**YouTube upload:** nao. **Aprovacao editorial:** nao.\n")
+          print("PILOT_FFPROBE_SHA256_AND_NO_PUBLISH_CHECK_PASSED")
+          PY
+
+      - name: Upload safe preview artifacts (NO OAUTH)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: otaku-multicena-first-preview-${{ github.run_id }
+          path: |
+            output/first-video-pilot/video.mp4
+            output/first-video-pilot/thumbnail.png
+            output/first-video-pilot/manifest.json
+            output/first-video-pilot/roteiro.json
+            output/first-video-pilot/storyboard.json
+            output/first-video-pilot/qa-tecnico.json
+            output/first-video-pilot/qa-conteudo.json
+            output/first-video-pilot/quality-review-template.json
+            output/first-video-pilot/plano-executado.json
+            output/first-video-pilot/assets.json
+            output/first-video-pilot/legendas.srt
+          retention-days: 7
+          if-no-files-found: error
