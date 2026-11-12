@@ -207,6 +207,42 @@ class QualityGateTests(unittest.TestCase):
         self.assertIn("visuais",ready_tasks(plan))
         self.assertNotIn("aprovacao",ready_tasks(plan))
 
+    def test_revision_cannot_reset_counter_or_bypass_suspension(self):
+        plan=build_plan({"id":JOB,"canal":CHANNEL,"tema":"Pauta autoral",
+                         "duracao_segundos":90})
+        for task in plan["tasks"]:
+            if task["id"] not in {"aprovacao","publicacao"}:
+                task["status"]="done"
+                task["artifact_verified"]=True
+        weak=evidence()
+        weak["scores"]["roteiro_e_gancho"]["score"]=40
+        first=attach_quality_report(plan,weak,media_path=Path("/tmp/x.mp4"),
+                                    trusted_backend=True,probe=probe)
+        self.assertEqual(first["status"],"rework")
+        for task in plan["tasks"]:
+            if task["id"] not in {"aprovacao","publicacao"}:
+                task["status"]="done"
+                task["artifact_verified"]=True
+        with self.assertRaisesRegex(ValueError,"sequencialmente"):
+            attach_quality_report(plan,weak,media_path=Path("/tmp/x.mp4"),
+                                  trusted_backend=True,probe=probe)
+        second=evidence(attempt=2)
+        second["scores"]["roteiro_e_gancho"]["score"]=45
+        attach_quality_report(plan,second,media_path=Path("/tmp/x.mp4"),
+                              trusted_backend=True,probe=probe)
+        for task in plan["tasks"]:
+            if task["id"] not in {"aprovacao","publicacao"}:
+                task["status"]="done"
+                task["artifact_verified"]=True
+        third=evidence(attempt=3)
+        third["scores"]["roteiro_e_gancho"]["score"]=50
+        last=attach_quality_report(plan,third,media_path=Path("/tmp/x.mp4"),
+                                   trusted_backend=True,probe=probe)
+        self.assertEqual(last["status"],"suspended")
+        with self.assertRaisesRegex(ValueError,"reabertura"):
+            attach_quality_report(plan,third,media_path=Path("/tmp/x.mp4"),
+                                  trusted_backend=True,probe=probe)
+
     def test_policy_block_suspends_dispatcher(self):
         plan=build_plan({"id":JOB,"canal":CHANNEL,"tema":"Tema original",
                          "duracao_segundos":90})
