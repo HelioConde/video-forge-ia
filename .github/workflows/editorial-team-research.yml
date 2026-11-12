@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: read
+  statuses: write  # fallback verificavel das etapas por funcionario
   checks: write
 
 concurrency:
