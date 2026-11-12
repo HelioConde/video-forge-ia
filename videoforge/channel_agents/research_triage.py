@@ -33,12 +33,14 @@ def triage_research(*, research: dict, snapshot: dict, policy: dict) -> dict:
     channel = policy["channel"] if "channel" in policy else policy["id"]
     channel_id = policy["youtube_channel_id"]
     validate_research(research, channel=channel, channel_id=channel_id)
-    if (snapshot.get("schema") != "videoforge/channel-research/v1"
+    if (not isinstance(snapshot, dict)
+            or snapshot.get("schema") != "videoforge/channel-research/v1"
             or snapshot.get("source") != "youtube-data-v3+analytics-v2"
             or snapshot.get("channel_id") != channel_id
             or snapshot.get("read_only") is not True
             or snapshot.get("history_complete") is not True
             or not isinstance(snapshot.get("videos"), list)
+            or not all(isinstance(video, dict) for video in snapshot["videos"])
             or snapshot.get("count") != len(snapshot["videos"])):
         raise ResearchTriageError("TRIAGE_VERIFIED_HISTORY_REQUIRED")
 
