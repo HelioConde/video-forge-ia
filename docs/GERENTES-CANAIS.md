@@ -1,5 +1,18 @@
 # VideoForge — gerentes independentes por canal
 
+## Contrato de continuidade e privacidade da equipe (12/11/2026)
+
+A pesquisa gerativa só pode rodar manualmente pelo proprietário;
+não há gatilho automático por `push`. Resultados da pesquisa que
+incluam candidatos, evidência e métricas reais do YouTube são cifrados
+no runner e somente o arquivo AES-256-GCM é publicado como artifact.
+O workflow de briefing valida a execução de origem e decripta
+privadamente antes de exigir auditoria e reserva humana. A falta
+da chave de cifragem bloqueia a pesquisa antes do consumo.
+A mudança não contorna HTTP 429 nem equivale a agentes conectados.
+Ver [manual do primeiro briefing](PRIMEIRO_BRIEFING_AGENTES.md).
+
+
 ## O que muda
 
 Cada um dos **cinco canais** possui seu gerente de estratégia editorial,
