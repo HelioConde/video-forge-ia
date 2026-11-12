@@ -114,6 +114,21 @@ class TestEditorialTeam(TestCase):
                     EditorialTeamError, expected):
                 select_editorial_model(payload)
 
+    def test_external_research_is_only_context_for_real_researcher(self):
+        from datetime import date
+        from videoforge.channel_agents.external_research import latest_research
+        packet = latest_research(root=ROOT, channel="otaku-br",
+                                 channel_id=CID, as_of=date(2026, 11, 12))
+        with mock.patch("videoforge.channel_agents.team.propose_candidates",
+                        return_value=proposals()) as ideation:
+            result = run_team(channel="otaku-br", snapshot=inventory(),
+                              external_research=packet, client=object(),
+                              model="mock-test-model", root=ROOT)
+        self.assertIs(ideation.call_args.kwargs["external_research"], packet)
+        self.assertEqual(result["choices_from_assistant"], 0)
+        self.assertIn(result["chosen_topic"]["id"], {"idea-a", "idea-b"})
+        self.assertEqual(result["deputy"]["accepted"], 2)
+
     def test_researcher_not_assistant_generates_all_candidates(self):
         data = inventory()
         proposed = proposals()
