@@ -81,6 +81,15 @@ O pacote inicial de 12/11/2026 traz três sinais documentados; não prova tendê
 O bloqueio HTTP 429 do Proxy continua existindo e **não é contornado** por essa
 integração. [Fluxo, validação e limites](docs/PESQUISA_EXTERNA_VIDEOFORGE.md).
 
+**Triagem de fontes versus histórico:** o comando
+`videoforge/channel_agents/research_triage.py` e o workflow
+`external-research-validation.yml` podem comparar nomes de séries com
+o histórico de uploads e validar a presença de Analytics em um disparo
+manual somente leitura, **sem chamar o Codex Proxy**. Esse comparativo
+não cria candidatas, não avalia duplicidade semântica e não decide vídeos;
+o resultado detalhado é apagado do runner, sem divulgação de métricas privadas.
+[Procedimento e limites](docs/PESQUISA_EXTERNA_VIDEOFORGE.md).
+
 ## Agentes de IA usam o Codex Proxy
 
 Toda inferência de modelos de IA dos agentes deve passar pelo Codex Proxy privado, incluindo Direção, Subgerente e especialistas. O novo gateway `videoforge/proxy/agent_gateway.py` reconhece os 9 papéis visuais e 27 especialistas definidos em `agentes/equipe.json`, seleciona modelo por papel e permite **uma chamada de texto aprovada por vez**. Não habilita os trabalhadores automaticamente e não executa mídia ou uploads. TTS, render, animação e publicação continuam em seus motores específicos.
