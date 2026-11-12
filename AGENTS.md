@@ -29,6 +29,28 @@ Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes 
 
 **Critério de conclusão:** a tarefa deve funcionar e a aplicação deve continuar organizada, compreensível e sustentável para a próxima modificação.
 
+## Escritório deve refletir trabalho real, nunca simulado
+
+Toda execução real AutoEditor deve registrar no GitHub Checks as tarefas
+efetivamente executadas por papel, por meio de
+`videoforge/production/role_events.py`. Um check concluído exige
+evidência local (arquivo real, integridade básica) e um check de erro
+nunca pode ser apresentado como sucesso. A interface lê
+`site/office-live.js` em modo somente leitura, validando ID, SHA,
+canal e o vínculo com o workflow; nunca aceita eventos arbitrários.
+
+**Não confundir uma etapa técnica automatizada com um agente IA
+autônomo.** O modelo de IA de cada funcionário ainda não está
+habilitado; os indicadores do escritório devem distinguir um
+"executor de pipeline" de uma "IA independente". Nunca exibir
+Publicador trabalhando sem upload autorizado/real e nunca pontuar
+o Subgerente sem QA independente. Os registros ficam em GitHub
+Checks para auditoria, sem prompts/tokens/dados privados.
+
+O monitoramento do GitHub Pages é por polling, não por WebSocket, e
+não consome cota do gerador de imagens. Não repetir uma produção para
+testar a presença de animações no painel.
+
 ## Motor AutoEditorVideo dentro do VideoForge
 
 O gerador `autoeditor` reutiliza somente o motor audiovisual
