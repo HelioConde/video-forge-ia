@@ -61,3 +61,39 @@ python -m unittest discover -s tests -p 'test_editorial_team.py' -v
 Documentos relacionados: [Arquitetura](ARQUITETURA.md),
 [`AGENTS.md`](../AGENTS.md),
 [Gerentes](../agentes/README.md).
+
+## Triagem de relevância por histórico, sem chamada de modelo
+
+O módulo `videoforge/channel_agents/research_triage.py` permite comparar os
+sinais externos documentados com os **títulos do histórico completo**
+e com a presença de métricas do canal. A correspondência é literal por
+palavras/frases e aliases declarados no pacote (`title_aliases`):
+é uma aproximação, não detecção semântica de duplicatas. O resultado
+**não** classifica potencial de crescimento, não cria candidatos e não
+escolhe um tema. A escolha segue exclusiva do fluxo editorial existente.
+
+O workflow `.github/workflows/external-research-validation.yml` oferece:
+
+- Em `push`/`pull_request`: validação offline do contrato e testes.
+- Em disparo manual na `main`, modo `youtube-readonly`: usa as
+  credenciais protegidas do ambiente `proxy-runtime`, consulta a API de
+  leitura do YouTube e analisa o histórico completo para o canal
+  `otaku-br`. Nunca inicializa Codex Proxy, TTS, imagem, render ou uploader.
+- O relatório completo com dados do canal permanece **somente no runner**,
+  e é eliminado ao terminar; não há upload de artifact e as métricas
+  privadas não são incluídas no log nem no GitHub Pages.
+- O resumo público registra somente verificação, número de sinais,
+  zero decisões e zero chamadas de IA. A inclusão de pesquisa não dispara
+  automaticamente a consulta privada.
+
+Execução opcional, apenas com autorização explícita do dono:
+
+```powershell
+gh workflow run external-research-validation.yml -R HelioConde/video-forge-ia --ref main -f mode=youtube-readonly -f days=90
+```
+
+As verificações públicas do contrato continuam gratuitas e independentes
+do estado HTTP 429 do Codex Proxy. Uma validação de fontes ou correspondência
+de série **não** prova que uma pauta individual seja inédita.
+
+Testes: `python -m unittest discover -s tests -p 'test_research_triage.py' -v`.
