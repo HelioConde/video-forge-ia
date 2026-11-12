@@ -8,9 +8,25 @@ from unittest.mock import patch
 
 from videoforge.production.dispatcher import build_plan, STAGES
 from videoforge.production.pilot_executor import (
-    CallBudget, FALLBACK, LIMIT, PilotError, STAGE_FILES, validate_story,
+    CallBudget, LIMIT, PilotError, STAGE_FILES, validate_story,
     generate_story, produce,
 )
+
+
+# Text-only fake test input, never a generated image or a production fallback.
+EXAMPLE_STORY = {
+    "title": "O Cavaleiro de Papel",
+    "description": "Uma historia inteiramente ficticia sobre coragem e sombras.",
+    "tags": ["fantasia", "original", "anime"],
+    "scenes": [
+        {"narration": "Um cavaleiro surgiu no amanhecer.",
+         "visual_prompt": "An original paper knight in a violet fantasy city, portrait."},
+        {"narration": "A sombra se moveu diante dele.",
+         "visual_prompt": "Original silhouette across a fantasy street, portrait."},
+        {"narration": "A coragem trouxe uma nova luz.",
+         "visual_prompt": "Paper knight greeting sunrise, original cinematic art, portrait."},
+    ],
+}
 
 
 class FakeProxy:
@@ -41,17 +57,17 @@ class PilotContracts(unittest.TestCase):
             CallBudget(LIMIT + 1)
 
     def test_original_story_contract(self):
-        result = validate_story(FALLBACK)
+        result = validate_story(EXAMPLE_STORY)
         self.assertEqual(len(result["scenes"]), 3)
         self.assertEqual(len(result["tags"]), 3)
         self.assertIn("cavaleiro", result["scenes"][0]["narration"])
 
     def test_reject_franchises_and_extra_scenes(self):
-        story = dict(FALLBACK)
+        story = dict(EXAMPLE_STORY)
         story["title"] = "Naruto and the paper knight"
         with self.assertRaises(PilotError):
             validate_story(story)
-        story = dict(FALLBACK)
+        story = dict(EXAMPLE_STORY)
         story["scenes"] = story["scenes"] * 2
         with self.assertRaises(PilotError):
             validate_story(story)
@@ -59,7 +75,7 @@ class PilotContracts(unittest.TestCase):
     def test_bad_chat_result_fails_closed_without_story_fallback(self):
         proxy = FakeProxy()
         budget = CallBudget(4)
-        with self.assertRaisesRegex(PilotError, "SCRIPT_GENERATION_UNAVAILABLE"):
+        with self.assertRaisesRegex(PilotError, "SCRIPT_GENERATION_INVALID_NO_FALLBACK"):
             generate_story(proxy, budget, "gpt-6.1-sol")
         self.assertEqual(budget.sent, 1)
         self.assertEqual(len(proxy.chat_requests), 1)
@@ -79,7 +95,7 @@ class PilotContracts(unittest.TestCase):
             forged = [{"scene": 1, "file": "scene-1.png",
                        "origin": "local_original_fallback",
                        "generated_by": "video_forge_image_generator"}]
-            with self.assertRaisesRegex(ImageProvenanceError, "UNTRUSTED_VISUAL_OR_FALLBACK"):
+            with self.assertRaisesRegex(ImageProvenanceError, "UNTRUSTED_VISUAL_OR_EXAMPLE_STORY"):
                 validate_generated_visuals(forged, Path(tmp), expected_count=1)
 
     def test_image_provider_failure_must_abort_before_video_render(self):
@@ -92,7 +108,7 @@ class PilotContracts(unittest.TestCase):
             budget = CallBudget(4)
             budget.use()  # script stage
             with self.assertRaisesRegex(PilotError, "IMAGE_GENERATOR_UNAVAILABLE"):
-                visuals(ImageFailProxy(), budget, Path(tmp), validate_story(FALLBACK),
+                visuals(ImageFailProxy(), budget, Path(tmp), validate_story(EXAMPLE_STORY),
                         "gpt-image-2")
             self.assertEqual(budget.sent, 2)
             self.assertFalse((Path(tmp)/"video.mp4").exists())
@@ -107,7 +123,7 @@ class PilotContracts(unittest.TestCase):
             budget = CallBudget(4)
             budget.use()
             with self.assertRaisesRegex(PilotError, "IMAGE_GENERATOR_RETURNED_INVALID_MEDIA"):
-                visuals(InvalidImageProxy(), budget, Path(tmp), validate_story(FALLBACK),
+                visuals(InvalidImageProxy(), budget, Path(tmp), validate_story(EXAMPLE_STORY),
                         "gpt-image-2")
             self.assertFalse((Path(tmp)/"video.mp4").exists())
 
@@ -120,7 +136,7 @@ class PilotContracts(unittest.TestCase):
             budget = CallBudget(3)
             budget.use()
             with self.assertRaisesRegex(PilotError, "INSUFFICIENT_BUDGET"):
-                visuals(NoCallProxy(), budget, Path(tmp), validate_story(FALLBACK),
+                visuals(NoCallProxy(), budget, Path(tmp), validate_story(EXAMPLE_STORY),
                         "gpt-image-2")
             self.assertEqual(budget.sent, 1)
 
