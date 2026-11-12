@@ -168,6 +168,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
+          python -m unittest discover -s tests -p 'test_visual_lock.py' -v
           python -m unittest discover -s tests -p 'test_generator_registry.py' -v
       - name: Compilar o proxy Go sem segredos
         working-directory: upstream-codex-proxy
@@ -237,10 +238,11 @@ jobs:
             --output "$GITHUB_WORKSPACE/output/autoeditor-$PILOT_JOB_ID" \
             --motion-root "$GITHUB_WORKSPACE/autoeditor-source/motion-remotion" \
             --job-id "$PILOT_JOB_ID" --max-image-calls 12
-      - name: Verificar MP4, procedencia e bloqueio de upload
+      - name: Verificar MP4, procedencia, referencia visual e bloqueio de upload
         shell: bash
         env:
           PILOT_JOB_ID: vf-${{ github.run_id }}
+          JOB_MANIFEST: ${{ inputs.manifest || 'geradores/autoeditor/exemplo-manifesto.json' }}
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -251,6 +253,18 @@ jobs:
           root=Path("output")/("autoeditor-"+os.environ["PILOT_JOB_ID"])
           report=json.loads((root/"manifest.json").read_text(encoding="utf-8"))
           images=json.loads((root/"imagens.json").read_text(encoding="utf-8"))
+          from videoforge.production.visual_lock import verify_anchor_trace
+          from videoforge.generators.autoeditor import load_manifest
+          manifest_path=os.environ["JOB_MANIFEST"]
+          bible=load_manifest(manifest_path)["visual_lock"]
+          audit=verify_anchor_trace(images["assets"], bible)
+          assert audit["anchor_reference_provenance_verified"] is True
+          assert audit["actual_visual_identity_verified"] is False
+          assert audit["youtube_upload_approved"] is False
+          assert images.get("visual_audit")==audit
+          qa=json.loads((root/"qa-imagens.json").read_text(encoding="utf-8"))
+          assert qa["publication_blocked_pending_independent_visual_review"] is True
+
           assert report["generated_images"] == len(images["assets"]) >= 3
           assert report["fallback_images"] == 0
           assert report["human_approved"] is False
