@@ -88,15 +88,21 @@ def build_plan(demand: dict[str, Any], *, root: Path = ROOT) -> dict:
         "execution_enabled": False,
         "publishing_enabled": False,
         "manager": "gerente_geral",
+        "quality_gate": {"status": "not_evaluated", "required": True,
+                         "max_revisions": 2, "human_approval_required": True},
         "tasks": jobs,
     }
 
 
 def ready_tasks(plan: dict) -> list[str]:
+    gate = plan.get("quality_gate", {})
+    if gate.get("status") in ("suspended", "blocked_policy"):
+        return []  # gerente precisa resolver antes de consumir novos recursos
     done = {t["id"] for t in plan["tasks"] if t["status"] == "done" and t.get("artifact_verified") is True}
     return [
         t["id"] for t in plan["tasks"] if
         t["status"] in ("ready", "blocked") and
+        (t["id"] != "aprovacao" or gate.get("status") == "ready_for_human_approval") and
         set(t["depende_de"]) <= done
     ]
 
@@ -111,6 +117,60 @@ def mark_verified(plan: dict, task_id: str, *, evidence_path: Path) -> None:
         raise ValueError("Entrega verificável não encontrada.")
     matches[0]["status"] = "done"
     matches[0]["artifact_verified"] = True
+
+
+def attach_quality_report(plan: dict, report: dict, *, media_path: Path,
+                          trusted_backend: bool = False, probe=None) -> dict:
+    """Portão de QA final; não executa IA, renderização ou uploads.
+
+    Chamadas devem vir do executor privado que comprova os revisores. A
+    evidência do frontend ou arquivo público jamais deve ser confiada.
+    """
+    from .quality_gate import evaluate_quality, inspect_media
+    if plan.get("schema") != "videoforge/production-delegation/v1":
+        raise ValueError("Plano incompatível")
+    by_id = {t["id"]: t for t in plan["tasks"]}
+    for qa_id in ("qa_tecnico", "qa_conteudo"):
+        qa = by_id.get(qa_id, {})
+        if qa.get("status") != "done" or qa.get("artifact_verified") is not True:
+            raise ValueError("Revisões técnicas e editoriais ainda não verificadas")
+    if by_id["aprovacao"]["status"] == "done":
+        raise ValueError("QA não pode ser alterado depois da aprovação")
+    kwargs = {}
+    if probe is not None:
+        kwargs["probe"] = probe  # injeção somente para testes privados
+    result = evaluate_quality(
+        report, media_path=media_path, trusted_backend=trusted_backend,
+        job_id=plan["demand"]["id"], channel=plan["demand"]["canal"],
+        expected_duration_seconds=plan["demand"]["duracao_segundos"],
+        **kwargs,
+    )
+    plan["quality_gate"] = result
+    if result["status"] == "rework":
+        # Qualquer melhoria em uma entrega invalida suas dependentes
+        # (incluindo QA); não reutilizar uma aprovação de versão anterior.
+        targets = set()
+        mapping = {
+            "originalidade": "pesquisa", "pesquisa_e_fatos": "pesquisa",
+            "roteiro_e_gancho": "roteiro", "narracao": "narracao",
+            "consistencia_visual": "visuais", "edicao_e_ritmo": "edicao",
+            "titulo_e_thumbnail": "titulo", "qualidade_tecnica": "edicao",
+        }
+        targets.update(mapping[k] for k in result["low_dimensions"])
+        if result["failed_checks"] or result["media_errors"] or not targets:
+            targets.add("edicao")
+        changed = True
+        while changed:
+            previous = len(targets)
+            targets.update(t["id"] for t in plan["tasks"]
+                           if any(dep in targets for dep in t["depende_de"]))
+            changed = len(targets) != previous
+        for task in plan["tasks"]:
+            if task["id"] in targets:
+                task["status"] = "blocked"
+                task["artifact_verified"] = False
+        plan["quality_gate"]["rework_targets"] = sorted(targets)
+    return result
 
 
 def main() -> None:
