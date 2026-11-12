@@ -6,6 +6,8 @@
   "idioma": "pt-BR",
   "modelo_padrao": "camadas-animadas",
   "modelo_padrao_provisorio": true,
+  "gerador_padrao": "kids",
+  "gerador_padrao_provisorio": true,
   "nicho": "fofinhos_original_childrens_animation",
   "audiencia": "children",
   "serie_principal": "Fofinhos",
