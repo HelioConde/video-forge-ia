@@ -1,0 +1,15 @@
+{
+  "schema": "videoforge/first-production-request/v1",
+  "request_id": "otaku-multicena-first-private-preview-2026-11-11",
+  "channel": "otaku-br",
+  "duration_seconds": 18,
+  "topic": "O cavaleiro de papel que enfrentou sua propria sombra",
+  "generate_once_on_merge_to_main": true,
+  "owner_authorized_video_preview": true,
+  "generative_call_limit": 4,
+  "max_ai_images": 3,
+  "format": "technical_preview_not_youtube_short",
+  "human_review_required": true,
+  "youtube_upload_enabled": false,
+  "paid_services_allowed": false
+}
