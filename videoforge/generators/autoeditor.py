@@ -23,6 +23,11 @@ import sys
 
 from videoforge.generators import build_generator_plan, load_generator
 from videoforge.production.image_policy import validate_generated_visuals
+from videoforge.production.scene_layers import (
+    MAX_IMAGE_REQUESTS, SceneLayerError, validate_scene_decomposition,
+    validate_layer_plan, count_image_requests, generate_scene_layers,
+    verify_scene_layers,
+)
 from videoforge.production.visual_lock import (
     validate_visual_lock, resolve_reference_image, visual_bible_digest,
     scene_prompt, verify_anchor_trace,
@@ -105,6 +110,7 @@ def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
     if channel.get("audiencia") != "children" and raw.get("feito_para_criancas") is True:
         raise AutoEditorBlocked("AUTOEDITOR_KIDS_CHANNEL_MISMATCH")
     visual_lock = validate_visual_lock(raw.get("visual_lock"))
+    decomposition = validate_scene_decomposition(raw.get("scene_decomposition"))
     resolve_reference_image(visual_lock, channel=channel_id, root=root)
     scenes = raw.get("cenas")
     if not isinstance(scenes, list) or not 3 <= len(scenes) <= MAX_IMAGES:
@@ -123,6 +129,7 @@ def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
             "narracao": _check_text(item.get("narracao"), "SCENE_NARRATION", 900),
             "prompt_imagem": _check_text(item.get("prompt_imagem"), "IMAGE_PROMPT", 1200),
             "papel": _check_text(item.get("papel", "detail"), "SCENE_ROLE", 60),
+            "layer_plan": validate_layer_plan(item.get("layer_plan")),
         })
     if _words(" ".join(s["narracao"] for s in output_scenes)) < 130:
         raise AutoEditorBlocked("AUTOEDITOR_SCRIPT_TOO_SHORT_FOR_90_SECONDS")
@@ -134,7 +141,7 @@ def validate_manifest(raw: object, *, root: Path = ROOT) -> dict:
         "feito_para_criancas": channel.get("audiencia") == "children",
         "origem_imagens": "integrated-image-generator",
         "modelo_imagem": IMAGE_MODEL, "visual_lock": visual_lock,
-        "cenas": output_scenes,
+        "scene_decomposition": decomposition, "cenas": output_scenes,
     }
     return result
 
@@ -160,7 +167,10 @@ def plan(manifest: dict, *, root: Path = ROOT) -> dict:
         **graph, "schema": "videoforge/autoeditor-production-plan/v1",
         "channel": manifest["canal"], "video_id": manifest["id"],
         "format": manifest["formato"], "image_model": IMAGE_MODEL,
-        "planned_image_calls": len(manifest["cenas"]),
+        "planned_image_calls": count_image_requests(manifest),
+        "planned_master_scenes": len(manifest["cenas"]),
+        "planned_layer_image_calls": count_image_requests(manifest) - len(manifest["cenas"]),
+        "scene_decomposition_mode": manifest["scene_decomposition"]["mode"],
         "visual_reference_mode": "supplied_reference" if manifest["visual_lock"]["reference_path"] else "generate_scene_one_then_edit",
         "expected_duration_seconds": MIN_SHORT_SECONDS,
         "voice_engine": "Edge TTS WordBoundary",
@@ -371,17 +381,45 @@ def generate_images(manifest: dict, out: Path, proxy: ProxyClient, *,
 
 
 def build_remotion_props(manifest: dict, duration: float, words: list[dict],
-                        *, staging_id: str) -> dict:
+                        *, staging_id: str, layer_document: dict | None = None) -> dict:
     staging_id = _check_id(staging_id, "STAGING")
     cuts, captions = real_timing(manifest, words, duration)
     scenes = []
     for i, (scene, start, end) in enumerate(zip(manifest["cenas"], cuts, cuts[1:]), 1):
         src = f"generated/{staging_id}/scene-{i}.png"
+        background = src
+        layers = []
+        if layer_document is not None:
+            row = layer_document["scenes"][i - 1]
+            if row["scene_id"] != scene["id"]:
+                raise AutoEditorBlocked("AUTOEDITOR_LAYER_SCENE_MISMATCH")
+            background = f"generated/{staging_id}/{row['background']['file']}"
+            for character in row["characters"]:
+                layers.append({
+                    "id": character["id"], "role": "front_character",
+                    "src": f"generated/{staging_id}/{character['file']}",
+                    "z": 20, "alphaCoverage": character["alpha_coverage"],
+                    # Never separate arms/hands from an attached movable prop.
+                    "heroRisk": .08 if row["movable_props"] else .02,
+                    "contactRisk": .30, "anchorX": 50, "anchorY": 80,
+                })
+            for movable in row["movable_props"]:
+                layers.append({
+                    "id": movable["id"], "role": "hero_prop",
+                    "src": f"generated/{staging_id}/{movable['file']}",
+                    "z": 30, "alphaCoverage": movable["alpha_coverage"],
+                    # A separate transparent object can be animated later, but
+                    # the existing pinned renderer keeps hero props static
+                    # rather than inventing motion that may break hand contact.
+                })
+            if bool(row["characters"] or row["movable_props"]) != bool(layers):
+                raise AutoEditorBlocked("AUTOEDITOR_LAYER_GRAPH_INVALID")
         scenes.append({
             "id": scene["id"], "subject": "personagens",
             "startFrame": start, "endFrame": end,
-            "background": src, "foreground": src,
-            "renderMode": "master_static",
+            "background": background, "foreground": background,
+            "renderMode": "multilayer" if layers else "master_static",
+            **({"layers": layers} if layers else {}),
             "beatRole": "hook" if i == 1 else ("answer" if i == len(cuts)-1 else "detail"),
             "shotType": ("close", "wide", "medium", "detail")[i % 4],
             "transitionStyle": "hard" if i == 1 else "crossfade",
@@ -399,7 +437,8 @@ def build_remotion_props(manifest: dict, duration: float, words: list[dict],
 
 def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
                    audio: Path, images: list[dict], duration: float,
-                   words: list[dict], job_id: str, reporter: CheckReporter | None = None) -> dict:
+                   words: list[dict], job_id: str, reporter: CheckReporter | None = None,
+                   layer_document: dict | None = None) -> dict:
     """Run actual AutoEditorVideo MasterShort. Never invoke its upload scripts."""
     motion_root = Path(motion_root).resolve()
     if not (motion_root/"package.json").is_file() or not (motion_root/"src/master-short.tsx").is_file():
@@ -422,12 +461,25 @@ def render_remotion(manifest: dict, out: Path, *, motion_root: Path,
     try:
         props_file = out/"remotion-props.json"
         with role_task("animador", evidence=(props_file,), reporter=reporter):
-            props = build_remotion_props(manifest, duration, words, staging_id=staging_id)
+            if layer_document is None:
+                raise AutoEditorBlocked("AUTOEDITOR_LAYERS_REQUIRED_FOR_RENDER")
+            verify_scene_layers(manifest, out, layer_document)
+            props = build_remotion_props(manifest, duration, words,
+                                          staging_id=staging_id,
+                                          layer_document=layer_document)
             props_file.write_text(json.dumps(props, ensure_ascii=False, indent=2)+"\n",
                                   encoding="utf-8")
         shutil.copyfile(audio, target/"voice.mp3")
         for file in images:
             shutil.copyfile(out / file["file"], target / file["file"])
+        for row in layer_document["scenes"]:
+            for asset in [row["background"], *row["characters"], *row["movable_props"]]:
+                source = out / asset["file"]
+                destination = target / asset["file"]
+                if source.resolve() == (out / row["master"]).resolve():
+                    continue
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, destination)
         output = out/"video.mp4"
         with role_task("editor", evidence=(output,), reporter=reporter):
             _run(["npm", "run", "render:master", "--", str(output.resolve()),
@@ -452,7 +504,10 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     dest = Path(destination).resolve()
     if dest.exists():
         raise AutoEditorBlocked("AUTOEDITOR_OUTPUT_DIRECTORY_EXISTS")
-    if not 1 <= max_calls <= MAX_IMAGES or len(manifest["cenas"]) > max_calls:
+    expected_calls = count_image_requests(manifest)
+    if (not isinstance(max_calls, int) or isinstance(max_calls, bool)
+            or not 1 <= max_calls <= MAX_IMAGE_REQUESTS
+            or expected_calls > max_calls):
         raise AutoEditorBlocked("AUTOEDITOR_IMAGE_BUDGET_INVALID")
     client = proxy or ProxyClient(timeout=240)
     accounts = client.accounts()
@@ -484,16 +539,31 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
     # TTS first, so an incorrectly paced script does not waste image requests.
     with role_task("narrador", evidence=(dest/"narracao.mp3", dest/"marcacoes-voz.json"), reporter=reporter):
         audio, seconds, words = prepare_voice(manifest, dest)
-    with role_task("artista", evidence=(dest/"imagens.json",), reporter=reporter):
+    with role_task("artista", evidence=(dest/"imagens.json", dest/"scene-layers.json"),
+                   reporter=reporter):
         images = generate_images(manifest, dest, client, max_calls=max_calls)
-    audit = verify_anchor_trace(images, manifest["visual_lock"])
-    (dest/"qa-imagens.json").write_text(json.dumps({
-        **audit, "generator_images": len(images), "fallback": 0,
-        "visual_consistency_not_verified": True,
-        "publication_blocked_pending_independent_visual_review": True,
-    }, indent=2)+"\n", encoding="utf-8")
+        layers = generate_scene_layers(manifest, dest, client,
+                                       master_assets=images, max_calls=max_calls)
+    # Reviewer's distinct technical stage checks generated files and alpha.
+    # This is NOT approval of artistic alignment, cutout quality or publish.
+    with role_task("revisor", evidence=(dest/"qa-camadas.json", dest/"qa-imagens.json"),
+                   reporter=reporter):
+        layer_qa = verify_scene_layers(manifest, dest, layers)
+        (dest/"qa-camadas.json").write_text(
+            json.dumps(layer_qa, ensure_ascii=False, indent=2)+"\n",
+            encoding="utf-8")
+        audit = verify_anchor_trace(images, manifest["visual_lock"])
+        (dest/"qa-imagens.json").write_text(json.dumps({
+            **audit, "generator_images": len(images),
+            "layer_image_requests": layers["image_requests"],
+            "true_png_transparency_verified": layer_qa["true_png_transparency_verified"],
+            "foreground_background_alignment_verified": False,
+            "fallback": 0, "visual_consistency_not_verified": True,
+            "publication_blocked_pending_independent_visual_review": True,
+        }, indent=2)+"\n", encoding="utf-8")
     media = render_remotion(manifest, dest, motion_root=motion_root, audio=audio,
-                           images=images, duration=seconds, words=words, job_id=job_id, reporter=reporter)
+                           images=images, duration=seconds, words=words,
+                           job_id=job_id, reporter=reporter, layer_document=layers)
     props=json.loads((dest/"remotion-props.json").read_text(encoding="utf-8"))
     (dest/"storyboard.json").write_text(json.dumps({
         "source": "remotion_actual_edge_tts_timing",
@@ -527,10 +597,17 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
         "source_commit": AUTOEDITOR_COMMIT,
         "voice_source": "edge_tts_real_word_boundary",
         "image_source": "codex_proxy_image",
-        "generated_images": len(images), "image_requests": len(images),
+        "generated_images": len(images),
+        "layer_image_requests": layers["image_requests"],
+        "image_requests": layers["total_image_requests"],
+        "scene_decomposition": manifest["scene_decomposition"]["mode"],
+        "generated_layer_files": sum(
+            len(row["characters"]) + len(row["movable_props"]) +
+            (1 if row["characters"] or row["movable_props"] else 0)
+            for row in layers["scenes"]),
         "fallback_images": 0, "media": media,
         "human_approved": False, "youtube_uploaded": False,
-        "limitation": "MasterShort camera motion; no verified character rigging",
+        "limitation": "2D RGBA-layer composition; independent prop rigging and human visual QA still pending",
     }
     (dest/"manifest.json").write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",
                                       encoding="utf-8")
