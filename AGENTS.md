@@ -192,6 +192,38 @@ agentes, aumentar gastos, demitir, punir ou publicar conteúdo** sozinho.
 Toda alteração de modelos/prompts/código exige aprovação humana, testes e
 política de rollback. [Contrato e critérios](docs/SUBGERENTE.md).
 
+## Regra ABSOLUTA de imagens dos vídeos: SOMENTE gerador integrado
+
+**O assistente NAO deve gerar, desenhar ou fornecer imagens das cenas de
+producao por conta propria.** As imagens de TODOS os videos de producao
+devem ser solicitadas pelo executor privado a um gerador de imagens
+integrado e autorizado do VideoForge AI. A escolha e a origem do provedor
+devem constar na evidencia do backend; atualmente o piloto utiliza
+`ProxyClient.images_generate` do Go Codex Proxy.
+
+E PROIBIDO fazer fallback visual com Pillow/ImageDraw, formas geometricas,
+placeholders, stock, imagens de conversas com ChatGPT, arte manual ou
+qualquer imagem criada no codigo para substituir a falha do provedor.
+Proibido tambem reciclar um quadro ou imagem de outro video como se tivesse
+sido gerada para esta producao. Pode-se recortar, redimensionar, aplicar
+movimento de camera e compor texto **sobre imagem realmente recebida do
+gerador**, nunca inventar seu conteudo.
+
+Se QUALQUER imagem nao for retornada ou for invalida, **interromper o job
+sem renderizar um novo video**, sem upload e sem marcar a tarefa como
+concluida. Erros HTTP 429 devem ser informados como indisponibilidade do
+provedor, **sem retries automaticos** nem utilizacao de um provedor pago
+alternativo sem autorizacao. Nunca disfarcar falha de IA com fallback local.
+
+Regras testaveis em `config/production-image-policy.json` e verificacao
+em `videoforge/production/image_policy.py`. O executor comprova a origem
+a partir da resposta da API, confere arquivo e SHA-256. Um JSON de
+proveniencia sem controle de execucao nao basta para comprovar a origem.
+A thumbnail pode ser composta APENAS a partir de imagem ja gerada pelo
+provedor (recorte e texto), e nao pode introduzir arte substituta.
+Arquivos antigos de testes com imagens locais **nao** sao aceitos como
+producao conforme esta regra.
+
 ## Qualidade é obrigatória antes de ampliar quantidade
 
 A política está em \`config/quality-policy.json\` e
