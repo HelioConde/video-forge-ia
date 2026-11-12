@@ -67,6 +67,34 @@ def proposals():
 
 
 class TestEditorialTeam(TestCase):
+    def test_editorial_model_matches_pinned_proxy_catalog(self):
+        from videoforge.channel_agents.team import select_editorial_model
+        # The pinned upstream bootstrap (2026-11) lists GPT-6.1/6/5.6,
+        # not the retired model names previously hardcoded in team.py.
+        catalog = {"object": "list", "data": [
+            {"id": "gpt-image-2"}, {"id": "gpt-6-luna"},
+            {"id": "gpt-5.6-sol"}, {"id": "gpt-6.1-sol"},
+        ]}
+        self.assertEqual(select_editorial_model(catalog), "gpt-6.1-sol")
+        self.assertEqual(select_editorial_model(
+            {"data": [{"id": "gpt-5.6-terra"}]}), "gpt-5.6-terra")
+        self.assertEqual(select_editorial_model(
+            {"data": [{"id": "gpt-6-astra"}]}), "gpt-6-astra")
+
+    def test_editorial_model_fails_closed_without_text_model(self):
+        from videoforge.channel_agents.team import select_editorial_model
+        for payload, expected in (
+            ({"data": [{"id": "gpt-image-2"}, {"id": "gpt-image-1.5"}]},
+             "TEAM_NO_SUPPORTED_EDITORIAL_MODEL"),
+            ({"data": [{"id": "gpt-5.4"}]},
+             "TEAM_NO_SUPPORTED_EDITORIAL_MODEL"),
+            ({"data": "invalid"}, "TEAM_MODEL_CATALOG_INVALID"),
+            ({}, "TEAM_MODEL_CATALOG_INVALID"),
+        ):
+            with self.subTest(expected=expected), self.assertRaisesRegex(
+                    EditorialTeamError, expected):
+                select_editorial_model(payload)
+
     def test_researcher_not_assistant_generates_all_candidates(self):
         data = inventory()
         proposed = proposals()
