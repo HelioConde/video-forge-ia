@@ -16,6 +16,13 @@ O VideoForge chama `role_task()` durante tarefas reais de roteiro/validação, v
 
 `videoforge/production/agent_dispatch.py` conecta as etapas textuais elegíveis do DAG do `dispatcher.py` aos especialistas do `agentes/equipe.json` por `videoforge/proxy/agent_gateway.py`. A prévia `plan_text_dispatch` não consulta modelos nem cobra cotas. Somente um runner backend confiável com aprovação por execução pode chamar `run_text_draft`, que reserva a tarefa de modo exclusivo e salva um rascunho privado com hash para revisão independente, sem atualizar o DAG como concluído. O workflow `production-request.yml` exibe somente a prévia; publicação e geração paga não são habilitadas. Ver [guia](AGENT_TEXT_DISPATCH.md).
 
+
+## Regra 2 — decomposição per-scene em camadas reais
+
+O módulo `videoforge/production/scene_layers.py` valida o storyboard de personagens e props por cena e deriva as camadas **exclusivamente por edição da própria imagem-mãe** com Codex Proxy. O background é uma reconstrução opaca sem sujeitos independentes; personagens e objetos móveis são PNG RGBA 720×1280 com alfa não trivial, coordenadas preservadas por contrato e SHA-256 vinculado à imagem-mãe. Cenas sem elementos móveis reutilizam o master. O procedimento verifica bytes, hashes, limites de custo, papel do agente e integridade geométrica; sem tentar mascarar com código o que o provider falhou em extrair.
+
+O ilustrador armazena `scene-layers.json`, o revisor independente de etapa gera `qa-camadas.json`, o animador monta `remotion-props.json` com `renderMode=multilayer` e o Editor executa Remotion. São tarefas distintas marcadas por `role_task`; nenhum evento significa ativação de agentes autônomos. O formato é suportado pelo Remotion já pinado em AutoEditorVideo. Os props `hero_prop` ficam estáticos no engine atual, ainda que separados para futura animação; não afirmar rigging já implementado. Estética, encaixe perfeito, ausência de fantasmas e direitos continuam exigindo QA humano antes de publicar. Cota exata é pré-autorizada, sem retries nem fallback. [Guia detalhado](CAMADAS_CENA_MESTRE.md).
+
 ## Âncora visual obrigatória e direção de arte do VideoForge
 
 O fluxo de imagem do próprio VideoForge resolve a referência aprovada do canal em `canal/<id>/referencias/<arquivo>` (se configurada em `visual_lock.reference_path`). Sem referência, o worker gera **uma única imagem âncora** usando `gpt-image-2` no Codex Proxy; todas as demais cenas são derivações usando `ProxyClient.images_edit_files` e a **mesma imagem 1** como entrada de referência. Assim, uma falha no modelo de edição bloqueia a tarefa: não há fallback para oito gerações independentes. A bíblia visual fica no manifesto e é validada antes de gastar cotas.
