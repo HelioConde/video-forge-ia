@@ -288,8 +288,16 @@ def main(argv=None):
         print("NO_IMAGES_NO_VIDEO_NO_PUBLISH")
         return 0 if report.get("chosen_topic") else 2
     except (EditorialTeamError, EditorialIdeationError, YouTubeReadError) as exc:
-        # Errors here only use fixed/validated labels; no remote payload.
-        print("EDITORIAL_TEAM_BLOCKED_" + type(exc).__name__)
+        # Only local, fixed policy codes can be printed. Never disclose the
+        # OAuth response, model output, HTTP error body, token or prompt.
+        # Error class alone hides whether the block is insufficient channel
+        # metrics, a missing model or a dedup restriction.
+        code = str(exc)
+        if not isinstance(exc, EditorialTeamError) or not (
+                5 <= len(code) <= 90 and
+                all(ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for ch in code)):
+            code = type(exc).__name__
+        print("EDITORIAL_TEAM_BLOCKED_" + code)
         return 1
 
 

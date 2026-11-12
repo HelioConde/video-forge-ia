@@ -120,6 +120,34 @@ class TestEditorialTeam(TestCase):
         with self.assertRaisesRegex(EditorialTeamError,"CHANNEL_ID_MISMATCH"):
             run_team(channel="otaku-br",snapshot=d,client=object(),model="test",root=ROOT)
 
+    def test_preflight_failure_logs_only_fixed_policy_code_without_secrets(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from videoforge.channel_agents.team import main
+        import os
+
+        env = {
+            "CHANNEL_IDEATION_APPROVED": "yes",
+            "GITHUB_REPOSITORY": "HelioConde/video-forge-ia",
+            "GITHUB_REF": "refs/heads/main",
+        }
+        for message, expected in (
+            ("TEAM_INSUFFICIENT_VERIFIED_METRICS",
+             "EDITORIAL_TEAM_BLOCKED_TEAM_INSUFFICIENT_VERIFIED_METRICS"),
+            ("token=secret-WOULD-BE-DANGEROUS", "EDITORIAL_TEAM_BLOCKED_EditorialTeamError"),
+        ):
+            with self.subTest(message=expected):
+                output = StringIO()
+                with (mock.patch.dict(os.environ, env),
+                      mock.patch("videoforge.channel_agents.team.channel_policy",
+                                 side_effect=EditorialTeamError(message)),
+                      redirect_stdout(output)):
+                    status = main(["--channel", "otaku-br", "--days", "90",
+                                   "--model", "auto", "--output", "fake.json"])
+                self.assertEqual(status, 1)
+                self.assertIn(expected, output.getvalue())
+                self.assertNotIn("secret-WOULD", output.getvalue())
+
     def test_no_topic_returned_if_deputy_blocks_all(self):
         only_paused=[proposal("x","Um novo video", "Death Note")]
         with mock.patch("videoforge.channel_agents.team.propose_candidates",

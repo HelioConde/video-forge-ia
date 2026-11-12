@@ -323,15 +323,22 @@
         Number.isSafeInteger(snap.telemetria.run_id) && snap.telemetria.run_id > 0;
     const rolesObserved = pipelineObserved && snap.telemetria.recorded_roles > 0;
     const runActive = pipelineObserved && snap.telemetria.status === "in_progress";
-    $("sceneSource").textContent=(runActive?
-        (rolesObserved?"PRODUÇÃO AUTOEDITOR EM EXECUÇÃO":"RENDER NO GITHUB · AGENTES SEM TELEMETRIA") :
-        rolesObserved?"ÚLTIMA PRODUÇÃO REGISTRADA":
+    const runFailed = pipelineObserved && snap.telemetria.status === "completed" &&
+      snap.telemetria.conclusion === "failure";
+    // Editorial research is NOT a render. A failed preflight is not evidence
+    // that the manager, researcher or editor actually did any work.
+    $("sceneSource").textContent=(runFailed?
+        (rolesObserved?"EXECUÇÃO INTERROMPIDA · VER ETAPAS":"PESQUISA/PIPELINE BLOQUEADO · SEM TRABALHO COMPROVADO") :
+        runActive?
+        (rolesObserved?"AGENTES EXECUTANDO ETAPAS NO GITHUB":"PIPELINE NO GITHUB · AGENTES SEM TELEMETRIA") :
+        rolesObserved?"ÚLTIMAS ETAPAS REGISTRADAS":
         pipelineObserved?"ÚLTIMA EXECUÇÃO DO PIPELINE":
         actual?"SNAPSHOT DE ATIVIDADE":"SEM TELEMETRIA DE AGENTES")+
       (office.roleDemoEnabled()?" · ROTINAS EM PRÉVIA":"");
     $("connectionBadge").dataset.live=String(pipelineObserved||actual);
     $("connectionBadge").lastChild.textContent=pipelineObserved?
-       (runActive?" PIPELINE EM EXECUÇÃO":" HISTÓRICO DO PIPELINE"):
+       (runFailed?" ÚLTIMA EXECUÇÃO COM ERRO":
+        runActive?" PIPELINE EM EXECUÇÃO":" HISTÓRICO DO PIPELINE"):
        actual?" SNAPSHOT RECEBIDO":" AGENTES NÃO CONECTADOS";
     if(snap.gerado_em){const d=new Date(snap.gerado_em);$("snapshotAge").textContent=isNaN(d.getTime())?"Sem data":"Snapshot "+d.toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}
     renderPanel();
