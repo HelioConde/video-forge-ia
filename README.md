@@ -117,6 +117,10 @@ Politica executavel: [config/production-image-policy.json](config/production-ima
 e [videoforge/production/image_policy.py](videoforge/production/image_policy.py).
 [Detalhes do primeiro piloto](docs/PRIMEIRO-VIDEO-PILOTO.md).
 
+## Estado do pipeline no escritório
+
+O GitHub Pages mostra um snapshot e consulta execuções públicas do GitHub Actions. Uma execução de renderização pode estar em andamento mesmo que os agentes autônomos continuem **não conectados** e não haja Check Run específico para cada funcionário. Nesse caso, o painel informa **PIPELINE EM EXECUÇÃO**, mantendo a contagem real de agentes com atividade comprovada em zero; não transforma o render em prova de autonomia. O botão GitHub Actions abre o repositório correto.
+
 ## Consistência visual — responsabilidade dos agentes VideoForge
 
 O VideoForge recebe uma imagem de referência aprovada ou, se não houver, **gera a primeira imagem sozinho via Codex Proxy**. As cenas restantes são editadas a partir dessa mesma imagem. O ilustrador deve obedecer à bíblia visual do próprio vídeo; o revisor visual compara as cenas e só uma inspeção independente pode confirmar que a aparência ficou consistente. O chat **não gera** imagens, personagens ou capas de substituição. Chamadas de imagem sem referência após a cena 1 são proibidas. A verificação de origem/hash não equivale à aprovação de qualidade; o MP4 pode ser uma prévia privada, mas não um vídeo aprovado para publicação. [Regras do gerador](geradores/autoeditor/README.md).
