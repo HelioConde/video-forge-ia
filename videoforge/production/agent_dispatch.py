@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Mapping
 
 from videoforge.proxy.agent_gateway import (
-    AgentGatewayError, invoke_agent, registered_agents,
+    invoke_agent, registered_agents,
 )
 from videoforge.proxy.client import ProxyClient
 from videoforge.proxy.roles import STAGE_ENDPOINT
@@ -49,9 +49,9 @@ def _trusted_task(plan: dict, task_id: str, *, root: Path = ROOT) -> dict:
         and len(demand["id"]) <= 64
     ):
         raise DispatchError("DISPATCH_ID_INVALID")
-    if not isinstance(demand.get("canal"), str) or not (
-        (root / "canal" / demand["canal"] / "canal.json").is_file()
-    ):
+    if (not isinstance(demand.get("canal"), str)
+            or not demand["canal"].replace("-", "").isalnum()
+            or not (root / "canal" / demand["canal"] / "canal.json").is_file()):
         raise DispatchError("DISPATCH_CHANNEL_INVALID")
     if plan.get("publishing_enabled") is not False:
         raise DispatchError("DISPATCH_PUBLISHING_MUST_BE_DISABLED")
@@ -121,7 +121,10 @@ def _exclusive_json(path: Path, value: dict) -> None:
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW
-    fd = os.open(path, flags, 0o600)
+    try:
+        fd = os.open(path, flags, 0o600)
+    except FileExistsError:
+        raise DispatchError("DISPATCH_ATTEMPT_ALREADY_RESERVED") from None
     with os.fdopen(fd, "w", encoding="utf-8") as fh:
         json.dump(value, fh, ensure_ascii=False, indent=2)
         fh.write("\n")
