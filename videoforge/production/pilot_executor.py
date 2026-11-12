@@ -1,4 +1,4 @@
-"""Private one-off Otaku Multicena pilot. Generates MP4, never publishes."""
+"""Private Otaku preview; mandatory provider-generated scene images, no upload."""
 from __future__ import annotations
 
 import argparse
@@ -112,7 +112,7 @@ def generate_story(proxy, budget, model):
             content = content.removesuffix(fence).strip()
         return validate_story(json.loads(content)), "codex_proxy"
     except (ProxyError, PilotError, KeyError, IndexError, TypeError, ValueError):
-        return validate_story(FALLBACK), "script_local_degradado"
+        raise PilotError("SCRIPT_GENERATION_UNAVAILABLE_OR_INVALID") from None
 
 
 def command(argv, *, cwd=None, timeout=180):
@@ -124,65 +124,61 @@ def command(argv, *, cwd=None, timeout=180):
         raise PilotError("MEDIA_COMMAND_FAILED_" + str(result.returncode))
 
 
-def original_fallback(i):
-    from PIL import Image, ImageDraw
-    colors = [(25, 19, 63), (17, 40, 64), (118, 58, 70)]
-    im = Image.new("RGB", (720, 1280), colors[i])
-    d = ImageDraw.Draw(im)
-    d.ellipse((320, 125, 610, 415), fill=(244, 210, 155))
-    for k in range(13):
-        x = (k*71+21) % 720
-        y = 740+(k*61)%340
-        d.rectangle((x, y, x+58, 1280), fill=(17, 24, 54))
-    d.polygon([(300, 595), (420, 595), (455, 970), (267, 970)], fill=(230, 223, 203))
-    d.polygon([(300, 591), (360, 470), (420, 591)], fill=(241, 236, 211))
-    d.line((435, 855, 525, 475), fill=(255, 229, 148), width=12)
-    if i == 1:
-        d.ellipse((90, 400, 650, 1120), outline=(127, 149, 217), width=20)
-    if i == 2:
-        d.polygon([(0, 470), (720, 180), (720, 420)], fill=(247, 176, 102))
-    return im
-
-
 def visuals(proxy, budget, out, story, model):
+    """Provider-generated images ONLY; never draw substitutes in the application.
+
+    Missing/invalid image aborts the entire job. Cropping or resizing the
+    actual provider output is allowed; creating replacement artwork is not.
+    """
+    from hashlib import sha256
     from PIL import Image, ImageOps
+    from videoforge.production.image_policy import validate_generated_visuals
+
+    scenes = story["scenes"]
+    if budget.limit - budget.sent < len(scenes):
+        raise PilotError("INSUFFICIENT_BUDGET_FOR_GENERATOR_IMAGES")
     assets = []
-    for index, scene in enumerate(story["scenes"]):
-        frame, origin = None, "local_original_fallback"
-        if budget.sent < budget.limit:
-            budget.use()
-            try:
-                response = proxy.images_generate({
-                    "model": model, "n": 1,
-                    "prompt": scene["visual_prompt"] +
-                    ". Consistent paper knight; original anime-inspired art, "
-                    "no existing characters, no logos, no text; cinematic portrait 9:16."
-                })
-                image = response["data"][0]
-                encoded = image.get("b64_json") or image.get("image_base64")
-                if not isinstance(encoded, str) or len(encoded) > 26000000:
-                    raise ValueError()
-                if encoded.startswith("data:image/"):
-                    encoded = encoded.split(",", 1)[1]
-                blob = base64.b64decode(encoded, validate=True)
-                if not 1000 < len(blob) < 18000000:
-                    raise ValueError()
-                frame = Image.open(io.BytesIO(blob))
-                frame.load()
-                if frame.width*frame.height > 18000000:
-                    raise ValueError()
-                origin = "codex_proxy_image"
-            except (ProxyError, KeyError, IndexError, AttributeError, ValueError, OSError):
-                frame = None
-        if frame is None:
-            frame = original_fallback(index)
-        frame = ImageOps.fit(frame.convert("RGB"), (720, 1280),
-                             method=Image.Resampling.LANCZOS)
-        filename = f"scene-{index+1}.png"
-        frame.save(out/filename)
-        assets.append({"scene": index+1, "file": filename, "origin": origin})
-    dump(out/"assets.json", {"assets": assets,
-                             "ai_image_count": sum(x["origin"] == "codex_proxy_image" for x in assets)})
+    for index, scene in enumerate(scenes):
+        budget.use()
+        try:
+            response = proxy.images_generate({
+                "model": model, "n": 1,
+                "prompt": scene["visual_prompt"] +
+                ". Consistent paper knight; original anime-inspired art, "
+                "no existing characters, no logos, no text; cinematic portrait 9:16."
+            })
+        except ProxyError as exc:
+            # ProxyError only contains safe status codes, never credentials.
+            raise PilotError("IMAGE_GENERATOR_UNAVAILABLE_" + str(exc)) from None
+        try:
+            image = response["data"][0]
+            encoded = image.get("b64_json") or image.get("image_base64")
+            if not isinstance(encoded, str) or len(encoded) > 26000000:
+                raise ValueError()
+            if encoded.startswith("data:image/"):
+                encoded = encoded.split(",", 1)[1]
+            blob = base64.b64decode(encoded, validate=True)
+            if not 1000 < len(blob) < 18000000:
+                raise ValueError()
+            frame = Image.open(io.BytesIO(blob))
+            frame.load()
+            if frame.width * frame.height > 18000000 or frame.format not in {"PNG", "JPEG", "WEBP"}:
+                raise ValueError()
+            frame = ImageOps.fit(frame.convert("RGB"), (720, 1280),
+                                 method=Image.Resampling.LANCZOS)
+            filename = f"scene-{index+1}.png"
+            frame.save(out/filename, format="PNG")
+        except (KeyError, IndexError, AttributeError, ValueError, OSError, TypeError):
+            raise PilotError("IMAGE_GENERATOR_RETURNED_INVALID_MEDIA") from None
+        assets.append({
+            "scene": index+1, "file": filename, "origin": "codex_proxy_image",
+            "generated_by": "video_forge_image_generator",
+            "output_sha256": sha256((out/filename).read_bytes()).hexdigest(),
+        })
+    validate_generated_visuals(assets, out, expected_count=len(scenes))
+    dump(out/"assets.json", {"schema": "videoforge/generator-only-scenes/v1",
+                            "assets": assets, "ai_image_count": len(assets),
+                            "local_image_fallbacks": 0})
     return assets
 
 
@@ -269,6 +265,9 @@ def produce(out: Path, job_id: str, *, max_calls=LIMIT, model="gpt-6.1-sol",
     if out.exists():
         raise PilotError("OUTPUT_MUST_NOT_EXIST")
     budget = CallBudget(max_calls)
+    # Reserve one chat call + a generator call per image; never degrade.
+    if max_calls < 1 + len(FALLBACK["scenes"]):
+        raise PilotError("BUDGET_REQUIRES_GENERATOR_IMAGES")
     proxy = client or ProxyClient(timeout=240)
     account_data = proxy.accounts()
     accounts = account_data.get("accounts", []) if isinstance(account_data, dict) else []
@@ -318,7 +317,8 @@ def produce(out: Path, job_id: str, *, max_calls=LIMIT, model="gpt-6.1-sol",
         "format": "technical_preview_not_short",
         "story_origin": source,
         "ai_image_count": sum(x["origin"] == "codex_proxy_image" for x in assets),
-        "local_image_fallbacks": sum(x["origin"] != "codex_proxy_image" for x in assets),
+        "local_image_fallbacks": 0,
+        "visual_provenance": "generator_only_verified",
         "generative_calls": budget.sent, "max_calls": budget.limit,
         "verified_stages": list(STAGE_FILES),
         "media": media, "human_approved": False, "youtube_uploaded": False,
