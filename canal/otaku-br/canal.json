@@ -6,6 +6,8 @@
   "idioma": "pt-BR",
   "modelo_padrao": "camadas-animadas",
   "modelo_padrao_provisorio": true,
+  "gerador_padrao": "anime",
+  "gerador_padrao_provisorio": true,
   "nicho": "anime_original_commentary",
   "audiencia": "general",
   "serie_principal": null,
