@@ -5,11 +5,13 @@ on:
     paths:
       - 'videoforge/proxy/**'
       - 'tests/test_proxy_client.py'
+      - 'tests/test_agent_gateway.py'
       - '.github/workflows/codex-proxy-backend.yml'
   pull_request:
     paths:
       - 'videoforge/proxy/**'
       - 'tests/test_proxy_client.py'
+      - 'tests/test_agent_gateway.py'
       - '.github/workflows/codex-proxy-backend.yml'
   workflow_dispatch:
     inputs:
@@ -41,6 +43,8 @@ jobs:
           python-version: '3.12'
       - name: Verificar todas as rotas e guardas sem rede
         run: python -m unittest discover -s tests -p 'test_proxy_client.py' -v
+      - name: Verificar gateway de agentes via proxy SEM rede
+        run: python -m unittest discover -s tests -p 'test_agent_gateway.py' -v
       - name: Catalogar capacidades SEM rede ou credenciais
         run: python -m videoforge.proxy.cli --action catalog > /tmp/vf-capabilities.json
       - name: Conferir esquema do catalogo, sem publicar dados privados
