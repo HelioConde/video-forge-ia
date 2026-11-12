@@ -46,7 +46,7 @@ class AgentGatewayTests(unittest.TestCase):
                          client=proxy, model="model-test")
         with self.assertRaisesRegex(AgentGatewayError, "NOT_AUTHORIZED"):
             invoke_agent(role_id="titulo", task="Criar titulo", context="Video teste",
-                         client=proxy, model="model-test", authorized=True)
+                         client=proxy, model="model-test", authorized=True, env={})
         self.assertEqual(proxy.payloads, [])
 
     def test_authorized_role_can_use_shared_proxy_once_without_publishing(self):
