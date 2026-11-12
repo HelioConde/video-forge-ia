@@ -30,6 +30,8 @@ def apply_motion_overlay(motion_root: Path, *, overlay_source: Path = TS) -> str
             or not overlay_source.is_file() or overlay_source.is_symlink()):
         raise MotionOverlayError("VIDEOFORGE_MOTION_REMOTION_SOURCE_MISSING")
     original = target.read_text(encoding="utf-8")
+    if "videoforge-motion" in original or module.exists():
+        raise MotionOverlayError("VIDEOFORGE_MOTION_ALREADY_INSTALLED")
     module_text = overlay_source.read_text(encoding="utf-8")
     if len(module_text) < 500 or len(module_text) > 30_000:
         raise MotionOverlayError("VIDEOFORGE_MOTION_MODULE_INVALID")
@@ -44,8 +46,6 @@ def apply_motion_overlay(motion_root: Path, *, overlay_source: Path = TS) -> str
     targets = [import_marker, role_marker, transform_marker, style_marker]
     if any(original.count(x) != 1 for x in targets):
         raise MotionOverlayError("VIDEOFORGE_MOTION_UPSTREAM_VERSION_UNSUPPORTED")
-    if "videoforge-motion" in original:
-        raise MotionOverlayError("VIDEOFORGE_MOTION_ALREADY_INSTALLED")
     changed = original.replace(
         import_marker, import_marker +
         "\nimport {videoForgeMotionAtFrame,VideoForgeMotionCue} from './videoforge-motion';"
