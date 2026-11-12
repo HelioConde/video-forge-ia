@@ -1,0 +1,246 @@
+name: VideoForge - Briefing IA protegido (um agente)
+
+# Nenhuma chamada paga em push, PR, schedule ou modo offline.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [offline, one-approved-briefing]
+        default: offline
+        required: true
+      source_run_id:
+        description: "ID da execução APROVADA de pesquisa de pauta por agentes"
+        type: string
+        default: ''
+        required: false
+      model_id:
+        description: "Modelo de texto confirmado em /v1/models do Proxy privado"
+        type: string
+        default: ''
+        required: false
+      authorize_one_proxy_call:
+        description: "AUTORIZO 1 única chamada de texto ao Codex Proxy"
+        type: boolean
+        default: false
+        required: true
+      confirm_human_reservation:
+        description: "Confirmo revisão humana e reserva persistida no canal"
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: videoforge-one-approved-briefing
+  cancel-in-progress: false
+
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Instalar somente biblioteca de criptografia para testes locais
+        run: python -m pip install --disable-pip-version-check 'cryptography>=43,<50'
+      - name: Testar recebimento de pauta e cifragem sem rede nem quota
+        run: |
+          python -m unittest discover -s tests -p 'test_editorial_handoff.py' -v
+          python -m unittest discover -s tests -p 'test_secure_draft.py' -v
+          python -m unittest discover -s tests -p 'test_agent_dispatch.py' -v
+          python -m unittest discover -s tests -p 'test_agent_gateway.py' -v
+      - name: Declarar ausência de execução paga
+        run: echo 'OFFLINE_TESTS_ONLY_NO_REAL_PROXY_NO_VIDEO_NO_YOUTUBE_UPLOAD'
+
+  one-approved-briefing:
+    needs: offline
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      github.ref == 'refs/heads/main' &&
+      github.actor == 'HelioConde' &&
+      github.run_attempt == 1 &&
+      inputs.mode == 'one-approved-briefing' &&
+      inputs.authorize_one_proxy_call == true &&
+      inputs.confirm_human_reservation == true
+    runs-on: ubuntu-24.04
+    environment: proxy-runtime
+    timeout-minutes: 27
+    env:
+      DEBUG_LOG_PAYLOADS: 'false'
+      GIN_MODE: release
+      PORT: '8080'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: 10/chatgpt-codex-proxy
+          ref: 1da5476e46ef62830d7016de2a931b0b8270a6c4
+          path: upstream-codex-proxy
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: upstream-codex-proxy/go.mod
+          cache: false
+      - name: Instalar cifra autenticada antes de acessar segredos
+        run: python -m pip install --disable-pip-version-check 'cryptography>=43,<50'
+      - name: Confirmar workflow de origem e reserva editorial ANTES de carregar credenciais
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: |
+          set -euo pipefail
+          umask 077
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]{5,22}$ ]] || { echo 'HANDOFF_SOURCE_ID_INVALID'; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN_ID" > "$RUNNER_TEMP/vf-editorial-run.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          record=json.loads((Path(os.environ["RUNNER_TEMP"])/"vf-editorial-run.json").read_text())
+          if not (
+              record.get("repository",{}).get("full_name") == "HelioConde/video-forge-ia"
+              and record.get("head_branch") == "main"
+              and record.get("path") == ".github/workflows/editorial-team-research.yml"
+              and record.get("status") == "completed"
+              and record.get("conclusion") == "success"
+              and record.get("event") in ("push","workflow_dispatch")
+          ):
+              raise SystemExit("HANDOFF_SOURCE_WORKFLOW_NOT_TRUSTED")
+          print("HANDOFF_SOURCE_WORKFLOW_VERIFIED")
+          PY
+          mkdir -m 700 "$RUNNER_TEMP/vf-editorial-source"
+          gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --name "otaku-multicena-agents-decisao-$SOURCE_RUN_ID" \
+            --dir "$RUNNER_TEMP/vf-editorial-source"
+          python -m videoforge.production.editorial_handoff \
+            --report "$RUNNER_TEMP/vf-editorial-source/decisao.json" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --output-dir "$RUNNER_TEMP/vf-handoff-ready"
+      - name: Compilar Codex Proxy fixado, ainda sem contas ou segredos
+        shell: bash
+        working-directory: upstream-codex-proxy
+        run: |
+          set -euo pipefail
+          CGO_ENABLED=0 go build -trimpath -o "$RUNNER_TEMP/vf-one-briefing-proxy" ./cmd/api
+      - name: Executar UM briefing e criptografar rascunho para revisão
+        shell: bash
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          VIDEOFORGE_AGENT_MODEL: ${{ inputs.model_id }}
+          VIDEOFORGE_AGENT_EXECUTION_APPROVED: 'yes'
+          PROXY_API_KEY: ${{ secrets.PROXY_API_KEY }}
+          PROXY_ACCOUNTS_JSON: ${{ secrets.PROXY_ACCOUNTS_JSON }}
+          VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64: ${{ secrets.VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          if [[ -z "$PROXY_API_KEY" || -z "$PROXY_ACCOUNTS_JSON" || -z "$VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64" || -z "$VIDEOFORGE_AGENT_MODEL" ]]; then
+            echo 'BRIEFING_PRIVATE_CONFIGURATION_MISSING'
+            exit 1
+          fi
+          state_dir="$RUNNER_TEMP/vf-briefing-proxy-state"
+          private_dir="$RUNNER_TEMP/vf-briefing-private"
+          proxy_pid=''
+          cleanup() {
+            if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
+            rm -rf -- "$state_dir" "$private_dir" \
+              "$RUNNER_TEMP/vf-handoff-ready" "$RUNNER_TEMP/vf-editorial-source"
+            rm -f -- "$RUNNER_TEMP/vf-briefing-proxy.log" "$RUNNER_TEMP/vf-editorial-run.json"
+          }
+          trap cleanup EXIT
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from videoforge.proxy.private_state import stage_private_state
+          stage_private_state(os.environ["PROXY_ACCOUNTS_JSON"],
+                              Path(os.environ["RUNNER_TEMP"])/"vf-briefing-proxy-state")
+          print("BRIEFING_PRIVATE_ACCOUNT_STATE_STAGED")
+          PY
+          unset PROXY_ACCOUNTS_JSON
+          env -u VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64 \
+            DATA_DIR="$state_dir" "$RUNNER_TEMP/vf-one-briefing-proxy" \
+            > "$RUNNER_TEMP/vf-briefing-proxy.log" 2>&1 &
+          proxy_pid=$!
+          python - <<'PY'
+          import os,time
+          from videoforge.proxy.client import ProxyClient,ProxyError
+          proxy=ProxyClient(timeout=5)
+          for attempt in range(80):
+              try:
+                  if proxy.health_live().get("status")=="ok":
+                      break
+              except (ProxyError,ValueError):
+                  pass
+              time.sleep(1)
+          else:
+              raise SystemExit("BRIEFING_PROXY_NOT_READY")
+          model=os.environ["VIDEOFORGE_AGENT_MODEL"]
+          models=proxy.models().get("data",[])
+          available={x.get("id") for x in models if isinstance(x,dict)}
+          if model not in available:
+              raise SystemExit("BRIEFING_PROXY_MODEL_NOT_AVAILABLE")
+          print("BRIEFING_PROXY_READY_MODEL_VERIFIED")
+          PY
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          from videoforge.production.agent_dispatch import run_text_draft
+          from videoforge.production.secure_draft import (
+              encrypt_private_draft, decrypt_private_draft,
+          )
+          from videoforge.proxy.client import ProxyClient
+          temp=Path(os.environ["RUNNER_TEMP"])
+          handoff=temp/"vf-handoff-ready"
+          plan=json.loads((handoff/"plan.json").read_text(encoding="utf-8"))
+          context=(handoff/"context.json").read_text(encoding="utf-8")
+          receipt=run_text_draft(
+              plan, "briefing", context=context,
+              private_dir=temp/"vf-briefing-private", authorized=True,
+              client=ProxyClient(timeout=180),
+          )
+          if (receipt.get("status")!="awaiting_independent_review" or
+                  receipt.get("proxy_requests_sent")!=1 or
+                  receipt.get("artifact_verified") is not False or
+                  receipt.get("publishing_enabled") is not False):
+              raise SystemExit("BRIEFING_INVALID_PRIVATE_RECEIPT")
+          name=plan["demand"]["id"]+"-briefing.draft.json"
+          encrypted=temp/"vf-encrypted-artifact"/"briefing.encrypted.json"
+          encrypt_private_draft(
+              temp/"vf-briefing-private"/name,
+              key_b64=os.environ["VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64"],
+              source_run_id=os.environ["SOURCE_RUN_ID"],
+              output_path=encrypted,
+          )
+          check=decrypt_private_draft(
+              encrypted,
+              key_b64=os.environ["VIDEOFORGE_DRAFT_ENCRYPTION_KEY_B64"],
+          )
+          if check["status"]!="awaiting_independent_review":
+              raise SystemExit("BRIEFING_ENCRYPTED_DRAFT_FAILED")
+          print("ONE_REAL_AGENT_TEXT_CALL_DRAFT_ENCRYPTED_NOT_APPROVED")
+          PY
+      - name: Enviar somente rascunho criptografado (sem texto ou OAuth)
+        uses: actions/upload-artifact@v4
+        with:
+          name: videoforge-briefing-encrypted-${{ github.run_id }}
+          path: ${{ runner.temp }}/vf-encrypted-artifact/briefing.encrypted.json
+          retention-days: 7
+          if-no-files-found: error
+      - name: Resumo seguro, sem conteúdo gerado
+        run: |
+          echo "Briefing pelo Codex Proxy: uma chamada manual." >> "$GITHUB_STEP_SUMMARY"
+          echo "Artefato: somente ciphertext AES-256-GCM, revisão independente pendente." >> "$GITHUB_STEP_SUMMARY"
+          echo "Nenhuma imagem, vídeo, ranking, aprovação ou publicação." >> "$GITHUB_STEP_SUMMARY"
