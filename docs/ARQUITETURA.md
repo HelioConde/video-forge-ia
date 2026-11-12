@@ -12,6 +12,12 @@
 
 `videoforge/production/agent_dispatch.py` conecta as etapas textuais elegíveis do DAG do `dispatcher.py` aos especialistas do `agentes/equipe.json` por `videoforge/proxy/agent_gateway.py`. A prévia `plan_text_dispatch` não consulta modelos nem cobra cotas. Somente um runner backend confiável com aprovação por execução pode chamar `run_text_draft`, que reserva a tarefa de modo exclusivo e salva um rascunho privado com hash para revisão independente, sem atualizar o DAG como concluído. O workflow `production-request.yml` exibe somente a prévia; publicação e geração paga não são habilitadas. Ver [guia](AGENT_TEXT_DISPATCH.md).
 
+## Âncora visual obrigatória e direção de arte do VideoForge
+
+O fluxo de imagem do próprio VideoForge resolve a referência aprovada do canal em `canal/<id>/referencias/<arquivo>` (se configurada em `visual_lock.reference_path`). Sem referência, o worker gera **uma única imagem âncora** usando `gpt-image-2` no Codex Proxy; todas as demais cenas são derivações usando `ProxyClient.images_edit_files` e a **mesma imagem 1** como entrada de referência. Assim, uma falha no modelo de edição bloqueia a tarefa: não há fallback para oito gerações independentes. A bíblia visual fica no manifesto e é validada antes de gastar cotas.
+
+O módulo `videoforge/production/visual_lock.py` valida identidade, estilo por vídeo, caminho da referência, prompts e hashes da cadeia de edição. `imagens.json` registra o SHA-256 da bíblia e da imagem original; `qa-imagens.json` diferencia a prova técnica de referência da **continuidade visual efetivamente revisada**. A produção técnica de prévia continua possível, mas a aprovação artística e o upload permanecem bloqueados até revisão visual independente. É proibido substituir esse fluxo por arte gerada no chat.
+
 ## Executor AutoEditorVideo: motor técnico reutilizável
 
 O novo perfil `geradores/autoeditor/gerador.json` é genérico e
