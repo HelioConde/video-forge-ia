@@ -74,7 +74,7 @@ e títulos públicos contidos em um snapshot autenticado do YouTube. Confere
 `history_complete`, `read_only`, identidade, origem e campos de métricas,
 mas não produz ideias, classificações de desempenho ou decisões.
 O workflow de validação externa possui opção manual `youtube-readonly`,
-usando somente as credenciais YouTube do Environment `proxy-runtime`:
+usando somente as credenciais YouTube do Environment `youtube-analytics-readonly`:
 retém dados privados apenas no runner e não publica Analytics, não gera
 check de trabalho autônomo, não gera mídia e não toca no Proxy com HTTP 429.
 A triagem de palavras não substitui deduplicação semântica nem aprovação.
