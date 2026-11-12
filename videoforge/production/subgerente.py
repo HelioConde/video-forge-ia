@@ -105,10 +105,15 @@ def _validate_record(event: dict, *, workers: dict, channels: set[str],
     improved = event.get("improvement")
     if improved is not None:
         if not isinstance(improved, dict) or set(improved) != {
-            "previous_artifact_sha256", "summary", "reviewed_by"
+            "previous_artifact_sha256", "previous_quality",
+            "summary", "reviewed_by"
         }:
             raise RankingEvidenceError("IMPROVEMENT_EVIDENCE_INVALID")
-        if (not _sha(improved["previous_artifact_sha256"])
+        previous_quality = improved["previous_quality"]
+        if (not isinstance(previous_quality, int) or isinstance(previous_quality, bool)
+                or not 0 <= previous_quality <= 100
+                or quality < previous_quality + 5
+                or not _sha(improved["previous_artifact_sha256"])
                 or improved["previous_artifact_sha256"] == event["artifact_sha256"]
                 or improved["reviewed_by"] not in INDEPENDENT_QA
                 or improved["reviewed_by"] == employee
