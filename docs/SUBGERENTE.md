@@ -43,8 +43,9 @@ hash, formulários sem evidência, ou autoavaliações.
 - A revisão de qualidade precisa vir de um dos papéis QA independentes;
   o Subgerente não pode definir `quality=100` por conta própria.
 - O bônus de evolução de 20 pontos exige hash de um artefato anterior,
-  resumo da melhoria e aprovação de um revisor independente. Apenas
-  alegar "aprendi" não gera pontos.
+  resumo da melhoria, avaliação anterior e **aumento de pelo menos 5 pontos
+  na nota de qualidade de QA**, validado por um revisor independente.
+  Apenas alegar "aprendi" não gera pontos.
 - Os funcionários têm funções e dificuldades diferentes. Há classificação
   geral ilustrativa **e posição no grupo profissional**: `visual`,
   `especialistas` ou `gerentes`. Comparações entre tarefas de
