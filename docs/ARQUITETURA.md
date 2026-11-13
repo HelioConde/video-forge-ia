@@ -1,5 +1,22 @@
 # Arquitetura proposta — VideoForge AI
 
+## Antirrepetição de vídeos e temas relacionados em todos os canais
+
+`videoforge/channel_agents/dedup.py:assert_unique` continua exigindo
+identidade de canal, inventário completo e reservas persistidas.
+Adicionou-se auditoria textual de **tópicos próximos**: termos não
+genéricos de personagens/assuntos do título e pauta são comparados
+com o histórico publicado e as reservas; em série explicitamente
+idêntica, um conceito distintivo repetido pode ser bloqueio.
+O nome do bloqueio é `TEMA_RELACIONADO_JA_PUBLICADO` ou
+`TEMA_RELACIONADO_JA_RESERVADO`. A regra vale para os cinco gerentes.
+Um teste não pode assumir semelhança semântica perfeita: sinônimos,
+histórias parecidas sem palavras coincidentes e vídeos privados sem
+metadados continuam exigindo revisão independente do Subgerente e
+revisão humana. Sem confirmação, produção não avança.
+Registros de pesquisa e rascunhos ficam por canal; fontes e textos
+provisórios não são trabalhos executados pelos agentes.
+
 ## Isolamento de dados por canal — obrigatório
 
 O diretório `canal/<id>/` é a identidade de cada canal e detém suas

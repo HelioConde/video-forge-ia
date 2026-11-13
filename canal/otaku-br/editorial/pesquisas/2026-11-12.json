@@ -5,7 +5,7 @@
   "researched_on": "2026-11-12",
   "prepared_by": "chatgpt_external_research",
   "scope": "source_context_only",
-  "note": "Pesquisa atualizada em 12/11/2026: vídeos externos com velocidade pontual observada pelo vidIQ e anúncios oficiais. São fontes e perguntas para a equipe, não títulos prontos, decisão final, fatos da narrativa verificados nem Analytics privados. Repetições e adequação dependem do inventário completo. Revalidar em cada execução privada; números externos mudam rapidamente.",
+  "note": "Fontes públicas documentadas em 12/11/2026, incluindo observações pontuais do vidIQ e comunicado oficial do Spy x Family. Não escolher pauta por este arquivo: o Gerente/Subgerente precisam conferir inventário integral (inclusive vídeos privados), retenção real e temas relacionados. VPH de terceiros não é métrica do canal.",
   "signals": [
     {
       "id": "jujutsu-kenjaku-short-11nov",
@@ -125,6 +125,23 @@
       "editorial_status": "unranked_requires_channel_metrics",
       "title_aliases": [
         "Black Clover"
+      ]
+    },
+    {
+      "id": "spy-family-4-filme-2027-anuncio",
+      "series": "SPY x FAMILY",
+      "verified_fact": "O site oficial do anime anunciou em 08/11/2026 que a quarta temporada da TV e um segundo longa-metragem estão previstos para 2027, sem confirmar dia de estreia ou enredo do filme.",
+      "research_question": "O anúncio de dois projetos em 2027 abre espaço para uma análise factual e inédita no canal? Conferir novamente inventário integral, interesse recente e decisão do Gerente/Subgerente.",
+      "source": {
+        "publisher": "SPY x FAMILY — portal oficial japonês",
+        "url": "https://spy-family.net/tvseries/",
+        "published_on": "2026-11-08"
+      },
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "Spy x Family",
+        "Família Forger",
+        "Anya Forger"
       ]
     }
   ]

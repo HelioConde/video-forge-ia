@@ -1,5 +1,19 @@
 # Pesquisa externa para os agentes do VideoForge
 
+## Novo roteiro sem lista fixa e sem aprovação automática
+
+Em 12/11/2026, o ChatGPT consultou a lista acessível de uploads e
+métricas de engajamento/inscritos do Otaku Multicena via vidIQ,
+tendências públicas do YouTube e notícias oficiais. O pacote do canal
+inclui uma fonte primária anunciando a quarta temporada e o segundo
+filme de SPY x FAMILY para 2027. A notícia é apenas uma pista;
+um roteiro original provisório foi salvo em
+`canal/otaku-br/editorial/rascunhos/`. O roteiro NÃO representa decisão
+do Pesquisador/Gerente/Subgerente nem reserva, não é uma lista de pautas
+prontas e não desbloqueia IA paga. Os métricos privados consultados
+não foram escritos no Git. Toda pauta de todos os canais deverá passar
+por antirrepetição de títulos e temas relacionados com inventário completo.
+
 ## Objetivo
 
 O assistente ChatGPT pode **trazer informações públicas com fontes** para

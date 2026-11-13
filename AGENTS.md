@@ -87,6 +87,22 @@ Código responsável: `videoforge/production/visual_lock.py` e `videoforge/gener
 
 Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes de qualquer edição, leia `README.md` e `docs/ARQUITETURA.md`; mantenha esses documentos alinhados com o código.
 
+## Antirrepetição estrita por canal (todos os cinco)
+
+Nenhum agente, gerente ou gerador deve produzir vídeo que repita vídeo
+existente ou **tema/assunto/personagem central já abordado com ângulo
+similar** no MESMO canal, mesmo com título diferente, nova voz ou roteiro
+reescrito. Aplicar `channel_agents/dedup.py:assert_unique` a todos os
+cinco canais com inventário **integral autenticado**, incluindo vídeos
+privados/não listados e reservas persistentes do canal. A nova heurística
+bloqueia assuntos relacionados por termos distintivos, mas não substitui
+a revisão semântica do Subgerente/humana: se houver dúvida, **bloquear**
+a pauta, em vez de declarar originalidade. Não comparar dados de canais
+diferentes como se fossem o mesmo inventário.
+Nunca reutilizar uma ideia rejeitada mudando só o título.
+Um roteiro redigido pelo assistente permanece rascunho sem autoria de
+agentes, sem seleção, sem reserva e sem autorização de render ou upload.
+
 ## Regra de dados e memória por canal
 
 **Não misturar informações de canais.** Pesquisas públicas, configurações,
