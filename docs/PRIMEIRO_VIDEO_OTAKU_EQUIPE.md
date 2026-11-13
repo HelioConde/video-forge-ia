@@ -131,3 +131,10 @@ O modo de diagnóstico `private-quota-live` do workflow do Proxy
 continua separado, exige `workflow_dispatch` e salvaguardas de
 aprovação e orçamento, além das condições editoriais acima; a prévia
 provisória não constitui decisão validada dos agentes.
+
+O verificador de prontidão agora identifica manifestos com ID terminado em
+`-rascunho` como `provisional_draft` e informa explicitamente o bloqueio
+`PROVISIONAL_DRAFT_NOT_SELECTED_BY_TEAM`. Esse marcador não substitui a
+validação privada do Gerente/Subgerente e não autoriza geração de imagens,
+renderização ou publicação; os demais manifestos também continuam exigindo
+proveniência autenticada.
