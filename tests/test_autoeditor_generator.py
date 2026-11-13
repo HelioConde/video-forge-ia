@@ -140,6 +140,64 @@ class TestAutoEditorGenerator(unittest.TestCase):
                 generate_images(self.manifest,Path(tmp),proxy,max_calls=7)
             self.assertEqual(proxy.calls,0)
 
+    def test_fresh_proxy_quota_restriction_blocks_before_tts_or_image_calls(self):
+        from datetime import datetime, timezone
+        class CachedProxy:
+            calls = 0
+            def accounts(self):
+                self.calls += 1
+                return {"accounts": [{
+                    "eligible_now": True,
+                    "cached_quota": {
+                        "rate_limit": {"allowed": False, "limit_reached": True},
+                        "fetched_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                    "cooldown_until": None,
+                }]}
+        client = CachedProxy()
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "pilot"
+            with patch.dict(os.environ, {"VIDEOFORGE_AUTOEDITOR_RENDER_AUTHORIZED": "yes"}):
+                with self.assertRaisesRegex(AutoEditorBlocked,
+                                            "PROXY_FRESH_QUOTA_RESTRICTION"):
+                    produce(self.manifest, destination=dest, motion_root=Path(tmp),
+                            job_id="otaku-safe", max_calls=26, proxy=client)
+            self.assertEqual(client.calls, 1)
+            self.assertFalse(dest.exists())
+
+    def test_proxy_account_cooldown_blocks_without_cached_usage_or_tts(self):
+        from datetime import datetime, timedelta, timezone
+        class CooldownProxy:
+            def accounts(self):
+                return {"accounts": [{
+                    "eligible_now": True,
+                    "cached_quota": None,
+                    "cooldown_until": (datetime.now(timezone.utc) +
+                                       timedelta(minutes=12)).isoformat(),
+                }]}
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "pilot"
+            with patch.dict(os.environ, {"VIDEOFORGE_AUTOEDITOR_RENDER_AUTHORIZED": "yes"}):
+                with self.assertRaisesRegex(AutoEditorBlocked,
+                                            "PROXY_ACCOUNT_COOLDOWN_ACTIVE"):
+                    produce(self.manifest, destination=dest, motion_root=Path(tmp),
+                            job_id="otaku-safe", max_calls=26,
+                            proxy=CooldownProxy())
+            self.assertFalse(dest.exists())
+
+    def test_unknown_quota_is_not_mistaken_for_proven_clearance(self):
+        from videoforge.proxy.quota_diagnostic import summarize_quota
+        class UnobservedProxy:
+            def accounts(self):
+                return {"accounts": [{
+                    "eligible_now": True, "cached_quota": None,
+                    "cooldown_until": None,
+                }]}
+        report = summarize_quota(UnobservedProxy(), usage_mode="cached")
+        self.assertEqual(report["status"], "quota_not_observed")
+        self.assertFalse(report["429_cause_proven"])
+        self.assertEqual(report["text_generations"], 0)
+
     def test_no_arbitrary_source_file_on_bad_manifest_path(self):
         with tempfile.TemporaryDirectory() as tmp:
             bad=Path(tmp)/"bad.json"

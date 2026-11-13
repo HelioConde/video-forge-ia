@@ -54,6 +54,18 @@ local contra contexto descontrolado, **não** evidência da origem do
 HTTP 429 ou do limite de tokens do modelo. O 429 segue sem retries.
 Regressões offline: `tests/test_editorial_team.py`.
 
+## Bloqueio antecipado de geração quando há limite conhecido
+
+A produção privada em `generators/autoeditor.py:produce` consulta apenas
+o estado de contas e cota em **cache**, antes de qualquer Edge TTS, chamada
+de imagem ou criação de arquivo. Contas inelegíveis, cooldown ativo e
+restrições de cota observadas nos últimos 15 minutos bloqueiam o render,
+mesmo se `eligible_now` vier como `true`. Erro de estrutura no
+diagnóstico também bloqueia a execução, sem expor identificadores ou
+resposta do provedor. Cache desconhecido/antigo não é prova de cota:
+não suprime o teste privado de leitura e não autoriza retries após 429.
+Não há nova chamada generativa, agendamento ou publicação automática.
+
 ## Diagnóstico privado de cota sem chamada generativa
 
 `videoforge/proxy/quota_diagnostic.py` resume a elegibilidade de conta
