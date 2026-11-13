@@ -5,8 +5,79 @@
   "researched_on": "2026-11-12",
   "prepared_by": "chatgpt_external_research",
   "scope": "source_context_only",
-  "note": "Fontes públicas como contexto, não prova de demanda, CTR, retenção ou tendência do canal. Sem pauta vencedora. A equipe deve verificar duplicação, spoilers e fatos antes de escolher qualquer produção.",
+  "note": "Pesquisa atualizada em 12/11/2026: vídeos externos com velocidade pontual observada pelo vidIQ e anúncios oficiais. São fontes e perguntas para a equipe, não títulos prontos, decisão final, fatos da narrativa verificados nem Analytics privados. Repetições e adequação dependem do inventário completo. Revalidar em cada execução privada; números externos mudam rapidamente.",
   "signals": [
+    {
+      "id": "jujutsu-kenjaku-short-11nov",
+      "series": "Jujutsu Kaisen",
+      "verified_fact": "O Short público 'Kenjaku foi muito sortudo' sobre Jujutsu Kaisen foi publicado em 11/11/2026. A observação de views/hora foi coletada pelo vidIQ em 12/11/2026.",
+      "research_question": "Há uma pergunta original sobre a história que não repita o inventário do canal nem utilize cenas ou roteiro do vídeo externo?",
+      "source": {
+        "publisher": "Nadash Editz (YouTube)",
+        "url": "https://www.youtube.com/watch?v=gt6gf8fIRc4",
+        "published_on": "2026-11-11"
+      },
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "Jujutsu Kaisen",
+        "Kenjaku"
+      ],
+      "public_momentum": {
+        "provider": "vidiq",
+        "observed_on": "2026-11-12",
+        "video_id": "gt6gf8fIRc4",
+        "views_per_hour": 8458.75,
+        "observed_views": 216826
+      }
+    },
+    {
+      "id": "hunter-killua-illumi-11nov",
+      "series": "Hunter x Hunter",
+      "verified_fact": "O vídeo público 'illume testando a paciência do killua' sobre Hunter x Hunter foi publicado em 11/11/2026. A velocidade observada é um retrato do vidIQ em 12/11/2026.",
+      "research_question": "Quais relações e motivações dos personagens justificariam uma análise original com fontes e sem repetir os vídeos anteriores?",
+      "source": {
+        "publisher": "paci.animes (YouTube)",
+        "url": "https://www.youtube.com/watch?v=pkpRej0mI4A",
+        "published_on": "2026-11-11"
+      },
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "Hunter x Hunter",
+        "Killua",
+        "Illumi"
+      ],
+      "public_momentum": {
+        "provider": "vidiq",
+        "observed_on": "2026-11-12",
+        "video_id": "pkpRej0mI4A",
+        "views_per_hour": 4132.2,
+        "observed_views": 101721
+      }
+    },
+    {
+      "id": "dragonball-goku-kaioshin-9nov",
+      "series": "Dragon Ball",
+      "verified_fact": "O vídeo público 'Goku erguendo a mão pro Kaioshin — Analisando Cenas de Anime' foi publicado em 09/11/2026. Os dados externos foram observados pelo vidIQ em 12/11/2026.",
+      "research_question": "Qual análise explicativa independente seria relevante para o público do canal e verificável por fontes, sem copiar a cena comentada?",
+      "source": {
+        "publisher": "Contos Geek (YouTube)",
+        "url": "https://www.youtube.com/watch?v=9bvm0w91N1c",
+        "published_on": "2026-11-09"
+      },
+      "editorial_status": "unranked_requires_channel_metrics",
+      "title_aliases": [
+        "Dragon Ball",
+        "Goku",
+        "Kaioshin"
+      ],
+      "public_momentum": {
+        "provider": "vidiq",
+        "observed_on": "2026-11-12",
+        "video_id": "9bvm0w91N1c",
+        "views_per_hour": 2390.24,
+        "observed_views": 169787
+      }
+    },
     {
       "id": "jojo-sbr-ep8-noticias-nov",
       "series": "JoJo's Bizarre Adventure — Steel Ball Run",
