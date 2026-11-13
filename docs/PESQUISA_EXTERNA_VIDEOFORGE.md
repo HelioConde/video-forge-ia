@@ -13,6 +13,25 @@ três sinais documentados sobre Steel Ball Run, One Piece/Elbaph e Black Clover.
 Esses itens não foram ranqueados. Não se conclui que esses assuntos têm mais
 views, maior retenção ou são inéditos no canal.
 
+## Pesquisa por sessão, não fila fixa
+
+O ChatGPT acompanha exemplos recentes no próprio canal e tendências
+externas por meio do vidIQ e de fontes primárias. O pacote de 12/11/2026
+inclui observações externas datadas para Jujutsu Kaisen, Hunter x Hunter e
+Dragon Ball, sem escolher uma pauta ou copiar vídeos concorrentes.
+Views/hora de um Short externo representam somente um instante; NÃO
+representam métricas do Otaku Multicena. Não versionar os Analytics do
+canal: o Gerente/Subgerente consultam esses dados somente no runner
+protegido.
+
+O workflow privado só aceita pesquisa criada hoje ou ontem conforme o
+calendário UTC do runner. Pesquisas públicas usam temas extraídos de fontes
+atuais e dados próprios, nunca a lista fixa `anime curiosidades`.
+Sem um pacote recente, o processo para antes de OAuth/IA. Para renovar
+a pesquisa, é necessário coletar fontes atuais de novo e atualizar o
+arquivo datado; o ChatGPT não opera silenciosamente a partir de um commit.
+Não há promessas de superar cota HTTP 429.
+
 ## Contrato e fluxo
 
 1. ChatGPT pesquisa fontes públicas, registra afirmações curtas verificáveis,
