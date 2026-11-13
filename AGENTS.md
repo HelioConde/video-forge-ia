@@ -44,7 +44,7 @@ NUNCA reativar pesquisa paga por `push`, nome especial de commit,
 arquivo de one-shot, PR ou `schedule`.
 
 Decisões da equipe podem conter Analytics privados. Nunca subir
-`output/editorial-team/decisao.json` em claro como artifact: cifrar
+`output/otaku-br/editorial/decisao.json` em claro como artifact: cifrar
 usando `videoforge/channel_agents/secure_report.py`,
 AES-256-GCM, mesma chave do briefing e AAD do ID do run. A chave
 deve estar disponível ANTES de chamar o modelo; se faltar, bloquear.
