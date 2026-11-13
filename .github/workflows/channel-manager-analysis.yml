@@ -55,6 +55,8 @@ jobs:
           python-version: '3.12'
       - name: Contratos de gestores, métricas e antirrepetição, sem rede
         run: python -m unittest discover -s tests -p 'test_channel_managers.py' -v
+      - name: Verificar isolamento de pastas e saídas por canal
+        run: python -m unittest discover -s tests -p 'test_channel_storage.py' -v
       - name: Garantir cinco gerentes únicos e identidade por canal
         run: |
           python - <<'PY'
