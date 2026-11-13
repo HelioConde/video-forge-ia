@@ -11,6 +11,7 @@ on:
       - '.github/workflows/otaku-team-video-readiness.yml'
       - 'canal/otaku-br/editorial/reservas.json'
       - 'geradores/autoeditor/exemplo-manifesto.json'
+      - 'canal/otaku-br/videos/**/manifest.json'
   pull_request:
     paths:
       - 'videoforge/production/otaku_video_readiness.py'
@@ -21,7 +22,7 @@ on:
       manifest:
         description: 'Arquivo manifesto do Otaku (somente leitura)'
         type: string
-        default: 'geradores/autoeditor/exemplo-manifesto.json'
+        default: 'canal/otaku-br/videos/spy-family-2027-preview-rascunho/manifest.json'
         required: true
       max_image_calls:
         description: 'Limite de imagens considerado apenas no plano (sem custo)'
@@ -59,7 +60,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 8
     env:
-      JOB_MANIFEST: ${{ inputs.manifest || 'geradores/autoeditor/exemplo-manifesto.json' }}
+      JOB_MANIFEST: ${{ inputs.manifest || 'canal/otaku-br/videos/spy-family-2027-preview-rascunho/manifest.json' }}
       IMAGE_LIMIT: ${{ inputs.max_image_calls || 12 }}
     steps:
       - uses: actions/checkout@v4
