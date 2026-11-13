@@ -1,5 +1,35 @@
 # VideoForge AI
 
+## Proibição de repetição de tema em TODOS os canais
+
+Antes de aceitar qualquer pauta, `dedup.assert_unique` exige inventário
+integral e identidade do canal, reserva persistente e compara títulos
+anteriores, inclusive títulos reformulados. A verificação também detecta
+**sobreposição de personagens/assuntos** por termos distintivos; quando
+a mesma série é explícita no vídeo anterior, um personagem ou assunto
+repetido já pode bloquear. Os cinco canais usam a mesma proteção,
+**sempre contra seu próprio histórico**, sem misturar dados de outro canal.
+
+É uma barreira heurística adicional: títulos não provam equivalência de
+conceitos expressos com sinônimos, cortes editados ou vídeos privados
+sem título acessível. Nesses casos, o Subgerente e a revisão humana
+precisam verificar a sinopse, o roteiro e o histórico completo; sem
+evidência de originalidade, não reservar, gerar nem publicar.
+Não existe garantia semântica absoluta fornecida por palavras isoladas.
+
+### Pesquisa e roteiro experimental (Otaku Multicena)
+
+A pesquisa de 12/11/2026 analisou os uploads acessíveis via vidIQ, duração,
+engajamento, inscrições por vídeo e tendências públicas. A análise
+particularizada de métricas privadas **não** foi versionada no Git.
+Um rascunho autoral de comentário sobre o anúncio oficial de
+*SPY x FAMILY* em 2027 fica em
+`canal/otaku-br/editorial/rascunhos/2026-11-12-spy-family-2027.md`.
+**É rascunho do assistente, não decisão dos agentes** nem pauta reservada.
+Gerente e Subgerente devem validar com dados atuais e rejeitar qualquer
+assunto ou abordagem já explorado. Não há geração/pagamento/publicação
+aprovados pelo arquivo.
+
 ## Todas as informações pertencem ao seu canal
 
 **Uma pasta por canal, sem misturar pesquisas, desempenho, decisões, pautas,
