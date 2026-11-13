@@ -10,6 +10,7 @@ This only chooses a DRAFT TOPIC, never requests images, renders, or publishes.
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import json
 import os
 from pathlib import Path
@@ -23,12 +24,52 @@ from .ideation import EditorialIdeationError, propose_candidates
 from .manager import ROOT, build_editorial_plan, channel_policy
 from .strategy import analyse_performance
 from .youtube import YouTubeReadOnly, YouTubeReadError, oauth_access_token
-from .external_research import (ExternalResearchError, latest_research,
+from .external_research import (ExternalResearchError, fresh_research,
                                 validate_research)
 
 
 class EditorialTeamError(ValueError):
     pass
+
+
+def public_discovery_queries(*, snapshot: dict, research: dict,
+                             paused_animes: list[str]) -> list[str]:
+    """Dynamic PUBLIC search subjects, not topics selected for production."""
+    paused = [norm(x) for x in paused_animes]
+    ranked = []
+    for position, signal in enumerate(research["signals"]):
+        series = norm(signal["series"])
+        if any(series == x or series.startswith(x + " ") for x in paused):
+            continue
+        aliases = signal.get("title_aliases") or [signal["series"]]
+        terms = [norm(x) for x in aliases]
+        score = 0
+        for video in snapshot.get("videos", []):
+            title = " " + norm(video.get("title", "")) + " "
+            if not any((" " + term + " ") in title for term in terms if term):
+                continue
+            metrics = video.get("metrics")
+            engaged = metrics.get("engagedViews") if isinstance(metrics, dict) else None
+            if (isinstance(engaged, (int, float)) and not isinstance(engaged, bool)
+                    and 0 <= engaged < 10 ** 12):
+                score = max(score, engaged)
+        query = max((alias for alias in aliases if 3 <= len(alias) <= 70),
+                    key=len, default="")
+        if query:
+            ranked.append((-score, position, query))
+    ranked.sort()
+    selected = []
+    seen = set()
+    for _, _, query in ranked:
+        key = norm(query)
+        if key not in seen:
+            selected.append(query)
+            seen.add(key)
+        if len(selected) == 2:
+            break
+    if not selected:
+        raise EditorialTeamError("TEAM_NO_FRESH_PUBLIC_DISCOVERY_QUERY")
+    return selected
 
 
 def _read_json(path: Path) -> dict:
@@ -293,14 +334,20 @@ def main(argv=None):
         raise SystemExit("TEAM_WINDOW_INVALID")
     try:
         policy = channel_policy(args.channel)
+        # Reject stale or absent ChatGPT research before reading private YouTube
+        # data or making a single generative call. A commit never starts research.
+        external_research = fresh_research(
+            root=ROOT, channel=args.channel, channel_id=policy["youtube_channel_id"],
+            as_of=date.today())
         token = oauth_access_token(os.getenv("YOUTUBE_CLIENT_JSON", ""),
                                    os.getenv("YOUTUBE_CHANNEL_TOKEN_JSON", ""))
         yt = YouTubeReadOnly(access_token=token,
                              expected_channel_id=policy["youtube_channel_id"])
         snapshot = yt.snapshot(days=args.days)
-        trends = yt.trend_signals(["anime curiosidades", "anime análise"], max_queries=2)
-        external_research = latest_research(
-            root=ROOT, channel=args.channel, channel_id=policy["youtube_channel_id"])
+        queries = public_discovery_queries(
+            snapshot=snapshot, research=external_research,
+            paused_animes=policy.get("paused_animes", []))
+        trends = yt.trend_signals(queries, max_queries=2)
         if external_research is not None:
             print("EXTERNAL_RESEARCH_LOADED_" +
                   str(len(external_research["signals"])) + "_SIGNALS_CONTEXT_ONLY")
