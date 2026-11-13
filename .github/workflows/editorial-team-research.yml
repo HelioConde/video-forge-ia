@@ -122,7 +122,7 @@ jobs:
           proxy_pid=''
           cleanup() {
             if [[ -n "$proxy_pid" ]]; then kill "$proxy_pid" 2>/dev/null || true; fi
-            rm -rf -- "$private_dir" "$RUNNER_TEMP/videoforge-editorial-stage"
+            rm -rf -- "$private_dir" "$RUNNER_TEMP/videoforge-channels/otaku-br/editorial/stage"
             rm -f -- "$RUNNER_TEMP/videoforge-editorial-proxy.log"
           }
           trap cleanup EXIT
@@ -155,9 +155,9 @@ jobs:
           else:
               raise SystemExit('TEAM_PROXY_NOT_READY')
           PY
-          mkdir -p output/editorial-team
+          mkdir -p -m 700 output/otaku-br/editorial
           python -m videoforge.channel_agents.team --channel otaku-br \
-            --days 90 --model auto --output output/editorial-team/decisao.json
+            --days 90 --model auto --output output/otaku-br/editorial/decisao.json
       - name: Confirmar pauta escolhida pelos agents e sem publicacao
         shell: bash
         run: |
@@ -165,7 +165,7 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          j=json.loads(Path('output/editorial-team/decisao.json').read_text(encoding='utf-8'))
+          j=json.loads(Path('output/otaku-br/editorial/decisao.json').read_text(encoding='utf-8'))
           assert j['schema']=='videoforge/editorial-team/v1'
           assert j['channel']=='otaku-br'
           assert j['decision_authority']=='Gerente Otaku Multicena'
@@ -186,15 +186,15 @@ jobs:
           umask 077
           # An encrypted artifact is the ONLY durable output of research.
           python -m videoforge.channel_agents.secure_report encrypt \
-            --source output/editorial-team/decisao.json \
+            --source output/otaku-br/editorial/decisao.json \
             --source-run-id "$GITHUB_RUN_ID" \
-            --output "$RUNNER_TEMP/videoforge-editorial-encrypted/decisao.encrypted.json"
-          rm -rf -- output/editorial-team
+            --output "$RUNNER_TEMP/videoforge-channels/otaku-br/editorial/cifrado/decisao.encrypted.json"
+          rm -f -- output/otaku-br/editorial/decisao.json
       - name: Enviar apenas decisao AES-256-GCM para revisao protegida
         uses: actions/upload-artifact@v4
         if: success()
         with:
           name: otaku-multicena-agents-decisao-cifrada-${{ github.run_id }}
-          path: ${{ runner.temp }}/videoforge-editorial-encrypted/decisao.encrypted.json
+          path: ${{ runner.temp }}/videoforge-channels/otaku-br/editorial/cifrado/decisao.encrypted.json
           retention-days: 7
           if-no-files-found: error
