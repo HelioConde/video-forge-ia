@@ -124,6 +124,8 @@ remota de imagem, sem MP4 e sem publicação. A exceção legada baseada
 em mensagem de commit foi removida: nenhuma mensagem pode inibir os
 testes de planejamento ou ativar `render`.
 
+O verificador `.github/workflows/otaku-team-video-readiness.yml` também usa agora o manifesto provisório do Otaku como padrão e o reavalia a cada alteração nele; seu resultado segue `blocked` até que as exigências de pesquisa, reserva e autorização sejam comprovadas.
+
 O modo de diagnóstico `private-quota-live` do workflow do Proxy
 **não** faz parte desse fluxo offline. O trabalho de produção real
 continua separado, exige `workflow_dispatch` e salvaguardas de
