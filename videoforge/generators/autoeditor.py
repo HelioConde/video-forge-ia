@@ -40,6 +40,7 @@ from videoforge.production.motion_plan import (
 )
 from videoforge.motion.remotion_overlay import apply_motion_overlay
 from videoforge.proxy.client import ProxyClient, ProxyError
+from videoforge.proxy.quota_diagnostic import summarize_quota
 
 ROOT = Path(__file__).resolve().parents[2]
 FPS = 30
@@ -553,10 +554,22 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
             or expected_calls > max_calls):
         raise AutoEditorBlocked("AUTOEDITOR_IMAGE_BUDGET_INVALID")
     client = proxy or ProxyClient(timeout=240)
-    accounts = client.accounts()
-    records = accounts.get("accounts", []) if isinstance(accounts, dict) else []
-    if not any(isinstance(x, dict) and x.get("eligible_now") is True for x in records):
+    # eligible_now only confirms account selection, NOT permission to generate.
+    # Inspect the existing local quota snapshot without contacting the provider.
+    # Abort BEFORE Edge TTS / image generation when a fresh restriction is known.
+    try:
+        quota = summarize_quota(client, usage_mode="cached")
+    except (ValueError, ProxyError):
+        raise AutoEditorBlocked("AUTOEDITOR_PROXY_QUOTA_PREFLIGHT_UNAVAILABLE") from None
+    if quota["eligible_accounts"] == 0:
         raise AutoEditorBlocked("AUTOEDITOR_PROXY_ACCOUNT_NOT_ELIGIBLE")
+    if quota["cooldown_active"]:
+        raise AutoEditorBlocked("AUTOEDITOR_PROXY_ACCOUNT_COOLDOWN_ACTIVE")
+    if (quota["status"] == "restriction_reported"
+            and quota["quota_age_bucket"] == "within_15_minutes"):
+        raise AutoEditorBlocked("AUTOEDITOR_PROXY_FRESH_QUOTA_RESTRICTION")
+    # Unknown/stale cache is NOT proof of spare quota. The private live usage
+    # diagnostic remains a separate, owner-authorized workflow.
     dest.mkdir(parents=True, mode=0o700)
     reporter = CheckReporter(channel=manifest["canal"])
     with role_task("diretor", evidence=(dest/"plano.json", dest/"briefing.json"), reporter=reporter):
