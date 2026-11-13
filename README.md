@@ -30,6 +30,20 @@ o modo `private-quota-live` exige disparo manual protegido e faz no máximo
 que o próximo pedido de IA terá sucesso.
 [Contrato, autorização e resultados](docs/PROXY_QUOTA_DIAGNOSTIC.md).
 
+## Pré-verificação segura da cota antes de produzir um MP4
+
+O executor `videoforge/generators/autoeditor.py` agora verifica **em cache**
+o estado da conta antes de gerar narração Edge TTS ou solicitar imagens.
+Uma conta com `eligible_now=true` pode estar em `cooldown` ou ter
+limite vigente: se o cooldown estiver ativo ou se a cota tiver uma
+restrição observada nos últimos 15 minutos, a produção é interrompida
+sem criar a pasta de saída ou gastar chamadas gerativas. O teste é
+gratuito e não chama o endpoint externo de uso.
+**Sem dados recentes no cache não há garantia de disponibilidade**:
+o fluxo privado `private-quota-live` continua sendo o diagnóstico
+manual apropriado, e um 429 remoto ainda pode ocorrer.
+Testes offline em `tests/test_autoeditor_generator.py`.
+
 ## Limite local do prompt editorial (testes sem gerar IA)
 
 A pesquisa do Otaku Multicena projeta somente as métricas numéricas
