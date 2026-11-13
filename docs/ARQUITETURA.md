@@ -83,6 +83,19 @@ sem endpoints de geração. Sinais de limite não provam isoladamente
 a causa do erro anterior; ausência deles não comprova quota disponível.
 [Documentação](PROXY_QUOTA_DIAGNOSTIC.md).
 
+## Pesquisa fresca do ChatGPT, sem pautas pré-escolhidas
+
+O backend privado agora exige um pacote externo `chatgpt_external_research`
+datado de hoje ou ontem antes de qualquer OAuth/Proxy. Um pacote ausente
+ou antigo impede tratar tendências ultrapassadas como atuais. Exemplos de
+Shorts externos podem registrar observações datadas de VPH do vidIQ, sempre
+separadas das métricas privadas do Otaku Multicena. As consultas públicas
+`trend_signals` escolhem até duas séries do pacote, priorizando apenas
+a busca por correspondência com dados próprios do canal. Essas consultas
+**não** escolhem a pauta. O Pesquisador, Gerente e Subgerente continuam
+com suas verificações e a revisão humana. Atualizar JSON não gera mídia,
+não inicia chamadas pagas e não autoriza bypass do HTTP 429.
+
 ## Entrada de inteligência editorial externa
 
 O assistente pesquisa fatos públicos e documenta fontes em JSONs datados dentro
