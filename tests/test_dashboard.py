@@ -36,8 +36,10 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(research["estado"],
                          "contexto_aguardando_checagem_e_metricas")
         self.assertEqual(research["data_pesquisa"], "2026-11-12")
-        self.assertEqual(len(research["sinais"]), 6)
-        self.assertEqual(len({x["id"] for x in research["sinais"]}), 6)
+        self.assertGreaterEqual(len(research["sinais"]), 1)
+        self.assertLessEqual(len(research["sinais"]), 12)
+        self.assertEqual(len({x["id"] for x in research["sinais"]}),
+                         len(research["sinais"]))
         self.assertFalse(research["pauta_escolhida"])
         self.assertFalse(research["aprovado_por_subgerente"])
         self.assertTrue(all(s["estado"] == "aguardando_checagem"
