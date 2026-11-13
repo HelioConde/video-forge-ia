@@ -1,0 +1,160 @@
+{
+  "schema": "videoforge/autoeditor-job/v1",
+  "canal": "otaku-br",
+  "id": "spy-family-2027-preview-rascunho",
+  "titulo": "SPY x FAMILY: dois projetos para 2027 — o que foi anunciado?",
+  "descricao": "Prévia técnica para revisão editorial: comentário original sobre o anúncio oficial da 4ª temporada e do segundo filme previstos para 2027. Roteiro provisório do assistente, ainda NÃO escolhido ou aprovado pelos agentes. Fonte: https://spy-family.net/tvseries/. Nenhuma aprovação de publicação.",
+  "idioma": "pt-BR",
+  "voz": "pt-BR-AntonioNeural",
+  "formato": "short-90s",
+  "feito_para_criancas": false,
+  "modelo_imagem": "gpt-image-2",
+  "origem_imagens": "integrated-image-generator",
+  "aprovacao_humana_obrigatoria": true,
+  "upload_habilitado": false,
+  "cenas": [
+    {
+      "id": "cena-1",
+      "papel": "gancho",
+      "narracao": "SPY x FAMILY voltou às notícias com uma surpresa dupla. O site oficial anunciou dois projetos para dois mil e vinte e sete: uma quarta temporada do anime e um segundo filme. Mas atenção: anúncio não é sinopse. O que sabemos de verdade, e o que ainda é pura especulação?",
+      "prompt_imagem": "Original editorial anime-inspired 2D illustration. A distinct adult anime-news host in crimson jacket appears in a sleek navy editorial studio pointing to two separate blank luminous announcement boards; warm saffron highlights, black-ink clean lines, grainy brush texture, varied vertical depth, cinematic 9:16 portrait, no letters, no logos, no text, no existing copyrighted character likenesses.",
+      "layer_plan": {
+        "characters": [
+          {
+            "id": "apresentadora",
+            "description": "Apresentadora adulta original, cabelo preto-azulado curto com franja lateral, olhos âmbar e jaqueta vermelha de gola alta, recorte alinhado à pose da cena-mãe"
+          }
+        ],
+        "movable_props": []
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": [
+          {
+            "id": "apresentadora",
+            "motion": "idle",
+            "start": 0.07,
+            "end": 0.92,
+            "distance": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "cena-2",
+      "papel": "fato-confirmado",
+      "narracao": "O comunicado oficial foi divulgado em oito de novembro. Ele confirma os dois projetos para o ano que vem, mas não apresenta um dia de estreia nem explica a história do novo longa. Portanto, qualquer vídeo que apresente um arco específico como confirmado está indo além do anúncio disponível. A expectativa é legítima; inventar informações, não.",
+      "prompt_imagem": "Original 2D illustration from the same art direction as reference: close detail of a paper calendar, two anonymous sealed announcement envelopes on a desk, a pen and subtle studio light beams; no people or figures, no text, no numerical labels; balanced vertical graphic composition, dark navy with warm saffron and muted crimson.",
+      "layer_plan": {
+        "characters": [],
+        "movable_props": []
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": []
+      }
+    },
+    {
+      "id": "cena-3",
+      "papel": "contexto",
+      "narracao": "Para entender por que essa notícia chamou atenção, vale lembrar o coração da série. Loid construiu uma família para cumprir uma missão de espionagem. Yor tenta conciliar uma vida aparentemente comum com seus próprios segredos. E Anya percebe muito mais do que os adultos imaginam. Essa família começa como fachada, mas os sentimentos vão ficando cada vez menos artificiais.",
+      "prompt_imagem": "Original editorial anime-style drawing from the same reference: the identical adult host with matching facial proportions, hair and crimson jacket studies three original symbolic theatrical masks on a studio wall, representing espionage, secret professions and a child knowing more than adults; no likenesses of anime franchise characters, no letters, portrait 9:16.",
+      "layer_plan": {
+        "characters": [
+          {
+            "id": "apresentadora",
+            "description": "Apresentadora adulta original, cabelo preto-azulado curto com franja lateral, olhos âmbar e jaqueta vermelha de gola alta, recorte alinhado à pose da cena-mãe"
+          }
+        ],
+        "movable_props": []
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": [
+          {
+            "id": "apresentadora",
+            "motion": "idle",
+            "start": 0.07,
+            "end": 0.92,
+            "distance": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "cena-4",
+      "papel": "analise-de-formato",
+      "narracao": "Uma nova temporada pode oferecer tempo para desenvolver relações, situações engraçadas e mudanças graduais. Um filme pode explorar uma aventura com um ritmo diferente, concentrando tensão e humor numa experiência única. São possibilidades de formato, não informações oficiais sobre o enredo. Sem confirmação dos produtores, não sabemos quais acontecimentos cada projeto vai mostrar.",
+      "prompt_imagem": "Original cinematic 2D illustration from the same canonical reference: split by lighting, not panel borders; on the left a quiet family living room silhouette, on the right a cinema projector shining onto an empty theater curtain; no people visible, no words, same drawn linework, warm gold and navy tones, vertical image.",
+      "layer_plan": {
+        "characters": [],
+        "movable_props": []
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": []
+      }
+    },
+    {
+      "id": "cena-5",
+      "papel": "analise-tematica",
+      "narracao": "É isso que torna SPY x FAMILY especial para tanta gente: o conflito não depende só de grandes batalhas. O interesse vem do contraste entre o que os personagens escondem e o cuidado que demonstram uns pelos outros. Quando uma mentira criada por obrigação vira um laço sincero, cada segredo pode ameaçar algo que passou a ter valor de verdade.",
+      "prompt_imagem": "Original editorial hand-painted 2D animation-style artwork. Identical adult host from reference, same jacket and appearance, standing beside two overlapping objects: a closed dossier and a handmade paper heart; emotional and reflective studio atmosphere, crimson navy saffron palette; original symbolic props, no text or brand, portrait 9:16.",
+      "layer_plan": {
+        "characters": [
+          {
+            "id": "apresentadora",
+            "description": "Apresentadora adulta original, cabelo preto-azulado curto com franja lateral, olhos âmbar e jaqueta vermelha de gola alta, recorte alinhado à pose da cena-mãe"
+          }
+        ],
+        "movable_props": []
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": [
+          {
+            "id": "apresentadora",
+            "motion": "idle",
+            "start": 0.07,
+            "end": 0.92,
+            "distance": 5
+          }
+        ]
+      }
+    },
+    {
+      "id": "cena-6",
+      "papel": "fechamento",
+      "narracao": "Por enquanto, a notícia verificável é simples: quarta temporada e segundo filme previstos para dois mil e vinte e sete. Nada de data exata ou trama revelada nesse anúncio. E você, qual aspecto dessa família gostaria de acompanhar mais: as missões de Loid, os desafios de Yor ou as descobertas inesperadas de Anya? Conte sua escolha nos comentários.",
+      "prompt_imagem": "Original vertical 2D illustrated closing scene, same studio and brushwork as reference: empty studio desk with three distinct blank cards, the open book of a family photo album whose pages are intentionally blank, and bright sunrise through the window; no figures, no franchise likenesses, no visible words or numbers, contemplative editorial framing.",
+      "layer_plan": {
+        "characters": [],
+        "movable_props": []
+      },
+      "motion_plan": {
+        "schema": "videoforge/scene-layer-motion/v1",
+        "cues": []
+      }
+    }
+  ],
+  "visual_lock": {
+    "schema": "videoforge/visual-bible/v1",
+    "mode": "anchor_image_edit",
+    "anchor_scene": 1,
+    "style_family": "illustration",
+    "render_style": "hand-painted cinematic 2D editorial anime illustration with crisp dark-ink contours and gentle grain shading",
+    "character_id": "apresentadora-otaku",
+    "identity": "Apresentadora original adulta de aproximadamente trinta anos, rosto oval com queixo suave e traços ilustrados consistentes, pose confiante e expressões discretas",
+    "hair": "Cabelo curto preto-azulado, franja inclinada para a direita, comprimento no pescoço, mesmas mechas e proporções em todas as cenas",
+    "eyes": "Olhos âmbar grandes de formato amendoado, sobrancelhas negras finas, mesmo formato e distância ao longo do vídeo",
+    "wardrobe": "Jaqueta vermelha escura com gola alta e detalhes dourados discretos, camiseta creme e calças azuis, nenhum uniforme de franquia",
+    "accessories": "Pequeno broche redondo dourado sem letras na lapela, nenhum objeto preso ao corpo, sem óculos ou chapéu",
+    "require_human_visual_review": true
+  },
+  "scene_decomposition": {
+    "schema": "videoforge/scene-decomposition/v1",
+    "mode": "layered_from_master_scene",
+    "require_transparent_rgba": true,
+    "require_independent_visual_review": true
+  }
+}

@@ -65,6 +65,30 @@ class TestAutoEditorGenerator(unittest.TestCase):
         self.assertFalse(self.manifest["upload_habilitado"])
         self.assertTrue(self.manifest["aprovacao_humana_obrigatoria"])
 
+    def test_spy_family_provisional_preview_manifest_is_offline_and_within_budget(self):
+        path = (ROOT / "canal" / "otaku-br" / "videos" /
+                "spy-family-2027-preview-rascunho" / "manifest.json")
+        preview = load_manifest(path)
+        proposed = plan(preview)
+        self.assertEqual(preview["canal"], "otaku-br")
+        self.assertEqual(preview["id"], "spy-family-2027-preview-rascunho")
+        self.assertEqual(len(preview["cenas"]), 6)
+        self.assertEqual(proposed["planned_image_calls"], 12)
+        self.assertEqual(proposed["planned_master_scenes"], 6)
+        self.assertEqual(proposed["planned_layer_image_calls"], 6)
+        self.assertEqual(preview["visual_lock"]["anchor_scene"], 1)
+        self.assertTrue(preview["visual_lock"]["require_human_visual_review"])
+        self.assertTrue(preview["aprovacao_humana_obrigatoria"])
+        self.assertFalse(preview["upload_habilitado"])
+        self.assertFalse(proposed["execution_enabled"])
+        self.assertEqual(proposed["actual_images_generated"], 0)
+        self.assertEqual(proposed["expected_duration_seconds"], 90)
+        self.assertTrue(all(
+            len(scene["layer_plan"]["characters"]) <= 1
+            and not scene["layer_plan"]["movable_props"]
+            for scene in preview["cenas"]
+        ))
+
     def test_reject_unsanctioned_upload_and_non_generated_imagery(self):
         for key,value,expected in [
             ("upload_habilitado", True, "UPLOAD_MUST_BE_DISABLED"),

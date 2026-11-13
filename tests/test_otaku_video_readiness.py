@@ -101,6 +101,23 @@ class FirstOtakuVideoTests(TestCase):
             self.assertFalse(data["can_render_now"])
             self.assertEqual(main(["--output", str(report_path)]), 1)
 
+    def test_spy_family_provisional_preview_stays_blocked_without_agent_handoff(self):
+        from videoforge.production.otaku_video_readiness import assess
+        report = assess(manifest_path=(
+            "canal/otaku-br/videos/"
+            "spy-family-2027-preview-rascunho/manifest.json"),
+            max_image_calls=12)
+        self.assertEqual(report["planned_image_requests"], 12)
+        self.assertEqual(report["budget_shortfall"], 0)
+        self.assertTrue(report["manifest_structurally_valid"])
+        self.assertFalse(report["can_render_now"])
+        self.assertFalse(report["private_source_verified"])
+        self.assertFalse(report["script_provenance_verified"])
+        self.assertIn("NO_AUTHENTICATED_AGENT_DECISION_HANDOFF",
+                      report["blockers"])
+        self.assertIn("AGENT_SCRIPT_AND_STORYBOARD_PROVENANCE_NOT_VERIFIED",
+                      report["blockers"])
+
     def test_render_is_manual_owner_only_with_preflight_before_proxy(self):
         workflow = (ROOT / ".github/workflows/autoeditor-generator.yml"
                     ).read_text(encoding="utf-8")
