@@ -46,9 +46,14 @@ Testes offline em `tests/test_autoeditor_generator.py`.
 
 ## Limite local do prompt editorial (testes sem gerar IA)
 
-A pesquisa do Otaku Multicena projeta somente as métricas numéricas
-necessárias para o Pesquisador e limita cada título/reserva enviada
-ao contexto. Antes de qualquer chamada generativa, mede o **corpo completo**
+A pesquisa do Otaku Multicena reduz o texto enviado à IA: amostra até
+**16 vídeos recentes + 16 de maiores visualizações (sem duplicar)**,
+**60 reservas mais recentes**, **8 sinais de busca** e **6 fontes externas**.
+Cada título é resumido a 120 caracteres e somente 4 métricas numéricas
+são enviadas por vídeo. O Pesquisador recebe os totais reais e sabe que
+o contexto é apenas uma amostra. O **Gerente e o Subgerente continuam
+auditando o histórico completo** para evitar pautas repetidas.
+Antes de qualquer chamada generativa, mede o **corpo completo**
 da requisição em JSON UTF-8 e bloqueia acima de **96 KiB** com o código
 `EDITORIAL_PAYLOAD_TOO_LARGE`, sem enviar o prompt ou fazer retry.
 Esse teto conservador **não é limite do provedor** e não resolve sozinho
