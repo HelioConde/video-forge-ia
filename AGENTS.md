@@ -87,6 +87,20 @@ Código responsável: `videoforge/production/visual_lock.py` e `videoforge/gener
 
 Em **toda tarefa**, preservar e melhorar a organização do repositório. Antes de qualquer edição, leia `README.md` e `docs/ARQUITETURA.md`; mantenha esses documentos alinhados com o código.
 
+## Regra de dados e memória por canal
+
+**Não misturar informações de canais.** Pesquisas públicas, configurações,
+pautas, reservas e referências de um canal vivem em `canal/<id>/`.
+Registros de produção temporários ficam em `output/<id>/editorial/`
+ou `output/<id>/videos/<job-id>/`; informações privadas no runner
+são separadas por `videoforge-channels/<id>/editorial/`, nunca
+versionadas em claro. O utilitário `channel_agents/storage.py`
+valida identidade e destino, recusando escrita na pasta de outro canal.
+O dashboard pode agregar SOMENTE projeções saneadas por canal; código e
+especialistas reutilizáveis não são dados editoriais compartilhados.
+Incluir testes de isolamento a cada nova funcionalidade persistente.
+Nenhuma alteração autoriza IA paga, upload ou publicação.
+
 ## Estrutura por responsabilidade
 
 - `canal/<id>/`: dados e opções de apenas um canal; vídeos em `videos/<id>/`.
