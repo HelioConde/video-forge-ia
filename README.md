@@ -1,5 +1,26 @@
 # VideoForge AI
 
+## Prévia técnica Spy × Family (ainda sem render ou decisão de agentes)
+
+A pedido do proprietário, há um **manifesto provisório de produção**
+em `canal/otaku-br/videos/spy-family-2027-preview-rascunho/manifest.json`
+que adapta o roteiro de 12/11/2026 a **seis cenas**, 9:16,
+`pt-BR-AntonioNeural`, consistência visual por âncora e edição da cena-mãe,
+e um máximo de **12 chamadas de imagem** (seis cenas-mãe mais seis
+separações RGBA; 3 cenas com apresentadora original animável, 3 cenas
+simbólicas estáticas). Nenhuma mídia de terceiros é copiada.
+`load_manifest` e `plan` validam offline o esquema, o limite
+e a proibição de upload.
+
+**Estado:** é somente uma proposta do assistente, não foi escolhida
+nem aprovada por Pesquisador/Gerente/Subgerente, não foi reservada e
+não possui proveniência de roteiro de agente. Portanto, o readiness
+continua **blocked**, mesmo com o orçamento local adequado. Não
+acionar render pago ou publicar até validar a decisão e o handoff
+protegidos, confirmar o orçamento explícito do proprietário e conferir
+a disponibilidade de cota do Codex Proxy. O usuário solicitou
+**geração para revisão, não publicação no YouTube**.
+
 ## Proibição de repetição de tema em TODOS os canais
 
 Antes de aceitar qualquer pauta, `dedup.assert_unique` exige inventário
