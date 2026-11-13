@@ -42,11 +42,15 @@ O uso de uma pesquisa pública não resolve HTTP 429 do Codex Proxy.
 
 ## Preflight de volume do pesquisador (sem IA)
 
-O `ideation.propose_candidates` monta o pedido ao
-`POST /v1/chat/completions` com até 100 vídeos, 300 reservas e 20 sinais
-externos; projeta apenas métricas numéricas reconhecidas do YouTube,
-eliminando campos inesperados. A revisão de duplicatas e pontuação
-continua usando o snapshot completo no Gerente/Subgerente.
+O `ideation.propose_candidates` reduz o contexto do
+`POST /v1/chat/completions` para até 16 vídeos recentes mais 16 de
+maiores visualizações (sem duplicações), 60 reservas mais recentes,
+8 resultados de pesquisa pública e 6 sinais externos. Envia quatro
+métricas numéricas por vídeo e títulos de até 120 caracteres;
+o Pesquisador sabe que viu uma amostra e recebe os totais reais.
+O ranqueamento de exemplos só escolhe quais fatos mostrar ao modelo:
+**decisão editorial, deduplicação e auditoria usam o snapshot integral**
+no Gerente/Subgerente. Nenhum registro do inventário é excluído.
 O corpo JSON UTF-8 é medido **antes** da chamada: acima de 96 KiB,
 retorna `EDITORIAL_PAYLOAD_TOO_LARGE` sem gastar cota, sem reduzir
 silenciosamente o histórico ou expor Analytics nos logs. É proteção
