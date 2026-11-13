@@ -112,3 +112,20 @@ simulação bem-sucedida não significa que um vídeo já foi gerado.
 [Motor de produção](../videoforge/generators/autoeditor.py) ·
 [Handoff protegido](PRIMEIRO_BRIEFING_AGENTES.md) ·
 [Cota do Proxy](PROXY_QUOTA_DIAGNOSTIC.md).
+
+## Planejamento offline do manifesto provisório (13/11/2026)
+
+Em `.github/workflows/autoeditor-generator.yml`, um `push` na própria
+orquestração ou em `canal/otaku-br/videos/**/manifest.json` executa
+somente o job `plan`. Na ausência de input manual, esse teste usa
+`canal/otaku-br/videos/spy-family-2027-preview-rascunho/manifest.json`
+para produzir um artefato de planejamento sem credenciais, sem geração
+remota de imagem, sem MP4 e sem publicação. A exceção legada baseada
+em mensagem de commit foi removida: nenhuma mensagem pode inibir os
+testes de planejamento ou ativar `render`.
+
+O modo de diagnóstico `private-quota-live` do workflow do Proxy
+**não** faz parte desse fluxo offline. O trabalho de produção real
+continua separado, exige `workflow_dispatch` e salvaguardas de
+aprovação e orçamento, além das condições editoriais acima; a prévia
+provisória não constitui decisão validada dos agentes.
