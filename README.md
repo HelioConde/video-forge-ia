@@ -1,5 +1,17 @@
 # VideoForge AI
 
+## Pesquisa atual do ChatGPT entregue à equipe Otaku
+
+Antes de cada sessão protegida, o ChatGPT pesquisa o próprio canal e
+exemplos de vídeos externos em alta com fonte/data, sem criar catálogo
+fixo de pautas. O pacote público `canal/otaku-br/editorial/pesquisas/YYYY-MM-DD.json`
+contém observações de VPH do vidIQ **apenas para vídeos externos** e fontes
+oficiais. O workflow exige contexto de hoje/ontem antes de OAuth e IA,
+e consulta o YouTube usando séries do pacote com correspondência em métricas
+do próprio canal, em vez de palavras-chave genéricas fixas. O Pesquisador
+sugere; Gerente/Subgerente decidem com inventário completo. Nenhuma
+pesquisa externa aprova ou publica por conta própria.
+
 ## Pesquisa por agentes com resultado protegido
 
 A pesquisa do Otaku Multicena só gera novas candidatas após
