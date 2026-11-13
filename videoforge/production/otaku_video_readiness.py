@@ -80,6 +80,8 @@ def assess(*, root: Path = ROOT, manifest_path: str = SAMPLE,
         and x.get("human_approved") is True
     ]
     is_template = manifest_path == SAMPLE
+    # A checked-in draft is not an agent-selected production manuscript.
+    is_provisional = False
     path = _manifest_path(manifest_path, root=root)
     if not path.is_file():
         if is_template:
@@ -92,6 +94,10 @@ def assess(*, root: Path = ROOT, manifest_path: str = SAMPLE,
         manifest_present = True
         try:
             manifest = load_manifest(path, root=root)
+            # Explicit draft IDs remain drafts even if structurally valid and
+            # the user-authorized image budget covers every planned request.
+            is_provisional = (not is_template and
+                              manifest["id"].endswith("-rascunho"))
             if manifest.get("canal") != CHANNEL:
                 raise ReadinessError("OTAKU_MANIFEST_CHANNEL_INVALID")
             graph = plan(manifest, root=root)
@@ -114,6 +120,8 @@ def assess(*, root: Path = ROOT, manifest_path: str = SAMPLE,
         blockers.append("NO_90_SECOND_RENDER_MANIFEST")
     elif is_template:
         blockers.append("SAMPLE_STORY_NOT_SELECTED_BY_TEAM")
+    elif is_provisional:
+        blockers.append("PROVISIONAL_DRAFT_NOT_SELECTED_BY_TEAM")
     # A valid manuscript still needs independent evidence it came from
     # approved agent output; textual similarity alone is insufficient.
     blockers.append("AGENT_SCRIPT_AND_STORYBOARD_PROVENANCE_NOT_VERIFIED")
@@ -129,8 +137,11 @@ def assess(*, root: Path = ROOT, manifest_path: str = SAMPLE,
         "channel": CHANNEL,
         "status": "blocked",
         "can_render_now": False,
-        "candidate_manifest": "sample" if is_template else
-                              ("supplied_not_proven" if manifest_present else "missing"),
+        "candidate_manifest": (
+            "sample" if is_template else
+            "provisional_draft" if is_provisional else
+            "supplied_not_proven" if manifest_present else "missing"
+        ),
         "manifest_structurally_valid": manifest_valid,
         "target_duration_seconds": expected_duration,
         "planned_image_requests": required,
