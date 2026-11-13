@@ -465,3 +465,19 @@ Os oito agentes do cadastro em `agentes/equipe.json` seguem sem `modelo_ia` e co
 ## PixelLab — nova arte de sede única
 
 O plano `cenarios/escritorio/agencia-unificada.json` e o pequeno PNG versionado em `cenarios/escritorio/referencias/` são entradas revisáveis para o módulo `videoforge/pixellab/agency_scene.py`, que reaproveita o cliente HTTP v2 existente. A API `generate-image-v2` é restrita a um único POST por execução manual; uma Action no branch da feature executa somente `plan`, não cobrança. O resultado é um artifact temporário; aprovação visual e importação no `site/assets/pixellab/scenes/` são processos separados, com os mapas de postos mantidos em `site/office-map.js`. Documentação: `docs/PIXELLAB-AGENCIA-UNIFICADA.md`.
+
+### Primeiro Otaku: manifesto explicitamente selecionado e teto de 30 imagens (13/11/2026)
+
+A autorização atual cobre no máximo **30 solicitações de imagem** para
+`otaku-br` neste primeiro MP4 de revisão. O preflight protegido do workflow
+`autoeditor-generator.yml` e o executor Python bloqueiam `max_image_calls > 30`
+para esse canal **antes de qualquer chamada ao Proxy ou TTS**; demais canais
+conservam seus próprios limites. O formulário de `workflow_dispatch` não
+sugere mais automaticamente o manifesto genérico
+`geradores/autoeditor/exemplo-manifesto.json`: o proprietário deve informar
+explicitamente o caminho do manifesto aprovado. O planejamento automático por
+`push` continua somente offline e pode usar o rascunho como exemplo.
+
+Essa proteção **não** comprova decisão dos agentes nem cota disponível, não
+executa geração por `push`, não contorna o Environment `proxy-runtime` e
+não autoriza publicação no YouTube.
