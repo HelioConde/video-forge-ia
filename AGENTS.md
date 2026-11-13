@@ -24,6 +24,17 @@ somente `workflow_dispatch` do proprietário na `main`,
 manifesto não substitui handoff do Gerente/Subgerente.
 Ver `docs/PRIMEIRO_VIDEO_OTAKU_EQUIPE.md`.
 
+## Contexto fresco provido pelo ChatGPT, sem catálogo de vídeos
+
+Para o Otaku Multicena, o ChatGPT pesquisa o canal e o mercado e
+envia fontes públicas datadas e observações externas ao VideoForge.
+Não escolher nem armazenar uma lista fixa de títulos prontos. O modo
+privado só inicia com pesquisa de hoje/ontem; pacote ausente/obsoleto
+bloqueia antes de OAuth ou Codex Proxy. O Pesquisador propõe, o Gerente
+decide e o Subgerente audita contra o inventário completo. As métricas
+externas de vidIQ NÃO são Analytics do canal. Alterar o pacote não
+autoriza chamada paga, imagem, render ou publicação.
+
 ## Segurança obrigatória da pesquisa por agentes (12/11/2026)
 
 O workflow `editorial-team-research.yml` só inicia geração mediante
