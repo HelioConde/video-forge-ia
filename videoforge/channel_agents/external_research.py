@@ -110,7 +110,8 @@ def validate_research(data: object, *, channel: str, channel_id: str,
                     or not isinstance(momentum.get("views_per_hour"), (int, float))
                     or isinstance(momentum["views_per_hour"], bool)
                     or not 0 <= momentum["views_per_hour"] < 1_000_000_000
-                    or row.get("source", {}).get("url") !=
+                    or not isinstance(row.get("source"), dict)
+                    or row["source"].get("url") !=
                     "https://www.youtube.com/watch?v=" + momentum["video_id"]):
                 raise ExternalResearchError("RESEARCH_PUBLIC_MOMENTUM_INVALID")
         if row.get("editorial_status") != "unranked_requires_channel_metrics":
