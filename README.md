@@ -1,5 +1,27 @@
 # VideoForge AI
 
+## Todas as informações pertencem ao seu canal
+
+**Uma pasta por canal, sem misturar pesquisas, desempenho, decisões, pautas,
+roteiros ou mídias.** Fontes públicas e as reservas editoriais duráveis ficam
+em `canal/<id>/editorial/`; os dados e arquivos de cada vídeo pertencem a
+`canal/<id>/videos/<video-id>/` quando forem artefatos persistentes aprovados.
+As saídas operacionais ignoradas pelo Git ficam em
+`output/<id>/editorial/` (planos/decisões temporárias) e
+`output/<id>/videos/<job-id>/` (MP4, cenas, voz, camadas e QA).
+O runtime valida se o destino corresponde à identidade registrada do canal
+e bloqueia caminhos cruzados, travessia e links simbólicos.
+
+**Privacidade:** Analytics próprios, relatórios de trabalho e decisões
+protegidas nunca são publicados em `canal/` nem no GitHub Pages: ficam
+somente no runner privado até a cifragem/limpeza, com artifact AES-256-GCM
+e retenção existente. O painel público é somente uma projeção agregada
+sanitizada, não um repositório de métricas de todos os canais.
+Código, configurações de agentes compartilhados e modelos reutilizáveis
+continuam globais; **nenhum dado editorial de canal é compartilhado**.
+Fluxos já autorizados e orçamento permanecem inalterados.
+
+
 ## Pesquisa atual do ChatGPT entregue à equipe Otaku
 
 Antes de cada sessão protegida, o ChatGPT pesquisa o próprio canal e
