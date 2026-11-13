@@ -19,9 +19,8 @@ on:
         type: choice
         options: [plan, render]
       manifest:
-        description: "Manifesto de video dentro de geradores/ ou canal/"
+        description: "Caminho EXPLICITO do manifesto revisado; sem padrao para evitar video errado"
         required: true
-        default: geradores/autoeditor/exemplo-manifesto.json
         type: string
       authorize_render:
         description: "Confirmar custos/cotas e gerar apenas para revisao"
@@ -29,7 +28,7 @@ on:
         default: false
         type: boolean
       max_image_calls:
-        description: "Limite APROVADO (1-48); exemplo atual requer 26. Default 12 NÃO basta."
+        description: "Limite APROVADO (1-48); Otaku atual maximo 30. Default 12 NÃO basta."
         required: true
         default: 12
         type: number
@@ -161,7 +160,8 @@ jobs:
           python - <<'PY'
           import os
           from pathlib import Path
-          from videoforge.generators.autoeditor import load_manifest, plan
+          from videoforge.generators.autoeditor import (load_manifest, plan,
+              OTAKU_BR_IMAGE_CALL_CAP)
           from videoforge.production.scene_layers import MAX_IMAGE_REQUESTS
           root=Path.cwd().resolve()
           supplied=Path(os.environ["JOB_MANIFEST"])
@@ -178,6 +178,8 @@ jobs:
           if cap < 1 or cap > MAX_IMAGE_REQUESTS:
               raise SystemExit("AUTOEDITOR_RENDER_BUDGET_INVALID")
           manifest=load_manifest(full)
+          if manifest["canal"] == "otaku-br" and cap > OTAKU_BR_IMAGE_CALL_CAP:
+              raise SystemExit("AUTOEDITOR_OTAKU_IMAGE_AUTHORIZATION_CAP_EXCEEDED")
           expected=plan(manifest)["planned_image_calls"]
           if cap < expected:
               raise SystemExit("AUTOEDITOR_RENDER_BUDGET_TOO_LOW_NEED_"+str(expected))

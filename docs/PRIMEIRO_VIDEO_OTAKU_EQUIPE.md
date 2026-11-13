@@ -138,3 +138,19 @@ O verificador de prontidão agora identifica manifestos com ID terminado em
 validação privada do Gerente/Subgerente e não autoriza geração de imagens,
 renderização ou publicação; os demais manifestos também continuam exigindo
 proveniência autenticada.
+
+### Primeiro Otaku: manifesto explicitamente selecionado e teto de 30 imagens (13/11/2026)
+
+A autorização atual cobre no máximo **30 solicitações de imagem** para
+`otaku-br` neste primeiro MP4 de revisão. O preflight protegido do workflow
+`autoeditor-generator.yml` e o executor Python bloqueiam `max_image_calls > 30`
+para esse canal **antes de qualquer chamada ao Proxy ou TTS**; demais canais
+conservam seus próprios limites. O formulário de `workflow_dispatch` não
+sugere mais automaticamente o manifesto genérico
+`geradores/autoeditor/exemplo-manifesto.json`: o proprietário deve informar
+explicitamente o caminho do manifesto aprovado. O planejamento automático por
+`push` continua somente offline e pode usar o rascunho como exemplo.
+
+Essa proteção **não** comprova decisão dos agentes nem cota disponível, não
+executa geração por `push`, não contorna o Environment `proxy-runtime` e
+não autoriza publicação no YouTube.
