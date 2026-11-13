@@ -12,6 +12,7 @@ from unittest.mock import patch
 from videoforge.generators import build_generator_plan, load_generator
 from videoforge.generators.autoeditor import (
     AUTOEDITOR_COMMIT, AutoEditorBlocked, IMAGE_MODEL, MAX_IMAGES,
+    OTAKU_BR_IMAGE_CALL_CAP,
     build_remotion_props, generate_images, load_manifest, plan, produce,
     real_timing, validate_manifest,
 )
@@ -221,6 +222,41 @@ class TestAutoEditorGenerator(unittest.TestCase):
         self.assertEqual(report["status"], "quota_not_observed")
         self.assertFalse(report["429_cause_proven"])
         self.assertEqual(report["text_generations"], 0)
+
+    def test_otaku_render_never_exceeds_owner_30_image_authorization(self):
+        self.assertEqual(OTAKU_BR_IMAGE_CALL_CAP, 30)
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = Path(tmp) / "otaku-pilot"
+            with patch.dict(os.environ, {"VIDEOFORGE_AUTOEDITOR_RENDER_AUTHORIZED": "yes"}):
+                for cap in (31, 48):
+                    with self.subTest(max_calls=cap), self.assertRaisesRegex(
+                            AutoEditorBlocked, "OTAKU_IMAGE_AUTHORIZATION_CAP_EXCEEDED"):
+                        produce(self.manifest, destination=dest,
+                                motion_root=Path(tmp), job_id="otaku-pilot",
+                                max_calls=cap, proxy=ErrorProxy())
+                # 30 is allowed by consent, but an unavailable account still
+                # blocks BEFORE any TTS or paid image request.
+                with patch("videoforge.generators.autoeditor.summarize_quota",
+                           return_value={"eligible_accounts": 0}):
+                    with self.assertRaisesRegex(AutoEditorBlocked,
+                                                "PROXY_ACCOUNT_NOT_ELIGIBLE"):
+                        produce(self.manifest, destination=dest,
+                                motion_root=Path(tmp), job_id="otaku-pilot",
+                                max_calls=30, proxy=ErrorProxy())
+            self.assertFalse(dest.exists())
+
+    def test_manual_render_requires_explicit_manifest_path(self):
+        workflow = (ROOT / ".github/workflows/autoeditor-generator.yml").read_text(
+            encoding="utf-8")
+        manual_form = workflow.split("  workflow_dispatch:", 1)[1].split(
+            "\npermissions:", 1)[0]
+        manifest_field = manual_form.split("      manifest:", 1)[1].split(
+            "      authorize_render:", 1)[0]
+        self.assertIn("required: true", manifest_field)
+        self.assertNotIn("default:", manifest_field)
+        self.assertIn("OTAKU_BR_IMAGE_CALL_CAP", workflow)
+        self.assertIn("AUTOEDITOR_OTAKU_IMAGE_AUTHORIZATION_CAP_EXCEEDED", workflow)
+        self.assertIn("github.event_name == 'workflow_dispatch'", workflow)
 
     def test_no_arbitrary_source_file_on_bad_manifest_path(self):
         with tempfile.TemporaryDirectory() as tmp:
