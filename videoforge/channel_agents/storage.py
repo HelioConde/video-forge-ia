@@ -11,7 +11,7 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[2]
-SLUG = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\\Z")
+SLUG = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 class ChannelStorageError(ValueError):
@@ -55,12 +55,17 @@ def channel_output_file(channel: str, destination: Path, *, root: Path = ROOT,
     resolved = target.resolve()
     if resolved == resolved_base or not resolved.is_relative_to(resolved_base):
         raise ChannelStorageError("CHANNEL_STORAGE_CROSS_CHANNEL_PATH")
-    # Do not permit symlinks, even ones that resolve back inside this channel.
+    # Examine the lexical path, not just resolved pieces. A symlink
+    # redirecting to ANOTHER path inside the same channel is also forbidden.
+    try:
+        relative = target.relative_to(target_root)
+    except ValueError:
+        raise ChannelStorageError("CHANNEL_STORAGE_CROSS_CHANNEL_PATH") from None
     current = target_root
-    for part in resolved.relative_to(resolved_base).parts:
+    for part in relative.parts:
+        if part in (".", ".."):
+            raise ChannelStorageError("CHANNEL_STORAGE_CROSS_CHANNEL_PATH")
         current = current / part
         if current.is_symlink():
             raise ChannelStorageError("CHANNEL_STORAGE_SYMLINK_NOT_ALLOWED")
-    if target.is_symlink():
-        raise ChannelStorageError("CHANNEL_STORAGE_SYMLINK_NOT_ALLOWED")
     return target
