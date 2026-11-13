@@ -1,5 +1,21 @@
 # Arquitetura proposta — VideoForge AI
 
+## Manifesto provisório de vídeo do Otaku Multicena — não prova de execução
+
+`canal/otaku-br/videos/spy-family-2027-preview-rascunho/manifest.json`
+propõe seis cenas ilustradas, narração original de comentário e 12
+solicitações de imagens no total: seis cenas-mãe e seis edições RGBA,
+sem camadas separadas em cenas estritamente gráficas. A mesma âncora
+visual é aplicada às cenas posteriores por edição do próprio Proxy;
+o renderizador mantém revisão visual humana independente.
+
+Esse manifesto é **provisório e produzido pelo assistente**: não
+conclui pesquisa/seleção de agentes, reserva, revisão editorial, nem
+aprova custos. O workflow de prontidão verifica o limite e continua
+recusando proveniência ou aprovação inexistentes. Somente um
+`workflow_dispatch` manual autorizado pode executar render para
+revisão, sem upload; não disparar via push ou nome de commit.
+
 ## Antirrepetição de vídeos e temas relacionados em todos os canais
 
 `videoforge/channel_agents/dedup.py:assert_unique` continua exigindo
