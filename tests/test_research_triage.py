@@ -63,8 +63,12 @@ class ResearchTriageTests(TestCase):
         self.assertEqual(report["topics_reserved"], 0)
         self.assertEqual(report["proxy_calls"], 0)
         self.assertFalse(report["publish_enabled"])
-        self.assertEqual(len(report["signals"]), 3)
+        self.assertEqual(len(report["signals"]), len(self.packet["signals"]))
+        self.assertGreaterEqual(len(report["signals"]), 3)
         by_id = {x["signal_id"]: x for x in report["signals"]}
+        self.assertIn("jujutsu-kenjaku-short-11nov", by_id)
+        self.assertIn("hunter-killua-illumi-11nov", by_id)
+        self.assertIn("dragonball-goku-kaioshin-9nov", by_id)
         self.assertEqual(by_id["jojo-sbr-ep8-noticias-nov"]["series_title_mentions"], 2)
         self.assertEqual(by_id["jojo-sbr-ep8-noticias-nov"]
                          ["analytics_samples_with_minimum_fields"], 2)

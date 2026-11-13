@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest import TestCase, main, mock
 
 from videoforge.channel_agents.team import (
-    EditorialTeamError, audit_candidates, run_team,
+    EditorialTeamError, audit_candidates, public_discovery_queries, run_team,
 )
 
 CID = "UCXGYTuBYn-0Ziqin5ajKhOw"
@@ -128,6 +128,26 @@ class TestEditorialTeam(TestCase):
         self.assertEqual(result["choices_from_assistant"], 0)
         self.assertIn(result["chosen_topic"]["id"], {"idea-a", "idea-b"})
         self.assertEqual(result["deputy"]["accepted"], 2)
+
+    def test_public_search_queries_use_fresh_sources_and_real_channel_evidence(self):
+        research = {"signals": [
+            {"series": "Death Note", "title_aliases": ["Death Note"]},
+            {"series": "JoJo - Steel Ball Run",
+             "title_aliases": ["JoJo", "Steel Ball Run"]},
+            {"series": "Hunter x Hunter",
+             "title_aliases": ["Hunter x Hunter"]},
+            {"series": "Dragon Ball", "title_aliases": ["Dragon Ball"]},
+        ]}
+        queries = public_discovery_queries(
+            snapshot=inventory(), research=research,
+            paused_animes=["Death Note"])
+        self.assertEqual(queries, ["Steel Ball Run", "Hunter x Hunter"])
+        self.assertEqual(len(inventory()["videos"]), 4)
+        with self.assertRaisesRegex(EditorialTeamError,
+                                    "TEAM_NO_FRESH_PUBLIC_DISCOVERY_QUERY"):
+            public_discovery_queries(snapshot=inventory(),
+                research={"signals": research["signals"][:1]},
+                paused_animes=["Death Note"])
 
     def test_researcher_not_assistant_generates_all_candidates(self):
         data = inventory()

@@ -96,6 +96,24 @@ def validate_research(data: object, *, channel: str, channel_id: str,
                            or len(alias.strip()) < 3 for alias in aliases)
                     or len({alias.casefold().strip() for alias in aliases}) != len(aliases)):
                 raise ExternalResearchError("RESEARCH_TITLE_ALIASES_INVALID")
+        momentum = row.get("public_momentum")
+        if momentum is not None:
+            if (not isinstance(momentum, dict)
+                    or set(momentum) != {"provider", "observed_on", "video_id",
+                                        "views_per_hour", "observed_views"}
+                    or momentum.get("provider") != "vidiq"
+                    or momentum.get("observed_on") != data["researched_on"]
+                    or not isinstance(momentum.get("video_id"), str)
+                    or not re.fullmatch(r"[A-Za-z0-9_-]{11}", momentum["video_id"])
+                    or type(momentum.get("observed_views")) is not int
+                    or not 0 <= momentum["observed_views"] < 10 ** 12
+                    or not isinstance(momentum.get("views_per_hour"), (int, float))
+                    or isinstance(momentum["views_per_hour"], bool)
+                    or not 0 <= momentum["views_per_hour"] < 1_000_000_000
+                    or not isinstance(row.get("source"), dict)
+                    or row["source"].get("url") !=
+                    "https://www.youtube.com/watch?v=" + momentum["video_id"]):
+                raise ExternalResearchError("RESEARCH_PUBLIC_MOMENTUM_INVALID")
         if row.get("editorial_status") != "unranked_requires_channel_metrics":
             raise ExternalResearchError("RESEARCH_SIGNAL_CANNOT_RANK")
         source = row.get("source")
@@ -141,6 +159,21 @@ def latest_research(*, root: Path, channel: str, channel_id: str,
         raise ExternalResearchError("RESEARCH_FILENAME_DATE_MISMATCH")
     return validate_research(data, channel=channel, channel_id=channel_id,
                              as_of=today)
+
+
+def fresh_research(*, root: Path, channel: str, channel_id: str,
+                   as_of: date | None = None) -> dict:
+    """Require ChatGPT public research performed today or yesterday.
+
+    Stale content cannot be represented as a current trend. This helper does
+    not call the network, OAuth, Codex Proxy, or generate any media.
+    """
+    today = as_of or date.today()
+    data = latest_research(root=root, channel=channel, channel_id=channel_id,
+                           as_of=today)
+    if data is None or (today - date.fromisoformat(data["researched_on"])).days > 1:
+        raise ExternalResearchError("RESEARCH_FRESH_CONTEXT_REQUIRED")
+    return data
 
 
 def main(argv=None) -> int:
