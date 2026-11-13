@@ -8,6 +8,8 @@ on:
       - geradores/autoeditor/exemplo-manifesto.json
       - config/autoeditor-once-2026-11-12.json
       - config/autoeditor-visual-consistency-once-2026-11-12.json
+      - 'canal/otaku-br/videos/**/manifest.json'
+      - '.github/workflows/autoeditor-generator.yml'
   workflow_dispatch:
     inputs:
       action:
@@ -44,8 +46,8 @@ concurrency:
 jobs:
   plan:
     if: >-
-      inputs.action == 'plan' ||
-      (github.event_name == 'push' && !startsWith(github.event.head_commit.message, 'test(autoeditor): one-shot user-authorized render 2026-11-12'))
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.action == 'plan')
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -58,7 +60,7 @@ jobs:
       - name: Gerar plano sem IA, sem imagens e sem upload
         shell: bash
         env:
-          JOB_MANIFEST: ${{ inputs.manifest || 'geradores/autoeditor/exemplo-manifesto.json' }}
+          JOB_MANIFEST: ${{ inputs.manifest || 'canal/otaku-br/videos/spy-family-2027-preview-rascunho/manifest.json' }}
         run: |
           set -euo pipefail
           python - <<'PY'
