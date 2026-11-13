@@ -123,6 +123,12 @@ class ExternalResearchTests(TestCase):
                     ExternalResearchError, "RESEARCH_PUBLIC_MOMENTUM_INVALID"):
                 validate_research(packet, channel="otaku-br",
                                   channel_id=CID, as_of=date(2026, 11, 12))
+        record["public_momentum"] = base
+        record["source"] = None
+        with self.assertRaisesRegex(ExternalResearchError,
+                                    "RESEARCH_PUBLIC_MOMENTUM_INVALID"):
+            validate_research(packet, channel="otaku-br",
+                              channel_id=CID, as_of=date(2026, 11, 12))
 
     def test_missing_packet_returns_none_without_inventing_data(self):
         with TemporaryDirectory() as folder:
