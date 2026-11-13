@@ -47,6 +47,8 @@ FPS = 30
 MIN_SHORT_SECONDS = 90
 MAX_SHORT_SECONDS = 180
 MAX_IMAGES = 12
+# Explicit authorization for the first Otaku Multicena review MP4 only.
+OTAKU_BR_IMAGE_CALL_CAP = 30
 IMAGE_MODEL = "gpt-image-2"
 AUTOEDITOR_COMMIT = "ec85db5bc74455122e4501aba05bd2dd3fd0df2c"
 ID = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
@@ -553,6 +555,8 @@ def produce(manifest: dict, *, destination: Path, motion_root: Path,
             or not 1 <= max_calls <= MAX_IMAGE_REQUESTS
             or expected_calls > max_calls):
         raise AutoEditorBlocked("AUTOEDITOR_IMAGE_BUDGET_INVALID")
+    if manifest["canal"] == "otaku-br" and max_calls > OTAKU_BR_IMAGE_CALL_CAP:
+        raise AutoEditorBlocked("AUTOEDITOR_OTAKU_IMAGE_AUTHORIZATION_CAP_EXCEEDED")
     client = proxy or ProxyClient(timeout=240)
     # eligible_now only confirms account selection, NOT permission to generate.
     # Inspect the existing local quota snapshot without contacting the provider.
