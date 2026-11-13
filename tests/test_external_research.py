@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase
 
 from videoforge.channel_agents.external_research import (
-    ExternalResearchError, latest_research, validate_research,
+    ExternalResearchError, fresh_research, latest_research, validate_research,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,6 +86,43 @@ class ExternalResearchTests(TestCase):
             with self.assertRaisesRegex(ExternalResearchError, "FILE_INVALID"):
                 latest_research(root=root, channel="otaku-br", channel_id=CID,
                                 as_of=date(2026, 11, 12))
+
+    def test_fresh_research_expires_after_next_calendar_day(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            target = root / "canal" / "otaku-br" / "editorial" / "pesquisas"
+            target.mkdir(parents=True)
+            (target / "2026-11-12.json").write_text(
+                json.dumps(valid_packet()), encoding="utf-8")
+            self.assertEqual(fresh_research(root=root, channel="otaku-br",
+                channel_id=CID, as_of=date(2026, 11, 13))["researched_on"],
+                "2026-11-12")
+            with self.assertRaisesRegex(ExternalResearchError,
+                                        "RESEARCH_FRESH_CONTEXT_REQUIRED"):
+                fresh_research(root=root, channel="otaku-br",
+                               channel_id=CID, as_of=date(2026, 11, 14))
+
+    def test_public_vph_observation_requires_matching_video_url_and_date(self):
+        packet = valid_packet()
+        record = packet["signals"][0]
+        record["source"] = {"publisher": "Nadash Editz (YouTube)",
+            "url": "https://www.youtube.com/watch?v=gt6gf8fIRc4",
+            "published_on": "2026-11-11"}
+        base = {"provider": "vidiq", "observed_on": "2026-11-12",
+                "video_id": "gt6gf8fIRc4", "views_per_hour": 8458.75,
+                "observed_views": 216826}
+        record["public_momentum"] = base
+        self.assertEqual(validate_research(packet, channel="otaku-br",
+                         channel_id=CID, as_of=date(2026, 11, 12)), packet)
+        for changes in ({"observed_on": "2026-11-10"},
+                        {"video_id": "different11"},
+                        {"views_per_hour": "infinite"},
+                        {"observed_views": -2}):
+            record["public_momentum"] = {**base, **changes}
+            with self.subTest(changes=changes), self.assertRaisesRegex(
+                    ExternalResearchError, "RESEARCH_PUBLIC_MOMENTUM_INVALID"):
+                validate_research(packet, channel="otaku-br",
+                                  channel_id=CID, as_of=date(2026, 11, 12))
 
     def test_missing_packet_returns_none_without_inventing_data(self):
         with TemporaryDirectory() as folder:
