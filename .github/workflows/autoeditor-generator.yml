@@ -143,6 +143,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python -m unittest discover -s tests -p 'test_channel_storage.py' -v
           python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
           python -m unittest discover -s tests -p 'test_visual_lock.py' -v
           python -m unittest discover -s tests -p 'test_scene_layers.py' -v
@@ -216,7 +217,6 @@ jobs:
           from pathlib import Path
           from videoforge.proxy.private_state import stage_private_state
           from videoforge.generators.autoeditor import load_manifest,plan
-          from videoforge.channel_agents.storage import channel_output_root
           root=Path.cwd().resolve()
           path=(root/Path(os.environ["JOB_MANIFEST"])).resolve()
           if not (path.is_relative_to(root/"geradores") or path.is_relative_to(root/"canal")):
