@@ -56,6 +56,27 @@ class ChannelStorageTests(TestCase):
             channel_output_file("otaku-br", destination / "link" / "file.json",
                                 root=self.root)
 
+    def test_operational_workflows_are_scoped_and_protected(self):
+        root = Path(__file__).resolve().parents[1]
+        editorial = (root / ".github/workflows/editorial-team-research.yml"
+                     ).read_text(encoding="utf-8")
+        manager = (root / ".github/workflows/channel-manager-analysis.yml"
+                   ).read_text(encoding="utf-8")
+        render = (root / ".github/workflows/autoeditor-generator.yml"
+                  ).read_text(encoding="utf-8")
+        self.assertIn("output/otaku-br/editorial/decisao.json", editorial)
+        self.assertNotIn("output/editorial-team/decisao.json", editorial)
+        self.assertIn("videoforge-channels/otaku-br/editorial", editorial)
+        self.assertIn("secure_report encrypt", editorial)
+        self.assertIn("videoforge-channels/$TARGET_CHANNEL/editorial", manager)
+        self.assertIn("channel_output_root(obj[\"channel\"], root=root)", render)
+        self.assertIn("env.write(\"VIDEOFORGE_CHANNEL=\"+manifest[\"canal\"]", render)
+        self.assertIn("output/$VIDEOFORGE_CHANNEL/videos/", render)
+        self.assertIn("output/*/videos/autoeditor-vf-", render)
+        self.assertNotIn("output/autoeditor-vf-", render)
+        self.assertIn("inputs.authorize_render == true", render)
+        self.assertIn("github.event_name == 'workflow_dispatch'", render)
+
     def test_channel_config_mismatch_blocks(self):
         path = self.root / "canal" / "gamer" / "canal.json"
         path.write_text(json.dumps({"id": "otaku-br"}), encoding="utf-8")
