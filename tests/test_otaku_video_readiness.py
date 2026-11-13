@@ -109,6 +109,9 @@ class FirstOtakuVideoTests(TestCase):
             max_image_calls=12)
         self.assertEqual(report["planned_image_requests"], 12)
         self.assertEqual(report["budget_shortfall"], 0)
+        self.assertEqual(report["candidate_manifest"], "provisional_draft")
+        self.assertIn("PROVISIONAL_DRAFT_NOT_SELECTED_BY_TEAM",
+                      report["blockers"])
         self.assertTrue(report["manifest_structurally_valid"])
         self.assertFalse(report["can_render_now"])
         self.assertFalse(report["private_source_verified"])
