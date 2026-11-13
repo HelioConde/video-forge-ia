@@ -343,6 +343,97 @@ class TestEditorialRequestSize(TestCase):
                     trends=trends, model="mock-model", client=proxy, authorized=True)
         self.assertEqual(proxy.requests, [])
 
+    def test_context_reduction_keeps_recent_and_top_examples_for_manager_audit(self):
+        import json
+        import os
+        from videoforge.channel_agents.ideation import (
+            RECENT_VIDEO_SAMPLE, TOP_VIDEO_SAMPLE, RESERVATION_SAMPLE,
+            TREND_SAMPLE, EXTERNAL_SIGNAL_SAMPLE,
+        )
+        propose, Proxy, manager, reservations = self._base()
+        data = inventory()
+        data["videos"] = [
+            video(i, "One Piece: analise e curiosidades episodio " + str(i) +
+                  " narradas em detalhes para o canal otaku multicena",
+                  100 + i, seconds=100)
+            for i in range(120)
+        ]
+        # An older high-performer must survive top-view sampling.
+        data["videos"][85]["metrics"]["views"] = 900_000
+        data["count"] = len(data["videos"])
+        reservations["entries"] = [{
+            "topic_key": "tema-" + str(i),
+            "titulo_provisorio": "Titulo anterior " + str(i),
+        } for i in range(150)]
+        trends = {"results": [{
+            "title": "Tema externo " + str(i),
+            "youtube_video_id": "abcdefghijk",
+            "source": "youtube-data-v3/search.list",
+        } for i in range(20)]}
+        external = {
+            "researched_on": "2026-11-12",
+            "signals": [{
+                "id": "sinal-" + str(i),
+                "series": "One Piece",
+                "verified_fact": "Fato para investigar",
+                "source": {"url": "https://example.org/source", "publisher": "Exemplo"},
+            } for i in range(12)],
+        }
+        proxy = Proxy()
+        with mock.patch.dict(os.environ, {"CHANNEL_IDEATION_APPROVED": "yes"}):
+            result = propose(manager=manager, snapshot=data, reservations=reservations,
+                             trends=trends, external_research=external,
+                             model="mock-model", client=proxy, authorized=True)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(len(proxy.requests), 1)
+        sent = json.loads(proxy.requests[0]["messages"][1]["content"])
+        self.assertLessEqual(len(sent["past_videos"]),
+                             RECENT_VIDEO_SAMPLE + TOP_VIDEO_SAMPLE)
+        self.assertEqual(sent["total_video_history"], 120)
+        sampled_ids = {row["id"] for row in sent["past_videos"]}
+        self.assertEqual({row["id"] for row in data["videos"][:16]} - sampled_ids,
+                         set())
+        self.assertIn(data["videos"][85]["id"], sampled_ids)
+        self.assertEqual(len(sent["past_reservations"]), RESERVATION_SAMPLE)
+        self.assertEqual(sent["past_reservations"][-1]["topic"], "tema-149")
+        self.assertEqual(sent["total_reservations"], 150)
+        self.assertEqual(len(sent["external_metadata"]), TREND_SAMPLE)
+        self.assertEqual(len(sent["external_research_context"]["signals"]),
+                         EXTERNAL_SIGNAL_SAMPLE)
+        self.assertIn("AMOSTRAS", proxy.requests[0]["messages"][0]["content"])
+        # Sampling is non-mutating: full snapshot/ledger remain available to QA.
+        self.assertEqual(len(data["videos"]), 120)
+        self.assertEqual(len(reservations["entries"]), 150)
+
+    def test_compact_research_payload_is_smaller_than_previous_100_video_context(self):
+        import json
+        import os
+        from videoforge.channel_agents.ideation import MAX_EDITORIAL_REQUEST_BYTES
+        propose, Proxy, manager, reservations = self._base()
+        data = inventory()
+        data["videos"] = [
+            video(i, "Analise de anime e impacto narrativo no personagem " +
+                  str(i) + " com contexto adicional para pesquisa", 1000 + i)
+            for i in range(120)
+        ]
+        reservations["entries"] = [{
+            "topic_key": "anime-titulo-" + str(i),
+            "titulo_provisorio": "Uma curiosidade do anime " + str(i),
+        } for i in range(300)]
+        proxy = Proxy()
+        with mock.patch.dict(os.environ, {"CHANNEL_IDEATION_APPROVED": "yes"}):
+            propose(manager=manager, snapshot=data, reservations=reservations,
+                    model="mock-model", client=proxy, authorized=True)
+        sent = proxy.requests[0]
+        size = len(json.dumps(sent, ensure_ascii=False,
+                              separators=(",", ":")).encode("utf-8"))
+        baseline = len(json.dumps({
+            "videos": data["videos"][:100],
+            "reservations": reservations["entries"][:300],
+        }, ensure_ascii=False).encode("utf-8"))
+        self.assertLess(size, baseline // 2)
+        self.assertLess(size, MAX_EDITORIAL_REQUEST_BYTES)
+
     def test_small_request_429_is_not_retried(self):
         import os
         from videoforge.channel_agents.ideation import EditorialIdeationError
