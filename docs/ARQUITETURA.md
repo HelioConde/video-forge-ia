@@ -1,5 +1,32 @@
 # Arquitetura proposta — VideoForge AI
 
+## Isolamento de dados por canal — obrigatório
+
+O diretório `canal/<id>/` é a identidade de cada canal e detém suas
+fontes públicas, preferências, pautas e reservas persistentes. Resultados
+temporários são separados por namespace: `output/<id>/editorial/` e
+`output/<id>/videos/<job-id>/`, sempre ignorados pelo Git.
+O gerenciador de destinos `videoforge/channel_agents/storage.py`
+confirma `canal/<id>/canal.json`, rejeita canal inexistente, destino
+de outro canal, travessia de caminho e links simbólicos. O gerente
+só aceita escrita no espaço próprio; a equipe editorial salva a decisão
+em área própria antes de cifrar e apagar o texto aberto; o pipeline de
+vídeo grava todos os assets e avaliações de um job dentro do canal
+identificado no manifesto já validado.
+
+Em modo autenticado, métricas privadas e relatórios de Analytics ficam
+dentro de `RUNNER_TEMP/videoforge-channels/<id>/editorial/`; não há
+commit, exportação pública ou memória coletiva dos dados sensíveis.
+Artifacts privados de decisão permanecem cifrados e temporários,
+associados ao canal e ID do run. O dashboard `site/data/status.json`
+é uma **projeção pública sanitizada** com várias seções de canais,
+não um armazenamento editorial compartilhado.
+A equipe e o código reutilizável continuam globais, mas suas
+evidências e saídas sempre têm um único canal de origem.
+Esta separação de diretórios **não** liga IA, não disponibiliza
+cota do Proxy e não aprova produção/pagamento/publicação.
+
+
 ## Handoff editorial cifrado entre agentes e briefing
 
 A pesquisa de pauta por agentes exige agora dispatch manual do

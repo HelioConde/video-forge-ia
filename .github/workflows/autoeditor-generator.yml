@@ -65,12 +65,14 @@ jobs:
           import json,os
           from pathlib import Path
           from videoforge.generators.autoeditor import load_manifest,plan
+          from videoforge.channel_agents.storage import channel_output_root
           root=Path.cwd().resolve()
           path=(root/Path(os.environ["JOB_MANIFEST"])).resolve()
           if not (path.is_relative_to(root/"geradores") or path.is_relative_to(root/"canal")):
               raise SystemExit("AUTOEDITOR_MANIFEST_PATH_NOT_ALLOWED")
           obj=plan(load_manifest(path))
-          dest=root/"output"/"autoeditor-plan.json"
+          dest=(channel_output_root(obj["channel"], root=root) /
+                "editorial" / "autoeditor-plan.json")
           dest.parent.mkdir(parents=True,exist_ok=True)
           dest.write_text(json.dumps(obj,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
           print("AUTOEDITOR_PLAN_ONLY_NO_GENERATION_NO_UPLOAD")
@@ -78,7 +80,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: autoeditor-plan-${{ github.run_id }}
-          path: output/autoeditor-plan.json
+          path: output/*/editorial/autoeditor-plan.json
           retention-days: 7
           if-no-files-found: error
 
@@ -141,6 +143,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python -m unittest discover -s tests -p 'test_channel_storage.py' -v
           python -m unittest discover -s tests -p 'test_autoeditor_generator.py' -v
           python -m unittest discover -s tests -p 'test_visual_lock.py' -v
           python -m unittest discover -s tests -p 'test_scene_layers.py' -v
@@ -176,6 +179,8 @@ jobs:
           expected=plan(manifest)["planned_image_calls"]
           if cap < expected:
               raise SystemExit("AUTOEDITOR_RENDER_BUDGET_TOO_LOW_NEED_"+str(expected))
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write("VIDEOFORGE_CHANNEL="+manifest["canal"]+"\n")
           print("AUTOEDITOR_RENDER_BUDGET_EXPLICITLY_SUFFICIENT_"+str(expected))
           print("AUTOEDITOR_REVIEW_PREVIEW_ONLY_NOT_AGENT_SELECTED_OR_PUBLISHED")
           PY
@@ -250,7 +255,7 @@ jobs:
           PY
           python -m videoforge.generators.autoeditor \
             --action produce --manifest "$JOB_MANIFEST" \
-            --output "$GITHUB_WORKSPACE/output/autoeditor-$PILOT_JOB_ID" \
+            --output "$GITHUB_WORKSPACE/output/$VIDEOFORGE_CHANNEL/videos/autoeditor-$PILOT_JOB_ID" \
             --motion-root "$GITHUB_WORKSPACE/autoeditor-source/motion-remotion" \
             --job-id "$PILOT_JOB_ID" --max-image-calls "$IMAGE_CALL_LIMIT"
       - name: Verificar MP4, procedencia, referencia visual e bloqueio de upload
@@ -265,7 +270,8 @@ jobs:
           from pathlib import Path
           from videoforge.production.image_policy import validate_generated_visuals
           from videoforge.production.quality_gate import inspect_media
-          root=Path("output")/("autoeditor-"+os.environ["PILOT_JOB_ID"])
+          root=(Path("output")/os.environ["VIDEOFORGE_CHANNEL"]/"videos"/
+                ("autoeditor-"+os.environ["PILOT_JOB_ID"]))
           report=json.loads((root/"manifest.json").read_text(encoding="utf-8"))
           images=json.loads((root/"imagens.json").read_text(encoding="utf-8"))
           from videoforge.production.visual_lock import verify_anchor_trace
@@ -320,23 +326,23 @@ jobs:
         with:
           name: autoeditor-preview-${{ github.run_id }}
           path: |
-            output/autoeditor-vf-${{ github.run_id }}/video.mp4
-            output/autoeditor-vf-${{ github.run_id }}/scene-*.png
-            output/autoeditor-vf-${{ github.run_id }}/scene-*/**
-            output/autoeditor-vf-${{ github.run_id }}/scene-layers.json
-            output/autoeditor-vf-${{ github.run_id }}/qa-camadas.json
-            output/autoeditor-vf-${{ github.run_id }}/qa-motion.json
-            output/autoeditor-vf-${{ github.run_id }}/imagens.json
-            output/autoeditor-vf-${{ github.run_id }}/manifest.json
-            output/autoeditor-vf-${{ github.run_id }}/qa-editorial.json
-            output/autoeditor-vf-${{ github.run_id }}/qa-tecnico.json
-            output/autoeditor-vf-${{ github.run_id }}/qa-imagens.json
-            output/autoeditor-vf-${{ github.run_id }}/deduplicacao.json
-            output/autoeditor-vf-${{ github.run_id }}/roteiro.json
-            output/autoeditor-vf-${{ github.run_id }}/storyboard.json
-            output/autoeditor-vf-${{ github.run_id }}/legendas.json
-            output/autoeditor-vf-${{ github.run_id }}/briefing.json
-            output/autoeditor-vf-${{ github.run_id }}/plano.json
-            output/autoeditor-vf-${{ github.run_id }}/remotion-props.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/video.mp4
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/scene-*.png
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/scene-*/**
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/scene-layers.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/qa-camadas.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/qa-motion.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/imagens.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/manifest.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/qa-editorial.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/qa-tecnico.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/qa-imagens.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/deduplicacao.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/roteiro.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/storyboard.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/legendas.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/briefing.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/plano.json
+            output/*/videos/autoeditor-vf-${{ github.run_id }}/remotion-props.json
           retention-days: 7
           if-no-files-found: error

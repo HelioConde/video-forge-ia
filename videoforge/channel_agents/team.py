@@ -26,6 +26,7 @@ from .strategy import analyse_performance
 from .youtube import YouTubeReadOnly, YouTubeReadError, oauth_access_token
 from .external_research import (ExternalResearchError, fresh_research,
                                 validate_research)
+from .storage import ChannelStorageError, channel_output_file
 
 
 class EditorialTeamError(ValueError):
@@ -334,6 +335,9 @@ def main(argv=None):
         raise SystemExit("TEAM_WINDOW_INVALID")
     try:
         policy = channel_policy(args.channel)
+        output = channel_output_file(args.channel, args.output, root=ROOT)
+        if output.exists() or output.is_symlink():
+            raise EditorialTeamError("TEAM_OUTPUT_ALREADY_EXISTS")
         # Reject stale or absent ChatGPT research before reading private YouTube
         # data or making a single generative call. A commit never starts research.
         external_research = fresh_research(
@@ -355,17 +359,15 @@ def main(argv=None):
         model = args.model
         if model == "auto":
             model = select_editorial_model(proxy.models())
-        stage = Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "videoforge-editorial-stage"
+        stage = (Path(os.environ.get("RUNNER_TEMP", "/tmp")) /
+                 "videoforge-channels" / args.channel / "editorial" / "stage")
         report = run_team(channel=args.channel, snapshot=snapshot, trends=trends,
                           external_research=external_research,
                           client=proxy, model=model,
                           stage_dir=stage,
                           reporter=CheckReporter(channel=args.channel,
                                                  workflow_kind="editorial"))
-        output = args.output
-        if output.exists() or output.is_symlink():
-            raise EditorialTeamError("TEAM_OUTPUT_ALREADY_EXISTS")
-        output.parent.mkdir(parents=True, exist_ok=True)
+        output.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
                           encoding="utf-8")
         print("EDITORIAL_TEAM_DECISION_" + str(report["status"]).upper())
@@ -373,7 +375,7 @@ def main(argv=None):
         print("NO_IMAGES_NO_VIDEO_NO_PUBLISH")
         return 0 if report.get("chosen_topic") else 2
     except (EditorialTeamError, EditorialIdeationError,
-            ExternalResearchError, YouTubeReadError) as exc:
+            ExternalResearchError, ChannelStorageError, YouTubeReadError) as exc:
         # Only local, fixed policy codes can be printed. Never disclose the
         # OAuth response, model output, HTTP error body, token or prompt.
         # Error class alone hides whether the block is insufficient channel
@@ -382,7 +384,7 @@ def main(argv=None):
         # Both exception classes use local fixed, ASCII-only rejection
         # codes. Never print upstream Proxy/OAuth/provider messages.
         if not isinstance(exc, (EditorialTeamError, EditorialIdeationError,
-                                    ExternalResearchError)) or not (
+                                    ExternalResearchError, ChannelStorageError)) or not (
                 5 <= len(code) <= 90 and
                 all(ch in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for ch in code)):
             code = type(exc).__name__

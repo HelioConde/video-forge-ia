@@ -14,6 +14,7 @@ from videoforge.production.dispatcher import build_plan
 from videoforge.proxy.roles import plan_bindings
 from .strategy import select_idea
 from .youtube import oauth_access_token, YouTubeReadOnly, YouTubeReadError
+from .storage import channel_output_file, channel_output_root
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -117,10 +118,23 @@ def main(argv=None) -> int:
     parser.add_argument("--mode", choices=("offline", "youtube-readonly"), default="offline")
     parser.add_argument("--inventory", type=Path, help="Histórico com fontes YouTube, não um mock público")
     parser.add_argument("--candidates", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=Path("output/channel-manager/plan.json"))
+    parser.add_argument("--output", type=Path, help="Destino do próprio canal; dados privados só no runner")
     parser.add_argument("--days", type=int, default=90)
     args = parser.parse_args(argv)
     policy = channel_policy(args.channel)
+    if args.mode == "youtube-readonly":
+        import os
+        runner = os.environ.get("RUNNER_TEMP")
+        if not runner:
+            raise SystemExit("CHANNEL_PRIVATE_RUNNER_TEMP_REQUIRED")
+        private_base = Path(runner) / "videoforge-channels"
+    else:
+        private_base = None
+    target = args.output or (channel_output_root(
+        args.channel, private_base=private_base) / "editorial" / "plano-gerente.json")
+    output = channel_output_file(args.channel, target, private_base=private_base)
+    if output.exists() or output.is_symlink():
+        raise ValueError("CHANNEL_MANAGER_OUTPUT_ALREADY_EXISTS")
     if args.mode == "offline":
         if not args.inventory:
             raise SystemExit("OFFLINE_REQUIRES_REAL_OR_TEST_INVENTORY")
@@ -145,9 +159,9 @@ def main(argv=None) -> int:
     if not isinstance(proposals, list):
         raise ValueError("Lista de pautas inválida")
     report = build_editorial_plan(args.channel, snapshot=snapshot, candidate_rows=proposals)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n",
-                           encoding="utf-8")
+    output.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    output.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n",
+                      encoding="utf-8")
     print("CHANNEL_MANAGER_PLAN_"+report["status"].upper())
     print("NO_PROXY_CALLS_NO_VIDEO_UPLOADS")
     return 0
