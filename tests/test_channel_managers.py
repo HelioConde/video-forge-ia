@@ -364,6 +364,59 @@ class EditorialTests(TestCase):
         self.assertIsNone(result["selected"])
 
 
+class RelatedThemeSafetyTests(TestCase):
+    """One anti-repetition rule applies to each channel, never shared data."""
+
+    def test_all_five_channels_reject_related_character_and_theme(self):
+        for slug in ("otaku-br", "otaku-en", "gamer",
+                     "manu-kids", "alchemy-lab"):
+            with self.subTest(channel=slug):
+                cid = channel_policy(slug)["youtube_channel_id"]
+                history = {"history_complete": True, "channel_id": cid,
+                           "count": 1, "videos": [{
+                               "id": "ABCDEFG1234",
+                               "title": "Por que os olhos de Kurapika ficam VERMELHOS?"
+                           }]}
+                ledger = {"schema": "videoforge/channel-topic-reservations/v1",
+                          "channel_id": cid, "entries": []}
+                item = {"channel_id": cid, "anime": "Hunter x Hunter",
+                        "titulo_provisorio": "A força dos olhos de Kurapika!",
+                        "assunto": "olhos escarlates de Kurapika",
+                        "abordagem": "por que o olhar muda"}
+                with self.assertRaisesRegex(DuplicateTopic,
+                                            "TEMA_RELACIONADO_JA_PUBLICADO"):
+                    assert_unique(item, inventory=history, reservations=ledger)
+
+    def test_related_reserved_theme_blocked_even_with_different_title(self):
+        cid = CHANNEL
+        inv = snapshot([upload("A", "Um tema distante sobre culinaria")])
+        ledger = reservations()
+        ledger["entries"] = [{"topic_key": "one piece sanji comida",
+                               "titulo_provisorio":
+                               "One Piece: por que Sanji nunca desperdiça comida?"}]
+        item = {"channel_id": cid, "anime": "One Piece",
+                "titulo_provisorio": "One Piece: o que Sanji aprendeu sobre comida?",
+                "assunto": "valores de Sanji", "abordagem": "responsabilidade"}
+        with self.assertRaises(DuplicateTopic):
+            assert_unique(item, inventory=inv, reservations=ledger)
+
+    def test_different_original_subject_same_franchise_is_not_auto_duplicate(self):
+        cid = CHANNEL
+        inv = snapshot([upload("A", "One Piece: por que Sanji nunca desperdiça comida?")])
+        ledger = reservations()
+        new = {"channel_id": cid, "anime": "One Piece",
+               "titulo_provisorio": "One Piece: como Robin decifra os Poneglyphs?",
+               "assunto": "arqueologia de Robin", "abordagem": "escrita antiga"}
+        assert_unique(new, inventory=inv, reservations=ledger)
+
+    def test_incomplete_or_wrong_channel_inventory_still_fails_closed(self):
+        inv = snapshot([upload("A", "Spy x Family anuncia filme e temporada")])
+        inv["history_complete"] = False
+        with self.assertRaisesRegex(DuplicateTopic, "INCOMPLETO"):
+            assert_unique(candidate("Um assunto completamente diferente"),
+                          inventory=inv, reservations=reservations())
+
+
 class ProxyIdeationTests(TestCase):
     def test_proxy_never_called_without_explicit_authorization(self):
         class Proxy:
